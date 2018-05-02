@@ -289,3 +289,308 @@
 10:35:46||StarterContent/Textures/T_Ceramic_Tile_N.uasset|INST_NEW|Up|1525256348|0fb90cbac2f69a9b4e162d394204ba0a|233048|101437248occ8b83b46bc|4||201|0|0||||
 10:35:46||StarterContent/Textures/T_Chair_M.uasset|INST_NEW|Up|1525256336|d825ef5b41ae44a9d6db26ad416708b4|590112|101437252occ8b83b46bc|4||201|0|0||||
 10:35:48||StarterContent/Textures/T_Checker_Noise_M.uasset|INST_NEW|Up|1525256348|669d4a8812f7a358ea00de01ad32b212|175481|101437256occ8b83b46bc|4||201|0|0||||
+10:35:24||StarterContent/Textures/T_Brick_Hewn_Stone_N.uasset|INST_NEW|Up|1525256348|ed294532b79e3e4f4704284a3b3ed85b|9015678|101437280occ8b83b46bc|4||201|0|0||||
+10:35:48||StarterContent/Textures/T_Chair_N.uasset|INST_NEW|Up|1525256337|e147c6caefffa05d04ccdaa8b3e27b96|1954534|101437284occ8b83b46bc|4||201|0|0||||
+10:35:59||StarterContent/Textures/T_CobbleStone_Pebble_M.uasset|INST_NEW|Up|1525256348|e2f5db44f4c6eaa948b45bca23b256be|1334426|101437296occ8b83b46bc|4||201|0|0||||
+10:36:05||StarterContent/Textures/T_CobbleStone_Rough_D.uasset|INST_NEW|Up|1525256349|367eb48273805d97690e5d6eb0b8bd77|2956007|101437320occ8b83b46bc|4||201|0|0||||
+10:36:15||StarterContent/Textures/T_CobbleStone_Rough_N.uasset|INST_NEW|Up|1525256349|ad2305af36ca31c0182ff4b8ed98c7eb|2705398|101437336occ8b83b46bc|4||201|0|0||||
+10:36:31||StarterContent/Textures/T_CobbleStone_Pebble_D.uasset|INST_NEW|Up|1525256348|7e2da9daec7bfd7f60835ced07f1f961|11833562|101437352occ8b83b46bc|4||201|0|0||||
+10:36:25||StarterContent/Textures/T_CobbleStone_Smooth_D.uasset|INST_NEW|Up|1525256349|3507cc3114e89a984e196a256019dda6|6625496|101437380occ8b83b46bc|4||201|0|0||||
+10:36:50||StarterContent/Textures/T_CobbleStone_Pebble_N.uasset|INST_NEW|Up|1525256348|a4e897e043ee0fe149cc1f39b26535e7|11882898|101437392occ8b83b46bc|4||201|0|0||||
+10:36:32||StarterContent/Textures/T_CobbleStone_Smooth_M.uasset|INST_NEW|Up|1525256349|a36e322853b182e7d13b7bc4800d365d|5759685|101437408occ8b83b46bc|4||201|0|0||||
+10:36:50||StarterContent/Textures/T_CobbleStone_Smooth_N.uasset|INST_NEW|Up|1525256349|a6802bae718e24fb9ec098dd3714580a|8869147|101437452occ8b83b46bc|4||201|0|0||||
+10:37:42||StarterContent/Textures/T_Concrete_Grime_D.uasset|INST_NEW|Up|1525256349|e4cdca3219dd1df6ba97d00b6bf045da|10712204|101437480occ8b83b46bc|4||201|0|0||||
+10:36:59||StarterContent/Textures/T_Concrete_Panels_D.uasset|INST_NEW|Up|1525256349|6d49c1cce1acdafb09db6d2225b84f26|8533822|101437488occ8b83b46bc|4||201|0|0||||
+10:37:27||StarterContent/Textures/T_Concrete_Panels_N.uasset|INST_NEW|Up|1525256349|568c1ac6b0dddc249fc79846337e4a12|6570263|101437544occ8b83b46bc|4||201|0|0||||
+10:37:44||StarterContent/Textures/T_Concrete_Poured_N.uasset|INST_NEW|Up|1525256350|aef00a077f9ae6b59e868e4f4c4e28f0|7469725|101437568occ8b83b46bc|4||201|0|0||||
+10:38:07||StarterContent/Textures/T_Concrete_Tiles_D.uasset|INST_NEW|Up|1525256350|41c40d93588c9624bd19aebf1f4a5798|4976160|101437584occ8b83b46bc|4||201|0|0||||
+10:38:21||StarterContent/Textures/T_Concrete_Tiles_M.uasset|INST_NEW|Up|1525256350|604aad6bcd2ccdf16d9b7a58daa88299|5774407|101437612occ8b83b46bc|4||201|0|0||||
+10:38:55||StarterContent/Textures/T_Concrete_Tiles_Variation_M.uasset|INST_NEW|Up|1525256350|09c4f57d616d279b3e8e1943b337d8bc|7151|101437616occ8b83b46bc|4||201|0|0||||
+10:38:56||StarterContent/Textures/T_Concrete_Poured_D.uasset|INST_NEW|Up|1525256349|b00c46ab21b2ec43fd99de0689bffbf2|11623463|101437624occ8b83b46bc|4||201|0|0||||
+10:38:57||StarterContent/Textures/T_Door_M.uasset|INST_NEW|Up|1525256350|2e93a5ca9f56c4928af47fdc400ad138|558958|101437628occ8b83b46bc|4||201|0|0||||
+10:38:32||StarterContent/Textures/T_Concrete_Tiles_N.uasset|INST_NEW|Up|1525256350|f534a0680355a155e835bdfd903d5734|6621807|101437632occ8b83b46bc|4||201|0|0||||
+10:39:00||StarterContent/Textures/T_Dust_Particle_D.uasset|INST_NEW|Up|1525256350|b23474a8932cd4c100e4b2f37d7672b4|34649|101437636occ8b83b46bc|4||201|0|0||||
+10:38:59||StarterContent/Textures/T_Door_N.uasset|INST_NEW|Up|1525256350|e142c42e61679a2b6a59ac06259c41cd|1082954|101437640occ8b83b46bc|4||201|0|0||||
+10:39:04||StarterContent/Textures/T_Fire_SubUV.uasset|INST_NEW|Up|1525256350|7eb131b26f1f6b0a7f3c7dfe5ecc3784|532066|101437648occ8b83b46bc|4||201|0|0||||
+10:39:08||StarterContent/Textures/T_Fire_Tiled_D.uasset|INST_NEW|Up|1525256350|b724f7003ead79d78229d2884652f2ae|574944|101437652occ8b83b46bc|4||201|0|0||||
+10:39:11||StarterContent/Textures/T_Frame_M.uasset|INST_NEW|Up|1525256350|f844eb2cfa634103617d4c99e5718e86|541148|101437656occ8b83b46bc|4||201|0|0||||
+10:38:56||StarterContent/Textures/T_Detail_Rocky_N.uasset|INST_NEW|Up|1525256350|94c0868f80ca3b2e152ed6707cfb8f68|2875076|101437660occ8b83b46bc|4||201|0|0||||
+10:39:14||StarterContent/Textures/T_Gradinet_01.uasset|INST_NEW|Up|1525256350|04492cfcfb1c46bc0c056ac687f98de6|6383|101437664occ8b83b46bc|4||201|0|0||||
+10:39:01||StarterContent/Textures/T_Explosion_SubUV.uasset|INST_NEW|Up|1525256350|50b0d9b1fe2c37edf777eb23fc61aea6|3013663|101437672occ8b83b46bc|4||201|0|0||||
+10:39:13||StarterContent/Textures/T_Frame_N.uasset|INST_NEW|Up|1525256350|a87e13bf30e3bd622550b9ad5ae4ffb9|1257976|101437680occ8b83b46bc|4||201|0|0||||
+10:40:09||StarterContent/Textures/T_Ground_Gravel_D.uasset|INST_NEW|Up|1525256351|983b09ac3ab1184402c60d672746bb74|10648998|101437740occ8b83b46bc|4||201|0|0||||
+10:40:21||StarterContent/Textures/T_Ground_Grass_N.uasset|INST_NEW|Up|1525256350|cfb041466d5184cad7c1796a830ddb3e|11637793|101437764occ8b83b46bc|4||201|0|0||||
+10:40:38||StarterContent/Textures/T_Ground_Grass_D.uasset|INST_NEW|Up|1525256350|a504ba4f812f5ca725f9b347dffb6691|12037735|101438112occ8b83b46bc|4||201|0|0||||
+10:40:09||StarterContent/Textures/T_Ground_Gravel_N.uasset|INST_NEW|Up|1525256351|f86d513cb7eb8b09e48fca03bfed81d8|7431449|101438124occ8b83b46bc|4||201|0|0||||
+10:40:39||StarterContent/Textures/T_Lamp_M.uasset|INST_NEW|Up|1525256351|2322d0f38e1002fad4cdaccaebde9134|794227|101438128occ8b83b46bc|4||201|0|0||||
+10:40:44||StarterContent/Textures/T_Lamp_N.uasset|INST_NEW|Up|1525256351|615c1d401825b93ddef99cec0edec31b|2093242|101438148occ8b83b46bc|4||201|0|0||||
+10:40:22||StarterContent/Textures/T_Ground_Moss_N.uasset|INST_NEW|Up|1525256351|f5ae7b16165209c2fae99007b2947eee|8414756|101438188occ8b83b46bc|4||201|0|0||||
+10:40:53||StarterContent/Textures/T_Metal_Aluminum_D.uasset|INST_NEW|Up|1525256336|b106b76631f72f5e687b336bd0ced6bd|9702358|101438232occ8b83b46bc|4||201|0|0||||
+10:41:41||StarterContent/Textures/T_MacroVariation.uasset|INST_NEW|Up|1525256336|f1ec2270582c901ba40b2540c1d0cfef|10876719|101438248occ8b83b46bc|4||201|0|0||||
+10:41:41||StarterContent/Textures/T_Metal_Gold_N.uasset|INST_NEW|Up|1525256336|74824736be9320dfd55af36bbdb1676d|2820469|101438268occ8b83b46bc|4||201|0|0||||
+10:41:18||StarterContent/Textures/T_Metal_Copper_D.uasset|INST_NEW|Up|1525256336|ac0b02b57bff5dff43be83620198e682|8876545|101438296occ8b83b46bc|4||201|0|0||||
+10:41:40||StarterContent/Textures/T_Metal_Gold_D.uasset|INST_NEW|Up|1525256351|d2298d2c7e54411fb10a5bb1d4c0a176|8862552|101438320occ8b83b46bc|4||201|0|0||||
+10:41:52||StarterContent/Textures/T_Metal_Rust_D.uasset|INST_NEW|Up|1525256351|52c57784b19d252ef22940882e5d8349|9354310|101438344occ8b83b46bc|4||201|0|0||||
+10:42:12||StarterContent/Textures/T_Metal_Rust_N.uasset|INST_NEW|Up|1525256351|a1bb995089b64cd8abcb4c36c5c55a27|7527120|101438364occ8b83b46bc|4||201|0|0||||
+10:42:27||StarterContent/Textures/T_Metal_Steel_D.uasset|INST_NEW|Up|1525256351|279bd24260be6317c66dd582c5556006|3603569|101438372occ8b83b46bc|4||201|0|0||||
+10:42:56||StarterContent/Textures/T_RockMesh_M.uasset|INST_NEW|Up|1525256352|3c6f05e3dd392a966714b7e13bc0fb86|2722284|101438392occ8b83b46bc|4||201|0|0||||
+10:42:42||StarterContent/Textures/T_Metal_Steel_N.uasset|INST_NEW|Up|1525256352|91f03fea73724bd12a83300523394a49|4933699|101438408occ8b83b46bc|4||201|0|0||||
+10:42:53||StarterContent/Textures/T_Perlin_Noise_M.uasset|INST_NEW|Up|1525256352|118c3273d11966838bd179aaea0b9ba5|7891194|101438436occ8b83b46bc|4||201|0|0||||
+10:43:08||StarterContent/Textures/T_RockMesh_N.uasset|INST_NEW|Up|1525256352|55082af0294291b19c0fa0ff308f137e|5396238|101438444occ8b83b46bc|4||201|0|0||||
+10:43:36||StarterContent/Textures/T_Rock_Marble_Polished_D.uasset|INST_NEW|Up|1525256352|f96c63c2ee34b6ae9412dcee69e72133|5349275|101438488occ8b83b46bc|4||201|0|0||||
+10:43:15||StarterContent/Textures/T_Rock_Basalt_D.uasset|INST_NEW|Up|1525256352|f240a6594b2e0f9754de20f370807c4b|9381712|101438504occ8b83b46bc|4||201|0|0||||
+10:43:34||StarterContent/Textures/T_Rock_Basalt_N.uasset|INST_NEW|Up|1525256352|2f28a8da2dcb27ab8e29b3e6d471b283|7871363|101438512occ8b83b46bc|4||201|0|0||||
+10:44:05||StarterContent/Textures/T_Rock_Sandstone_D.uasset|INST_NEW|Up|1525256352|b006d85393b2ba7ccf64212f7b7c1abb|9256376|101438576occ8b83b46bc|4||201|0|0||||
+10:44:13||StarterContent/Textures/T_Rock_Sandstone_N.uasset|INST_NEW|Up|1525256352|de7514fc5f866c1d1cc53c9ffb8c38ee|8421659|101438596occ8b83b46bc|4||201|0|0||||
+10:45:19||StarterContent/Textures/T_Rock_Slate_D.uasset|INST_NEW|Up|1525256352|86d25a65f7ab2da2841258420af9aa9b|12354493|101438620occ8b83b46bc|4||201|0|0||||
+10:45:20||StarterContent/Textures/T_Shelf_M.uasset|INST_NEW|Up|1525256353|d122326433d424b6bc67c9dfb9bcd1fc|657917|101438632occ8b83b46bc|4||201|0|0||||
+10:45:24||StarterContent/Textures/T_Shelf_N.uasset|INST_NEW|Up|1525256353|ff7f980bda371a3e5c1e6895c91eda4a|1650846|101438652occ8b83b46bc|4||201|0|0||||
+10:45:33||StarterContent/Textures/T_Single_Tile_N.uasset|INST_NEW|Up|1525256353|89f2276422b403f2c7754b4318680dfb|9062|101438656occ8b83b46bc|4||201|0|0||||
+10:45:34||StarterContent/Textures/T_Smoke_SubUV.uasset|INST_NEW|Up|1525256353|777fc8fb0bf86da04de3de8f9889d3e2|2646814|101438676occ8b83b46bc|4||201|0|0||||
+10:45:45||StarterContent/Textures/T_Smoke_Tiled_D.uasset|INST_NEW|Up|1525256353|9e6f04e20b61d500ff243b6a34648919|112032|101438680occ8b83b46bc|4||201|0|0||||
+10:45:46||StarterContent/Textures/T_Spark_Core.uasset|INST_NEW|Up|1525256353|c73d70ea7ee26555726b2af07783a426|169964|101438684occ8b83b46bc|4||201|0|0||||
+10:45:46||StarterContent/Textures/T_Statue_M.uasset|INST_NEW|Up|1525256337|130354f266263957f220f6ecb64c2c5d|553775|101438692occ8b83b46bc|4||201|0|0||||
+10:45:48||StarterContent/Textures/T_Statue_N.uasset|INST_NEW|Up|1525256337|259df3e9dd069bef1352a5dda839e1f6|529403|101438696occ8b83b46bc|4||201|0|0||||
+10:44:54||StarterContent/Textures/T_Rock_Slate_N.uasset|INST_NEW|Up|1525256353|96ea1592d723bbd58f8e0892c726a424|9672795|101438704occ8b83b46bc|4||201|0|0||||
+10:45:49||StarterContent/Textures/T_TableRound_M.uasset|INST_NEW|Up|1525256337|f82c5ebdf86b595e71f8965064448851|880605|101438712occ8b83b46bc|4||201|0|0||||
+10:45:53||StarterContent/Textures/T_Tech_Dot_M.uasset|INST_NEW|Up|1525256353|9179dd4abdf6777524477a5eafadf705|120913|101438716occ8b83b46bc|4||201|0|0||||
+10:45:53||StarterContent/Textures/T_Tech_Dot_N.uasset|INST_NEW|Up|1525256353|b08f0eebb9ee2f3b40e30a6f51405162|218046|101438720occ8b83b46bc|4||201|0|0||||
+10:45:54||StarterContent/Textures/T_Tech_Hex_Tile_M.uasset|INST_NEW|Up|1525256353|0e5377c493c290affc0992650d513043|806460|101438728occ8b83b46bc|4||201|0|0||||
+10:45:50||StarterContent/Textures/T_TableRound_N.uasset|INST_NEW|Up|1525256337|3601c962d7360af79692bbbe6983958e|1562281|101438732occ8b83b46bc|4||201|0|0||||
+10:45:57||StarterContent/Textures/T_Tech_Hex_Tile_N.uasset|INST_NEW|Up|1525256353|22350298ea57144a6bc9fc7e8f7c8b43|510895|101438736occ8b83b46bc|4||201|0|0||||
+10:45:59||StarterContent/Textures/T_Tech_Panel_M.uasset|INST_NEW|Up|1525256353|c17897de8006043fe8e03f3573a7c393|997009|101438748occ8b83b46bc|4||201|0|0||||
+10:45:06||StarterContent/Textures/T_Rock_Smooth_Granite_D.uasset|INST_NEW|Up|1525256353|d5ee52c09cdbeaba67b06e6c2f242dce|8852169|101438752occ8b83b46bc|4||201|0|0||||
+10:46:04||StarterContent/Textures/T_Water_M.uasset|INST_NEW|Up|1525256353|efc0ccbc96e9cde08ac1c4acdf978cf0|1715760|101438768occ8b83b46bc|4||201|0|0||||
+10:46:00||StarterContent/Textures/T_Tech_Panel_N.uasset|INST_NEW|Up|1525256353|7ba0a0b74d39d1ef1dbeea151d737953|1867308|101438772occ8b83b46bc|4||201|0|0||||
+10:46:05||StarterContent/Textures/T_Water_N.uasset|INST_NEW|Up|1525256353|46d05a89ffe1ad372aff0cf361dd01d1|2106730|101438780occ8b83b46bc|4||201|0|0||||
+10:46:14||StarterContent/Textures/T_Wood_Floor_Walnut_M.uasset|INST_NEW|Up|1525256353|6bc71ab38fdf47e4af9b8319ea71699b|3959522|101438812occ8b83b46bc|4||201|0|0||||
+10:46:15||StarterContent/Textures/T_Wood_Floor_Walnut_N.uasset|INST_NEW|Up|1525256353|d79ec78b51968995ca7ef6b47165ddb3|2864153|101438820occ8b83b46bc|4||201|0|0||||
+10:46:12||StarterContent/Textures/T_Wood_Floor_Walnut_D.uasset|INST_NEW|Up|1525256353|e903fc596276de325dc0c431ca011624|4606582|101438824occ8b83b46bc|4||201|0|0||||
+10:46:35||StarterContent/Textures/T_Wood_Oak_N.uasset|INST_NEW|Up|1525256354|b29c13004bebb56fd4f3b2f575e0fb2d|6248262|101438876occ8b83b46bc|4||201|0|0||||
+10:46:33||StarterContent/Textures/T_Wood_Oak_D.uasset|INST_NEW|Up|1525256354|1e3ca1e7624966a1bf625726901beeb5|6727526|101438880occ8b83b46bc|4||201|0|0||||
+10:47:12||StarterContent/Textures/T_Wood_Pine_N.uasset|INST_NEW|Up|1525256354|353883cb7eaa715250f929c57ea367d5|3477592|101438940occ8b83b46bc|4||201|0|0||||
+10:46:35||StarterContent/Textures/T_Wood_Pine_D.uasset|INST_NEW|Up|1525256354|4663c2d2a48c80951509bbcb4802df07|9903207|101438944occ8b83b46bc|4||201|0|0||||
+10:47:28||StarterContent/Textures/T_Wood_Walnut_N.uasset|INST_NEW|Up|1525256354|f172e602857b2fdd149d48160d7c37fb|3840014|101438952occ8b83b46bc|4||201|0|0||||
+10:47:16||StarterContent/Textures/T_Wood_Walnut_D.uasset|INST_NEW|Up|1525256354|4c1eb781fd5a2d70b6239b4934112d44|6529264|101438956occ8b83b46bc|4||201|0|0||||
+10:48:08||StarterContent/Textures/T_ground_Moss_D.uasset|INST_NEW|Up|1525256351|614717b89a2be20cd162ae1ad3be8c91|13059701|101439076occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-02T10:48:06Z (last step: 1119312 msec, total: 1119804 msec)
+#=#=#=# Syncrun started 2018-05-02T10:48:59Z
+#=#=#=#=# Propagation starts 2018-05-02T10:49:20Z (last step: 21161 msec, total: 21161 msec)
+10:49:23||AnimStarterPack -> Humanoid|INST_RENAME|Up|1525256998|5ae99326d6a08|0|101435100occ8b83b46bc|4||201|0|0||||
+10:49:24||Humanoid/UE4_Mannequin -> Humanoid/Mesh|INST_RENAME|Up|1525256998|5ae99326bb3fb|0|101435108occ8b83b46bc|4||201|0|0||||
+10:49:24||Humanoid/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Up|1525257751|fa4f302357be51b1216132364d8e946a|134861|101439080occ8b83b46bc|4||201|0|0||||
+10:49:24||Humanoid/Aim_Space_Hip.uasset|INST_REMOVE|Up|1525256322|e544702bb2a20d136b341895ae82882e|144775|101435124occ8b83b46bc|4||204|0|0||||
+10:49:24||Humanoid/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Up|1525257751|e87a29b787d362583366ba96ddadb392|13859|101439084occ8b83b46bc|4||201|0|0||||
+10:49:24||Humanoid/Aim_Space_Ironsights.uasset|INST_REMOVE|Up|1525256322|9f179a52241e4f6f72acb2bca42bfd45|144512|101435120occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/BS_CrouchWalk.uasset|INST_REMOVE|Up|1525256322|ccc78c76f21648cb295aa2bb3373e407|95819|101435112occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/Crouch_Idle_Rifle_Hip.uasset|INST_REMOVE|Up|1525256322|dc85a9960b742107e988048c530434fc|193022|101435272occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/Crouch_Idle_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256322|afe66cc0d7fd1aac88b65fd124ce5727|193250|101435284occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/Crouch_Walk_Bwd_Rifle_Hip.uasset|INST_REMOVE|Up|1525256322|02d2a649ef19fc5ea269c856899b3d51|129620|101435292occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/BS_Jog.uasset|INST_REMOVE|Up|1525256322|de1b2e8e29c04b089e40d0bcc92f8ac7|95870|101435268occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/Crouch_Walk_Fwd_Rifle_Hip.uasset|INST_REMOVE|Up|1525256322|dc8ca889a7f7cd5478faeda25e9ecf39|129639|101435312occ8b83b46bc|4||204|0|0||||
+10:49:25||Humanoid/Crouch_Walk_Bwd_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256322|706c94423fbccb28329b7f12ef4bc59b|130344|101435300occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_Walk_Fwd_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256322|a8344cc35319f2c6c8f19a54b14aab4c|129947|101435328occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_Walk_Lt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256323|698dfa73da0cfa36361c3b807d57d2ee|129891|101435348occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_Walk_Lt_Rifle_Hip.uasset|INST_REMOVE|Up|1525256323|a26fecf3c1d5a76430a2a02cef2ea62a|129463|101435336occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_Walk_Rt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256323|83f6e3cbe813162f82114b7d97d9fdcd|129851|101435352occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_Walk_Rt_Rifle_Hip.uasset|INST_REMOVE|Up|1525256323|ca0cc397a0c127558409e10f84613be0|130097|101435344occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_to_Stand_Rifle_Hip.uasset|INST_REMOVE|Up|1525256322|221e708a2c3589ec656d759319fc75c8|108657|101435356occ8b83b46bc|4||204|0|0||||
+10:49:26||Humanoid/Crouch_to_Stand_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256322|1e00b6bff489acb6d497089d0d75de5a|108641|101435360occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Death_1.uasset|INST_REMOVE|Up|1525256323|2a89071501308ba67d14cff1e8230d6b|143849|101435364occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Death_3.uasset|INST_REMOVE|Up|1525256323|f7ba0e671a6ae1c3802bd25e71d73543|153991|101435380occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Death_2.uasset|INST_REMOVE|Up|1525256323|a2e660f65ee6ea195f95d6f8c8ffc2e3|141931|101435368occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Death_Ironsights_1.uasset|INST_REMOVE|Up|1525256323|b50190b9eb72edad42ae9af92d689bba|152207|101435376occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Equip_Pistol_Standing.uasset|INST_REMOVE|Up|1525256323|7ff4bd385ab7ddadc44379fa7859f694|148590|101435392occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Death_Ironsights_2.uasset|INST_REMOVE|Up|1525256323|20ef938af74a076d41905ec88dfdee73|141401|101435384occ8b83b46bc|4||204|0|0||||
+10:49:27||Humanoid/Equip_Rifle_Standing.uasset|INST_REMOVE|Up|1525256323|7d5859e437209a1ddb3979fd84dff6af|147983|101435388occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Fire_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256323|4a7b8984b96f8729c729632b22a33948|101474|101435412occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Fire_Rifle_Hip.uasset|INST_REMOVE|Up|1525256323|6a169ea6bb746c939c9ca720b3cc46ee|101371|101435400occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Fire_Shotgun_Ironsights.uasset|INST_REMOVE|Up|1525256323|f6101f609305e072e0737ac012ca1835|119045|101435408occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Fire_Shotgun_Hip.uasset|INST_REMOVE|Up|1525256323|9a90ac1467f23b8e7e695432df78f9c5|119644|101435420occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Hit_React_1.uasset|INST_REMOVE|Up|1525256323|cde209f1763088862a252522cacbd1da|113208|101435424occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Hit_React_3.uasset|INST_REMOVE|Up|1525256323|4c4b88fadcc67f51dc671dc7bb542d39|113226|101435432occ8b83b46bc|4||204|0|0||||
+10:49:28||Humanoid/Hit_React_2.uasset|INST_REMOVE|Up|1525256323|1f8e501a362dfd53d7b43d76b3f2ded8|113346|101435436occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Idle_Pistol.uasset|INST_REMOVE|Up|1525256323|d033b30a980f03af7a29606124849ed6|194423|101435452occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Hit_React_4.uasset|INST_REMOVE|Up|1525256323|ded303e58ff0ea6dee6b598df13ab779|112992|101435440occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Idle_Rifle_Hip.uasset|INST_REMOVE|Up|1525256323|254838bc3703cc10b894f0557b9ca7d2|193900|101435444occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Idle_Rifle_Hip_Break1.uasset|INST_REMOVE|Up|1525256323|db0062264aa5048f4a19ee4a53b8f1d6|178523|101435448occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Idle_Rifle_Hip_Break2.uasset|INST_REMOVE|Up|1525256323|c37ebc302f440c484b1c48e297a0001b|190629|101435460occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Jog_Bwd_Rifle.uasset|INST_REMOVE|Up|1525256323|535c47ae69ea642e038817ecf0c8cbaa|123129|101435464occ8b83b46bc|4||204|0|0||||
+10:49:29||Humanoid/Idle_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256323|4a4a11a7c8aea1822b3c89a57b3e63a0|194274|101435476occ8b83b46bc|4||204|0|0||||
+10:49:24||Humanoid/Mesh/SK_Mannequin.uasset|INST_NEW|Up|1525257751|772ec48fe44aa8f7814ca6ccf9c21cb5|2574105|101439088occ8b83b46bc|4||201|0|0||||
+10:49:30||Humanoid/Jog_Fwd_Rifle.uasset|INST_REMOVE|Up|1525256323|5bdd0e5ec929c5d8ea30115e54c8b589|122271|101435472occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Jog_Lt_Rifle.uasset|INST_REMOVE|Up|1525256323|04297288b98509d774335754b5edaa12|118721|101435480occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Jog_Rt_Rifle.uasset|INST_REMOVE|Up|1525256323|e59c07dffcfa80c75e38f106199f5048|123423|101435488occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Jump_From_Stand.uasset|INST_REMOVE|Up|1525256323|a3ceab590ca1ee66820ef4e40b112faf|118792|101435492occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Jump_From_Stand_Ironsights.uasset|INST_REMOVE|Up|1525256323|80af2df5cbac1de712e6a44954a726c7|118705|101435496occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Jump_From_Jog.uasset|INST_REMOVE|Up|1525256323|556c860f091a15efad46979688173348|110549|101435484occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Prone_Death_1.uasset|INST_REMOVE|Up|1525256324|9dd400967787628e90e5fd4e77be60ac|112611|101435500occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Prone_Fire_1.uasset|INST_REMOVE|Up|1525256324|db3b10ce391e609584a2222706f6d5fd|99638|101435504occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Prone_Fire_2.uasset|INST_REMOVE|Up|1525256324|6eaa12df3b961b7b887cc2918e357c0a|99465|101435528occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Prone_Idle.uasset|INST_REMOVE|Up|1525256324|f88e3f57c468a96d7b4522b25b9a144d|231902|101435516occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Prone_Reload_Shotgun.uasset|INST_REMOVE|Up|1525256324|b9c8db0919cd16644adedfbbd247c794|202160|101435536occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Prone_To_Stand.uasset|INST_REMOVE|Up|1525256324|21ebbdd28fa468b8f019560cfce5919f|132026|101435532occ8b83b46bc|4||204|0|0||||
+10:49:30||Humanoid/Prone_Death_2.uasset|INST_REMOVE|Up|1525256324|32cb2bf30daf00044e037cfff78b8919|154627|101435520occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Prone_Reload_Rifle.uasset|INST_REMOVE|Up|1525256324|7a0dc1a917a55e77367ad55a9122b2bd|178290|101435524occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Reload_Rifle_Hip.uasset|INST_REMOVE|Up|1525256324|c3bfc99dbb7a1b88762b7e5e0af90214|152502|101435548occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Reload_Pistol.uasset|INST_REMOVE|Up|1525256324|93798ce4c517c71965a595c86b7e9dec|139446|101435540occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Reload_Shotgun_Hip.uasset|INST_REMOVE|Up|1525256324|8cae61f95b03afe99e731afdfe8af941|203519|101435552occ8b83b46bc|4||204|0|0||||
+10:49:31||Humanoid/Reload_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256324|40862a2d3cf17705dd02d79205d1ec6d|152411|101435544occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Sprint_Fwd_Rifle.uasset|INST_REMOVE|Up|1525256324|556c06dc4bd9e578e18d6bbb37113a1e|122886|101435568occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Reload_Shotgun_Ironsights.uasset|INST_REMOVE|Up|1525256324|d48f376071f2a023e1822baffab2c586|203405|101435564occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Stand_To_Prone.uasset|INST_REMOVE|Up|1525256324|14d247485a930ea9aa7f7ba4b801f587|135973|101435576occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Showcase.umap|INST_REMOVE|Up|1525256324|1d16f616ef664c30c18240bfb658e9ab|273248|101435560occ8b83b46bc|4||204|0|0||||
+10:49:33||Humanoid/Stand_to_Crouch_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256324|4ef84cd81248313fc75d8bc042d03f35|111229|101435580occ8b83b46bc|4||204|0|0||||
+10:49:32||Humanoid/Stand_to_Crouch_Rifle_Hip.uasset|INST_REMOVE|Up|1525256324|e7fb8ff7a266c840439f04a8d7b87a44|110492|101435572occ8b83b46bc|4||204|0|0||||
+10:49:33||Humanoid/Walk_Bwd_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256324|214dad2ab64e885a9370149a27543de3|129698|101435584occ8b83b46bc|4||204|0|0||||
+10:49:33||Humanoid/Walk_Lt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256325|4c0634e3be7d205486e4c26650b4edca|129406|101435604occ8b83b46bc|4||204|0|0||||
+10:49:33||Materials|INST_NEW|Up|1525257529||0|101439092occ8b83b46bc|4||201|0|0||||
+10:49:33||Humanoid/Walk_Fwd_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256324|fd7f1c301b12b85dbfea14ce8689215f|128085|101435588occ8b83b46bc|4||204|0|0||||
+10:49:33||Player|INST_NEW|Up|1525257529||0|101439096occ8b83b46bc|4||201|0|0||||
+10:49:34||Humanoid/Mesh/Textures|INST_REMOVE|Up|1525256998|5ae99326bb3fb|0|101435144occ8b83b46bc|4||204|0|0||||
+10:49:33||Humanoid/Walk_Rt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1525256325|f33973f932b4485c0e79f9dfc72eb18e|129396|101435600occ8b83b46bc|4||204|0|0||||
+10:49:34||Materials/Instances|INST_NEW|Up|1525257529||0|101439100occ8b83b46bc|4||201|0|0||||
+10:49:34||Materials/BaseMaterials|INST_NEW|Up|1525257529||0|101439104occ8b83b46bc|4||201|0|0||||
+10:49:33||Weapons|INST_NEW|Up|1525257529||0|101439108occ8b83b46bc|4||201|0|0||||
+10:49:34||Materials/Textures|INST_NEW|Up|1525257529||0|101439112occ8b83b46bc|4||201|0|0||||
+10:49:34||Player/Audio|INST_NEW|Up|1525257529||0|101439116occ8b83b46bc|4||201|0|0||||
+10:49:34||Materials/MaterialLayers|INST_NEW|Up|1525257529||4096|101439120occ8b83b46bc|4||201|0|0||||
+10:49:34||Materials/Instances/M_UE4Man_ChestLogo.uasset|INST_NEW|Up|1525257529|197dd82e48aa31bc65bc4ece6c345783|101355|101439124occ8b83b46bc|4||201|0|0||||
+10:49:35||Player/Character|INST_NEW|Up|1525257529||0|101439128occ8b83b46bc|4||201|0|0||||
+10:49:35||Materials/BaseMaterials/M_UE4Man_Body.uasset|INST_NEW|Up|1525257529|6fb8c0fd9e21c49420f13a797790887d|151352|101439132occ8b83b46bc|4||201|0|0||||
+10:49:35||Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Up|1525257529|a574f264458cfb7e57bf7c4ec42f6b37|99364|101439136occ8b83b46bc|4||201|0|0||||
+10:49:35||Materials/Textures/UE4Man_Logo_N.uasset|INST_NEW|Up|1525257529|5b5bdd6d21b3e432ad8648a63b332436|162028|101439140occ8b83b46bc|4||201|0|0||||
+10:49:35||Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Up|1525257529|04bae733ec0868c050951ac6c8d2e126|88865|101439144occ8b83b46bc|4||201|0|0||||
+10:49:36||Materials/MaterialLayers/ML_Screen.uasset|INST_NEW|Up|1525257529|ee46e47fb5212b55df9b184242bd996b|58585|101439148occ8b83b46bc|4||201|0|0||||
+10:49:36||Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Up|1525257529|aa87daf56bfbdfddcdef8b9203294066|89625|101439152occ8b83b46bc|4||201|0|0||||
+10:49:36||Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Up|1525257529|85a2361ff0c6c686990cd4b969220613|100651|101439156occ8b83b46bc|4||201|0|0||||
+10:49:36||Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Up|1525257529|155163d45c9e1ff6315020f3140958d4|4396802|101439192occ8b83b46bc|4||201|0|0||||
+10:49:36||Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Up|1525257529|05602ba282ce1fd106d75f0abaaebf66|8701640|101439196occ8b83b46bc|4||201|0|0||||
+10:50:15||Materials/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Up|1525257529|16b838ececd403622e4710277ac63e8c|95810|101439200occ8b83b46bc|4||201|0|0||||
+10:50:16||Materials/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Up|1525257529|d185a491ed2164a2241b8025a89c9533|224980|101439204occ8b83b46bc|4||201|0|0||||
+10:49:59||Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Up|1525257529|c31d0307faf092271814e32e388279df|4852205|101439208occ8b83b46bc|4||201|0|0||||
+10:50:21||Player/Audio/WeaponFire02.uasset|INST_NEW|Up|1525257529|d44fb6d0058e2260b3e5b9510e37c432|306375|101439212occ8b83b46bc|4||201|0|0||||
+10:50:23||Player/Character/Mesh|INST_NEW|Up|1525257529||0|101439216occ8b83b46bc|4||201|0|0||||
+10:50:23||Weapons/Materials|INST_NEW|Up|1525257529||0|101439220occ8b83b46bc|4||201|0|0||||
+10:49:37||Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Up|1525257529|20e3984c1ef325ce32f62655eb504caf|5451362|101439224occ8b83b46bc|4||201|0|0||||
+10:50:25||Player/Character/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_NEW|Up|1525257529|0507a85c2daf252d52b834651d8e6c35|103322|101439228occ8b83b46bc|4||201|0|0||||
+10:50:26||Player/Character/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_NEW|Up|1525257529|a62a7d25717bb0e4cdbafe74a2501a69|13028|101439232occ8b83b46bc|4||201|0|0||||
+10:50:26||StarterContent/Maps/Advanced_Lighting.umap|INST_SYNC|Up|1525257596|7e04664b9f1227aa01f829139c42d877|43225|101435964occ8b83b46bc|4||204|43225|1525256341||||
+10:50:23||Player/Character/Mesh/SK_Mannequin_Arms.uasset|INST_NEW|Up|1525257529|8425024468b3f737c3c292d0e12e589f|2041323|101439256occ8b83b46bc|4||201|0|0||||
+10:50:31||StarterContent/Maps/StarterMap.umap|INST_SYNC|Up|1525257597|3c9d7417833182e5ac3b46d0643be7e1|969132|101436064occ8b83b46bc|4||204|969132|1525256341||||
+10:50:36||Weapons/Materials/BaseMaterial.uasset|INST_NEW|Up|1525257529|2b8a85cda1ba717733ae4c55d220526c|91596|101439264occ8b83b46bc|4||201|0|0||||
+10:50:36||Weapons/Materials/FirstPersonProjectileMaterial.uasset|INST_NEW|Up|1525257529|ebfc8405fd3b78dadab1638d8df9f3a9|95847|101439268occ8b83b46bc|4||201|0|0||||
+10:50:37||Weapons/Materials/M_FPGun.uasset|INST_NEW|Up|1525257529|ef9cbc83d9e902b4f4384be0ffe742f5|152421|101439272occ8b83b46bc|4||201|0|0||||
+10:50:38||Weapons/Mesh|INST_NEW|Up|1525257529||0|101439276occ8b83b46bc|4||201|0|0||||
+10:50:38||Weapons/Textures|INST_NEW|Up|1525257529||0|101439280occ8b83b46bc|4||201|0|0||||
+10:50:38||Weapons/Mesh/FirstPersonProjectileMesh.uasset|INST_NEW|Up|1525257529|5d7a7610839f964ba5ed5368ef1ed569|131143|101439284occ8b83b46bc|4||201|0|0||||
+10:50:26||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1525257596|eccc7f102670f18133ae79695c32070d|3495148|101436028occ8b83b46bc|4||204|3486695|1525256412||||
+10:50:39||Weapons/Mesh/SK_FPGun.uasset|INST_NEW|Up|1525257529|0da827fde1e7aa5ddb778c93248b3db7|1385939|101439292occ8b83b46bc|4||201|0|0||||
+10:50:44||Weapons/Mesh/SK_FPGun_Skeleton.uasset|INST_NEW|Up|1525257529|c05516d7099873d9c3af251d6fb4bea9|3921|101439296occ8b83b46bc|4||201|0|0||||
+10:50:45||Weapons/Mesh/SK_FPGun_PhysicsAsset.uasset|INST_NEW|Up|1525257529|6c672a90e09769fbbc12886d5dabd420|90762|101439300occ8b83b46bc|4||201|0|0||||
+10:50:45||Weapons/Textures/T_FPGun_M.uasset|INST_NEW|Up|1525257529|23acd45e2d96288b51ce8cc364caa501|259120|101439304occ8b83b46bc|4||201|0|0||||
+10:50:46||Humanoid/Mesh/Mesh|INST_REMOVE|Up|1525256981|5ae99315af70c|0|101435128occ8b83b46bc|4||204|0|0||||
+10:50:46||Humanoid/Mesh/Materials|INST_REMOVE|Up|1525256976|5ae993109d0ee|0|101435116occ8b83b46bc|4||204|0|0||||
+10:50:47||P_SparksShort.uasset|INST_NEW|Up|1525257545|86e1a39e630083806ba1fc5f66c111f7|194577|101439308occ8b83b46bc|4||201|0|0||||
+10:50:17||Materials/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Up|1525257529|f14dd9832d3aa4253132145be5f4e0dd|5532704|101439312occ8b83b46bc|4||201|0|0||||
+10:50:45||Weapons/Textures/T_FPGun_N.uasset|INST_NEW|Up|1525257529|b79710084d2b42cf2f5ac60689c2c5ee|2082608|101439316occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-02T10:50:49Z (last step: 88435 msec, total: 109597 msec)
+#=#=#=# Syncrun started 2018-05-02T10:51:50Z
+#=#=#=#=# Propagation starts 2018-05-02T10:51:55Z (last step: 5067 msec, total: 5067 msec)
+#=#=#=# Syncrun finished 2018-05-02T10:51:55Z (last step: 16 msec, total: 5083 msec)
+#=#=#=# Syncrun started 2018-05-02T11:15:59Z
+#=#=#=#=# Propagation starts 2018-05-02T11:15:59Z (last step: 474 msec, total: 474 msec)
+11:16:02||P_SparksShort.uasset|INST_REMOVE|Up|1525257545|86e1a39e630083806ba1fc5f66c111f7|194577|101439308occ8b83b46bc|4||204|0|0||||
+11:16:03||StarterContent/Particles/P_SparksShort.uasset|INST_NEW|Up|1525259757|f49e0fa69694a2a6335a1ab4f7633918|194602|101440624occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-02T11:16:00Z (last step: 1216 msec, total: 1691 msec)
+#=#=#=# Syncrun started 2018-05-02T11:16:58Z
+#=#=#=#=# Propagation starts 2018-05-02T11:16:59Z (last step: 1081 msec, total: 1081 msec)
+#=#=#=# Syncrun finished 2018-05-02T11:16:59Z (last step: 14 msec, total: 1095 msec)
+#=#=#=# Syncrun started 2018-05-02T11:36:14Z
+#=#=#=#=# Propagation starts 2018-05-02T11:36:14Z (last step: 565 msec, total: 565 msec)
+11:36:17||Humanoid|INST_NEW|Up|1525260972||0|101444472occ8b83b46bc|4||201|0|0||||
+11:36:17||Materials|INST_NEW|Up|1525260972||0|101444476occ8b83b46bc|4||201|0|0||||
+11:36:17||Player|INST_NEW|Up|1525260972||0|101444480occ8b83b46bc|4||201|0|0||||
+11:36:17||StarterContent/Maps/Advanced_Lighting.umap|INST_SYNC|Up|1525260972|1cbc8c3e342bff178aa769dd6d798cb8|43225|101435964occ8b83b46bc|4||204|43225|1525260857||||
+11:36:18||Humanoid/Mesh|INST_NEW|Up|1525260973||0|101444492occ8b83b46bc|4||201|0|0||||
+11:36:18||Materials/BaseMaterials|INST_NEW|Up|1525260972||0|101444496occ8b83b46bc|4||201|0|0||||
+11:36:18||Humanoid/Mesh/SK_Mannequin.uasset|INST_NEW|Up|1525260973|709475551518be86d8a02d8851860081|2574105|101444504occ8b83b46bc|4||201|0|0||||
+11:36:23||Humanoid/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Up|1525260972|6528e6f4efe6b81405a972183ae61f8a|134861|101444508occ8b83b46bc|4||201|0|0||||
+11:36:17||StarterContent/Maps/StarterMap.umap|INST_SYNC|Up|1525260972|f36d7d8ef9773cd2717f372108bbd8e6|969132|101436064occ8b83b46bc|4||204|969132|1525260857||||
+11:36:23||Humanoid/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Up|1525260972|a9b0988e8207f366d4e60f63c6d21211|13859|101444520occ8b83b46bc|4||201|0|0||||
+11:36:23||Materials/BaseMaterials/M_UE4Man_Body.uasset|INST_NEW|Up|1525260972|a296a07cfd968681e5aec21c9a0c5459|151352|101444524occ8b83b46bc|4||201|0|0||||
+11:36:24||Materials/Instances|INST_NEW|Up|1525260972||0|101444528occ8b83b46bc|4||201|0|0||||
+11:36:24||Materials/Textures|INST_NEW|Up|1525260973||0|101444532occ8b83b46bc|4||201|0|0||||
+11:36:24||Materials/MaterialLayers|INST_NEW|Up|1525260972||4096|101444536occ8b83b46bc|4||201|0|0||||
+11:36:24||Player/Audio|INST_NEW|Up|1525260972||0|101444540occ8b83b46bc|4||201|0|0||||
+11:36:24||Materials/Instances/M_UE4Man_ChestLogo.uasset|INST_NEW|Up|1525260972|b15b2ed8fd6f2f9219f74a047e37479b|101355|101444544occ8b83b46bc|4||201|0|0||||
+11:36:24||Materials/Textures/UE4Man_Logo_N.uasset|INST_NEW|Up|1525260973|f5f438920ef6f5d45ac4804dd0b22910|162028|101444548occ8b83b46bc|4||201|0|0||||
+11:36:25||Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Up|1525260972|e3444f2b93bdcdef3560150ac4f20010|88865|101444552occ8b83b46bc|4||201|0|0||||
+11:36:25||Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Up|1525260972|5f8a2a76ac26d744cbf9da6ff621b20a|89625|101444556occ8b83b46bc|4||201|0|0||||
+11:36:25||Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Up|1525260972|cb8299c142cac93dc9962929d9d22d47|99364|101444560occ8b83b46bc|4||201|0|0||||
+11:36:25||Materials/MaterialLayers/ML_Screen.uasset|INST_NEW|Up|1525260972|4d24b4ed827c49fb25e2192b684c49de|58585|101444564occ8b83b46bc|4||201|0|0||||
+11:36:25||Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Up|1525260972|44b6bd85bc251849e8c7a9cd7c86bfed|100651|101444568occ8b83b46bc|4||201|0|0||||
+11:36:17||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1525260972|2683249ab8167fb3d413a22d25b02977|3495148|101436028occ8b83b46bc|4||204|3498275|1525260857||||
+11:36:25||Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Up|1525260972|bd7f04acb80246fff6c91dcd8e8add92|4396802|101444600occ8b83b46bc|4||201|0|0||||
+11:36:41||Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Up|1525260972|a1e5e562b75f1375170009c7d61437cd|4852205|101444644occ8b83b46bc|4||201|0|0||||
+||Materials/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Up|-3600||95810||3|Datei gelöscht|0|0|0||||
+||Materials/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Up|-3600||224980||3|Datei gelöscht|0|0|0||||
+||Materials/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Up|-3600||5532704||3|Datei gelöscht|0|0|0||||
+||Player/Audio/WeaponFire02.uasset|INST_NEW|Up|-3600||306375||3|Datei gelöscht|0|0|0||||
+||StarterContent/Particles/P_SparksShort.uasset|INST_NEW|Up|-3600||194602||3|Datei gelöscht|0|0|0||||
+11:36:56||Player/Character|INST_NEW|Up|1525260972||0|101444652occ8b83b46bc|4||201|0|0||||
+11:36:56||Weapons|INST_NEW|Up|1525260972||0|101444656occ8b83b46bc|4||201|0|0||||
+11:36:57||Player/Character/Mesh|INST_NEW|Up|1525260972||0|101444660occ8b83b46bc|4||201|0|0||||
+||Player/Character/Mesh/SK_Mannequin_Arms.uasset|INST_NEW|Up|-3600||2041323||3|Datei gelöscht|0|0|0||||
+||Player/Character/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_NEW|Up|-3600||103322||3|Datei gelöscht|0|0|0||||
+||Player/Character/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_NEW|Up|-3600||13028||3|Datei gelöscht|0|0|0||||
+11:36:57||Weapons/Materials|INST_NEW|Up|1525260972||0|101444664occ8b83b46bc|4||201|0|0||||
+||Weapons/Materials/BaseMaterial.uasset|INST_NEW|Up|-3600||91596||3|Datei gelöscht|0|0|0||||
+||Weapons/Materials/FirstPersonProjectileMaterial.uasset|INST_NEW|Up|-3600||95847||3|Datei gelöscht|0|0|0||||
+||Weapons/Materials/M_FPGun.uasset|INST_NEW|Up|-3600||152421||3|Datei gelöscht|0|0|0||||
+11:36:57||Weapons/Mesh|INST_NEW|Up|1525260972||0|101444668occ8b83b46bc|4||201|0|0||||
+||Weapons/Mesh/FirstPersonProjectileMesh.uasset|INST_NEW|Up|-3600||131143||3|Datei gelöscht|0|0|0||||
+||Weapons/Mesh/SK_FPGun.uasset|INST_NEW|Up|-3600||1385939||3|Datei gelöscht|0|0|0||||
+||Weapons/Mesh/SK_FPGun_PhysicsAsset.uasset|INST_NEW|Up|-3600||90762||3|Datei gelöscht|0|0|0||||
+||Weapons/Mesh/SK_FPGun_Skeleton.uasset|INST_NEW|Up|-3600||3921||3|Datei gelöscht|0|0|0||||
+11:36:57||Weapons/Textures|INST_NEW|Up|1525260972||0|101444672occ8b83b46bc|4||201|0|0||||
+11:36:57||AnimStarterPack|INST_REMOVE|Up|1525260897|5ae9a2615143d|0|101443832occ8b83b46bc|4||204|0|0||||
+||Weapons/Textures/T_FPGun_M.uasset|INST_NEW|Up|-3600||259120||3|Datei gelöscht|0|0|0||||
+||Weapons/Textures/T_FPGun_N.uasset|INST_NEW|Up|-3600||2082608||3|Datei gelöscht|0|0|0||||
+11:36:25||Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Up|1525260972|f422375e69b09e893cde59e9d88907ab|8701640|101444680occ8b83b46bc|4||201|0|0||||
+11:36:37||Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Up|1525260972|b861b53788a8cbbc417c8ca07d830c2d|5451362|101444684occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-02T11:36:58Z (last step: 43661 msec, total: 44226 msec)
+#=#=#=# Syncrun started 2018-05-02T11:37:09Z
+#=#=#=#=# Propagation starts 2018-05-02T11:37:13Z (last step: 4878 msec, total: 4878 msec)
+11:37:16||AnimStarterPack|INST_NEW|Up|1525261013||16384|101444712occ8b83b46bc|4||201|0|0||||
+11:37:16||Materials/BaseMaterials/M_UE4Man_Body.uasset|INST_REMOVE|Up|1525260972|a296a07cfd968681e5aec21c9a0c5459|151352|101444524occ8b83b46bc|4||204|0|0||||
+11:37:16||Humanoid/Mesh/UE4_Mannequin_Skeleton.uasset|INST_REMOVE|Up|1525260972|a9b0988e8207f366d4e60f63c6d21211|13859|101444520occ8b83b46bc|4||204|0|0||||
+11:37:17||Materials/Instances/M_UE4Man_ChestLogo.uasset|INST_REMOVE|Up|1525260972|b15b2ed8fd6f2f9219f74a047e37479b|101355|101444544occ8b83b46bc|4||204|0|0||||
+11:37:16||Humanoid/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_REMOVE|Up|1525260972|6528e6f4efe6b81405a972183ae61f8a|134861|101444508occ8b83b46bc|4||204|0|0||||
+11:37:17||AnimStarterPack/UE4_Mannequin|INST_NEW|Up|1525261013||0|101444716occ8b83b46bc|4||201|0|0||||
+11:37:17||AnimStarterPack/Aim_Space_Hip.uasset|INST_NEW|Up|1525261013|6501e5283e7c9aea3684db02331f62d3|144775|101444720occ8b83b46bc|4||201|0|0||||
+11:37:17||AnimStarterPack/Aim_Space_Ironsights.uasset|INST_NEW|Up|1525261013|6897b7201b0396c77cf421485b413322|144512|101444724occ8b83b46bc|4||201|0|0||||
+11:37:16||Humanoid/Mesh/SK_Mannequin.uasset|INST_REMOVE|Up|1525260973|709475551518be86d8a02d8851860081|2574105|101444504occ8b83b46bc|4||204|0|0||||
+11:37:17||AnimStarterPack/UE4_Mannequin/Mesh|INST_NEW|Up|1525261013||0|101444728occ8b83b46bc|4||201|0|0||||
+11:37:17||AnimStarterPack/UE4_Mannequin/Materials|INST_NEW|Up|1525261013||0|101444732occ8b83b46bc|4||201|0|0||||
+11:37:18||AnimStarterPack/BS_Jog.uasset|INST_NEW|Up|1525261013|11c2a38fd280b22241f13361599cc5f5|95870|101444740occ8b83b46bc|4||201|0|0||||
+11:37:17||AnimStarterPack/UE4_Mannequin/Textures|INST_NEW|Up|1525261013||4096|101444748occ8b83b46bc|4||201|0|0||||
+11:37:18||AnimStarterPack/Crouch_Idle_Rifle_Hip.uasset|INST_NEW|Up|1525261012|15ffa60767ea4725cef474edebfcd8d9|193022|101444752occ8b83b46bc|4||201|0|0||||
+11:37:18||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers|INST_NEW|Up|1525261013||4096|101444756occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/M_UE4Man_Body.uasset|INST_NEW|Up|1525261013|8702fd0752b383201854411192f621a4|139251|101444760occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/M_UE4Man_ChestLogo.uasset|INST_NEW|Up|1525261013|8e9470f21da9656107b0ee3b4e394d02|100827|101444764occ8b83b46bc|4||201|0|0||||
+11:37:18||AnimStarterPack/BS_CrouchWalk.uasset|INST_NEW|Up|1525261013|fd84505ef48fe6a6253c5088e596b9a6|95819|101444768occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Up|1525261013|829116105a294f4c7ab362a71875b67f|75911|101444772occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Up|1525261013|cf52a805d96fde8c02feb284c597c43c|79758|101444776occ8b83b46bc|4||201|0|0||||
+11:37:20||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Up|1525261013|f3bd965d8c725fcbf6b5e62b68139b48|435081|101444784occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Up|1525261013|103fb55dc5524cd222128ed38fd278ae|79781|101444788occ8b83b46bc|4||201|0|0||||
+11:37:19||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Up|1525261013|73ac0350532dcfb39a9466795d78fb2d|76860|101444796occ8b83b46bc|4||201|0|0||||
+11:37:20||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Up|1525261013|7868d01d22fc3728c332ab7d6832d5da|405950|101444792occ8b83b46bc|4||201|0|0||||
+11:37:22||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Up|1525261013|67658e124859bf68527a4b40204c9ba8|362811|101444800occ8b83b46bc|4||201|0|0||||
+11:37:21||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Up|1525261013|6de749e5c2b5a4635953438af7ac5d79|471442|101444808occ8b83b46bc|4||201|0|0||||
+11:37:22||AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Up|1525261013|eb256787462e45b4bb782283ebebf5f9|127951|101444812occ8b83b46bc|4||201|0|0||||
+11:37:23||AnimStarterPack/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Up|1525261013|c0e750ccf953970f5e6b7db9f1bb5285|11980|101444816occ8b83b46bc|4||201|0|0||||
+11:37:23||AnimStarterPack/UE4_Mannequin/Textures/UE4Man_Logo_N.uasset|INST_NEW|Up|1525261013|ca609288ea34e54c3ef94b39c6319aee|162459|101444820occ8b83b46bc|4||201|0|0||||
+11:37:23||AnimStarterPack/UE4_Mannequin/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Up|1525261013|2f9afdaf8c1d05e180f64fcb9df2035d|95844|101444824occ8b83b46bc|4||201|0|0||||
+11:37:23||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Up|1525261013|ba2f140aca1de57db151746e8ce134dc|275577|101444832occ8b83b46bc|4||201|0|0||||
+11:37:26||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin_occlusion_Mobile.uasset|INST_NEW|Up|1525261013|ba5a2257b2a30e235734ccb8499693a6|363029|101444840occ8b83b46bc|4||201|0|0||||
