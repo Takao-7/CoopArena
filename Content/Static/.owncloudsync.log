@@ -613,3 +613,52 @@
 #=#=#=# Syncrun started 2018-05-06T10:21:14Z
 #=#=#=#=# Propagation starts 2018-05-06T10:21:15Z (last step: 341 msec, total: 341 msec)
 #=#=#=# Syncrun finished 2018-05-06T10:21:15Z (last step: 11 msec, total: 353 msec)
+#=#=#=# Syncrun started 2018-05-06T13:00:03Z
+#=#=#=#=# Propagation starts 2018-05-06T13:00:04Z (last step: 486 msec, total: 486 msec)
+#=#=#=# Syncrun finished 2018-05-06T13:00:04Z (last step: 9 msec, total: 495 msec)
+#=#=#=# Syncrun started 2018-05-06T15:00:05Z
+#=#=#=#=# Propagation starts 2018-05-06T15:00:06Z (last step: 1050 msec, total: 1050 msec)
+#=#=#=# Syncrun finished 2018-05-06T15:00:06Z (last step: 14 msec, total: 1064 msec)
+#=#=#=# Syncrun started 2018-05-06T16:25:43Z
+#=#=#=#=# Propagation starts 2018-05-06T16:25:44Z (last step: 766 msec, total: 766 msec)
+16:25:43||Materials/BaseMaterials/M_Plasma.uasset|INST_NEW|Up|1525623941|1ed407a5d2ed9fed4498816e25d53522|47637|101582240occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-06T16:25:44Z (last step: 369 msec, total: 1135 msec)
+#=#=#=# Syncrun started 2018-05-06T16:26:30Z
+#=#=#=#=# Propagation starts 2018-05-06T16:26:31Z (last step: 972 msec, total: 972 msec)
+#=#=#=# Syncrun finished 2018-05-06T16:26:31Z (last step: 16 msec, total: 988 msec)
+#=#=#=# Syncrun started 2018-05-06T16:29:15Z
+#=#=#=#=# Propagation starts 2018-05-06T16:29:16Z (last step: 558 msec, total: 558 msec)
+#=#=#=# Syncrun finished 2018-05-06T16:29:16Z (last step: 9 msec, total: 567 msec)
+#=#=#=# Syncrun started 2018-05-06T16:31:40Z
+#=#=#=#=# Propagation starts 2018-05-06T16:31:41Z (last step: 686 msec, total: 686 msec)
+#=#=#=# Syncrun finished 2018-05-06T16:31:41Z (last step: 11 msec, total: 698 msec)
+#=#=#=# Syncrun started 2018-05-06T16:41:42Z
+#=#=#=#=# Propagation starts 2018-05-06T16:41:42Z (last step: 564 msec, total: 564 msec)
+#=#=#=# Syncrun finished 2018-05-06T16:41:42Z (last step: 10 msec, total: 575 msec)
+#=#=#=# Syncrun started 2018-05-06T17:03:54Z
+#=#=#=#=# Propagation starts 2018-05-06T17:03:55Z (last step: 531 msec, total: 531 msec)
+17:03:55||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1525626233|c32291e6d32ce733ea6f89f7370afcd3|3497945|101436028occ8b83b46bc|4||204|3495148|1525261089||||
+#=#=#=# Syncrun finished 2018-05-06T17:04:00Z (last step: 5214 msec, total: 5746 msec)
+#=#=#=# Syncrun started 2018-05-06T17:05:00Z
+#=#=#=#=# Propagation starts 2018-05-06T17:05:01Z (last step: 964 msec, total: 964 msec)
+#=#=#=# Syncrun finished 2018-05-06T17:05:01Z (last step: 67 msec, total: 1031 msec)
+#=#=#=# Syncrun started 2018-05-06T17:50:45Z
+#=#=#=#=# Propagation starts 2018-05-06T17:50:45Z (last step: 580 msec, total: 580 msec)
+#=#=#=# Syncrun finished 2018-05-06T17:50:45Z (last step: 11 msec, total: 592 msec)
+#=#=#=# Syncrun started 2018-05-06T17:58:04Z
+#=#=#=#=# Propagation starts 2018-05-06T17:58:05Z (last step: 600 msec, total: 600 msec)
+17:58:04||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1525629482|68a48fa19501ffd5c748c9c29d8e0ce2|3497986|101436028occ8b83b46bc|4||204|3497945|1525626233||||
+#=#=#=# Syncrun finished 2018-05-06T17:58:10Z (last step: 4983 msec, total: 5584 msec)
+#=#=#=# Syncrun started 2018-05-06T17:59:00Z
+#=#=#=#=# Propagation starts 2018-05-06T17:59:01Z (last step: 1089 msec, total: 1089 msec)
+#=#=#=# Syncrun finished 2018-05-06T17:59:01Z (last step: 17 msec, total: 1106 msec)
+#=#=#=# Syncrun started 2018-05-06T18:08:09Z
+#=#=#=#=# Propagation starts 2018-05-06T18:08:09Z (last step: 544 msec, total: 544 msec)
+#=#=#=# Syncrun finished 2018-05-06T18:08:09Z (last step: 9 msec, total: 553 msec)
+#=#=#=# Syncrun started 2018-05-06T18:09:23Z
+#=#=#=#=# Propagation starts 2018-05-06T18:09:24Z (last step: 618 msec, total: 618 msec)
+18:09:23||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1525630161|6e16cd77b5300e6be487cbb6520db619|3497986|101436028occ8b83b46bc|4||204|3497986|1525629482||||
+#=#=#=# Syncrun finished 2018-05-06T18:09:29Z (last step: 5134 msec, total: 5752 msec)
+#=#=#=# Syncrun started 2018-05-06T18:10:09Z
+#=#=#=#=# Propagation starts 2018-05-06T18:10:11Z (last step: 1253 msec, total: 1253 msec)
+#=#=#=# Syncrun finished 2018-05-06T18:10:11Z (last step: 11 msec, total: 1265 msec)

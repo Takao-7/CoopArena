@@ -6,7 +6,9 @@
 #include "GameFramework/Character.h"
 #include "Humanoid.generated.h"
 
-class AWeapon;
+
+class AGun;
+
 
 UCLASS()
 class COOPARENA_API AHumanoid : public ACharacter
@@ -18,19 +20,19 @@ public:
 	 * Checks if the character is alive.
 	 * @return true if alive, otherwise false
 	 */
-	UFUNCTION(BlueprintPure, Category = Gameplay)
+	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool IsAlive() const;
 
-	UFUNCTION(BlueprintPure, Category = Gameplay)
+	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool CanFire() const;
 
-	UFUNCTION(BlueprintPure, Category = Gameplay)
+	UFUNCTION(BlueprintPure, Category = Humanoid)
 	FName GetWeaponAttachPoint() const;
 
 	void SetUpDefaultEquipment();
 
 	/* Kills this character */
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void Kill();
 
 	// Called every frame
@@ -42,18 +44,19 @@ public:
 	// Sets default values for this character's properties
 	AHumanoid();
 
+	bool CanEquipNewWeapon();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
 	/* Fire the currently equipped weapon */
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void FireEquippedWeapon();
 
 	/* Stops firing the currently equipped weapon */
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void StopFireEquippedWeapon();
-
 
 	/**
 	* Called when the actor dies.
@@ -69,7 +72,7 @@ protected:
 	* @param hitInfo The FHitResult struct of the shot that killed the pawn.
 	* @param direction The direction from which the last shot came.
 	*/
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnDeath(const FHitResult& hitInfo, FVector direction);
 
 	void DeactivateCollisionCapsuleComponent();
@@ -94,26 +97,28 @@ protected:
 
 	void ToggleCrouch();
 
-	/** The weapon that the character will start the game with */
-	UPROPERTY(EditDefaultsOnly, Category = Gameplay)
-	TSubclassOf<AWeapon> DefaultWeapon;
+	/** The tool or weapon that the character will start the game with */
+	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
+	TSubclassOf<AGun> m_DefaultGun;
 
 	/** Socket or bone name for attaching weapons when equipped */
-	UPROPERTY(EditDefaultsOnly, Category = Gameplay)
-	FName WeaponAttachPoint;
+	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
+	FName m_WeaponAttachPoint;
 
 	/** Base turn rate, in deg/sec */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float BaseTurnRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	float m_BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float BaseLookUpRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	float m_BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
-	AWeapon* EquippedWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Humanoid)
+	AGun* m_EquippedWeapon;
+
+	/*UPROPERTY(BlueprintReadWrite, Category = Humanoid)
+	TArray<IPickUp*> Inventory;*/
 
 private:
-	bool bAlreadyDied;
-
+	bool m_bAlreadyDied;
 };

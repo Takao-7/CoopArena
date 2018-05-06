@@ -4,7 +4,7 @@
 #include "Components/InputComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
-#include "Weapons/Weapon.h"
+#include "Weapons/Gun.h"
 
 
 // Sets default values
@@ -15,35 +15,39 @@ AHumanoid::AHumanoid()
 
 
 	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+	m_BaseTurnRate = 45.f;
+	m_BaseLookUpRate = 45.f;
 
-	bAlreadyDied = false;
-	WeaponAttachPoint = "GripPoint";
-
+	m_bAlreadyDied = false;
+	m_WeaponAttachPoint = "GripPoint";
 }
+
 
 // Called when the game starts or when spawned
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetUpDefaultEquipment();
 }
 
 
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
-	if (CanFire())
+	if (CanFire() && m_EquippedWeapon)
 	{
-
+		m_EquippedWeapon->OnFire();
 	}
 }
 
 
 void AHumanoid::StopFireEquippedWeapon()
 {
-
+	if (m_EquippedWeapon)
+	{
+		
+	}
 }
 
 
@@ -86,13 +90,13 @@ void AHumanoid::MoveRight(float value)
 
 void AHumanoid::TurnAtRate(float rate)
 {
-	AddControllerYawInput(rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 
 void AHumanoid::LookUpAtRate(float rate)
 {
-	AddControllerPitchInput(rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(rate * m_BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 
@@ -108,7 +112,14 @@ void AHumanoid::ToggleCrouch()
 	}
 }
 
+/////////////////////////////////////////////////////
+bool AHumanoid::CanEquipNewWeapon()
+{
+	return m_EquippedWeapon;
+}
 
+
+/////////////////////////////////////////////////////
 bool AHumanoid::IsAlive() const
 {
 	return true;
@@ -117,19 +128,19 @@ bool AHumanoid::IsAlive() const
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return EquippedWeapon && IsAlive();
+	return IsAlive();
 }
 
 
 FName AHumanoid::GetWeaponAttachPoint() const
 {
-	return WeaponAttachPoint;
+	return m_WeaponAttachPoint;
 }
 
 
 void AHumanoid::SetUpDefaultEquipment()
 {
-	if (DefaultWeapon == nullptr)
+	if (m_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null!"));
 		return;
@@ -140,8 +151,8 @@ void AHumanoid::SetUpDefaultEquipment()
 		return;
 	}
 
-	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeapon);
-	//EquippedWeapon->EquipWeapon(this);
+	m_EquippedWeapon = GetWorld()->SpawnActor<AGun>(m_DefaultGun);
+	m_EquippedWeapon->OnEquip(this);
 }
 
 

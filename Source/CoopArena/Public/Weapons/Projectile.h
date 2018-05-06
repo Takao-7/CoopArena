@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+
+class UProjectileMovementComponent;
+
+
 UCLASS()
 class COOPARENA_API AProjectile : public AActor
 {
@@ -24,5 +28,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	
+
+protected:
+	UPROPERTY(VisibleDefaultsOnly)
+	UProjectileMovementComponent* ProjectileMovementComponent;
 	
 };
