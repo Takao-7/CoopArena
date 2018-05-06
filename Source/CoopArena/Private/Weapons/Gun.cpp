@@ -2,11 +2,12 @@
 
 #include "Weapons/Gun.h"
 #include "Humanoid.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/SkeletalMeshComponent.h"
 
 AGun::AGun()
 {
-	FireModes.SetNumUninitialized(3, false);
+	FireModes.Add(EFireMode::Single);
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
 	Mesh->SetCollisionObjectType(ECC_WorldDynamic);
@@ -31,14 +32,100 @@ void AGun::OnFire()
 
 }
 
+
 void AGun::ContinousOnFire()
 {
 
 }
 
+
+bool AGun::CanShoot() const
+{
+	bool bCanFire = MyOwner && MyOwner->CanFire();
+	bool bStateOKToFire = ((CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Firing));
+	return ((bCanFire == true) && (bStateOKToFire == true));
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::OnPickUp(AActor* NewOwner)
+{
+	SetOwningPawn(NewOwner);
+	AttachMeshToPawn();
+}
+
+
+void AGun::OnDrop()
+{
+	SetOwningPawn(nullptr);
+	DetachMeshFromPawn();
+}
+
+
+/////////////////////////////////////////////////////
+UUserWidget* AGun::OnBeginTraceCastOver(APawn* TracingPawn)
+{
+	if (!TracingPawn || TracingPawn->IsLocallyControlled())
+	{
+		return nullptr;
+	}
+	
+	return InfoWidget;
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::SetOwningPawn(AActor* NewOwner)
+{
+	AHumanoid* humanoid = Cast<AHumanoid>(NewOwner);
+	if (humanoid && GetOwner() != NewOwner)
+	{
+		Instigator = humanoid;
+		SetOwner(humanoid);
+		MyOwner = humanoid;
+	}
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::AttachMeshToPawn()
+{
+	if (MyOwner)
+	{
+		DetachMeshFromPawn();
+
+		FName AttachPoint = MyOwner->GetWeaponAttachPoint();
+		USkeletalMeshComponent* PawnMesh = MyOwner->GetMesh();
+
+		if (Mesh)
+		{
+			Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
+			Mesh->SetSimulatePhysics(false);
+		}
+	}
+}
+
+
+void AGun::DetachMeshFromPawn()
+{
+	if (Mesh)
+	{
+		Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		Mesh->SetSimulatePhysics(true);
+	}
+}
+
+
+/////////////////////////////////////////////////////
+float AGun::GetCooldownTime() const
+{
+	return Cooldown;
+}
+
+
 float AGun::GetRoundsPerMinute() const
 {
-	return 0.0f;
+	return 60 / GetCooldownTime();
 }
 
 
@@ -47,16 +134,9 @@ FVector AGun::GetMuzzleLocation() const
 	FVector VecMuzzleLocation;
 	FRotator MuzzleRotation;
 
-	USkeletalMeshComponent* WeaponMesh = GetWeaponMesh();
-	WeaponMesh->GetSocketWorldLocationAndRotation(MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
-
+	if (Mesh)
+	{
+		Mesh->GetSocketWorldLocationAndRotation(MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
+	}
 	return VecMuzzleLocation;
-}
-
-
-bool AGun::CanShoot() const
-{
-	bool bCanFire = MyPawn && MyPawn->CanFire();
-	bool bStateOKToFire = ((CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Firing));
-	return ((bCanFire == true) && (bStateOKToFire == true));
 }

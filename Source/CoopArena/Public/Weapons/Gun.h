@@ -3,9 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Weapons/Weapon.h"
-#include "Weapons/Weapon.h"
+#include "GameFramework/Actor.h"
+#include "Public/Interfaces/PickUp.h"
+#include "Public/Interfaces/Tool.h"
 #include "Gun.generated.h"
+
+
+class AHumanoid;
+class UUserWidget;
 
 
 UENUM(BlueprintType)
@@ -17,8 +22,18 @@ enum class EFireMode : uint8
 };
 
 
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	Idle,
+	Firing,
+	Reloading,
+	Equipping
+};
+
+
 UCLASS()
-class COOPARENA_API AGun : public AWeapon
+class COOPARENA_API AGun : public AActor, public IPickUp, public ITool
 {
 	GENERATED_BODY()
 	
@@ -44,6 +59,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	int32 SalvoCount;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UUserWidget* InfoWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	AHumanoid* MyOwner;
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	EWeaponState CurrentState;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	float Cooldown;
+
 	/**
 	* The maximum distance the gun will cast a ray when firing to adjust the aim.
 	* If there isn't any viable target in that range, the shoot will travel at a strait line
@@ -53,7 +83,7 @@ protected:
 	float lineTraceRange;
 
 	/** The gun's fire modes */
-	UPROPERTY(EditDefaultsOnly, EditFixedSize, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	TArray<EFireMode> FireModes;
 
 	/**
@@ -87,6 +117,19 @@ public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetMuzzleLocation() const;
 
-	UFUNCTION()
-	virtual bool CanShoot() const override;
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	bool CanShoot() const;
+
+	void SetOwningPawn(AActor* NewOwner);
+	void AttachMeshToPawn();
+	void DetachMeshFromPawn();
+
+	/* PickUp Interface */
+	void OnPickUp(AActor* NewOwner);
+	void OnDrop();
+	UUserWidget* OnBeginTraceCastOver(APawn* TracingPawn);
+
+	
+	/* Tool Interface */
+	float GetCooldownTime() const;
 };

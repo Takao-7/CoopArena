@@ -11,16 +11,6 @@ class AHumanoid;
 class USkeletalMeshComponent;
 
 
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Idle,
-	Firing,
-	Reloading,
-	Equipping
-};
-
-
 UCLASS()
 class COOPARENA_API AWeapon : public AActor
 {
@@ -38,7 +28,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	AHumanoid* MyPawn;
 
-	EWeaponState CurrentState;
 	FTimerHandle WeaponCooldownTimer;
 
 public:	
