@@ -725,3 +725,58 @@
 09:02:16||AnimStarterPack/Equip_Rifle_Standing.uasset|INST_NEW|Up|1526029307|b634d3c952fb5a1ef95758aac1b7ca94|147983|101926914occ8b83b46bc|4||201|0|0||||
 09:02:16||AnimStarterPack/Fire_Rifle_Hip.uasset|INST_NEW|Up|1526029307|65e3d1f8fb9ccf201534713ea77ae9f0|101371|101926917occ8b83b46bc|4||201|0|0||||
 09:02:16||AnimStarterPack/Fire_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|3e36a8501159768b5ce6bd563e5fc95c|101474|101926920occ8b83b46bc|4||201|0|0||||
+09:02:17||AnimStarterPack/Fire_Shotgun_Hip.uasset|INST_NEW|Up|1526029307|04a1853d1219eb7298c8b5889c08373d|119644|101926923occ8b83b46bc|4||201|0|0||||
+09:02:17||AnimStarterPack/Fire_Shotgun_Ironsights.uasset|INST_NEW|Up|1526029307|747d7fa7bf27c5663df456e33051512f|119045|101926926occ8b83b46bc|4||201|0|0||||
+09:02:17||AnimStarterPack/Hit_React_2.uasset|INST_NEW|Up|1526029307|9440b6937495dea450b282a42976da36|113346|101926929occ8b83b46bc|4||201|0|0||||
+09:02:17||AnimStarterPack/Hit_React_1.uasset|INST_NEW|Up|1526029307|2a90ccec79cd57991ef21455d662f95c|113208|101926932occ8b83b46bc|4||201|0|0||||
+09:02:18||AnimStarterPack/Hit_React_4.uasset|INST_NEW|Up|1526029307|33a9b96726ec7ac843806b13fdae8b68|112992|101926935occ8b83b46bc|4||201|0|0||||
+09:02:18||AnimStarterPack/Idle_Pistol.uasset|INST_NEW|Up|1526029307|5318859a96d1a304a7b00d34615459e9|194423|101926938occ8b83b46bc|4||201|0|0||||
+09:02:19||AnimStarterPack/Idle_Rifle_Hip.uasset|INST_NEW|Up|1526029307|a318c3df5014dffb7fb82c34f48cc387|193900|101926941occ8b83b46bc|4||201|0|0||||
+09:02:19||AnimStarterPack/Idle_Rifle_Hip_Break1.uasset|INST_NEW|Up|1526029307|c9da1d54dca4cb93404acf2a20b8baca|178523|101926944occ8b83b46bc|4||201|0|0||||
+09:02:18||AnimStarterPack/Hit_React_3.uasset|INST_NEW|Up|1526029307|20644c1e0f8875c44541a64fdf75023b|113226|101926947occ8b83b46bc|4||201|0|0||||
+09:02:19||AnimStarterPack/Idle_Rifle_Hip_Break2.uasset|INST_NEW|Up|1526029307|5a156063945592974c928154f3e5f728|190629|101926950occ8b83b46bc|4||201|0|0||||
+09:02:20||AnimStarterPack/Jog_Bwd_Rifle.uasset|INST_NEW|Up|1526029307|713ab11a8498e43960bbabff77c82304|123129|101926953occ8b83b46bc|4||201|0|0||||
+09:02:20||AnimStarterPack/Jog_Fwd_Rifle.uasset|INST_NEW|Up|1526029307|7240f369e1e092fac18298bb403accf9|122271|101926956occ8b83b46bc|4||201|0|0||||
+09:02:19||AnimStarterPack/Idle_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|ea3ec47f4257201830cde05cb4e3c029|194274|101926959occ8b83b46bc|4||201|0|0||||
+09:02:21||AnimStarterPack/Jog_Lt_Rifle.uasset|INST_NEW|Up|1526029307|ca376721cb5257bbf0fadea4f5a3ee6f|118721|101926962occ8b83b46bc|4||201|0|0||||
+09:02:21||AnimStarterPack/Jog_Rt_Rifle.uasset|INST_NEW|Up|1526029307|7c1d4aed667e0dfeb9a22988841858c6|123423|101926965occ8b83b46bc|4||201|0|0||||
+09:02:21||AnimStarterPack/Jump_From_Jog.uasset|INST_NEW|Up|1526029307|f759bce815bddb57e0eb2b719b552cc9|110549|101926968occ8b83b46bc|4||201|0|0||||
+09:02:22||AnimStarterPack/Jump_From_Stand_Ironsights.uasset|INST_NEW|Up|1526029307|ada7789e7310e09af13ca9475ca3ebae|118705|101926971occ8b83b46bc|4||201|0|0||||
+09:02:21||AnimStarterPack/Jump_From_Stand.uasset|INST_NEW|Up|1526029307|ee0423ab030e9529af1c79a01029b5d8|118792|101926974occ8b83b46bc|4||201|0|0||||
+09:02:22||AnimStarterPack/Prone_Death_1.uasset|INST_NEW|Up|1526029307|721c51c9ccb6dfb4ad805c3147ff6d63|112611|101926977occ8b83b46bc|4||201|0|0||||
+09:02:22||AnimStarterPack/Prone_Fire_1.uasset|INST_NEW|Up|1526029307|d825b33be37a121a3a8cdf1877e2c092|99638|101926980occ8b83b46bc|4||201|0|0||||
+09:02:22||AnimStarterPack/Prone_Death_2.uasset|INST_NEW|Up|1526029307|82c04721a75ec9f43c9e43d45e009eb4|154627|101926983occ8b83b46bc|4||201|0|0||||
+09:02:23||AnimStarterPack/Prone_Reload_Rifle.uasset|INST_NEW|Up|1526029307|097e7a1f3eb525e34f2976f6fe6e40c6|178290|101926986occ8b83b46bc|4||201|0|0||||
+09:02:23||AnimStarterPack/Prone_Reload_Shotgun.uasset|INST_NEW|Up|1526029307|2cc306dc2c06fbc9a1744343ebd230e8|202160|101926989occ8b83b46bc|4||201|0|0||||
+09:02:24||AnimStarterPack/Prone_To_Stand.uasset|INST_NEW|Up|1526029307|f96c372f693d387c36414c34c58ec144|132026|101926992occ8b83b46bc|4||201|0|0||||
+09:02:22||AnimStarterPack/Prone_Fire_2.uasset|INST_NEW|Up|1526029307|7a65026c3949b7cb15693090b0fc6f74|99465|101926995occ8b83b46bc|4||201|0|0||||
+09:02:23||AnimStarterPack/Prone_Idle.uasset|INST_NEW|Up|1526029307|a492033fa2f7a788215824845a8eae97|231902|101926998occ8b83b46bc|4||201|0|0||||
+09:02:24||AnimStarterPack/Reload_Pistol.uasset|INST_NEW|Up|1526029307|168cdaaa3d639d8997140cc418aebb59|139446|101927001occ8b83b46bc|4||201|0|0||||
+09:02:03||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Up|1526029307|476d873651a0c202b23c3ba155021b3c|5481767|101927004occ8b83b46bc|4||201|0|0||||
+09:02:24||AnimStarterPack/Reload_Rifle_Hip.uasset|INST_NEW|Up|1526029307|fb8e0fd468c6952ede2605f5023fc851|152502|101927007occ8b83b46bc|4||201|0|0||||
+09:02:24||AnimStarterPack/Reload_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|8ff5232114b1cac43c14f280ce3ade71|152411|101927010occ8b83b46bc|4||201|0|0||||
+09:02:25||AnimStarterPack/Reload_Shotgun_Ironsights.uasset|INST_NEW|Up|1526029307|b26986ec0d15890240dd2e48e5d8495b|203405|101927013occ8b83b46bc|4||201|0|0||||
+09:02:25||AnimStarterPack/Showcase.umap|INST_NEW|Up|1526029307|d955c07fe48e1cd8f0f2c6d0845d1bf2|273248|101927016occ8b83b46bc|4||201|0|0||||
+09:02:25||AnimStarterPack/Reload_Shotgun_Hip.uasset|INST_NEW|Up|1526029307|ac263059c4aa6b2eaddc8a208132935b|203519|101927019occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Stand_To_Prone.uasset|INST_NEW|Up|1526029307|545a3915f1127f6c26d1cca1d56703c8|135973|101927022occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Sprint_Fwd_Rifle.uasset|INST_NEW|Up|1526029307|618c0c70b64e48e9e01222b51e733e13|122886|101927025occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Stand_to_Crouch_Rifle_Hip.uasset|INST_NEW|Up|1526029307|bd2fac8b639f23521010bbe6a150c518|110492|101927028occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Stand_to_Crouch_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|c9798a35465ec60130c716afac545c16|111229|101927031occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Walk_Bwd_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|bf228ba47aec035d390c7cc2b5fb469c|129698|101927034occ8b83b46bc|4||201|0|0||||
+09:02:27||AnimStarterPack/Walk_Lt_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|ab3e10253151405124d4c1872ac4d6d8|129406|101927037occ8b83b46bc|4||201|0|0||||
+09:02:26||AnimStarterPack/Walk_Fwd_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|a912fd1e6dfa4c54198287325dabe25d|128085|101927040occ8b83b46bc|4||201|0|0||||
+09:02:27||AnimStarterPack/Walk_Rt_Rifle_Ironsights.uasset|INST_NEW|Up|1526029307|6e32f172a84def5bd59921f13ed0458c|129396|101927043occ8b83b46bc|4||201|0|0||||
+09:02:27||Materials/Textures|INST_REMOVE|Up|1525261147|5ae9a35b3fae9|0|101444532occ8b83b46bc|4||204|0|0||||
+09:02:27||Player|INST_REMOVE|Up|1525261146|5ae9a35a12cfe|0|101444480occ8b83b46bc|4||204|0|0||||
+09:02:27||Materials/MaterialLayers|INST_REMOVE|Up|1525261148|5ae9a35c86290|0|101444536occ8b83b46bc|4||204|0|0||||
+09:02:27||Materials/Instances|INST_REMOVE|Up|1525261099|5ae9a32b7ff9c|0|101444528occ8b83b46bc|4||204|0|0||||
+09:02:27||Humanoid|INST_REMOVE|Up|1525261107|5ae9a333e8025|0|101444472occ8b83b46bc|4||204|0|0||||
+09:02:28||Materials/BaseMaterials/M_UE4Man_Body.uasset|INST_REMOVE|Up|1525261089|9b927ce5db26c127dfd6c37cf558b06a|151352|101445220occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-11T09:02:26Z (last step: 36766 msec, total: 37247 msec)
+#=#=#=# Syncrun started 2018-05-11T09:02:35Z
+#=#=#=#=# Propagation starts 2018-05-11T09:02:39Z (last step: 3435 msec, total: 3435 msec)
+09:02:41||Materials/BaseMaterials/M_Plasma.uasset|INST_REMOVE|Up|1525623941|1ed407a5d2ed9fed4498816e25d53522|47637|101582240occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-11T09:02:39Z (last step: 328 msec, total: 3763 msec)
+#=#=#=# Syncrun started 2018-05-11T09:02:42Z
+#=#=#=#=# Propagation starts 2018-05-11T09:02:43Z (last step: 957 msec, total: 957 msec)
+#=#=#=# Syncrun finished 2018-05-11T09:02:43Z (last step: 12 msec, total: 969 msec)
