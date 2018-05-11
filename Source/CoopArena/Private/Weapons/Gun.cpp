@@ -184,7 +184,7 @@ void AGun::OnFire()
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
 		SpawnDirection = FMath::VRandCone(SpawnDirection, m_SpreadHorizontal, m_SpreadVertical);
 		
-		const FVector SpawnLocation = GetMuzzleLocation();
+		FVector SpawnLocation = GetMuzzleLocation();
 
 		//Set Spawn Collision Handling Override
 		FActorSpawnParameters ActorSpawnParams;
