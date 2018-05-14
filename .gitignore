@@ -75,3 +75,7 @@ Intermediate/*
 DerivedDataCache/*
 
 Content/Static/*
+
+._sync*
+
+.owncloudsync.log
