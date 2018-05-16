@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ItemBase.h"
 #include "Gun.generated.h"
 
 
@@ -16,7 +16,7 @@ UENUM(BlueprintType)
 enum class EFireMode : uint8
 {
 	 Single,
-	 /*Burst,*/
+	 Burst,
 	 Auto
 };
 
@@ -27,85 +27,60 @@ enum class EWeaponState : uint8
 	Idle,
 	Firing,
 	Reloading,
-	Equipping
+	Equipping,
+	Blocked
 };
 
 
 UCLASS()
-class COOPARENA_API AGun : public AActor
+class COOPARENA_API AGun : public AItemBase
 {
 	GENERATED_BODY()
 	
 protected:
 	/** Name of the bone or socket for the muzzle */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	FName m_MuzzleAttachPoint;
+	FName _MuzzleAttachPoint;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class USoundBase* m_FireSound;
+	class USoundBase* _FireSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimMontage* m_FireAnimation;
+	class UAnimMontage* _FireAnimation;
 
 	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimInstance* m_AnimInstance;
-
-	/**
-	 *	The type of magazine that this weapon can be used with.
-	 */
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AMagazine> m_UsableMagazineTyp;*/
-
-	/**
-	 *	The currently loaded magazine.
-	 */
-	/*UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	AMagazine* m_LoadedMagazine;*/
+	class UAnimInstance* _AnimInstance;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	bool m_bCanShoot;
+	bool _bCanShoot;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Weapon)
-	int32 m_MagazineSize;
+	int32 _MagazineSize;
 
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 m_ShotsLeft;
+	int32 _ShotsLeft;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AProjectile> m_ProjectileToSpawn;
-
-	///* 
-	// * How many shots are fired when the weapon fires a burst shot,
-	// * IF the weapon has that mode. Otherwise this value will do nothing.
-	// */
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	//int32 m_ShotsPerBurst;
-
-	///* How many shots are left in the burst */
-	//UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	//int32 m_BurstCount;
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UUserWidget* m_InfoWidget;*/
+	TSubclassOf<AProjectile> _ProjectileToSpawn;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USkeletalMeshComponent* m_Mesh;
+	USkeletalMeshComponent* _Mesh;
 
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	AHumanoid* m_MyOwner;
+	AHumanoid* _MyOwner;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	EWeaponState m_CurrentState;
+	EWeaponState _CurrentState;
 
 	/* 
 	 * Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
 	 * in Single mode, no matter what fire modes it has. 
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
-	float m_Cooldown;
+	float _Cooldown;
 
 	/**
 	* The maximum distance the gun will cast a ray when firing to adjust the aim.
@@ -113,16 +88,12 @@ protected:
 	* from the barrel in the owner's view direction.
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	float m_lineTraceRange;
+	float _lineTraceRange;
 
-	///** The gun's fire modes */
-	//UPROPERTY(EditDefaultsOnly, Category = Weapon)
-	//TArray<EFireMode> m_FireModes;
-
-	FTimerHandle m_WeaponCooldownTimer;
-	float m_SpreadHorizontal;
-	float m_SpreadVertical;
-	EFireMode m_CurrentFireMode;
+	FTimerHandle _WeaponCooldownTimer;
+	float _SpreadHorizontal;
+	float _SpreadVertical;
+	EFireMode _CurrentFireMode;
 
 	/**
 	* Adjusts the aim based on lineTraceRange.
@@ -172,21 +143,5 @@ public:
 
 	void OnFire();
 
-	///* PickUp Interface */
-	//void OnPickUp(AActor* NewOwner);
-	//void OnDrop();
-	//UUserWidget* OnBeginTraceCastOver(APawn* TracingPawn);
-	//void OnEndTraceCastOver(APawn* TracingPawn);
-	///* PickUp Interface end */
-	//
-	///* Tool Interface */
-	//void UseTool();
-	//void UseToolSecondary();
-	//void ReloadTool();
-	//void StopUsingTool();
 	float GetCooldownTime() const;
-	//float GetCooldownTimeSecondary() const;
-	//void Equip(AHumanoid* NewOwner);
-	//void Unequip();
-	///* Tool Interface end */
 };
