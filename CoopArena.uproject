@@ -2,5 +2,12 @@
 	"FileVersion": 3,
 	"EngineAssociation": "4.19",
 	"Category": "",
-	"Description": ""
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CoopArena",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
 }
