@@ -62,30 +62,19 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
-public:	
-	/**
-	 * Function to be called, when a pawn wants to pick this actor up.
-	 * 
-	 * @param NewOwner The pawn that wants to pick this actor up.
-	 */
-	UFUNCTION(BlueprintCallable, Category = ItemBase)
-	virtual void OnPickUp(APawn* NewOwner);
+public:
+	UFUNCTION(BlueprintPure, Category = ItemBase)
+	const FItemStats& GetItemStats() const;
 
-	/**
-	 * Function to be called when this actors gets dropped.
-	 * 
-	 * @param NewOwner The pawn that wants to pick this actor up.
-	 * @param Inventory The pawn's inventory component.
-	 */
-	UFUNCTION(BlueprintCallable, Category = ItemBase)
-	static void OnDrop(APawn* OldOwner);
+	UFUNCTION(BlueprintPure, Category = ItemBase)
+	void SetItemStats(FItemStats& newItemStats);
 
 	/* Interactable interface */
-
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
+	/* Interactable interface end */
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)

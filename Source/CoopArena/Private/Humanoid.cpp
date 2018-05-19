@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Humanoid.h"
-#include "Components/InputComponent.h"
 #include "Engine/World.h"
 #include "Interactable.h"
+#include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Weapons/Gun.h"
 
 
@@ -21,6 +22,9 @@ AHumanoid::AHumanoid()
 
 	m_bAlreadyDied = false;
 	m_WeaponAttachPoint = "GripPoint";
+
+	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
+	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 }
 
 

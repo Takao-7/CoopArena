@@ -101,6 +101,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void ToggleCrouch();
 
+protected:
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
 	TSubclassOf<AGun> m_DefaultGun;
@@ -120,8 +121,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Humanoid)
 	AGun* m_EquippedWeapon;
 
-	/*UPROPERTY(BlueprintReadWrite, Category = Humanoid)
-	TArray<IPickUp*> Inventory;*/
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	UArrowComponent* _DroppedItemSpawnPoint;
 
 private:
 	bool m_bAlreadyDied;

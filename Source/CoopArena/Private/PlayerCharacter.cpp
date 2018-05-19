@@ -44,10 +44,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		IInteractable* interactable = Cast<IInteractable>(hitActor);
 		if (interactable)
 		{
-			/*if (_InteractionHitResult.GetActor())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit the item: %s"), *hitActor->GetName());
-			}*/
 			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this);
 
 			if(interactable != _InteractableInFocus && _ActorInFocus)
@@ -57,10 +53,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 			_InteractableInFocus = interactable;
 			_ActorInFocus = hitActor;
 		}
-		/*else if(_InteractionHitResult.GetActor())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit the actor: %s"), *hitActor->GetName());
-		}*/
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
 	{
@@ -86,7 +78,7 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
-	if (_InteractableInFocus && _ActorInFocus)
+	if (_InteractableInFocus)
 	{
 		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this);
 	}
@@ -95,7 +87,7 @@ void APlayerCharacter::OnBeginInteracting()
 
 void APlayerCharacter::OnEndInteracting()
 {
-	if (_InteractableInFocus && _ActorInFocus)
+	if (_InteractableInFocus)
 	{
 		IInteractable::Execute_OnEndInteract(_ActorInFocus, this);
 	}
@@ -131,6 +123,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::ToggleCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::ToggleCrouch);
 
+	// Interact event
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 }
