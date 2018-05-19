@@ -3,6 +3,7 @@
 #include "Humanoid.h"
 #include "Components/InputComponent.h"
 #include "Engine/World.h"
+#include "Interactable.h"
 #include "Components/CapsuleComponent.h"
 #include "Weapons/Gun.h"
 
@@ -166,34 +167,4 @@ void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-
-// Called to bind functionality to input
-void AHumanoid::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// set up gameplay key bindings
-	check(PlayerInputComponent);
-
-	// Bind jump events
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	// Bind movement events
-	PlayerInputComponent->BindAxis("MoveForward", this, &AHumanoid::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AHumanoid::MoveRight);
-
-	// Bind mouse movement.
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-
-	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHumanoid::FireEquippedWeapon);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHumanoid::StopFireEquippedWeapon);
-
-	// Bind crouch event
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AHumanoid::ToggleCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AHumanoid::ToggleCrouch);
 }

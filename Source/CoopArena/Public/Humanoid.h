@@ -8,6 +8,7 @@
 
 
 class AGun;
+class IInteractable;
 
 
 UCLASS()
@@ -38,9 +39,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	// Sets default values for this character's properties
 	AHumanoid();
 
@@ -52,12 +50,12 @@ protected:
 
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void FireEquippedWeapon();
+	virtual void FireEquippedWeapon();
 
 	/* Stops firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void StopFireEquippedWeapon();
-
+	virtual void StopFireEquippedWeapon();
+	
 	/**
 	* Called when the actor dies.
 	* Does the following:
@@ -73,29 +71,35 @@ protected:
 	* @param direction The direction from which the last shot came.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void OnDeath(const FHitResult& hitInfo, FVector direction);
+	virtual void OnDeath(const FHitResult& hitInfo, FVector direction);
 
-	void DeactivateCollisionCapsuleComponent();
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void DeactivateCollisionCapsuleComponent();
 
 	/** Handles moving forward/backward */
-	void MoveForward(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void MoveForward(float value);
 
 	/** Handles strafing movement, left and right */
-	void MoveRight(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void MoveRight(float value);
 
 	/**
 	* Called via input to turn at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
-	void TurnAtRate(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void TurnAtRate(float value);
 
 	/**
 	* Called via input to turn look up/down at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
-	void LookUpAtRate(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void LookUpAtRate(float value);
 
-	void ToggleCrouch();
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void ToggleCrouch();
 
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)

@@ -4,3 +4,5 @@
 
 #include "CoreMinimal.h"
 
+#define ECC_Projectile	ECC_GameTraceChannel1
+#define ECC_Item		ECC_GameTraceChannel2

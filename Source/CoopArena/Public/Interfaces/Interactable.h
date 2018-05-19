@@ -7,10 +7,10 @@
 
 
 class APawn;
-class UWidget;
+class UUserWidget;
 
 
-UINTERFACE(BlueprintType)
+UINTERFACE(Blueprintable)
 class COOPARENA_API UInteractable : public UInterface
 {
 	GENERATED_BODY()
@@ -28,7 +28,7 @@ public:
 	 * 
 	 * @param InteractingPawn The pawn that is interacting with this actor. 
 	 */
-	UFUNCTION(BlueprintImplementableEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
 	void OnBeginInteract(APawn* InteractingPawn);
 
 	/**
@@ -37,24 +37,26 @@ public:
 	 * 
 	 * @param InteractingPawn The pawn that stopped interacting with this actor. 
 	 */
-	UFUNCTION(BlueprintImplementableEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
 	void OnEndInteract(APawn* InteractingPawn);
 
 	/**
-	 * This function is to be called, when a player looks at this actor.
+	 * This function is to be called, when a player looks at this actor and
+	 * should enable RenderCustomDepths pass and set the CustomDepthStencil value from 252 to 255 (4 different colors).
 	 * 
 	 * @param Pawn The player's pawn that is looking at this actor.
 	 * @return A information widget that shows information about this actor.
 	 * Can be nullptr when there is no relevant information.
 	 */
-	UFUNCTION(BlueprintImplementableEvent, Category = Interactible)
-	UWidget* OnBeginRayTraceOver(APawn* Pawn);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	UUserWidget* OnBeginLineTraceOver(APawn* Pawn);
 
 	/**
-	* This function is to be called, when a player stops looking at this actor.
+	* This function is to be called, when a player stops looking at this actor and
+	* should disable the RenderCustomDepths pass.
 	*
 	* @param Pawn The player's pawn that is stopped looking at this actor.
 	*/
-	UFUNCTION(BlueprintImplementableEvent, Category = Interactible)
-	void OnEndRayTraceOver(APawn* Pawn);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	void OnEndLineTraceOver(APawn* Pawn);
 };

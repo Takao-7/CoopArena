@@ -9,7 +9,6 @@
 
 class AHumanoid;
 class AProjectile;
-//class UUserWidget;
 
 
 UENUM(BlueprintType)
@@ -32,12 +31,54 @@ enum class EWeaponState : uint8
 };
 
 
+USTRUCT(BlueprintType)
+struct FGunStats
+{
+	GENERATED_BODY()
+
+	FGunStats()
+	{
+		FireModes.Add(EFireMode::Single);
+		Cooldown = 0.1f;
+		MagazineSize = 30;		
+	}
+	/*
+	* Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
+	* in Single mode, no matter what fire modes it has.
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Cooldown;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MagazineSize;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpreadHorizontal;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpreadVertical;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<EFireMode> FireModes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	TSubclassOf<AProjectile> ProjectileToSpawn;
+
+	/* How many shots are left in the magazine */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 ShotsLeft;
+};
+
+
 UCLASS()
 class COOPARENA_API AGun : public AItemBase
 {
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	FGunStats _WeaponStats;
+
 	/** Name of the bone or socket for the muzzle */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FName _MuzzleAttachPoint;
@@ -54,33 +95,17 @@ protected:
 	class UAnimInstance* _AnimInstance;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	bool _bCanShoot;
+	bool _bCanShoot;	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Weapon)
-	int32 _MagazineSize;
-
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 _ShotsLeft;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AProjectile> _ProjectileToSpawn;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USkeletalMeshComponent* _Mesh;
+	/*UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USkeletalMeshComponent* _Mesh;*/
 
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	AHumanoid* _MyOwner;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	EWeaponState _CurrentState;
-
-	/* 
-	 * Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
-	 * in Single mode, no matter what fire modes it has. 
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = Weapon)
-	float _Cooldown;
+	EWeaponState _CurrentState;	
 
 	/**
 	* The maximum distance the gun will cast a ray when firing to adjust the aim.
@@ -91,10 +116,10 @@ protected:
 	float _lineTraceRange;
 
 	FTimerHandle _WeaponCooldownTimer;
-	float _SpreadHorizontal;
-	float _SpreadVertical;
+	
 	EFireMode _CurrentFireMode;
 
+protected:
 	/**
 	* Adjusts the aim based on lineTraceRange.
 	* Makes a line trace from startLocation forwards to StartLocation * lineTraceRange.
@@ -117,7 +142,7 @@ protected:
 
 	void AttachMeshToPawn();
 	void DetachMeshFromPawn();
-	void SetOwningPawn(AActor* NewOwner);
+	void SetOwningPawn(AHumanoid* NewOwner);
 
 public:
 	AGun();

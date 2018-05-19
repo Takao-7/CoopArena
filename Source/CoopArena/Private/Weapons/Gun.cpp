@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
+#include "CoopArena.h"
 #include "Weapons/Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "PlayerCharacter.h"
@@ -15,14 +16,22 @@
 AGun::AGun()
 {
 	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
-	_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
-	_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_Mesh->SetSimulatePhysics(true);
 	_Mesh->CastShadow = true;
+	_Mesh->SetCustomDepthStencilValue(253);
+	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
 	SetRootComponent(_Mesh);
 
 	_CurrentState = EWeaponState::Idle;
+
+	_MuzzleAttachPoint = "Muzzle";
+
+	_itemStats.Type = EItemType::Weapon;
+	_itemStats.Class = GetClass();
 }
 
 
@@ -103,11 +112,8 @@ bool AGun::CanShoot() const
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
 	bool bStateOKToFire = ((_CurrentState == EWeaponState::Idle) || (_CurrentState == EWeaponState::Firing));
 	bool bMagazineIsNotEmpty = true;
-	/*if (_LoadedMagazine)
-	{
-		bMagazineIsNotEmpty = _LoadedMagazine->RoundsLeft() != 0;
-	}*/	
-	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty);
+	bool bHasProjectileToSpawn = _WeaponStats.ProjectileToSpawn;
+	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
 
 
@@ -135,13 +141,13 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 }
 
 
+/////////////////////////////////////////////////////
 void AGun::OnFire()
 {
 	UWorld* const World = GetWorld();
 	if (CanShoot() && World)
 	{
 		FVector traceStartLocation;
-		// Set up the trace starting location
 		if (_MyOwner->IsPlayerControlled())
 		{
 			traceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetCameraLocation();
@@ -153,27 +159,29 @@ void AGun::OnFire()
 
 		FVector lineTraceDirection = GetForwardCameraVector();
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
-		SpawnDirection = FMath::VRandCone(SpawnDirection, _SpreadHorizontal, _SpreadVertical);
+		SpawnDirection = FMath::VRandCone(SpawnDirection, _WeaponStats.SpreadHorizontal, _WeaponStats.SpreadVertical);
 		
 		FVector SpawnLocation = GetMuzzleLocation();
 
-		//Set Spawn Collision Handling Override
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		// spawn the projectile at the muzzle
-		AProjectile* projectile = World->SpawnActor<AProjectile>(_ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		AProjectile* projectile = World->SpawnActor<AProjectile>(_WeaponStats.ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		if (projectile)
+		{
+			projectile->_Instigator = GetOwner()->GetInstigatorController();
+		}
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
 
-		if (_FireSound) // try and play the sound if specified
+		if (_FireSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
 		}
 
-		if (_FireAnimation)	// try and play a firing animation if specified
+		if (_FireAnimation)
 		{
-			UAnimInstance* AnimInstance;	// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance;
 			if (_MyOwner->IsPlayerControlled())
 			{
 				AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
@@ -193,14 +201,13 @@ void AGun::OnFire()
 
 
 /////////////////////////////////////////////////////
-void AGun::SetOwningPawn(AActor* NewOwner)
+void AGun::SetOwningPawn(AHumanoid* NewOwner)
 {
-	AHumanoid* humanoid = Cast<AHumanoid>(NewOwner);
 	if (GetOwner() != NewOwner)
 	{
-		Instigator = humanoid;
-		SetOwner(humanoid);
-		_MyOwner = humanoid;
+		Instigator = NewOwner;
+		SetOwner(NewOwner);
+		_MyOwner = NewOwner;
 	}
 }
 
@@ -210,15 +217,16 @@ void AGun::AttachMeshToPawn()
 {
 	if (_MyOwner)
 	{
-		DetachMeshFromPawn();
-
 		FName AttachPoint = _MyOwner->GetWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
 		if (_Mesh)
 		{
-			_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 			_Mesh->SetSimulatePhysics(false);
+			_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
+			_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 		}
 	}
 }
@@ -229,6 +237,9 @@ void AGun::DetachMeshFromPawn()
 	if (_Mesh)
 	{
 		_Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+		_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		_Mesh->SetSimulatePhysics(true);
 	}
 }
@@ -237,11 +248,10 @@ void AGun::DetachMeshFromPawn()
 /////////////////////////////////////////////////////
 float AGun::GetCooldownTime() const
 {
-	return _Cooldown;
+	return _WeaponStats.Cooldown;
 }
 
 
-/////////////////////////////////////////////////////
 float AGun::GetRoundsPerMinute() const
 {
 	return 60 / GetCooldownTime();
