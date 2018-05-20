@@ -42,8 +42,11 @@ public:
 	// Sets default values for this character's properties
 	AHumanoid();
 
-	bool CanEquipNewWeapon();
+	UFUNCTION(BlueprintPure, Category = Humanoid)
+	AGun* GetEquippedGun() const;
 
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetEquippedWeapon(AGun* weapon);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
@@ -101,29 +104,42 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void ToggleCrouch();
 
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleAiming();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleSprinting();
+
 protected:
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	TSubclassOf<AGun> m_DefaultGun;
+	TSubclassOf<AGun> _DefaultGun;
 
 	/** Socket or bone name for attaching weapons when equipped */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	FName m_WeaponAttachPoint;
+	FName _WeaponAttachPoint;
 
 	/** Base turn rate, in deg/sec */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float m_BaseTurnRate;
+	float _BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float m_BaseLookUpRate;
+	float _BaseLookUpRate;
 
+	/* The characters currently held weapon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Humanoid)
-	AGun* m_EquippedWeapon;
+	AGun* _EquippedWeapon;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	UArrowComponent* _DroppedItemSpawnPoint;
 
-private:
-	bool m_bAlreadyDied;
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsAiming;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsSprinting;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bAlreadyDied;
 };

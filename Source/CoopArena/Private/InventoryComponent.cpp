@@ -33,7 +33,7 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 bool UInventoryComponent::AddItem(class AItemBase* itemToAdd)
 {
-	if (!itemToAdd)
+	if (itemToAdd == nullptr)
 	{
 		return false;
 	}

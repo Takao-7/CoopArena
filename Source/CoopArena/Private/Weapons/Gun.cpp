@@ -32,6 +32,30 @@ AGun::AGun()
 
 	_itemStats.Type = EItemType::Weapon;
 	_itemStats.Class = GetClass();
+
+	_WeaponStats.WeaponType = EWEaponType::None;
+}
+
+
+void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn)
+{
+	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
+	if (character)
+	{
+		AGun* equippedGun = character->GetEquippedGun();
+		if (equippedGun)
+		{
+			equippedGun->OnUnequip(true);
+			FTimerHandle timerHandle;
+			FTimerDelegate timerDelegate;
+			timerDelegate.BindUFunction(this, FName("OnEquip"), character);
+			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
+		}
+		else
+		{
+			OnEquip(character);
+		}		
+	}	
 }
 
 
@@ -122,11 +146,17 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 {
 	SetOwningPawn(NewOwner);
 	AttachMeshToPawn();
+	if (NewOwner)
+	{
+		NewOwner->SetEquippedWeapon(this);
+	}
 }
 
 
 void AGun::OnUnequip(bool DropGun /*= false*/)
 {
+	_MyOwner->SetEquippedWeapon(nullptr);
+	
 	if (DropGun)
 	{
 		DetachMeshFromPawn();

@@ -3,9 +3,8 @@
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/ArrowComponent.h"
-#include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/World.h"
 
 
 // Sets default values
@@ -16,14 +15,6 @@ AProjectile::AProjectile()
 	_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_Mesh->SetupAttachment(_CollisionCapsule);
 	RootComponent = _Mesh;
-
-	/*_CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision Sphere"));
-	_CollisionCapsule->SetCollisionResponseToAllChannels(ECR_Block);
-	_CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_CollisionCapsule->SetCollisionObjectType(ECC_PhysicsBody);
-	_CollisionCapsule->SetSimulatePhysics(false);
-	_CollisionCapsule->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
-	_CollisionCapsule->SetupAttachment(RootComponent);*/
 
 	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	_ProjectileMovementComponent->bForceSubStepping = true;	
@@ -53,4 +44,6 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();	
 
 	_TimeWhenSpawned = GetWorld()->GetTimeSeconds();
+
+	SetLifeSpan(10.0f);
 }

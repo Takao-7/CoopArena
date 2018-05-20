@@ -38,6 +38,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CheckForInteractables();
+
+}
+
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::CheckForInteractables()
+{
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
@@ -46,20 +54,34 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this);
 
-			if(interactable != _InteractableInFocus && _ActorInFocus)
+			if (interactable != _InteractableInFocus && _ActorInFocus)
 			{
 				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 			}
-			_InteractableInFocus = interactable;
-			_ActorInFocus = hitActor;
+			SetActorInFocus(hitActor);
+
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
-		_InteractableInFocus = nullptr;
-		_ActorInFocus = nullptr;
+		SetActorInFocus(nullptr);
 	}
+}
+
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::SetActorInFocus(AActor* actor)
+{
+	_InteractableInFocus = Cast<IInteractable>(actor);
+	if (_InteractableInFocus)
+	{
+		_ActorInFocus = actor;
+	}
+	else
+	{
+		_ActorInFocus = nullptr;
+	}	
 }
 
 
@@ -71,8 +93,14 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
+	if (_EquippedWeapon)
+	{
+		params.AddIgnoredActor((AActor*)_EquippedWeapon);
+	}
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
 }
+
+
 
 
 /////////////////////////////////////////////////////
@@ -112,8 +140,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
 	// Bind mouse movement.
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::LookUpAtRate);
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::FireEquippedWeapon);
@@ -126,6 +154,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// Interact event
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
+
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
+
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleSprinting);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::ToggleSprinting);
 }
 
 

@@ -64,17 +64,22 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 
 public:
 	UFUNCTION(BlueprintPure, Category = ItemBase)
-	const FItemStats& GetItemStats() const;
+	virtual const FItemStats& GetItemStats() const;
 
 	UFUNCTION(BlueprintPure, Category = ItemBase)
-	void SetItemStats(FItemStats& newItemStats);
+	virtual void SetItemStats(FItemStats& newItemStats);
 
 	/* Interactable interface */
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	/* Interactable interface end */
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = ItemBase)
+	virtual UInventoryComponent* FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)

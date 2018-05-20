@@ -5,6 +5,7 @@
 #include "Interactable.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Weapons/Gun.h"
 
@@ -17,14 +18,28 @@ AHumanoid::AHumanoid()
 
 
 	// set our turn rates for input
-	m_BaseTurnRate = 45.f;
-	m_BaseLookUpRate = 45.f;
+	_BaseTurnRate = 45.f;
+	_BaseLookUpRate = 45.f;
 
-	m_bAlreadyDied = false;
-	m_WeaponAttachPoint = "GripPoint";
+	bAlreadyDied = false;
+	_WeaponAttachPoint = "GripPoint";
 
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
+
+	bIsAiming = false;
+}
+
+
+AGun* AHumanoid::GetEquippedGun() const
+{
+	return _EquippedWeapon;
+}
+
+
+void AHumanoid::SetEquippedWeapon(AGun* weapon)
+{
+	_EquippedWeapon = weapon;
 }
 
 
@@ -40,16 +55,16 @@ void AHumanoid::BeginPlay()
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
-	if (CanFire() && m_EquippedWeapon)
+	if (CanFire() && _EquippedWeapon)
 	{
-		m_EquippedWeapon->OnFire();
+		_EquippedWeapon->OnFire();
 	}
 }
 
 
 void AHumanoid::StopFireEquippedWeapon()
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
 		
 	}
@@ -85,7 +100,7 @@ void AHumanoid::MoveForward(float value)
 
 void AHumanoid::MoveRight(float value)
 {
-	if (value != 0.0f)
+	if (value != 0.0f && !bIsSprinting)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), value);
@@ -95,13 +110,13 @@ void AHumanoid::MoveRight(float value)
 
 void AHumanoid::TurnAtRate(float rate)
 {
-	AddControllerYawInput(rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 
 void AHumanoid::LookUpAtRate(float rate)
 {
-	AddControllerPitchInput(rate * m_BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 
@@ -117,10 +132,34 @@ void AHumanoid::ToggleCrouch()
 	}
 }
 
-/////////////////////////////////////////////////////
-bool AHumanoid::CanEquipNewWeapon()
+
+void AHumanoid::ToggleAiming()
 {
-	return m_EquippedWeapon;
+	if (bIsAiming)
+	{
+		bIsAiming = false;
+	}
+	else
+	{
+		bIsAiming = true;
+	}
+}
+
+
+void AHumanoid::ToggleSprinting()
+{
+	if (bIsSprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed /= 2;
+		_BaseTurnRate *= 2;
+		bIsSprinting = false;
+	}
+	else if (GetVelocity().X >= 10.0f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed *= 2;
+		_BaseTurnRate /= 2;
+		bIsSprinting = true;
+	}
 }
 
 
@@ -133,19 +172,19 @@ bool AHumanoid::IsAlive() const
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return IsAlive();
+	return IsAlive() && !bIsSprinting;
 }
 
 
 FName AHumanoid::GetWeaponAttachPoint() const
 {
-	return m_WeaponAttachPoint;
+	return _WeaponAttachPoint;
 }
 
 
 void AHumanoid::SetUpDefaultEquipment()
 {
-	if (m_DefaultGun == nullptr)
+	if (_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null!"));
 		return;
@@ -156,8 +195,8 @@ void AHumanoid::SetUpDefaultEquipment()
 		return;
 	}
 
-	m_EquippedWeapon = GetWorld()->SpawnActor<AGun>(m_DefaultGun);
-	m_EquippedWeapon->OnEquip(this);
+	_EquippedWeapon = GetWorld()->SpawnActor<AGun>(_DefaultGun);
+	_EquippedWeapon->OnEquip(this);
 }
 
 

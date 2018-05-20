@@ -44,7 +44,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;	
 
 	/* Returns the characters camera location in world space. If there is no camera, then 
 	 * this function returns a ZeroVector */
@@ -66,4 +66,16 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	virtual void OnEndInteracting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void CheckForInteractables();
+
+	/**
+	 * Sets the actor in focus, both as AActor* (_ActorInFocus) and IInteractable* (_InteractableInFocus).
+	 * @param actor The actor that should be set. If it's not implementing the IInteractable interface,
+	 * both will be set to nullptr.
+	 * If actor is nullptr, both will be set as nullptr, too.
+	 */
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void SetActorInFocus(AActor* actor);
 };

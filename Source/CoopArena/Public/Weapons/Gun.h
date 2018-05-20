@@ -31,6 +31,17 @@ enum class EWeaponState : uint8
 };
 
 
+UENUM(BlueprintType)
+enum class EWEaponType : uint8
+{
+	None,
+	Pistol,
+	Rifle,
+	Shotgun,
+	Launcher
+};
+
+
 USTRUCT(BlueprintType)
 struct FGunStats
 {
@@ -67,6 +78,9 @@ struct FGunStats
 	/* How many shots are left in the magazine */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	int32 ShotsLeft;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	EWEaponType WeaponType;
 };
 
 
@@ -96,9 +110,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
-
-	/*UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USkeletalMeshComponent* _Mesh;*/
 
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
@@ -147,6 +158,10 @@ protected:
 public:
 	AGun();
 
+	/* IInteractable interface */
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	/* IInteractable interface end */
+
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetRoundsPerMinute() const;
@@ -158,15 +173,19 @@ public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	bool CanShoot() const;
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
 
 	/* Unequip the gun. 
 	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
 	 * otherwise it will be dropped.
 	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnUnequip(bool DropGun = false);
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnFire();
 
+	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
 };
