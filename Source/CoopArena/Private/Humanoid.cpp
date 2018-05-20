@@ -21,13 +21,20 @@ AHumanoid::AHumanoid()
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
 
-	bAlreadyDied = false;
 	_WeaponAttachPoint = "GripPoint";
 
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
 	bIsAiming = false;
+	bIsMovingForward = false;
+	bAlreadyDied = false;
+	bIsSprinting = false;
+	bIsCrouched = false;
+
+	_SprintSpeedIncrease = 2.0f;
+
+	_DefaultMaxWalkingSpeed = GetMovementComponent()->GetMaxSpeed();
 }
 
 
@@ -90,10 +97,21 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float value)
 {
-	if (value != 0.0f)
+	if (value == 0.0f)
 	{
-		// add movement in that direction
-		AddMovementInput(GetActorForwardVector(), value);
+		bIsMovingForward = false;
+		SetSprinting(false);
+		return;
+	}	
+	AddMovementInput(GetActorForwardVector(), value);
+	if (value > 0)
+	{
+		bIsMovingForward = true;
+	}
+	else
+	{
+		SetSprinting(false);
+		bIsMovingForward = false;
 	}
 }
 
@@ -150,16 +168,26 @@ void AHumanoid::ToggleSprinting()
 {
 	if (bIsSprinting)
 	{
-		GetCharacterMovement()->MaxWalkSpeed /= 2;
-		_BaseTurnRate *= 2;
-		bIsSprinting = false;
+		SetSprinting(false);
 	}
-	else if (GetVelocity().X >= 10.0f)
+	else if (bIsMovingForward)
 	{
-		GetCharacterMovement()->MaxWalkSpeed *= 2;
-		_BaseTurnRate /= 2;
-		bIsSprinting = true;
+		SetSprinting(true);
 	}
+}
+
+
+void AHumanoid::SetSprinting(bool bSprint)
+{
+	if (bSprint)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed * _SprintSpeedIncrease;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed;
+	}	
+	bIsSprinting = bSprint;
 }
 
 

@@ -110,6 +110,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void ToggleSprinting();
 
+	void SetSprinting(bool bSprint);
+
 protected:
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
@@ -142,4 +144,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bAlreadyDied;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsMovingForward;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	float _SprintSpeedIncrease;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	float _DefaultMaxWalkingSpeed;
 };
