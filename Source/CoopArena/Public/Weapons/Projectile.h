@@ -21,7 +21,6 @@ struct FProjectileValues
 	{
 		BaseDamage = 20.0f;
 		CriticalHitDamageMultiplier = 10.0f;
-		Speed = 1000.0f;
 		bLinealDamageDropOff = true;
 		DamageDropOffPerSecond = 0.5f;
 	}
@@ -33,10 +32,6 @@ struct FProjectileValues
 	/* With how much the damage is multiplied when a critical hit is scored */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	float CriticalHitDamageMultiplier;
-
-	/* Projectile speed in m/s */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	float Speed;
 
 	/* The damage drop-off factor per second flight */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
@@ -64,7 +59,7 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
-	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	UProjectileMovementComponent* _ProjectileMovementComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)

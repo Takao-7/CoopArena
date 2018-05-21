@@ -10,6 +10,7 @@
 #include "Weapons/Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "PlayerCharacter.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 
@@ -26,17 +27,21 @@ AGun::AGun()
 	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
 	SetRootComponent(_Mesh);
 
-	_CurrentState = EWeaponState::Idle;
+	_CurrentGunState = EWeaponState::Idle;
 
 	_MuzzleAttachPoint = "Muzzle";
 
 	_itemStats.Type = EItemType::Weapon;
 	_itemStats.Class = GetClass();
 
-	_WeaponStats.WeaponType = EWEaponType::None;
+	_GunStats.WeaponType = EWEaponType::Rifle;	
+
+	_BurstCount = 0;
+	_SalvoCount = 0;
 }
 
 
+/////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn)
 {
 	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
@@ -59,9 +64,10 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn)
 }
 
 
+/////////////////////////////////////////////////////
 FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 {
-	FVector traceEnd = traceStart + direction * _lineTraceRange;
+	FVector traceEnd = traceStart + direction * _GunStats.lineTraceRange;
 
 	// Start the trace further away, in the given direction, so that we don't hit ourself.
 	FVector adjustedTraceStart = traceStart + (direction * _MyOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.3f);
@@ -78,66 +84,6 @@ FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 	adjustetDirection.Normalize();
 
 	return adjustetDirection;
-}
-
-
-void AGun::ContinousOnFire()
-{
-	/*if (_CurrentFireMode == EFireMode::Burst)
-	{
-		if (_BurstCount > 0)
-		{
-			_BurstCount--;
-			UseTool();
-		}
-		else
-		{
-			if (GetCooldownTime() == 0)
-			{
-				_CurrentFireMode = EFireMode::Single;
-			}
-			else
-			{
-				_CurrentFireMode = EFireMode::Auto;
-			}
-			_CurrentState = EWeaponState::Idle;
-}
-	}
-	else if (_CurrentState == EWeaponState::Firing)
-	{
-		UseTool();
-	}
-
-	if (_BurstCount < 1)
-	{
-		_BurstCount = _ShotsPerBurst;
-	}*/
-}
-
-
-FVector AGun::GetForwardCameraVector() const
-{
-	if (_MyOwner->IsPlayerControlled())
-	{
-		FVector CamPos;
-		FRotator CamRot;
-		Cast<APlayerController>(_MyOwner->Controller)->GetPlayerViewPoint(CamPos, CamRot);
-		return CamRot.Vector();
-	}
-	else
-	{
-		return _MyOwner->GetActorForwardVector();
-	}
-}
-
-
-bool AGun::CanShoot() const
-{
-	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
-	bool bStateOKToFire = ((_CurrentState == EWeaponState::Idle) || (_CurrentState == EWeaponState::Firing));
-	bool bMagazineIsNotEmpty = true;
-	bool bHasProjectileToSpawn = _WeaponStats.ProjectileToSpawn;
-	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
 
 
@@ -174,9 +120,9 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 /////////////////////////////////////////////////////
 void AGun::OnFire()
 {
-	UWorld* const World = GetWorld();
-	if (CanShoot() && World)
+	if (CanShoot())
 	{
+		_CurrentGunState = EWeaponState::Firing;
 		FVector traceStartLocation;
 		if (_MyOwner->IsPlayerControlled())
 		{
@@ -189,18 +135,20 @@ void AGun::OnFire()
 
 		FVector lineTraceDirection = GetForwardCameraVector();
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
-		SpawnDirection = FMath::VRandCone(SpawnDirection, _WeaponStats.SpreadHorizontal, _WeaponStats.SpreadVertical);
-		
+		SpawnDirection = ApplyWeaponSpread(SpawnDirection);		
 		FVector SpawnLocation = GetMuzzleLocation();
 
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		AProjectile* projectile = World->SpawnActor<AProjectile>(_WeaponStats.ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
-		if (projectile)
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_GunStats.ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		if (!projectile)
 		{
-			projectile->_Instigator = GetOwner()->GetInstigatorController();
+			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
+			return;
 		}
+		projectile->_Instigator = GetOwner()->GetInstigatorController();
+		_ShotsLeft--;
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
 
@@ -222,11 +170,70 @@ void AGun::OnFire()
 			}
 		}
 
-		if (GetCooldownTime() > 0.0f && _CurrentState == EWeaponState::Firing)
+		if (_MuzzleFlash && !_SpawnedMuzzleFlashComponent)
 		{
-			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTimer, this, &AGun::ContinousOnFire, GetCooldownTime(), false);
+			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+		}
+
+		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
+		{
+			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
 		}
 	}
+	else
+	{
+		OnStopFire();
+	}
+}
+
+
+void AGun::ContinousOnFire()
+{
+	if (_CurrentFireMode == EFireMode::Auto && _CurrentGunState == EWeaponState::Firing)
+	{
+		_SalvoCount++;
+		OnFire();
+	}
+	else if (_CurrentFireMode == EFireMode::Burst)
+	{
+		_BurstCount++;
+		_SalvoCount++;
+		if (_BurstCount < _GunStats.ShotsPerBurst)
+		{
+			OnFire();
+		}
+		else
+		{
+			_BurstCount = 0;
+			_SalvoCount = 0;
+		}
+	}
+	else
+	{
+		OnStopFire();
+	}
+}
+
+
+
+void AGun::OnStopFire()
+{
+	_CurrentGunState = EWeaponState::Idle;
+	_SalvoCount = 0;
+	if (_SpawnedMuzzleFlashComponent)
+	{
+		_SpawnedMuzzleFlashComponent->DestroyComponent();
+		_SpawnedMuzzleFlashComponent = nullptr;
+	}
+}
+
+
+/////////////////////////////////////////////////////
+FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
+{
+	float spreadHorizontal = FMath::Clamp(_GunStats.SpreadHorizontal, 0.0f, _GunStats.MaxSpread);
+	float spreadVertical = FMath::Clamp(_GunStats.SpreadVertical, 0.0f, _GunStats.MaxSpread);
+	return FMath::VRandCone(SpawnDirection, spreadHorizontal, spreadVertical);
 }
 
 
@@ -239,6 +246,23 @@ void AGun::SetOwningPawn(AHumanoid* NewOwner)
 		SetOwner(NewOwner);
 		_MyOwner = NewOwner;
 	}
+}
+
+
+/////////////////////////////////////////////////////
+bool AGun::CanRapidFire() const
+{
+	return (_GunStats.FireModes.Contains(EFireMode::Burst) || _GunStats.FireModes.Contains(EFireMode::Auto)) && GetCooldownTime() > 0.0f;
+}
+
+
+bool AGun::CanShoot() const
+{
+	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
+	bool bStateOKToFire = ((_CurrentGunState == EWeaponState::Idle) || (_CurrentGunState == EWeaponState::Firing));
+	bool bMagazineIsNotEmpty = _ShotsLeft > 0;
+	bool bHasProjectileToSpawn = _GunStats.ProjectileToSpawn;
+	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
 
 
@@ -276,9 +300,61 @@ void AGun::DetachMeshFromPawn()
 
 
 /////////////////////////////////////////////////////
+void AGun::ReloadWeapon()
+{
+	if (_CurrentGunState == EWeaponState::Reloading)
+	{
+		return;
+	}
+	_CurrentGunState = EWeaponState::Reloading;
+	float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
+	FTimerHandle reloadTH;
+	if (_ReloadAnimation)
+	{
+		UAnimInstance* AnimInstance;
+		if (_MyOwner->IsPlayerControlled())
+		{
+			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);		
+			}
+		}
+	}
+	GetWorld()->GetTimerManager().SetTimer(reloadTH, this, &AGun::FinishReloadWeapon, reloadTime);
+}
+
+
+void AGun::FinishReloadWeapon()
+{
+	_ShotsLeft = _GunStats.MagazineSize;
+	_CurrentGunState = EWeaponState::Idle;
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::ToggleFireMode()
+{
+	_CurrentFireModePointer = (_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
+	_CurrentFireMode = _GunStats.FireModes[_CurrentFireModePointer];
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::BeginPlay()
+{
+	Super::BeginPlay();
+
+	_CurrentFireMode = _GunStats.FireModes[0];
+	_CurrentFireModePointer = 0;
+	_ShotsLeft = _GunStats.MagazineSize;
+}
+
+
+/////////////////////////////////////////////////////
 float AGun::GetCooldownTime() const
 {
-	return _WeaponStats.Cooldown;
+	return _GunStats.Cooldown;
 }
 
 
@@ -298,4 +374,20 @@ FVector AGun::GetMuzzleLocation() const
 		_Mesh->GetSocketWorldLocationAndRotation(_MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
 	}
 	return VecMuzzleLocation;
+}
+
+
+FVector AGun::GetForwardCameraVector() const
+{
+	if (_MyOwner->IsPlayerControlled())
+	{
+		FVector CamPos;
+		FRotator CamRot;
+		Cast<APlayerController>(_MyOwner->Controller)->GetPlayerViewPoint(CamPos, CamRot);
+		return CamRot.Vector();
+	}
+	else
+	{
+		return _MyOwner->GetActorForwardVector();
+	}
 }

@@ -3,10 +3,12 @@
 #include "Humanoid.h"
 #include "Engine/World.h"
 #include "Interactable.h"
+#include "TimerManager.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
 
 
@@ -33,8 +35,6 @@ AHumanoid::AHumanoid()
 	bIsCrouched = false;
 
 	_SprintSpeedIncrease = 2.0f;
-
-	_DefaultMaxWalkingSpeed = GetMovementComponent()->GetMaxSpeed();
 }
 
 
@@ -54,7 +54,8 @@ void AHumanoid::SetEquippedWeapon(AGun* weapon)
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	_DefaultMaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
 	SetUpDefaultEquipment();
 }
 
@@ -73,7 +74,7 @@ void AHumanoid::StopFireEquippedWeapon()
 {
 	if (_EquippedWeapon)
 	{
-		
+		_EquippedWeapon->OnStopFire();
 	}
 }
 
@@ -97,21 +98,21 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float value)
 {
-	if (value == 0.0f)
+	if (value > 0.0f)
 	{
+		AddMovementInput(GetActorForwardVector(), value);
+		bIsMovingForward = true;
+	}
+	else if (value < 0.0f)
+	{
+		AddMovementInput(GetActorForwardVector(), value);
 		bIsMovingForward = false;
 		SetSprinting(false);
-		return;
-	}	
-	AddMovementInput(GetActorForwardVector(), value);
-	if (value > 0)
-	{
-		bIsMovingForward = true;
 	}
 	else
 	{
-		SetSprinting(false);
 		bIsMovingForward = false;
+		SetSprinting(false);
 	}
 }
 
@@ -191,16 +192,57 @@ void AHumanoid::SetSprinting(bool bSprint)
 }
 
 
+void AHumanoid::ToggleJump()
+{
+	if (!bIsJumping)
+	{
+		float veloctiy_abs = FMath::Abs(GetVelocity().Size());
+		if (veloctiy_abs <= 10.0f)
+		{
+			FTimerHandle jumpTH;
+			GetWorld()->GetTimerManager().SetTimer(jumpTH, this, &ACharacter::Jump, 0.275f);
+		}
+		else
+		{
+			Jump();
+		}
+		bIsJumping = true;
+	}
+	else
+	{
+		StopJumping();
+		bIsJumping = false;
+	}
+}
+
+
+void AHumanoid::ReloadWeapon()
+{
+	if (_EquippedWeapon)
+	{
+		_EquippedWeapon->ReloadWeapon();
+	}
+}
+
+
+void AHumanoid::ChangeWeaponFireMode()
+{
+	if (_EquippedWeapon)
+	{
+		_EquippedWeapon->ToggleFireMode();
+	}
+}
+
 /////////////////////////////////////////////////////
 bool AHumanoid::IsAlive() const
 {
-	return true;
+	return !bAlreadyDied;
 }
 
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return IsAlive() && !bIsSprinting;
+	return IsAlive() && !bIsSprinting && !bIsJumping;
 }
 
 
@@ -230,6 +272,14 @@ void AHumanoid::SetUpDefaultEquipment()
 
 void AHumanoid::Kill()
 {
+	if (bAlreadyDied)
+	{
+		return;
+	}
+	bAlreadyDied = true;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 

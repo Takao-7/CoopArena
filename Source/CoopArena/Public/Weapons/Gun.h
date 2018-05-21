@@ -51,11 +51,18 @@ struct FGunStats
 	{
 		FireModes.Add(EFireMode::Single);
 		Cooldown = 0.1f;
-		MagazineSize = 30;		
+		SpreadHorizontal = 0.05;
+		SpreadVertical = 0.05f;
+		MaxSpread = 0.4f;
+		MagazineSize = 30;	
+		ShotsPerBurst = 3;	
+		lineTraceRange = 10000.0f;
 	}
 	/*
 	* Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
 	* in Single mode, no matter what fire modes it has.
+	* However, this value should NOT be <= 0.0f because then enemies will fire to quickly in single mode
+	* and player could abuse the single mode for rapid fire.
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cooldown;
@@ -70,17 +77,29 @@ struct FGunStats
 	float SpreadVertical;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxSpread;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<EFireMode> FireModes;
 
+	/* If the weapon supports Burst mode, how many shots are fired in that mode. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 ShotsPerBurst;
+
+	/* Which projectile is spawned each time the gun fires */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AProjectile> ProjectileToSpawn;
 
-	/* How many shots are left in the magazine */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 ShotsLeft;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	EWEaponType WeaponType;
+
+	/**
+	* The maximum distance the gun will cast a ray when firing to adjust the aim.
+	* If there isn't any viable target in that range, the shoot will travel at a strait line
+	* from the barrel in the owner's view direction.
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	float lineTraceRange;
 };
 
 
@@ -91,7 +110,7 @@ class COOPARENA_API AGun : public AItemBase
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	FGunStats _WeaponStats;
+	FGunStats _GunStats;
 
 	/** Name of the bone or socket for the muzzle */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
@@ -105,30 +124,49 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	class UAnimMontage* _FireAnimation;
 
-	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UAnimMontage* _ReloadAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	class UParticleSystem* _MuzzleFlash;
+
+	/* The spawned muzzle flash particle system */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
+
+	/* The owner's animation instance */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
 
 	/* The pawn that currently owns and carries this weapon */
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AHumanoid* _MyOwner;
 
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	EWeaponState _CurrentState;	
-
-	/**
-	* The maximum distance the gun will cast a ray when firing to adjust the aim.
-	* If there isn't any viable target in that range, the shoot will travel at a strait line
-	* from the barrel in the owner's view direction.
-	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	float _lineTraceRange;
-
-	FTimerHandle _WeaponCooldownTimer;
-	
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	EFireMode _CurrentFireMode;
+
+	/* How many shots are fired already in the current salvo. Used for the increased spread during firing. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _SalvoCount;
+
+	/* How many shots are fired already in the current burst (see: burst mode). */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _BurstCount;
+
+	/* How many shots are left in the magazine */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _ShotsLeft;
+
+	FTimerHandle _WeaponCooldownTH;
+
+	/* Used to set the new fire mode, when the player changes the fire mode. */
+	int32 _CurrentFireModePointer;
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	EWeaponState _CurrentGunState;
 
 protected:
 	/**
@@ -151,10 +189,22 @@ protected:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetForwardCameraVector() const;
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AttachMeshToPawn();
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DetachMeshFromPawn();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void SetOwningPawn(AHumanoid* NewOwner);
 
+	/* Checks if the weapon is able to fire in an automatic mode (= holding Fire button results in continuous fire) */
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	bool CanRapidFire() const;
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void FinishReloadWeapon();
+
+	virtual void BeginPlay() override;
 public:
 	AGun();
 
@@ -186,6 +236,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnFire();
 
+	FVector ApplyWeaponSpread(FVector SpawnDirection);
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnStopFire();
+
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
+
+	/**
+	* Reloads the weapon.
+	*/
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void ToggleFireMode();
 };

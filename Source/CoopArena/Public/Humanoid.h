@@ -110,7 +110,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void ToggleSprinting();
 
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleJump();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ChangeWeaponFireMode();
 
 protected:
 	/** The tool or weapon that the character will start the game with */
@@ -153,4 +163,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	float _DefaultMaxWalkingSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsJumping;
 };

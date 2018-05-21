@@ -17,8 +17,7 @@ AProjectile::AProjectile()
 	RootComponent = _Mesh;
 
 	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
-	_ProjectileMovementComponent->bForceSubStepping = true;	
-	_ProjectileMovementComponent->InitialSpeed = _ProjectileValues.Speed;
+	_ProjectileMovementComponent->bForceSubStepping = true;
 }
 
 
