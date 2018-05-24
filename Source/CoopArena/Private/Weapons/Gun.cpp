@@ -340,6 +340,11 @@ void AGun::ToggleFireMode()
 }
 
 
+UMeshComponent* AGun::GetMesh() const
+{
+	return _Mesh;
+}
+
 /////////////////////////////////////////////////////
 void AGun::BeginPlay()
 {

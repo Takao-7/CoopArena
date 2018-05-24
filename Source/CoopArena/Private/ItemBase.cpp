@@ -38,7 +38,7 @@ void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn)
 		/* TODO: Implement system to find the correct inventory. */
 		inventory = FindCorrectInventory(inventoryActorComponents);
 	}	
-	bool bItemSuccessfullyAdded = inventory->AddItem(this);
+	bool bItemSuccessfullyAdded = inventory->AddItem_Implementation(this);
 	if (bItemSuccessfullyAdded)
 	{
 		Destroy();

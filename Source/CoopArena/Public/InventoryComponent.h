@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "ItemBase.h"
+#include "Inventory.h"
 #include "InventoryComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class COOPARENA_API UInventoryComponent : public UActorComponent
+class COOPARENA_API UInventoryComponent : public UActorComponent, public IInventory
 {
 	GENERATED_BODY()
 
@@ -17,24 +18,13 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	/**
-	 * Adds an item to the inventory.
-	 * @param itemToAdd The item to be added to the inventory.
-	 * @return True if the item was successfully added.
-	 */
-	//UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool AddItem(class AItemBase* itemToAdd);
-
-	/**
-	* Removes an item from the inventory. Does NOT spawn the item in the world!
-	* @param itemIndexToRemove The item's index that should be removed from the inventory.
-	* @return True if the item was successfully removed.
-	*/
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool RemoveItem(int32 itemIndexToRemove, FItemStats& outItemStats);
+	/* IInventory interface */
+	virtual bool AddItem_Implementation(class AItemBase* itemToAdd);
+	virtual bool RemoveItem_Implementation(int32 itemIndexToRemove, FItemStats& outItemStats);
+	virtual bool HasSpaceForItem_Implementation(FItemStats& item) const;
+	virtual int32 GetInventorySize_Implementation() const;
+	virtual bool WeaponCanReloadFrom_Implementation() const;
+	/* IInventory interface end */
 
 	/**
 	 * Drops (= spawns) an item. If set, will use the defined Spawnpoint.
@@ -43,14 +33,8 @@ public:
 	 * @return The dropped item. Nullptr if the item couldn't be spawned for some reason.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
-	AItemBase* DropItem(FItemStats& itemToDrop);
-
-	UFUNCTION(BlueprintPure, Category = Inventory)
-	int32 GetInventorySize() const;
-
-	UFUNCTION(BlueprintPure, Category = Inventory)
-	bool HasSpaceForItem(FItemStats& item) const;
-
+	virtual AItemBase* DropItem(FItemStats& itemToDrop);
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -64,6 +48,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Inventory)
 	TArray<FItemStats> _StoredItems;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Inventory)
-	USceneComponent* _SpawnPoint;
+	/** 
+	 * If true, weapons can reload from this inventory component.
+	 * If a pawn doesn't have any inventory component with this set to true, the pawn is not able to reload his weapons.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Inventory)
+	bool bWeaponsCanReloadFrom;
 };

@@ -10,9 +10,6 @@
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
 
@@ -23,15 +20,7 @@ void UInventoryComponent::BeginPlay()
 }
 
 
-// Called every frame
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
-
-bool UInventoryComponent::AddItem(class AItemBase* itemToAdd)
+bool UInventoryComponent::AddItem_Implementation(AItemBase* itemToAdd)
 {
 	if (itemToAdd == nullptr)
 	{
@@ -39,7 +28,7 @@ bool UInventoryComponent::AddItem(class AItemBase* itemToAdd)
 	}
 
 	FItemStats itemstats = itemToAdd->GetItemStats();
-	if (!HasSpaceForItem(itemstats))
+	if (!HasSpaceForItem_Implementation(itemstats))
 	{
 		return false;
 	}
@@ -48,7 +37,7 @@ bool UInventoryComponent::AddItem(class AItemBase* itemToAdd)
 }
 
 
-bool UInventoryComponent::RemoveItem(int32 itemIndexToRemove, FItemStats& outItemStats)
+bool UInventoryComponent::RemoveItem_Implementation(int32 itemIndexToRemove, FItemStats& outItemStats)
 {
 	bool bItemExists = _StoredItems.IsValidIndex(itemIndexToRemove);
 	if (!bItemExists)
@@ -64,15 +53,7 @@ bool UInventoryComponent::RemoveItem(int32 itemIndexToRemove, FItemStats& outIte
 
 AItemBase* UInventoryComponent::DropItem(FItemStats& itemToDrop)
 {
-	FVector spawnLocation;
-	if (_SpawnPoint)
-	{
-		spawnLocation = _SpawnPoint->GetComponentLocation();
-	}
-	else
-	{
-		spawnLocation = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.0f;
-	}
+	FVector spawnLocation = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.0f;
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -86,13 +67,18 @@ AItemBase* UInventoryComponent::DropItem(FItemStats& itemToDrop)
 }
 
 
-int32 UInventoryComponent::GetInventorySize() const
+int32 UInventoryComponent::GetInventorySize_Implementation() const
 {
 	return _InventorySize;
 }
 
 
-bool UInventoryComponent::HasSpaceForItem(FItemStats& item) const
+bool UInventoryComponent::WeaponCanReloadFrom_Implementation() const
+{
+	return bWeaponsCanReloadFrom;
+}
+
+bool UInventoryComponent::HasSpaceForItem_Implementation(FItemStats& item) const
 {
 	bool bInventoryNotFull = _StoredItems.Num() < _InventorySize;
 

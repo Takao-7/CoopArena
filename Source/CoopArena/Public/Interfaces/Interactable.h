@@ -28,7 +28,7 @@ public:
 	 * 
 	 * @param InteractingPawn The pawn that is interacting with this actor. 
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
 	void OnBeginInteract(APawn* InteractingPawn);
 
 	/**
@@ -37,7 +37,7 @@ public:
 	 * 
 	 * @param InteractingPawn The pawn that stopped interacting with this actor. 
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
 	void OnEndInteract(APawn* InteractingPawn);
 
 	/**
@@ -48,7 +48,7 @@ public:
 	 * @return A information widget that shows information about this actor.
 	 * Can be nullptr when there is no relevant information.
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
 	UUserWidget* OnBeginLineTraceOver(APawn* Pawn);
 
 	/**
@@ -57,6 +57,6 @@ public:
 	*
 	* @param Pawn The player's pawn that is stopped looking at this actor.
 	*/
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactible)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
 	void OnEndLineTraceOver(APawn* Pawn);
 };

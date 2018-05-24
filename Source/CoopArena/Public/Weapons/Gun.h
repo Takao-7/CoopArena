@@ -252,4 +252,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ToggleFireMode();
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UMeshComponent* GetMesh() const;
 };
