@@ -59,15 +59,30 @@ void UWeaponHolster::AttachGunToHolster(AGun* GunToAttach)
 {
 	APlayerCharacter* owner = Cast<APlayerCharacter>(GetOwner());
 
-	FQuat rotationOffset = GunToAttach->GetActorRotation().Quaternion() - FQuat::FindBetweenVectors(GetComponentLocation(), GunToAttach->GetMesh()->GetComponentLocation());
-	GunToAttach->SetActorRotation(rotationOffset);
+	FVector gunForwardV = GunToAttach->GetMesh()->GetSocketLocation("AttachPoint_Right");
+	gunForwardV.Normalize();
+	FVector holsterForwardV = GetForwardVector();
+	UE_LOG(LogTemp, Warning, TEXT("Gun forward vector: %s. Holster forward vector: %s"), *gunForwardV.ToString(), *holsterForwardV.ToString());
 
-	GunToAttach->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);	
+	FVector normalForward = GetComponentLocation();
+	normalForward.Normalize();
+	UE_LOG(LogTemp, Warning, TEXT("Holster vector normalized: %s"), *normalForward.ToString());
 
-	/*FVector positionOffset = GetComponentLocation() - GunToAttach->GetMesh()->GetSocketLocation("AttachPoint_Right");
-	GunToAttach->SetActorRelativeLocation(positionOffset);*/
+	float dotProduct = FMath::Acos(FVector::DotProduct(gunForwardV, holsterForwardV));
+	dotProduct = FMath::RadiansToDegrees(dotProduct);
+	FVector crossProduct = FVector::CrossProduct(gunForwardV, holsterForwardV);
+	crossProduct.Normalize();
+	FQuat newRotation = FQuat(crossProduct, dotProduct);
+
+	GunToAttach->SetActorRelativeRotation(newRotation);
+
+	FAttachmentTransformRules rules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, false);
+	GunToAttach->AttachToComponent(this, rules);
+
+	/*FVector locationOffset = GunToAttach->GetActorLocation() - GunToAttach->GetMesh()->GetSocketLocation("AttachPoint_Right");
+	GunToAttach->SetActorRelativeLocation(locationOffset);*/
 
 	UAnimInstance* AnimInstance;
 	AnimInstance = owner->GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(_HolsteringAnimations, -1.0f);	
+	AnimInstance->Montage_Play(_HolsteringAnimations, -1.0f);
 }
