@@ -9,6 +9,7 @@
 
 class AHumanoid;
 class AProjectile;
+class USoundBase;
 
 
 UENUM(BlueprintType)
@@ -118,7 +119,11 @@ protected:
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class USoundBase* _FireSound;
+	USoundBase* _FireSound;
+
+	/** Sound to play each time we reload */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USoundBase* _ReloadSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)

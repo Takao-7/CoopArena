@@ -19,26 +19,21 @@ class COOPARENA_API UWeaponHolster : public USceneComponent, public IInventory
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
-	UWeaponHolster();
-
 	/* IInventory interface */
-	virtual bool AddItem_Implementation(AItemBase* itemToAdd);
-	virtual bool RemoveItem_Implementation(int32 itemIndexToRemove, FItemStats& outItemStats);
-	virtual bool HasSpaceForItem_Implementation(FItemStats& item) const;
-	virtual int32 GetInventorySize_Implementation() const;
-	virtual bool WeaponCanReloadFrom_Implementation() const;
+	virtual bool AddItem_Implementation(AItemBase* itemToAdd) override;
+	virtual bool RemoveItem_Implementation(int32 itemIndexToRemove, FItemStats& outItemStats) override;
+	virtual bool HasSpaceForItem_Implementation(FItemStats& item) const override;
+	virtual int32 GetInventorySize_Implementation() const override;
+	virtual bool WeaponCanReloadFrom_Implementation() const override;
 	/* IInventory interface end */
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
 	UFUNCTION(BlueprintCallable, Category = WeaponHolster)
 	void AttachGunToHolster(AGun* GunToAttach);
+
 protected:
 	AGun* _CarriedGun;	
 
-	UAnimMontage* _HolsteringAnimations;
-	
+	UPROPERTY(EditDefaultsOnly, Category = WeaponHolster)
+	UAnimMontage* _HolsteringAnimations;	
 };

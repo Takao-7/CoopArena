@@ -12,6 +12,7 @@
 #include "PlayerCharacter.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/ArrowComponent.h"
 
 
 AGun::AGun()
@@ -320,6 +321,10 @@ void AGun::ReloadWeapon()
 				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);		
 			}
 		}
+	}
+	if (_ReloadSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, _ReloadSound, GetActorLocation());
 	}
 	GetWorld()->GetTimerManager().SetTimer(reloadTH, this, &AGun::FinishReloadWeapon, reloadTime);
 }
