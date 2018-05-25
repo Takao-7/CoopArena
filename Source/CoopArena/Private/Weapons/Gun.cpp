@@ -6,32 +6,72 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
+#include "CoopArena.h"
 #include "Weapons/Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "PlayerCharacter.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/ArrowComponent.h"
 
 
 AGun::AGun()
 {
-	m_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
-	m_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
-	m_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	m_Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	m_Mesh->CastShadow = true;
-	SetRootComponent(m_Mesh);
+	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
+	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_Mesh->SetSimulatePhysics(true);
+	_Mesh->CastShadow = true;
+	_Mesh->SetCustomDepthStencilValue(253);
+	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	SetRootComponent(_Mesh);
 
-	m_CurrentState = EWeaponState::Idle;
+	_CurrentGunState = EWeaponState::Idle;
+
+	_MuzzleAttachPoint = "Muzzle";
+
+	_itemStats.Type = EItemType::Weapon;
+	_itemStats.Class = GetClass();
+
+	_GunStats.WeaponType = EWEaponType::Rifle;	
+
+	_BurstCount = 0;
+	_SalvoCount = 0;
 }
 
 
+/////////////////////////////////////////////////////
+void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn)
+{
+	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
+	if (character)
+	{
+		AGun* equippedGun = character->GetEquippedGun();
+		if (equippedGun)
+		{
+			equippedGun->OnUnequip(true);
+			FTimerHandle timerHandle;
+			FTimerDelegate timerDelegate;
+			timerDelegate.BindUFunction(this, FName("OnEquip"), character);
+			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
+		}
+		else
+		{
+			OnEquip(character);
+		}		
+	}	
+}
+
+
+/////////////////////////////////////////////////////
 FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 {
-	FVector traceEnd = traceStart + direction * m_lineTraceRange;
+	FVector traceEnd = traceStart + direction * _GunStats.lineTraceRange;
 
 	// Start the trace further away, in the given direction, so that we don't hit ourself.
-	FVector adjustedTraceStart = traceStart + (direction * m_MyOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.3f);
+	FVector adjustedTraceStart = traceStart + (direction * _MyOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.3f);
 
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByChannel(Hit, adjustedTraceStart, traceEnd, ECollisionChannel::ECC_Camera);
@@ -48,79 +88,22 @@ FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 }
 
 
-void AGun::ContinousOnFire()
-{
-	/*if (m_CurrentFireMode == EFireMode::Burst)
-	{
-		if (m_BurstCount > 0)
-		{
-			m_BurstCount--;
-			UseTool();
-		}
-		else
-		{
-			if (GetCooldownTime() == 0)
-			{
-				m_CurrentFireMode = EFireMode::Single;
-			}
-			else
-			{
-				m_CurrentFireMode = EFireMode::Auto;
-			}
-			m_CurrentState = EWeaponState::Idle;
-}
-	}
-	else if (m_CurrentState == EWeaponState::Firing)
-	{
-		UseTool();
-	}
-
-	if (m_BurstCount < 1)
-	{
-		m_BurstCount = m_ShotsPerBurst;
-	}*/
-}
-
-
-FVector AGun::GetForwardCameraVector() const
-{
-	if (m_MyOwner->IsPlayerControlled())
-	{
-		FVector CamPos;
-		FRotator CamRot;
-		Cast<APlayerController>(m_MyOwner->Controller)->GetPlayerViewPoint(CamPos, CamRot);
-		return CamRot.Vector();
-	}
-	else
-	{
-		return m_MyOwner->GetActorForwardVector();
-	}
-}
-
-
-bool AGun::CanShoot() const
-{
-	bool bOwnerCanFire = m_MyOwner && m_MyOwner->CanFire();
-	bool bStateOKToFire = ((m_CurrentState == EWeaponState::Idle) || (m_CurrentState == EWeaponState::Firing));
-	bool bMagazineIsNotEmpty = true;
-	/*if (m_LoadedMagazine)
-	{
-		bMagazineIsNotEmpty = m_LoadedMagazine->RoundsLeft() != 0;
-	}*/	
-	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty);
-}
-
-
 /////////////////////////////////////////////////////
 void AGun::OnEquip(AHumanoid* NewOwner)
 {
 	SetOwningPawn(NewOwner);
 	AttachMeshToPawn();
+	if (NewOwner)
+	{
+		NewOwner->SetEquippedWeapon(this);
+	}
 }
 
 
 void AGun::OnUnequip(bool DropGun /*= false*/)
 {
+	_MyOwner->SetEquippedWeapon(nullptr);
+	
 	if (DropGun)
 	{
 		DetachMeshFromPawn();
@@ -128,52 +111,23 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	}
 	else
 	{
-		m_Mesh->SetVisibility(false, true);
-		m_Mesh->SetSimulatePhysics(false);
-		m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		_Mesh->SetVisibility(false, true);
+		_Mesh->SetSimulatePhysics(false);
+		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
 }
 
 
 /////////////////////////////////////////////////////
-//void AGun::OnPickUp(AActor* NewOwner)
-//{
-//	SetOwningPawn(NewOwner);
-//	AttachMeshToPawn();
-//}
-//
-//
-//void AGun::OnDrop()
-//{
-//	SetOwningPawn(nullptr);
-//	DetachMeshFromPawn();
-//}
-
-
-/////////////////////////////////////////////////////
-//UUserWidget* AGun::OnBeginTraceCastOver(APawn* TracingPawn)
-//{
-//	if (TracingPawn && TracingPawn->IsLocallyControlled())
-//	{
-//		return m_InfoWidget;
-//	}
-//	else
-//	{
-//		return nullptr;
-//	}	
-//}
-
-
 void AGun::OnFire()
 {
-	UWorld* const World = GetWorld();
-	if (CanShoot() && World)
+	if (CanShoot())
 	{
+		_CurrentGunState = EWeaponState::Firing;
 		FVector traceStartLocation;
-		// Set up the trace starting location
-		if (m_MyOwner->IsPlayerControlled())
+		if (_MyOwner->IsPlayerControlled())
 		{
-			traceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetCameraLocation();
+			traceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetCameraLocation();
 		}
 		else
 		{
@@ -182,73 +136,152 @@ void AGun::OnFire()
 
 		FVector lineTraceDirection = GetForwardCameraVector();
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
-		SpawnDirection = FMath::VRandCone(SpawnDirection, m_SpreadHorizontal, m_SpreadVertical);
-		
+		SpawnDirection = ApplyWeaponSpread(SpawnDirection);		
 		FVector SpawnLocation = GetMuzzleLocation();
 
-		//Set Spawn Collision Handling Override
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		// spawn the projectile at the muzzle
-		/*TSubclassOf<AProjectile> projectileClass = m_LoadedMagazine->GetProjectileClass(true);*/
-		AProjectile* projectile = World->SpawnActor<AProjectile>(m_ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
-
-		MakeNoise(1.0f, m_MyOwner, SpawnLocation);
-
-		if (m_FireSound) // try and play the sound if specified
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_GunStats.ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		if (!projectile)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, m_FireSound, GetActorLocation());
+			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
+			return;
+		}
+		projectile->_Instigator = GetOwner()->GetInstigatorController();
+		_ShotsLeft--;
+
+		MakeNoise(1.0f, _MyOwner, SpawnLocation);
+
+		if (_FireSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
 		}
 
-		if (m_FireAnimation)	// try and play a firing animation if specified
+		if (_FireAnimation)
 		{
-			UAnimInstance* AnimInstance;	// Get the animation object for the arms mesh
-			if (m_MyOwner->IsPlayerControlled())
+			UAnimInstance* AnimInstance;
+			if (_MyOwner->IsPlayerControlled())
 			{
-				AnimInstance = m_MyOwner->GetMesh()->GetAnimInstance();
+				AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
 				if (AnimInstance)
 				{
-					AnimInstance->Montage_Play(m_FireAnimation, 1.f);
+					AnimInstance->Montage_Play(_FireAnimation, 1.f);
 				}
 			}
 		}
 
-		if (GetCooldownTime() > 0.0f && m_CurrentState == EWeaponState::Firing)
+		if (_MuzzleFlash && !_SpawnedMuzzleFlashComponent)
 		{
-			GetWorld()->GetTimerManager().SetTimer(m_WeaponCooldownTimer, this, &AGun::ContinousOnFire, GetCooldownTime(), false);
+			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 		}
+
+		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
+		{
+			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
+		}
+	}
+	else
+	{
+		OnStopFire();
+	}
+}
+
+
+void AGun::ContinousOnFire()
+{
+	if (_CurrentFireMode == EFireMode::Auto && _CurrentGunState == EWeaponState::Firing)
+	{
+		_SalvoCount++;
+		OnFire();
+	}
+	else if (_CurrentFireMode == EFireMode::Burst)
+	{
+		_BurstCount++;
+		_SalvoCount++;
+		if (_BurstCount < _GunStats.ShotsPerBurst)
+		{
+			OnFire();
+		}
+		else
+		{
+			_BurstCount = 0;
+			_SalvoCount = 0;
+		}
+	}
+	else
+	{
+		OnStopFire();
+	}
+}
+
+
+
+void AGun::OnStopFire()
+{
+	_CurrentGunState = EWeaponState::Idle;
+	_SalvoCount = 0;
+	if (_SpawnedMuzzleFlashComponent)
+	{
+		_SpawnedMuzzleFlashComponent->DestroyComponent();
+		_SpawnedMuzzleFlashComponent = nullptr;
 	}
 }
 
 
 /////////////////////////////////////////////////////
-void AGun::SetOwningPawn(AActor* NewOwner)
+FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
 {
-	AHumanoid* humanoid = Cast<AHumanoid>(NewOwner);
+	float spreadHorizontal = FMath::Clamp(_GunStats.SpreadHorizontal, 0.0f, _GunStats.MaxSpread);
+	float spreadVertical = FMath::Clamp(_GunStats.SpreadVertical, 0.0f, _GunStats.MaxSpread);
+	return FMath::VRandCone(SpawnDirection, spreadHorizontal, spreadVertical);
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::SetOwningPawn(AHumanoid* NewOwner)
+{
 	if (GetOwner() != NewOwner)
 	{
-		Instigator = humanoid;
-		SetOwner(humanoid);
-		m_MyOwner = humanoid;
+		Instigator = NewOwner;
+		SetOwner(NewOwner);
+		_MyOwner = NewOwner;
 	}
+}
+
+
+/////////////////////////////////////////////////////
+bool AGun::CanRapidFire() const
+{
+	return (_GunStats.FireModes.Contains(EFireMode::Burst) || _GunStats.FireModes.Contains(EFireMode::Auto)) && GetCooldownTime() > 0.0f;
+}
+
+
+bool AGun::CanShoot() const
+{
+	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
+	bool bStateOKToFire = ((_CurrentGunState == EWeaponState::Idle) || (_CurrentGunState == EWeaponState::Firing));
+	bool bMagazineIsNotEmpty = _ShotsLeft > 0;
+	bool bHasProjectileToSpawn = _GunStats.ProjectileToSpawn;
+	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
 
 
 /////////////////////////////////////////////////////
 void AGun::AttachMeshToPawn()
 {
-	if (m_MyOwner)
+	if (_MyOwner)
 	{
-		DetachMeshFromPawn();
+		FName AttachPoint = _MyOwner->GetWeaponAttachPoint();
+		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
-		FName AttachPoint = m_MyOwner->GetWeaponAttachPoint();
-		USkeletalMeshComponent* PawnMesh = m_MyOwner->GetMesh();
-
-		if (m_Mesh)
+		if (_Mesh)
 		{
-			m_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
-			m_Mesh->SetSimulatePhysics(false);
+			_Mesh->SetSimulatePhysics(false);
+			_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
+			_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 		}
 	}
 }
@@ -256,22 +289,85 @@ void AGun::AttachMeshToPawn()
 
 void AGun::DetachMeshFromPawn()
 {
-	if (m_Mesh)
+	if (_Mesh)
 	{
-		m_Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		m_Mesh->SetSimulatePhysics(true);
+		_Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+		_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		_Mesh->SetSimulatePhysics(true);
 	}
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::ReloadWeapon()
+{
+	if (_CurrentGunState == EWeaponState::Reloading)
+	{
+		return;
+	}
+	_CurrentGunState = EWeaponState::Reloading;
+	float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
+	FTimerHandle reloadTH;
+	if (_ReloadAnimation)
+	{
+		UAnimInstance* AnimInstance;
+		if (_MyOwner->IsPlayerControlled())
+		{
+			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);		
+			}
+		}
+	}
+	if (_ReloadSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, _ReloadSound, GetActorLocation());
+	}
+	GetWorld()->GetTimerManager().SetTimer(reloadTH, this, &AGun::FinishReloadWeapon, reloadTime);
+}
+
+
+void AGun::FinishReloadWeapon()
+{
+	_ShotsLeft = _GunStats.MagazineSize;
+	_CurrentGunState = EWeaponState::Idle;
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::ToggleFireMode()
+{
+	_CurrentFireModePointer = (_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
+	_CurrentFireMode = _GunStats.FireModes[_CurrentFireModePointer];
+}
+
+
+UMeshComponent* AGun::GetMesh() const
+{
+	return _Mesh;
+}
+
+/////////////////////////////////////////////////////
+void AGun::BeginPlay()
+{
+	Super::BeginPlay();
+
+	_CurrentFireMode = _GunStats.FireModes[0];
+	_CurrentFireModePointer = 0;
+	_ShotsLeft = _GunStats.MagazineSize;
 }
 
 
 /////////////////////////////////////////////////////
 float AGun::GetCooldownTime() const
 {
-	return m_Cooldown;
+	return _GunStats.Cooldown;
 }
 
 
-/////////////////////////////////////////////////////
 float AGun::GetRoundsPerMinute() const
 {
 	return 60 / GetCooldownTime();
@@ -283,9 +379,25 @@ FVector AGun::GetMuzzleLocation() const
 	FVector VecMuzzleLocation;
 	FRotator MuzzleRotation;
 
-	if (m_Mesh)
+	if (_Mesh)
 	{
-		m_Mesh->GetSocketWorldLocationAndRotation(m_MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
+		_Mesh->GetSocketWorldLocationAndRotation(_MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
 	}
 	return VecMuzzleLocation;
+}
+
+
+FVector AGun::GetForwardCameraVector() const
+{
+	if (_MyOwner->IsPlayerControlled())
+	{
+		FVector CamPos;
+		FRotator CamRot;
+		Cast<APlayerController>(_MyOwner->Controller)->GetPlayerViewPoint(CamPos, CamRot);
+		return CamRot.Vector();
+	}
+	else
+	{
+		return _MyOwner->GetActorForwardVector();
+	}
 }

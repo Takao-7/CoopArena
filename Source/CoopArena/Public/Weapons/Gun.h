@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ItemBase.h"
 #include "Gun.generated.h"
 
 
 class AHumanoid;
 class AProjectile;
-//class UUserWidget;
+class USoundBase;
 
 
 UENUM(BlueprintType)
 enum class EFireMode : uint8
 {
 	 Single,
-	 /*Burst,*/
+	 Burst,
 	 Auto
 };
 
@@ -27,85 +27,72 @@ enum class EWeaponState : uint8
 	Idle,
 	Firing,
 	Reloading,
-	Equipping
+	Equipping,
+	Blocked
 };
 
 
-UCLASS()
-class COOPARENA_API AGun : public AActor
+UENUM(BlueprintType)
+enum class EWEaponType : uint8
+{
+	None,
+	Pistol,
+	Rifle,
+	Shotgun,
+	Launcher
+};
+
+
+USTRUCT(BlueprintType)
+struct FGunStats
 {
 	GENERATED_BODY()
-	
-protected:
-	/** Name of the bone or socket for the muzzle */
+
+	FGunStats()
+	{
+		FireModes.Add(EFireMode::Single);
+		Cooldown = 0.1f;
+		SpreadHorizontal = 0.05;
+		SpreadVertical = 0.05f;
+		MaxSpread = 0.4f;
+		MagazineSize = 30;	
+		ShotsPerBurst = 3;	
+		lineTraceRange = 10000.0f;
+	}
+	/*
+	* Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
+	* in Single mode, no matter what fire modes it has.
+	* However, this value should NOT be <= 0.0f because then enemies will fire to quickly in single mode
+	* and player could abuse the single mode for rapid fire.
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Cooldown;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MagazineSize;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpreadHorizontal;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpreadVertical;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float MaxSpread;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<EFireMode> FireModes;
+
+	/* If the weapon supports Burst mode, how many shots are fired in that mode. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 ShotsPerBurst;
+
+	/* Which projectile is spawned each time the gun fires */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	FName m_MuzzleAttachPoint;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class USoundBase* m_FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimMontage* m_FireAnimation;
-
-	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimInstance* m_AnimInstance;
-
-	/**
-	 *	The type of magazine that this weapon can be used with.
-	 */
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AMagazine> m_UsableMagazineTyp;*/
-
-	/**
-	 *	The currently loaded magazine.
-	 */
-	/*UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	AMagazine* m_LoadedMagazine;*/
-
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	bool m_bCanShoot;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Weapon)
-	int32 m_MagazineSize;
-
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 m_ShotsLeft;
+	TSubclassOf<AProjectile> ProjectileToSpawn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AProjectile> m_ProjectileToSpawn;
-
-	///* 
-	// * How many shots are fired when the weapon fires a burst shot,
-	// * IF the weapon has that mode. Otherwise this value will do nothing.
-	// */
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	//int32 m_ShotsPerBurst;
-
-	///* How many shots are left in the burst */
-	//UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	//int32 m_BurstCount;
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UUserWidget* m_InfoWidget;*/
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USkeletalMeshComponent* m_Mesh;
-
-	/* The pawn that currently owns and carries this weapon */
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	AHumanoid* m_MyOwner;
-
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	EWeaponState m_CurrentState;
-
-	/* 
-	 * Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
-	 * in Single mode, no matter what fire modes it has. 
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = Weapon)
-	float m_Cooldown;
+	EWEaponType WeaponType;
 
 	/**
 	* The maximum distance the gun will cast a ray when firing to adjust the aim.
@@ -113,17 +100,80 @@ protected:
 	* from the barrel in the owner's view direction.
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	float m_lineTraceRange;
+	float lineTraceRange;
+};
 
-	///** The gun's fire modes */
-	//UPROPERTY(EditDefaultsOnly, Category = Weapon)
-	//TArray<EFireMode> m_FireModes;
 
-	FTimerHandle m_WeaponCooldownTimer;
-	float m_SpreadHorizontal;
-	float m_SpreadVertical;
-	EFireMode m_CurrentFireMode;
+UCLASS()
+class COOPARENA_API AGun : public AItemBase
+{
+	GENERATED_BODY()
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	FGunStats _GunStats;
 
+	/** Name of the bone or socket for the muzzle */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	FName _MuzzleAttachPoint;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USoundBase* _FireSound;
+
+	/** Sound to play each time we reload */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USoundBase* _ReloadSound;
+
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	class UAnimMontage* _FireAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UAnimMontage* _ReloadAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	class UParticleSystem* _MuzzleFlash;
+
+	/* The spawned muzzle flash particle system */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
+
+	/* The owner's animation instance */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	class UAnimInstance* _AnimInstance;
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	bool _bCanShoot;	
+
+	/* The pawn that currently owns and carries this weapon */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	AHumanoid* _MyOwner;
+
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	EFireMode _CurrentFireMode;
+
+	/* How many shots are fired already in the current salvo. Used for the increased spread during firing. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _SalvoCount;
+
+	/* How many shots are fired already in the current burst (see: burst mode). */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _BurstCount;
+
+	/* How many shots are left in the magazine */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	int32 _ShotsLeft;
+
+	FTimerHandle _WeaponCooldownTH;
+
+	/* Used to set the new fire mode, when the player changes the fire mode. */
+	int32 _CurrentFireModePointer;
+
+	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	EWeaponState _CurrentGunState;
+
+protected:
 	/**
 	* Adjusts the aim based on lineTraceRange.
 	* Makes a line trace from startLocation forwards to StartLocation * lineTraceRange.
@@ -144,12 +194,28 @@ protected:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetForwardCameraVector() const;
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AttachMeshToPawn();
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DetachMeshFromPawn();
-	void SetOwningPawn(AActor* NewOwner);
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void SetOwningPawn(AHumanoid* NewOwner);
+
+	/* Checks if the weapon is able to fire in an automatic mode (= holding Fire button results in continuous fire) */
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	bool CanRapidFire() const;
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void FinishReloadWeapon();
+
+	virtual void BeginPlay() override;
 public:
 	AGun();
+
+	/* IInteractable interface */
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	/* IInteractable interface end */
 
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)
@@ -162,31 +228,36 @@ public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	bool CanShoot() const;
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
 
 	/* Unequip the gun. 
 	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
 	 * otherwise it will be dropped.
 	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnUnequip(bool DropGun = false);
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnFire();
 
-	///* PickUp Interface */
-	//void OnPickUp(AActor* NewOwner);
-	//void OnDrop();
-	//UUserWidget* OnBeginTraceCastOver(APawn* TracingPawn);
-	//void OnEndTraceCastOver(APawn* TracingPawn);
-	///* PickUp Interface end */
-	//
-	///* Tool Interface */
-	//void UseTool();
-	//void UseToolSecondary();
-	//void ReloadTool();
-	//void StopUsingTool();
+	FVector ApplyWeaponSpread(FVector SpawnDirection);
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnStopFire();
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
-	//float GetCooldownTimeSecondary() const;
-	//void Equip(AHumanoid* NewOwner);
-	//void Unequip();
-	///* Tool Interface end */
+
+	/**
+	* Reloads the weapon.
+	*/
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void ToggleFireMode();
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UMeshComponent* GetMesh() const;
 };

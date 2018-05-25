@@ -8,6 +8,7 @@
 
 
 class AGun;
+class IInteractable;
 
 
 UCLASS()
@@ -38,26 +39,26 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	// Sets default values for this character's properties
 	AHumanoid();
 
-	bool CanEquipNewWeapon();
+	UFUNCTION(BlueprintPure, Category = Humanoid)
+	AGun* GetEquippedGun() const;
 
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetEquippedWeapon(AGun* weapon);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void FireEquippedWeapon();
+	virtual void FireEquippedWeapon();
 
 	/* Stops firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void StopFireEquippedWeapon();
-
+	virtual void StopFireEquippedWeapon();
+	
 	/**
 	* Called when the actor dies.
 	* Does the following:
@@ -73,52 +74,96 @@ protected:
 	* @param direction The direction from which the last shot came.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void OnDeath(const FHitResult& hitInfo, FVector direction);
+	virtual void OnDeath(const FHitResult& hitInfo, FVector direction);
 
-	void DeactivateCollisionCapsuleComponent();
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void DeactivateCollisionCapsuleComponent();
 
 	/** Handles moving forward/backward */
-	void MoveForward(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void MoveForward(float value);
 
 	/** Handles strafing movement, left and right */
-	void MoveRight(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void MoveRight(float value);
 
 	/**
 	* Called via input to turn at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
-	void TurnAtRate(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void TurnAtRate(float value);
 
 	/**
 	* Called via input to turn look up/down at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
-	void LookUpAtRate(float);
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void LookUpAtRate(float value);
 
-	void ToggleCrouch();
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void ToggleCrouch();
 
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleAiming();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void SetSprinting(bool bSprint);
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ToggleJump();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void ChangeWeaponFireMode();
+
+protected:
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	TSubclassOf<AGun> m_DefaultGun;
+	TSubclassOf<AGun> _DefaultGun;
 
 	/** Socket or bone name for attaching weapons when equipped */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	FName m_WeaponAttachPoint;
+	FName _WeaponAttachPoint;
 
 	/** Base turn rate, in deg/sec */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float m_BaseTurnRate;
+	float _BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float m_BaseLookUpRate;
+	float _BaseLookUpRate;
 
+	/* The characters currently held weapon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Humanoid)
-	AGun* m_EquippedWeapon;
+	AGun* _EquippedWeapon;
 
-	/*UPROPERTY(BlueprintReadWrite, Category = Humanoid)
-	TArray<IPickUp*> Inventory;*/
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	UArrowComponent* _DroppedItemSpawnPoint;
 
-private:
-	bool m_bAlreadyDied;
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsAiming;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsSprinting;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bAlreadyDied;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsMovingForward;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	float _SprintSpeedIncrease;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	float _DefaultMaxWalkingSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsJumping;
 };

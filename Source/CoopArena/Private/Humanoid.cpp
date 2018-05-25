@@ -1,9 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Humanoid.h"
-#include "Components/InputComponent.h"
 #include "Engine/World.h"
+#include "Interactable.h"
+#include "TimerManager.h"
+#include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
 
 
@@ -15,11 +20,33 @@ AHumanoid::AHumanoid()
 
 
 	// set our turn rates for input
-	m_BaseTurnRate = 45.f;
-	m_BaseLookUpRate = 45.f;
+	_BaseTurnRate = 45.f;
+	_BaseLookUpRate = 45.f;
 
-	m_bAlreadyDied = false;
-	m_WeaponAttachPoint = "GripPoint";
+	_WeaponAttachPoint = "GripPoint";
+
+	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
+	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
+
+	bIsAiming = false;
+	bIsMovingForward = false;
+	bAlreadyDied = false;
+	bIsSprinting = false;
+	bIsCrouched = false;
+
+	_SprintSpeedIncrease = 2.0f;
+}
+
+
+AGun* AHumanoid::GetEquippedGun() const
+{
+	return _EquippedWeapon;
+}
+
+
+void AHumanoid::SetEquippedWeapon(AGun* weapon)
+{
+	_EquippedWeapon = weapon;
 }
 
 
@@ -27,7 +54,8 @@ AHumanoid::AHumanoid()
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	_DefaultMaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
 	SetUpDefaultEquipment();
 }
 
@@ -35,18 +63,18 @@ void AHumanoid::BeginPlay()
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
-	if (CanFire() && m_EquippedWeapon)
+	if (CanFire() && _EquippedWeapon)
 	{
-		m_EquippedWeapon->OnFire();
+		_EquippedWeapon->OnFire();
 	}
 }
 
 
 void AHumanoid::StopFireEquippedWeapon()
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		
+		_EquippedWeapon->OnStopFire();
 	}
 }
 
@@ -70,17 +98,28 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float value)
 {
-	if (value != 0.0f)
+	if (value > 0.0f)
 	{
-		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), value);
+		bIsMovingForward = true;
+	}
+	else if (value < 0.0f)
+	{
+		AddMovementInput(GetActorForwardVector(), value);
+		bIsMovingForward = false;
+		SetSprinting(false);
+	}
+	else
+	{
+		bIsMovingForward = false;
+		SetSprinting(false);
 	}
 }
 
 
 void AHumanoid::MoveRight(float value)
 {
-	if (value != 0.0f)
+	if (value != 0.0f && !bIsSprinting)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), value);
@@ -90,13 +129,13 @@ void AHumanoid::MoveRight(float value)
 
 void AHumanoid::TurnAtRate(float rate)
 {
-	AddControllerYawInput(rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 
 void AHumanoid::LookUpAtRate(float rate)
 {
-	AddControllerPitchInput(rate * m_BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 
@@ -112,35 +151,110 @@ void AHumanoid::ToggleCrouch()
 	}
 }
 
-/////////////////////////////////////////////////////
-bool AHumanoid::CanEquipNewWeapon()
+
+void AHumanoid::ToggleAiming()
 {
-	return m_EquippedWeapon;
+	if (bIsAiming)
+	{
+		bIsAiming = false;
+	}
+	else
+	{
+		bIsAiming = true;
+	}
 }
 
+
+void AHumanoid::ToggleSprinting()
+{
+	if (bIsSprinting)
+	{
+		SetSprinting(false);
+	}
+	else if (bIsMovingForward)
+	{
+		SetSprinting(true);
+	}
+}
+
+
+void AHumanoid::SetSprinting(bool bSprint)
+{
+	if (bSprint)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed * _SprintSpeedIncrease;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed;
+	}	
+	bIsSprinting = bSprint;
+}
+
+
+void AHumanoid::ToggleJump()
+{
+	if (!bIsJumping)
+	{
+		float veloctiy_abs = FMath::Abs(GetVelocity().Size());
+		if (veloctiy_abs <= 10.0f)
+		{
+			FTimerHandle jumpTH;
+			GetWorld()->GetTimerManager().SetTimer(jumpTH, this, &ACharacter::Jump, 0.275f);
+		}
+		else
+		{
+			Jump();
+		}
+		bIsJumping = true;
+	}
+	else
+	{
+		StopJumping();
+		bIsJumping = false;
+	}
+}
+
+
+void AHumanoid::ReloadWeapon()
+{
+	if (_EquippedWeapon)
+	{
+		_EquippedWeapon->ReloadWeapon();
+	}
+}
+
+
+void AHumanoid::ChangeWeaponFireMode()
+{
+	if (_EquippedWeapon)
+	{
+		_EquippedWeapon->ToggleFireMode();
+	}
+}
 
 /////////////////////////////////////////////////////
 bool AHumanoid::IsAlive() const
 {
-	return true;
+	return !bAlreadyDied;
 }
 
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return IsAlive();
+	return IsAlive() && !bIsSprinting && !bIsJumping;
 }
 
 
 FName AHumanoid::GetWeaponAttachPoint() const
 {
-	return m_WeaponAttachPoint;
+	return _WeaponAttachPoint;
 }
 
 
 void AHumanoid::SetUpDefaultEquipment()
 {
-	if (m_DefaultGun == nullptr)
+	if (_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null!"));
 		return;
@@ -151,13 +265,21 @@ void AHumanoid::SetUpDefaultEquipment()
 		return;
 	}
 
-	m_EquippedWeapon = GetWorld()->SpawnActor<AGun>(m_DefaultGun);
-	m_EquippedWeapon->OnEquip(this);
+	_EquippedWeapon = GetWorld()->SpawnActor<AGun>(_DefaultGun);
+	_EquippedWeapon->OnEquip(this);
 }
 
 
 void AHumanoid::Kill()
 {
+	if (bAlreadyDied)
+	{
+		return;
+	}
+	bAlreadyDied = true;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 
@@ -166,34 +288,4 @@ void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-
-// Called to bind functionality to input
-void AHumanoid::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// set up gameplay key bindings
-	check(PlayerInputComponent);
-
-	// Bind jump events
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	// Bind movement events
-	PlayerInputComponent->BindAxis("MoveForward", this, &AHumanoid::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AHumanoid::MoveRight);
-
-	// Bind mouse movement.
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-
-	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHumanoid::FireEquippedWeapon);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHumanoid::StopFireEquippedWeapon);
-
-	// Bind crouch event
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AHumanoid::ToggleCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AHumanoid::ToggleCrouch);
 }
