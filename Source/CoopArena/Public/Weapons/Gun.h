@@ -4,43 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "ItemBase.h"
+#include "CoopArena.h"
 #include "Gun.generated.h"
 
 
 class AHumanoid;
 class AProjectile;
 class USoundBase;
-
-
-UENUM(BlueprintType)
-enum class EFireMode : uint8
-{
-	 Single,
-	 Burst,
-	 Auto
-};
-
-
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Idle,
-	Firing,
-	Reloading,
-	Equipping,
-	Blocked
-};
-
-
-UENUM(BlueprintType)
-enum class EWEaponType : uint8
-{
-	None,
-	Pistol,
-	Rifle,
-	Shotgun,
-	Launcher
-};
 
 
 USTRUCT(BlueprintType)
@@ -248,6 +218,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
 	/**
 	* Reloads the weapon.

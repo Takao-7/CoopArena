@@ -50,6 +50,12 @@ void AHumanoid::SetEquippedWeapon(AGun* weapon)
 }
 
 
+void AHumanoid::OnEquipWeapon()
+{
+	EquipWeapon_Event.Broadcast();
+}
+
+
 // Called when the game starts or when spawned
 void AHumanoid::BeginPlay()
 {
