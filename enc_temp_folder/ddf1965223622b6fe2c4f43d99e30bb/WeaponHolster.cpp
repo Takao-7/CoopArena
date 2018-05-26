@@ -17,7 +17,7 @@ bool UWeaponHolster::AddItem_Implementation(class AItemBase* itemToAdd)
 	}
 	ToggleIsInUse();
 	gunToAdd->OnUnequip(false);
-	_NewGun = gunToAdd;
+	_CarriedGun = gunToAdd;
 
 	PlayEquipAnimation();
 
@@ -85,23 +85,21 @@ UWeaponHolster::UWeaponHolster()
 }
 
 
-void UWeaponHolster::SwapWeapon()
+void UWeaponHolster::OnAttachAndDetach()
 {
-	if (_NewGun)
+	if (_CarriedGun)
 	{
-		AttachGunToHolster();
+		DetachGunFromHolster();
 	}
 	else
 	{
-		DetachGunFromHolster();
+		AttachGunToHolster();
 	}
 }
 
 
 void UWeaponHolster::AttachGunToHolster()
 {	
-	_CarriedGun = _NewGun;
-	_NewGun = nullptr;
 	ACharacter* owner = Cast<ACharacter>(GetOwner());	
 	_CarriedGun->AttachToComponent(owner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, _AttachPoint);
 	ToggleIsInUse();

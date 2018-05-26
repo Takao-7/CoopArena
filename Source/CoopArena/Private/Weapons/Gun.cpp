@@ -111,7 +111,7 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	}
 	else
 	{
-		_Mesh->SetVisibility(false, true);
+		//_Mesh->SetVisibility(false, true);
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}

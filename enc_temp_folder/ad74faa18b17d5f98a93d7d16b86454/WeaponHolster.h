@@ -38,8 +38,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = WeaponHolster)
 	AGun* GetCarriedGun() { return _CarriedGun; };
 
+	/**
+	 * Function to be called from the animation blueprint when ether a gun should be attached or detached from this holster. 
+	 * AddItem or RemoveItem needed to be called first.
+	 */ 
 	UFUNCTION(BlueprintCallable, Category = WeaponHolster)
-	void SwapWeapon();
+	void OnAttachAndDetach();
 
 protected:
 	void PlayEquipAnimation();
@@ -51,11 +55,7 @@ protected:
 	void DetachGunFromHolster();
 
 protected:
-	/* The gun that is currently held in this holster. */
 	AGun* _CarriedGun;	
-
-	/* The gun that will be added to this holster shortly. */
-	AGun* _NewGun;
 
 	UPROPERTY(EditDefaultsOnly, Category = WeaponHolster)
 	UAnimMontage* _HolsteringAnimations;	
@@ -64,5 +64,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = WeaponHolster)
 	FName _AttachPoint;
 
+	UPROPERTY()
 	bool bIsInUse;
 };
