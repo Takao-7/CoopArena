@@ -59,10 +59,6 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AMagazine> UsableMagazineClass;
 
-	/* The currently loaded magazine. */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AMagazine* LoadedMagazine;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	EWEaponType WeaponType;
 
@@ -82,6 +78,10 @@ class COOPARENA_API AGun : public AItemBase
 	GENERATED_BODY()
 	
 protected:
+	/* The currently loaded magazine. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	AMagazine* _LoadedMagazine;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FGunStats _GunStats;
 

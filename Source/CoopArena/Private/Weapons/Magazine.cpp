@@ -4,12 +4,6 @@
 #include "Weapons/Projectile.h"
 
 
-// Sets default values
-AMagazine::AMagazine()
-{
-	
-}
-
 // Called when the game starts or when spawned
 void AMagazine::BeginPlay()
 {
@@ -18,13 +12,13 @@ void AMagazine::BeginPlay()
 }
 
 
-int32 AMagazine::RoundsLeft()
+int32 AMagazine::RoundsLeft() const
 {
 	return _RoundsLeft;
 }
 
 
-int32 AMagazine::GetCapacity()
+int32 AMagazine::GetCapacity() const
 {
 	return _Capacity;
 }
@@ -44,7 +38,7 @@ bool AMagazine::RemoveRound(int32 numRounds /*= 1*/)
 }
 
 
-TSubclassOf<AProjectile> AMagazine::GetProjectileClass()
+TSubclassOf<AProjectile> AMagazine::GetProjectileClass() const
 {
 	return _ProjectileType;
 }

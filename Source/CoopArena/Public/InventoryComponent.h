@@ -9,6 +9,7 @@
 
 
 class AItemBase;
+class AMagazine;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,17 +18,25 @@ class COOPARENA_API UInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
-	UInventoryComponent();
-
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool AddItem(AItemBase* itemToAdd);
 
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	int32 GetItemCountByClass(TSubclassOf<AItemBase> itemClass);
+	void IncreaseMagazineCount(FItemStats &itemstats);
+
+	UFUNCTION(BlueprintPure, Category = Inventory)
+	int32 GetItemCountByClass(TSubclassOf<AItemBase> itemClass) const;
+
+	/*
+	* Returns the number of magazines held by this inventory. Prefer this function over GetItemCountByClass,
+	* if you want to get the number of magazines.
+	*/
+	UFUNCTION(BlueprintPure, Category = Inventory)
+	int32 GetMagazineCountByName(FName magazineName) const;
 	
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool RemoveItemByIndex(int32 itemIndexToRemove, FItemStats& outItemStats);
+
+	void ReduceMagazineCount(FItemStats &outItemStats);
 
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool RemoveItemByClass(TSubclassOf<AItemBase> itemClass);
@@ -50,6 +59,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void AddDefaultItems();
+
 protected:
 	/* The number of items that the inventory can hold */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
@@ -62,4 +73,8 @@ protected:
 	/* Items this inventory starts with. */
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	TArray<TSubclassOf<AItemBase>> _InitialItems;
+
+	/* Number of magazines stored in this inventory for each magazine type. */
+	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	TMap<FName, int32> _StoredMagazines;
 };

@@ -147,7 +147,7 @@ void AGun::OnFire()
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		TSubclassOf<AProjectile> projectileClass = _GunStats.LoadedMagazine->GetProjectileClass();
+		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
 		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
 		if (!projectile)
 		{
@@ -155,7 +155,7 @@ void AGun::OnFire()
 			return;
 		}
 		projectile->_Instigator = GetOwner()->GetInstigatorController();
-		_GunStats.LoadedMagazine->RemoveRound();
+		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
 
@@ -268,7 +268,7 @@ bool AGun::CanShoot() const
 {
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
 	bool bStateOKToFire = ((_CurrentGunState == EWeaponState::Idle) || (_CurrentGunState == EWeaponState::Firing));
-	bool bMagazineIsNotEmpty = _GunStats.LoadedMagazine && _GunStats.LoadedMagazine->RoundsLeft() > 0;
+	bool bMagazineIsNotEmpty = _LoadedMagazine && _LoadedMagazine->RoundsLeft() > 0;
 	bool bHasProjectileToSpawn = _GunStats.UsableMagazineClass;
 	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
@@ -402,17 +402,17 @@ void AGun::BeginPlay()
 /////////////////////////////////////////////////////
 void AGun::SpawnNewMagazine()
 {
-	if (_GunStats.LoadedMagazine)
+	if (_LoadedMagazine)
 	{
-		_GunStats.LoadedMagazine->Destroy();
+		_LoadedMagazine->Destroy();
 	}
 	
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_GunStats.LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
-	if (_GunStats.LoadedMagazine)
+	_LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	if (_LoadedMagazine)
 	{
-		_GunStats.LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }
 

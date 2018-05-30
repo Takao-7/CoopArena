@@ -7,27 +7,30 @@
 #include "GameFramework/PlayerController.h"
 #include "ItemBase.h"
 
-// Sets default values for this component's properties
-UInventoryComponent::UInventoryComponent()
-{
-}
-
 
 // Called when the game starts
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	AddDefaultItems();
+}
 
+
+/////////////////////////////////////////////////////
+void UInventoryComponent::AddDefaultItems()
+{
 	_StoredItems.Empty();
 	for (TSubclassOf<AItemBase> itemClass : _InitialItems)
 	{
 		FItemStats itemStats = Cast<AItemBase>(itemClass->GetDefaultObject())->GetItemStats();
-		//UE_LOG(LogTemp, Warning, TEXT("%s"), *itemStats.Name.ToString());
 		_StoredItems.Add(itemStats);
+		IncreaseMagazineCount(itemStats);
 	}
+	_InitialItems.Empty();
 }
 
 
+/////////////////////////////////////////////////////
 bool UInventoryComponent::AddItem(AItemBase* itemToAdd)
 {
 	FItemStats itemstats = itemToAdd->GetItemStats();
@@ -36,26 +39,37 @@ bool UInventoryComponent::AddItem(AItemBase* itemToAdd)
 		return false;
 	}
 	_StoredItems.Add(itemstats);
+	IncreaseMagazineCount(itemstats);
+
 	return true;
 }
 
 
-int32 UInventoryComponent::GetItemCountByClass(TSubclassOf<AItemBase> itemClass)
+/////////////////////////////////////////////////////
+void UInventoryComponent::IncreaseMagazineCount(FItemStats &itemstats)
 {
-	int32 count = 0;
-	AItemBase* itemToCompare = Cast<AItemBase>(itemClass->GetDefaultObject());
-	FItemStats statsToCompare = itemToCompare->GetItemStats();
-	for (FItemStats item : _StoredItems)
+	if (itemstats.Type == EItemType::Ammo)
 	{
-		if (item.Name == statsToCompare.Name)
+		auto numMags = _StoredMagazines.Find(itemstats.Name);
+		if (numMags == nullptr)
 		{
-			count++;
+			_StoredMagazines.Add(itemstats.Name, 0);
 		}
+		_StoredMagazines[itemstats.Name]++;
 	}
-	return count;
 }
 
 
+void UInventoryComponent::ReduceMagazineCount(FItemStats &outItemStats)
+{
+	if (outItemStats.Type == EItemType::Ammo)
+	{
+		_StoredMagazines[outItemStats.Name]--;
+	}
+}
+
+
+/////////////////////////////////////////////////////
 bool UInventoryComponent::RemoveItemByIndex(int32 itemIndexToRemove, FItemStats& outItemStats)
 {
 	bool bItemExists = _StoredItems.IsValidIndex(itemIndexToRemove);
@@ -63,9 +77,10 @@ bool UInventoryComponent::RemoveItemByIndex(int32 itemIndexToRemove, FItemStats&
 	{
 		return false;
 	}
-	
 	outItemStats = _StoredItems[itemIndexToRemove];
 	_StoredItems.RemoveAt(itemIndexToRemove);
+	ReduceMagazineCount(outItemStats);
+
 	return true;
 }
 
@@ -79,6 +94,7 @@ bool UInventoryComponent::RemoveItemByClass(TSubclassOf<AItemBase> itemClass)
 		if (_StoredItems[i].Name == statsToCompare.Name)
 		{
 			_StoredItems.RemoveAt(i);
+			ReduceMagazineCount(statsToCompare);
 			return true;
 		}
 	}
@@ -86,6 +102,7 @@ bool UInventoryComponent::RemoveItemByClass(TSubclassOf<AItemBase> itemClass)
 }
 
 
+/////////////////////////////////////////////////////
 AItemBase* UInventoryComponent::DropItem(FItemStats& itemToDrop)
 {
 	FVector spawnLocation = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.0f;
@@ -102,6 +119,7 @@ AItemBase* UInventoryComponent::DropItem(FItemStats& itemToDrop)
 }
 
 
+/////////////////////////////////////////////////////
 int32 UInventoryComponent::GetInventorySize() const
 {
 	return _InventorySize;
@@ -113,4 +131,26 @@ bool UInventoryComponent::HasSpaceForItem(FItemStats& item) const
 	bool bInventoryNotFull = _StoredItems.Num() < _InventorySize;
 
 	return bInventoryNotFull;
+}
+
+
+int32 UInventoryComponent::GetItemCountByClass(TSubclassOf<AItemBase> itemClass) const
+{
+	int32 count = 0;
+	AItemBase* itemToCompare = Cast<AItemBase>(itemClass->GetDefaultObject());
+	FItemStats statsToCompare = itemToCompare->GetItemStats();
+	for (FItemStats item : _StoredItems)
+	{
+		if (item.Name == statsToCompare.Name)
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
+
+int32 UInventoryComponent::GetMagazineCountByName(FName magazineName) const
+{
+	return _StoredMagazines[magazineName];
 }
