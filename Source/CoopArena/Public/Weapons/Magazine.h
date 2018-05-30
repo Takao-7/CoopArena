@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ItemBase.h"
 #include "Magazine.generated.h"
 
 
@@ -11,7 +11,7 @@ class AProjectile;
 
 
 UCLASS()
-class COOPARENA_API AMagazine : public AActor
+class COOPARENA_API AMagazine : public AItemBase
 {
 	GENERATED_BODY()
 	
@@ -25,11 +25,18 @@ public:
 	*/
 	int32 RoundsLeft();
 
+	int32 GetCapacity();
+
 	/**
-	 * Returns the next projectile from the magazine
-	 * @param If true, the capacity will be reduced by one.
+	 * Removes one or more rounds from the magazine (default = 1).
+	 * @return True if the capacity was high enough to remove numRounds.
 	 */
-	TSubclassOf<AProjectile> GetProjectileClass(bool reduceCapacity = true);
+	bool RemoveRound(int32 numRounds = 1);
+
+	/**
+	 * Returns the magazines projectile class.
+	 */
+	TSubclassOf<AProjectile> GetProjectileClass();
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,8 +45,11 @@ protected:
 protected:
 	/* The maximum amount of bullets the magazine contains. */
 	UPROPERTY(EditDefaultsOnly, Category = Magazine)
-	int32 m_Capacity;	
+	int32 _Capacity;
+
+	UPROPERTY(BlueprintReadWrite, Category = Magazine)
+	int32 _RoundsLeft;
 
 	UPROPERTY(EditDefaultsOnly, Category = Magazine)
-	TSubclassOf<AProjectile> m_ProjectileType;
+	TSubclassOf<AProjectile> _ProjectileType;
 };

@@ -213,7 +213,6 @@ void AGun::ContinousOnFire()
 		{
 			_BurstCount = 0;
 			_SalvoCount = 0;
-			OnStopFire();
 		}
 	}
 	else
@@ -311,10 +310,7 @@ void AGun::DetachMeshFromPawn()
 bool AGun::GetAmmoFromInventory()
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));
-	if (inventory == nullptr)
-	{
-		return false;
-	}
+
 	return inventory->RemoveItemByClass(_GunStats.UsableMagazineClass);
 }
 

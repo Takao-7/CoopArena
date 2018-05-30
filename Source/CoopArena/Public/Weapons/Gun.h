@@ -3,14 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums/WeaponEnums.h"
 #include "ItemBase.h"
-#include "CoopArena.h"
 #include "Gun.generated.h"
 
 
 class AHumanoid;
 class AProjectile;
 class USoundBase;
+class AMagazine;
+class AItemBase;
 
 
 USTRUCT(BlueprintType)
@@ -25,7 +27,6 @@ struct FGunStats
 		SpreadHorizontal = 0.05;
 		SpreadVertical = 0.05f;
 		MaxSpread = 0.4f;
-		MagazineSize = 30;	
 		ShotsPerBurst = 3;	
 		lineTraceRange = 10000.0f;
 	}
@@ -37,9 +38,6 @@ struct FGunStats
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cooldown;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 MagazineSize;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadHorizontal;
@@ -57,9 +55,13 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 ShotsPerBurst;
 
-	/* Which projectile is spawned each time the gun fires */
+	/* The magazine type this gun can use. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AProjectile> ProjectileToSpawn;
+	TSubclassOf<AMagazine> UsableMagazineClass;
+
+	/* The currently loaded magazine. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	AMagazine* LoadedMagazine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	EWEaponType WeaponType;
@@ -131,10 +133,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	int32 _BurstCount;
 
-	/* How many shots are left in the magazine */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 _ShotsLeft;
-
 	FTimerHandle _WeaponCooldownTH;
 
 	/* Used to set the new fire mode, when the player changes the fire mode. */
@@ -166,6 +164,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AttachMeshToPawn();
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DetachMeshFromPawn();
 
@@ -180,6 +179,14 @@ protected:
 	void FinishReloadWeapon();
 
 	virtual void BeginPlay() override;
+
+	void SpawnNewMagazine();
+
+	bool GetAmmoFromInventory();
+
+	/* Checks if this gun's owner has a suitable magazine in his inventory. */
+	bool CheckIfOwnerHasMagazine();
+
 public:
 	AGun();
 

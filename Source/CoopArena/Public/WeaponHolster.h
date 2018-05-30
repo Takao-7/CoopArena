@@ -6,7 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "Inventory.h"
 #include "Interactable.h"
-#include "CoopArena.h"
+#include "WeaponEnums.h"
 #include "WeaponHolster.generated.h"
 
 

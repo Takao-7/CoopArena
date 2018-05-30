@@ -5,8 +5,9 @@
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "CoopArena.h"
+#include "WeaponEnums.h"
 #include "Gun.h"
+#include "CoopArena.h"
 #include "Camera/CameraComponent.h"
 
 

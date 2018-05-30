@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Interface.h"
-#include "ItemBase.h"
+#include "ItemStructs.h"
 #include "Inventory.generated.h"
 
 

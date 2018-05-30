@@ -79,6 +79,7 @@ bool UInventoryComponent::RemoveItemByClass(TSubclassOf<AItemBase> itemClass)
 		if (_StoredItems[i].Name == statsToCompare.Name)
 		{
 			_StoredItems.RemoveAt(i);
+			//UE_LOG(LogTemp, Warning, TEXT("New inventory size: %s"), _StoredItems.Num());
 			return true;
 		}
 	}
