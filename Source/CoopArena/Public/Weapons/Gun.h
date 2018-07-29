@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enums/WeaponEnums.h"
 #include "ItemBase.h"
 #include "Gun.generated.h"
 
@@ -10,37 +11,8 @@
 class AHumanoid;
 class AProjectile;
 class USoundBase;
-
-
-UENUM(BlueprintType)
-enum class EFireMode : uint8
-{
-	 Single,
-	 Burst,
-	 Auto
-};
-
-
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Idle,
-	Firing,
-	Reloading,
-	Equipping,
-	Blocked
-};
-
-
-UENUM(BlueprintType)
-enum class EWEaponType : uint8
-{
-	None,
-	Pistol,
-	Rifle,
-	Shotgun,
-	Launcher
-};
+class AMagazine;
+class AItemBase;
 
 
 USTRUCT(BlueprintType)
@@ -55,7 +27,6 @@ struct FGunStats
 		SpreadHorizontal = 0.05;
 		SpreadVertical = 0.05f;
 		MaxSpread = 0.4f;
-		MagazineSize = 30;	
 		ShotsPerBurst = 3;	
 		lineTraceRange = 10000.0f;
 	}
@@ -67,9 +38,6 @@ struct FGunStats
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cooldown;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 MagazineSize;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadHorizontal;
@@ -87,9 +55,9 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 ShotsPerBurst;
 
-	/* Which projectile is spawned each time the gun fires */
+	/* The magazine type this gun can use. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	TSubclassOf<AProjectile> ProjectileToSpawn;
+	TSubclassOf<AMagazine> UsableMagazineClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	EWEaponType WeaponType;
@@ -110,6 +78,10 @@ class COOPARENA_API AGun : public AItemBase
 	GENERATED_BODY()
 	
 protected:
+	/* The currently loaded magazine. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	AMagazine* _LoadedMagazine;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FGunStats _GunStats;
 
@@ -161,10 +133,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	int32 _BurstCount;
 
-	/* How many shots are left in the magazine */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 _ShotsLeft;
-
 	FTimerHandle _WeaponCooldownTH;
 
 	/* Used to set the new fire mode, when the player changes the fire mode. */
@@ -196,6 +164,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AttachMeshToPawn();
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DetachMeshFromPawn();
 
@@ -210,6 +179,14 @@ protected:
 	void FinishReloadWeapon();
 
 	virtual void BeginPlay() override;
+
+	void SpawnNewMagazine();
+
+	bool GetAmmoFromInventory();
+
+	/* Checks if this gun's owner has a suitable magazine in his inventory. */
+	bool CheckIfOwnerHasMagazine();
+
 public:
 	AGun();
 
@@ -248,6 +225,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
 	/**
 	* Reloads the weapon.

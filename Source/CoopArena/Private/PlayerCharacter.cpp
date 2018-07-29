@@ -5,6 +5,8 @@
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "WeaponEnums.h"
+#include "Gun.h"
 #include "CoopArena.h"
 #include "Camera/CameraComponent.h"
 
@@ -39,7 +41,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckForInteractables();
-
 }
 
 
@@ -67,6 +68,17 @@ void APlayerCharacter::CheckForInteractables()
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
 	}
+}
+
+
+void APlayerCharacter::OnEquipWeapon()
+{
+	AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
+	if (GunInFocus && !_EquippedWeapon)
+	{
+		GunInFocus->OnEquip(this);
+	}	
+	EquipWeapon_Event.Broadcast();
 }
 
 
@@ -166,6 +178,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);
 }
 
 

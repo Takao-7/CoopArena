@@ -4,39 +4,42 @@
 #include "Weapons/Projectile.h"
 
 
-// Sets default values
-AMagazine::AMagazine()
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
-}
-
 // Called when the game starts or when spawned
 void AMagazine::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
+	_RoundsLeft = _Capacity;
 }
 
 
-int32 AMagazine::RoundsLeft()
+int32 AMagazine::RoundsLeft() const
 {
-	return m_Capacity;
+	return _RoundsLeft;
 }
 
 
-TSubclassOf<AProjectile> AMagazine::GetProjectileClass(bool reduceCapacity /*= true*/)
+int32 AMagazine::GetCapacity() const
 {
-	if (m_Capacity == 0)
-	{
-		return nullptr;
-	}
+	return _Capacity;
+}
 
-	if (reduceCapacity && m_Capacity != -1)
+
+bool AMagazine::RemoveRound(int32 numRounds /*= 1*/)
+{
+	if (_RoundsLeft - numRounds < 0 && _Capacity != -1)
 	{
-		m_Capacity--;
+		return false;
 	}
-	return m_ProjectileType;
+	else if (_Capacity != -1)
+	{
+		_RoundsLeft -= numRounds;
+	}
+	return true;
+}
+
+
+TSubclassOf<AProjectile> AMagazine::GetProjectileClass() const
+{
+	return _ProjectileType;
 }
 

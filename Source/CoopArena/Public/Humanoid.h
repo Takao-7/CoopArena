@@ -11,6 +11,8 @@ class AGun;
 class IInteractable;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
+
 UCLASS()
 class COOPARENA_API AHumanoid : public ACharacter
 {
@@ -47,7 +49,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetEquippedWeapon(AGun* weapon);
+
 protected:
+	virtual void OnEquipWeapon();
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
@@ -62,12 +67,11 @@ protected:
 	/**
 	* Called when the actor dies.
 	* Does the following:
-	* 1) Sets bAlreadyDead to true (preventing the actor from "dying" several times).
-	* 2) Uneqquips (=drops) currentWeapon.
-	* 3) Activates physics on the third person mesh & hides the first person mesh.
-	* 4) Deactivates the capsule component's collision
-	* 5) Unpossesses the controller.
-	* 5) Adds an impulse on the last hit's location in the opposite direction of the last hit.
+	* - Uneqquips (=drops) currentWeapon.
+	* - Activates physics on the mesh.
+	* - Deactivates the capsule component's collision
+	* - Dispossesses the controller.
+	* - Adds an impulse on the last hit's location in the opposite direction of the last hit.
 	* So the actor is pushed away from the last hit.
 	* @param applyImpulseOnDeath If set to true an impulse will be applied at the hit's location.
 	* @param hitInfo The FHitResult struct of the shot that killed the pawn.
@@ -89,14 +93,14 @@ protected:
 
 	/**
 	* Called via input to turn at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void TurnAtRate(float value);
 
 	/**
 	* Called via input to turn look up/down at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void LookUpAtRate(float value);
@@ -166,4 +170,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
+
+public:
+	/* Called when the character wants to equip a weapon. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
+	FEquipWeapon_Signature EquipWeapon_Event;
 };

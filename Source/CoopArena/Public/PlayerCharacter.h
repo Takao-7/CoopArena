@@ -70,6 +70,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void CheckForInteractables();
 
+	virtual void OnEquipWeapon() override;
+
 	/**
 	 * Sets the actor in focus, both as AActor* (_ActorInFocus) and IInteractable* (_InteractableInFocus).
 	 * @param actor The actor that should be set. If it's not implementing the IInteractable interface,

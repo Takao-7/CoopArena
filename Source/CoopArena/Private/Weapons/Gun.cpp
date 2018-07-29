@@ -6,10 +6,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
-#include "CoopArena.h"
+#include "Enums/WeaponEnums.h"
+#include "Enums/ItemEnums.h"
 #include "Weapons/Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "PlayerCharacter.h"
+#include "CoopArena.h"
+#include "Magazine.h"
+#include "Projectile.h"
+#include "InventoryComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
@@ -111,7 +116,7 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	}
 	else
 	{
-		_Mesh->SetVisibility(false, true);
+		//_Mesh->SetVisibility(false, true);
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
@@ -142,14 +147,15 @@ void AGun::OnFire()
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_GunStats.ProjectileToSpawn, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
 		if (!projectile)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
 		projectile->_Instigator = GetOwner()->GetInstigatorController();
-		_ShotsLeft--;
+		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
 
@@ -207,6 +213,7 @@ void AGun::ContinousOnFire()
 		{
 			_BurstCount = 0;
 			_SalvoCount = 0;
+			OnStopFire();
 		}
 	}
 	else
@@ -261,8 +268,8 @@ bool AGun::CanShoot() const
 {
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
 	bool bStateOKToFire = ((_CurrentGunState == EWeaponState::Idle) || (_CurrentGunState == EWeaponState::Firing));
-	bool bMagazineIsNotEmpty = _ShotsLeft > 0;
-	bool bHasProjectileToSpawn = _GunStats.ProjectileToSpawn;
+	bool bMagazineIsNotEmpty = _LoadedMagazine && _LoadedMagazine->RoundsLeft() > 0;
+	bool bHasProjectileToSpawn = _GunStats.UsableMagazineClass;
 	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
 
@@ -301,9 +308,32 @@ void AGun::DetachMeshFromPawn()
 
 
 /////////////////////////////////////////////////////
+bool AGun::GetAmmoFromInventory()
+{
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));
+	if (inventory == nullptr)
+	{
+		return false;
+	}
+	return inventory->RemoveItemByClass(_GunStats.UsableMagazineClass);
+}
+
+
+bool AGun::CheckIfOwnerHasMagazine()
+{
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
+	if (inventory == nullptr)
+	{
+		return false;
+	}
+	return inventory->GetItemCountByClass(_GunStats.UsableMagazineClass);
+}
+
+
+/////////////////////////////////////////////////////
 void AGun::ReloadWeapon()
 {
-	if (_CurrentGunState == EWeaponState::Reloading)
+	if (_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
 	{
 		return;
 	}
@@ -332,8 +362,15 @@ void AGun::ReloadWeapon()
 
 void AGun::FinishReloadWeapon()
 {
-	_ShotsLeft = _GunStats.MagazineSize;
-	_CurrentGunState = EWeaponState::Idle;
+	if (GetAmmoFromInventory())
+	{
+		SpawnNewMagazine();
+		_CurrentGunState = EWeaponState::Idle;
+	}
+	else
+	{
+		_CurrentGunState = EWeaponState::Blocked;
+	}	
 }
 
 
@@ -357,7 +394,26 @@ void AGun::BeginPlay()
 
 	_CurrentFireMode = _GunStats.FireModes[0];
 	_CurrentFireModePointer = 0;
-	_ShotsLeft = _GunStats.MagazineSize;
+
+	SpawnNewMagazine();
+}
+
+
+/////////////////////////////////////////////////////
+void AGun::SpawnNewMagazine()
+{
+	if (_LoadedMagazine)
+	{
+		_LoadedMagazine->Destroy();
+	}
+	
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	_LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	if (_LoadedMagazine)
+	{
+		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 }
 
 
