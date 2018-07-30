@@ -115,6 +115,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+	class UCameraComponent* _ZoomCamera;
+
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
 
@@ -240,4 +243,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UMeshComponent* GetMesh() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UCameraComponent* GetZoomCamera() const;
 };

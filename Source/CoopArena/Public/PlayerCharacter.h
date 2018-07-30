@@ -38,6 +38,9 @@ protected:
 	/* The interactable actor that is currently in focus (=the actor that this character is aiming at) */
 	IInteractable* _InteractableInFocus;
 	AActor* _ActorInFocus;
+
+	UPROPERTY(BlueprintReadWrite, Category = PlayerCharacter)
+	UCameraComponent* _LastCamera;
 	
 public:
 	APlayerCharacter();
@@ -61,6 +64,8 @@ public:
 	const FHitResult& GetInteractionLineTraceHitResult() const;
 
 protected:
+	virtual void ToggleAiming() override;
+
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	virtual void OnBeginInteracting();
 

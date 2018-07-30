@@ -184,6 +184,18 @@ void AHumanoid::ToggleSprinting()
 }
 
 
+void AHumanoid::StopSprinting()
+{
+	SetSprinting(false);
+}
+
+
+void AHumanoid::StartSprinting()
+{
+	SetSprinting(true);
+}
+
+
 void AHumanoid::SetSprinting(bool bSprint)
 {
 	if (bSprint)
@@ -262,7 +274,7 @@ void AHumanoid::SetUpDefaultEquipment()
 {
 	if (_DefaultGun == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null!"));
+		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
 	}
 	if (!GetWeaponAttachPoint().IsValid())
@@ -294,4 +306,11 @@ void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsSprinting)
+	{
+		if (bIsAiming)
+		{
+			SetSprinting(false);
+		}
+	}
 }
