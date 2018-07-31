@@ -33,6 +33,7 @@ AHumanoid::AHumanoid()
 	bAlreadyDied = false;
 	bIsSprinting = false;
 	bIsCrouched = false;
+	bUseControllerRotationYaw = false;
 
 	_SprintSpeedIncrease = 2.0f;
 }
@@ -120,6 +121,8 @@ void AHumanoid::MoveForward(float value)
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
+
+	_FeetDirection = GetControlRotation().Yaw;
 }
 
 
@@ -127,8 +130,8 @@ void AHumanoid::MoveRight(float value)
 {
 	if (value != 0.0f && !bIsSprinting)
 	{
-		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), value);
+		_FeetDirection = GetControlRotation().Yaw;
 	}
 }
 
@@ -136,12 +139,18 @@ void AHumanoid::MoveRight(float value)
 void AHumanoid::TurnAtRate(float rate)
 {
 	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+
+	float Yaw = GetControlRotation().Yaw;
+	if (Yaw - _FeetDirection >= 85.0f)
+	{
+		_FeetDirection = Yaw;
+	}
 }
 
 
 void AHumanoid::LookUpAtRate(float rate)
 {
-	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
 }
 
 

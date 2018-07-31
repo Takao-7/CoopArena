@@ -177,6 +177,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
 
+	/* The feet direction. Used for aim offset. */
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	float _FeetDirection;
+
 public:
 	/* Called when the character wants to equip a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
