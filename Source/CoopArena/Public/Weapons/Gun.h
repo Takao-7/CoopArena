@@ -45,6 +45,9 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadVertical;
 
+	/**
+	 * The maximum spread both, horizontal and vertical, the weapon will have.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MaxSpread;
 

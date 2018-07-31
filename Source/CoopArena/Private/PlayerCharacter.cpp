@@ -113,37 +113,19 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 }
 
 
-
-
 void APlayerCharacter::ToggleAiming()
 {
 	if (bIsAiming)
 	{
 		bIsAiming = false;
-		if (_EquippedWeapon)
-		{
-			_EquippedWeapon->GetZoomCamera()->Activate(false);
-		}
-		_LastCamera->Activate(true);
-
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
 	}
 	else
 	{
-		bIsAiming = true;
-		if (_FirstPersonCamera->IsActive())
-		{
-			_LastCamera = _FirstPersonCamera;
-			_FirstPersonCamera->Activate(false);
-		}
-		else
-		{
-			_LastCamera = _ThirdPersonCamera;
-			_ThirdPersonCamera->Activate(false);
-		}
-
+		bIsAiming = true;		
 		if (_EquippedWeapon)
 		{
-			_EquippedWeapon->GetZoomCamera()->Activate(true);
+			Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
 		}
 	}
 }
@@ -201,8 +183,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 
-	//PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
-	//PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprinting);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprinting);
