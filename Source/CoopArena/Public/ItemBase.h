@@ -12,6 +12,7 @@
 class UInventoryComponent;
 class UUserWidget;
 class UMeshComponent;
+class UShapeComponent;
 
 
 UCLASS(abstract)
@@ -28,15 +29,10 @@ public:
 
 	/* Interactable interface */
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
-
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	/* Interactable interface end */
-
-protected:
-	UFUNCTION(BlueprintCallable, Category = ItemBase)
-	virtual UInventoryComponent* FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
@@ -47,4 +43,10 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
 	UMeshComponent* _Mesh;
+
+	/**
+	 * The volume that triggers the OnBeginLineTraceOver function.
+	 */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
+	UShapeComponent* _InteractionVolume;
 };

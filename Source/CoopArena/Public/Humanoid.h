@@ -67,7 +67,7 @@ protected:
 	/**
 	* Called when the actor dies.
 	* Does the following:
-	* - Uneqquips (=drops) currentWeapon.
+	* - Un-Equips (=drops) currentWeapon.
 	* - Activates physics on the mesh.
 	* - Deactivates the capsule component's collision
 	* - Dispossesses the controller.
@@ -110,9 +110,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	virtual void ToggleAiming();
-
-	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void ToggleSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void StopSprinting();
@@ -176,10 +173,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
-
-	/* The feet direction. Used for aim offset. */
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	float _FeetDirection;
 
 public:
 	/* Called when the character wants to equip a weapon. */

@@ -33,7 +33,6 @@ AHumanoid::AHumanoid()
 	bAlreadyDied = false;
 	bIsSprinting = false;
 	bIsCrouched = false;
-	bUseControllerRotationYaw = false;
 
 	_SprintSpeedIncrease = 2.0f;
 }
@@ -45,9 +44,9 @@ AGun* AHumanoid::GetEquippedGun() const
 }
 
 
-void AHumanoid::SetEquippedWeapon(AGun* weapon)
+void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 {
-	_EquippedWeapon = weapon;
+	_EquippedWeapon = Weapon;
 }
 
 
@@ -103,16 +102,16 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 
 
 /////////////////////////////////////////////////////
-void AHumanoid::MoveForward(float value)
+void AHumanoid::MoveForward(float Value)
 {
-	if (value > 0.0f)
+	if (Value > 0.0f)
 	{
-		AddMovementInput(GetActorForwardVector(), value);
+		AddMovementInput(GetControlRotation().Vector(), Value);
 		bIsMovingForward = true;
 	}
-	else if (value < 0.0f)
+	else if (Value < 0.0f)
 	{
-		AddMovementInput(GetActorForwardVector(), value);
+		AddMovementInput(GetControlRotation().Vector(), Value);
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
@@ -121,48 +120,41 @@ void AHumanoid::MoveForward(float value)
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
-
-	_FeetDirection = GetControlRotation().Yaw;
 }
 
 
-void AHumanoid::MoveRight(float value)
+void AHumanoid::MoveRight(float Value)
 {
-	if (value != 0.0f && !bIsSprinting)
+	if (Value != 0.0f && !bIsSprinting)
 	{
-		AddMovementInput(GetActorRightVector(), value);
-		_FeetDirection = GetControlRotation().Yaw;
+		FVector controllerRotation = GetControlRotation().Vector();
+		controllerRotation = controllerRotation.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
+		AddMovementInput(controllerRotation, Value);
 	}
 }
 
 
-void AHumanoid::TurnAtRate(float rate)
+void AHumanoid::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
-
-	float Yaw = GetControlRotation().Yaw;
-	if (Yaw - _FeetDirection >= 85.0f)
-	{
-		_FeetDirection = Yaw;
-	}
+	AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 
-void AHumanoid::LookUpAtRate(float rate)
+void AHumanoid::LookUpAtRate(float Rate)
 {
-	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerPitchInput(Rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
 }
 
 
 void AHumanoid::ToggleCrouch()
 {
-	if (this->bIsCrouched)
+	if (bIsCrouched)
 	{
-		this->UnCrouch();
+		UnCrouch();
 	}
 	else
 	{
-		this->Crouch();
+		Crouch();
 	}
 }
 
@@ -176,19 +168,6 @@ void AHumanoid::ToggleAiming()
 	else
 	{
 		bIsAiming = true;
-	}
-}
-
-
-void AHumanoid::ToggleSprinting()
-{
-	if (bIsSprinting)
-	{
-		SetSprinting(false);
-	}
-	else if (bIsMovingForward)
-	{
-		SetSprinting(true);
 	}
 }
 
