@@ -104,14 +104,20 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
+	FRotator controlRotation = GetControlRotation();
+	controlRotation.Pitch = 0.0f;
+	FVector direction = controlRotation.Vector();
+	direction.Normalize();
+
 	if (Value > 0.0f)
 	{
-		AddMovementInput(GetControlRotation().Vector(), Value);
+
+		AddMovementInput(direction, Value);
 		bIsMovingForward = true;
 	}
 	else if (Value < 0.0f)
 	{
-		AddMovementInput(GetControlRotation().Vector(), Value);
+		AddMovementInput(direction, Value);
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
@@ -127,9 +133,14 @@ void AHumanoid::MoveRight(float Value)
 {
 	if (Value != 0.0f && !bIsSprinting)
 	{
-		FVector controllerRotation = GetControlRotation().Vector();
-		controllerRotation = controllerRotation.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
-		AddMovementInput(controllerRotation, Value);
+		FRotator controlRotation = GetControlRotation();
+		controlRotation.Pitch = 0.0f;
+
+		FVector direction = controlRotation.Vector();
+		direction = direction.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
+		direction.Normalize();
+		
+		AddMovementInput(direction, Value);
 	}
 }
 
