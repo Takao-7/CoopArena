@@ -109,10 +109,16 @@ protected:
 	virtual void ToggleCrouch();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void ToggleAiming();
+	virtual void ToggleAiming();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void ToggleSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StopSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StartSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
@@ -150,7 +156,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	UArrowComponent* _DroppedItemSpawnPoint;
 
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
 	bool bIsAiming;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
@@ -170,6 +176,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
+
+	/* The feet direction. Used for aim offset. */
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	float _FeetDirection;
 
 public:
 	/* Called when the character wants to equip a weapon. */

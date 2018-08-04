@@ -50,7 +50,7 @@ public:
 	/**
 	 * Drops (= spawns) an item one meter in front of the owner.
 	 * @param itemToDrop The item that should be dropped and spawned.
-	 * @return The dropped item. Nullptr if the item couldn't be spawned for some reason.
+	 * @return The dropped item. Null-pointer if the item couldn't be spawned for some reason.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	AItemBase* DropItem(FItemStats& itemToDrop);

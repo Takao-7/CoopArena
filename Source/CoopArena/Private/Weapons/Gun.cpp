@@ -18,6 +18,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Camera/CameraComponent.h"
 
 
 AGun::AGun()
@@ -32,6 +33,10 @@ AGun::AGun()
 	_Mesh->SetCustomDepthStencilValue(253);
 	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
 	SetRootComponent(_Mesh);
+
+	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Zoom Camera"));
+	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
+	_ZoomCamera->SetAutoActivate(false);
 
 	_CurrentGunState = EWeaponState::Idle;
 
@@ -386,6 +391,13 @@ UMeshComponent* AGun::GetMesh() const
 {
 	return _Mesh;
 }
+
+
+UCameraComponent* AGun::GetZoomCamera() const
+{
+	return _ZoomCamera;
+}
+
 
 /////////////////////////////////////////////////////
 void AGun::BeginPlay()
