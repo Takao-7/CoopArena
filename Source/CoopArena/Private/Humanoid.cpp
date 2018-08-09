@@ -97,7 +97,7 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 {
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->bGenerateOverlapEvents = false;
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 }
 
 
