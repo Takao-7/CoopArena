@@ -28,7 +28,6 @@ public:
 
 	/* Interactable interface */
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
-
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
