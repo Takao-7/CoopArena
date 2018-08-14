@@ -67,7 +67,7 @@ protected:
 	/**
 	* Called when the actor dies.
 	* Does the following:
-	* - Uneqquips (=drops) currentWeapon.
+	* - Un-Equips (=drops) currentWeapon.
 	* - Activates physics on the mesh.
 	* - Deactivates the capsule component's collision
 	* - Dispossesses the controller.
@@ -109,10 +109,13 @@ protected:
 	virtual void ToggleCrouch();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void ToggleAiming();
+	virtual void ToggleAiming();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void ToggleSprinting();
+	void StopSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StartSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
@@ -150,7 +153,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	UArrowComponent* _DroppedItemSpawnPoint;
 
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
 	bool bIsAiming;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)

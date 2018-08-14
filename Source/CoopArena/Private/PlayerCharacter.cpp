@@ -5,7 +5,7 @@
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "WeaponEnums.h"
+#include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
 #include "Camera/CameraComponent.h"
@@ -60,7 +60,6 @@ void APlayerCharacter::CheckForInteractables()
 				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 			}
 			SetActorInFocus(hitActor);
-
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
@@ -113,6 +112,22 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 }
 
 
+void APlayerCharacter::ToggleAiming()
+{
+	if (bIsAiming)
+	{
+		bIsAiming = false;
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
+	}
+	else
+	{
+		bIsAiming = true;		
+		if (_EquippedWeapon)
+		{
+			Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+		}
+	}
+}
 
 
 /////////////////////////////////////////////////////
@@ -170,11 +185,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleSprinting);
-
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::ToggleSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprinting);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);

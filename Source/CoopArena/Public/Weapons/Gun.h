@@ -45,6 +45,9 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadVertical;
 
+	/**
+	 * The maximum spread both, horizontal and vertical, the weapon will have.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MaxSpread;
 
@@ -114,6 +117,9 @@ protected:
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+	class UCameraComponent* _ZoomCamera;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
@@ -240,4 +246,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UMeshComponent* GetMesh() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UCameraComponent* GetZoomCamera() const;
 };
