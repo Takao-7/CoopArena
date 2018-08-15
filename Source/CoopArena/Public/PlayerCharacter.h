@@ -61,6 +61,9 @@ public:
 	bool InteractionLineTrace(FHitResult& outHitresult);
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	bool LineTraceByChannelFromView(FHitResult& outHitresult, float Length, ECollisionChannel Channel);
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	const FHitResult& GetInteractionLineTraceHitResult() const;
 
 protected:

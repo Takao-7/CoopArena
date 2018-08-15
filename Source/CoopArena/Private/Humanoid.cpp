@@ -18,7 +18,6 @@ AHumanoid::AHumanoid()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	// set our turn rates for input
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
@@ -48,6 +47,9 @@ void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 {
 	_EquippedWeapon = Weapon;
 }
+
+
+
 
 
 void AHumanoid::OnEquipWeapon()
@@ -305,11 +307,8 @@ void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsSprinting)
+	if (bIsSprinting && bIsAiming)
 	{
-		if (bIsAiming)
-		{
-			SetSprinting(false);
-		}
+		SetSprinting(false);	
 	}
 }

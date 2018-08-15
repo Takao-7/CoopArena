@@ -2,12 +2,14 @@
 
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Enums/WeaponEnums.h"
-#include "Gun.h"
+#include "Weapons/Gun.h"
 #include "CoopArena.h"
+#include "Components/InputComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 
 
@@ -97,18 +99,24 @@ void APlayerCharacter::SetActorInFocus(AActor* actor)
 
 
 /////////////////////////////////////////////////////
-bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
+bool APlayerCharacter::InteractionLineTrace(FHitResult& OutHitresult)
+{
+	return LineTraceByChannelFromView(OutHitresult, _InteractionRange, ECC_Item);
+}
+
+
+bool APlayerCharacter::LineTraceByChannelFromView(FHitResult& OutHitresult, float Length, ECollisionChannel Channel)
 {
 	FVector cameraLocation = GetActiveCamera()->GetComponentLocation();
 	FVector forwardVector = GetActiveCamera()->GetForwardVector();
-	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
+	FVector traceEndLoaction = cameraLocation + forwardVector * Length;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	if (_EquippedWeapon)
 	{
 		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
-	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
+	return GetWorld()->LineTraceSingleByChannel(OutHitresult, cameraLocation, traceEndLoaction, Channel, params);
 }
 
 

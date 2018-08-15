@@ -178,4 +178,6 @@ public:
 	/* Called when the character wants to equip a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
 	FEquipWeapon_Signature EquipWeapon_Event;
+
+
 };
