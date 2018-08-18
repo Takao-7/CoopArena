@@ -49,9 +49,33 @@ void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 }
 
 
+/////////////////////////////////////////////////////
+bool AHumanoid::IsCrouching_Implementation()
+{
+	return bIsCrouched;
+}
 
 
+bool AHumanoid::IsAiming_Implementation()
+{
+	return bIsAiming;
+}
 
+
+EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
+{
+	if (_EquippedWeapon)
+	{
+		return _EquippedWeapon->GetWeaponType();
+	}
+	else
+	{
+		return EWEaponType::None;
+	}
+}
+
+
+/////////////////////////////////////////////////////
 void AHumanoid::OnEquipWeapon()
 {
 	EquipWeapon_Event.Broadcast();

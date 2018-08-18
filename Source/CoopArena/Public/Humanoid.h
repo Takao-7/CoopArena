@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/BAS_Interface.h"
 #include "Humanoid.generated.h"
 
 
@@ -14,7 +15,7 @@ class IInteractable;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
 
 UCLASS()
-class COOPARENA_API AHumanoid : public ACharacter
+class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 {
 	GENERATED_BODY()
 
@@ -49,6 +50,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetEquippedWeapon(AGun* weapon);
+
+	/* Begin BAS Interface */
+	bool IsCrouching_Implementation() override;
+	bool IsAiming_Implementation() override;
+	EWEaponType GetEquippedWeaponType_Implementation() override;
+	/* End BAS Interface */
 
 protected:
 	virtual void OnEquipWeapon();
