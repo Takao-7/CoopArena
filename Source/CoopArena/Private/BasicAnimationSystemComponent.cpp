@@ -117,14 +117,15 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 	}
 	else
 	{
-		int32 xInput = FMath::Abs(FMath::RoundToInt(inputVectorLocalSpace.X));
+		int32 xInput = FMath::RoundToInt(inputVectorLocalSpace.X);
 		/*
 		 * We are moving forward when:
 		 * a) The X-Input is positive or
 		 * b) The X-Input is 0 and the last input was positive
 		 */
-		_variables.bIsMovingForward = (xInput > 0) || (xInput == 0 && _variables.bIsMovingForward);
+		_variables.bIsMovingForward = (xInput > 0) || (FMath::Abs(xInput) == 0 && _variables.bWasMovingForward);
 	}
+	_variables.bWasMovingForward = _variables.bIsMovingForward;
 }
 
 

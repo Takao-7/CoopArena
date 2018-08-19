@@ -34,6 +34,10 @@ struct FBASVariables
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsMovingForward;
 
+	/* Was the actor moving forward in the last frame. */
+	UPROPERTY(BlueprintReadOnly)
+	bool bWasMovingForward;
+
 	/* Is the actor aiming through his weapon's ironsights. */
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsAiming;
