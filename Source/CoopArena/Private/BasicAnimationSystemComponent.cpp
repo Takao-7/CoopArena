@@ -59,7 +59,6 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetMovementType();
 	SetIsMovingForward();
 	SetAimPitch();
-	SetYawActor();
 	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
 }
 
@@ -67,15 +66,15 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetInputDirection()
 {
-	_lastInputVector = GetOwner()->GetInstigator()->GetLastMovementInputVector();
-	if (_lastInputVector.Size() == 0.0f)	// Only set input direction if we are moving.
+	FVector inputVector = GetOwner()->GetInstigator()->GetLastMovementInputVector();
+	if (inputVector.Size() == 0.0f)	// Only set input direction if we are moving.
 	{
 		return;
 	}
 
-	FRotator lastInputRotator = _lastInputVector.ToOrientationRotator();
+	FRotator inputRotator = inputVector.ToOrientationRotator();
 	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
-	FRotator deltaRotation = lastInputRotator - controlRotation;
+	FRotator deltaRotation = inputRotator - controlRotation;
 	deltaRotation.Normalize();
 
 	_variables.LastInputDirection = _variables.InputDirection;
@@ -101,10 +100,12 @@ void UBasicAnimationSystemComponent::SetMovementType()
 
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	if (_lastInputVector.Size() == 0.0f)	// Only set movement direction if we are moving.
+	FVector inputVectorLocalSpace = GetMovementInputVectorLocalSpace();
+	if (inputVectorLocalSpace.Size() == 0.0f)	// Only set movement direction if we are moving.
 	{
 		return;
 	}
+
 	/*
 	 * If the angle between this and the last input direction is very high (optimal 180°),
 	 * we are moving at the exact opposite direction, so we don't have to turn around.
@@ -116,13 +117,13 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 	}
 	else
 	{
-		float xInput = GetMovementInputVectorLocalSpace().X;
+		int32 xInput = FMath::Abs(FMath::RoundToInt(inputVectorLocalSpace.X));
 		/*
 		 * We are moving forward when:
 		 * a) The X-Input is positive or
 		 * b) The X-Input is 0 and the last input was positive
 		 */
-		_variables.bIsMovingForward = xInput > 0.0f || (FMath::Abs(xInput) == 0.0f && _variables.bIsMovingForward);
+		_variables.bIsMovingForward = (xInput > 0) || (xInput == 0 && _variables.bIsMovingForward);
 	}
 }
 
@@ -135,13 +136,6 @@ void UBasicAnimationSystemComponent::SetAimPitch()
 		controlPitch -= 360.0f;
 	}
 	_variables.AimPitch = controlPitch;
-}
-
-
-void UBasicAnimationSystemComponent::SetYawActor()
-{
-	_YawActorLastTick = _YawActor;
-	_YawActor = GetOwner()->GetActorRotation().Yaw;
 }
 
 
@@ -185,7 +179,7 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 FVector UBasicAnimationSystemComponent::GetMovementInputVectorLocalSpace()
 {
 	FTransform actorTransform = GetOwner()->GetTransform();
-	return actorTransform.InverseTransformVector(_lastInputVector);
+	return actorTransform.InverseTransformVector(GetOwner()->GetInstigator()->GetLastMovementInputVector());
 }
 
 

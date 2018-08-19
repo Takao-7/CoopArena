@@ -23,15 +23,6 @@ private:
 	/* Relevant calculated variables from the actor. */
 	FBASVariables _variables;
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
-	float _YawActorLastTick;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
-	float _YawActor;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
-	FVector _lastInputVector;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _IdleTurnAngleThreshold;
 

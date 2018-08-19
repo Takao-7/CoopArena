@@ -11,9 +11,16 @@ struct FBASVariables
 {
 	GENERATED_BODY()
 
-	/* The yaw angle between the control rotation and the input direction. */
+	/* 
+	 * The yaw angle between the control rotation and the input direction. When the actor is idle, this is the last input direction before stopping.
+	 * This means, that this value is not being updated while the actor is idle (= not moving).
+	 */
 	UPROPERTY(BlueprintReadOnly)
 	float InputDirection;
+
+	/* The input direction in the last frame. This value is not being updated while the actor is idle (= not moving). */
+	UPROPERTY(BlueprintReadOnly)
+	float LastInputDirection;
 
 	/* The pitch angle between the control rotation and the actor's pitch.  */
 	UPROPERTY(BlueprintReadOnly)
