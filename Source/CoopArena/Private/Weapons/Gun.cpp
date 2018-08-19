@@ -18,6 +18,10 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
+<<<<<<< HEAD
+=======
+#include "Components/BoxComponent.h"
+>>>>>>> master
 #include "Camera/CameraComponent.h"
 
 
@@ -28,12 +32,21 @@ AGun::AGun()
 	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
 	_Mesh->SetSimulatePhysics(true);
 	_Mesh->CastShadow = true;
 	_Mesh->SetCustomDepthStencilValue(253);
-	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
 	SetRootComponent(_Mesh);
 
+<<<<<<< HEAD
+=======
+	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction box"));
+	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_InteractionVolume->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	_InteractionVolume->SetupAttachment(RootComponent);
+
+>>>>>>> master
 	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Zoom Camera"));
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
 	_ZoomCamera->SetAutoActivate(false);
@@ -121,7 +134,6 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	}
 	else
 	{
-		//_Mesh->SetVisibility(false, true);
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
@@ -438,7 +450,7 @@ float AGun::GetCooldownTime() const
 
 float AGun::GetRoundsPerMinute() const
 {
-	return 60 / GetCooldownTime();
+	return 60.0f / GetCooldownTime();
 }
 
 

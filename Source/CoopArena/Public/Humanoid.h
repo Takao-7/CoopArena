@@ -67,7 +67,7 @@ protected:
 	/**
 	* Called when the actor dies.
 	* Does the following:
-	* - Uneqquips (=drops) currentWeapon.
+	* - Un-Equips (=drops) currentWeapon.
 	* - Activates physics on the mesh.
 	* - Deactivates the capsule component's collision
 	* - Dispossesses the controller.
@@ -112,7 +112,10 @@ protected:
 	virtual void ToggleAiming();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void ToggleSprinting();
+	void StopSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StartSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void StopSprinting();

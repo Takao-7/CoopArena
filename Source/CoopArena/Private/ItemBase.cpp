@@ -21,34 +21,17 @@ void AItemBase::SetItemStats(FItemStats& newItemStats)
 
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn)
 {
-	TArray<UActorComponent*> inventoryActorComponents = InteractingPawn->GetComponentsByClass(UInventoryComponent::StaticClass());
-	UInventoryComponent* inventory;
-
-	if (inventoryActorComponents.Num() == 0)
+	UActorComponent* inventoryActorComponents = InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass());
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(inventoryActorComponents);
+	
+	if (inventory)
 	{
-		return;
+		bool bItemSuccessfullyAdded = inventory->AddItem(this);
+		if (bItemSuccessfullyAdded)
+		{
+			Destroy();
+		}
 	}
-	else if (inventoryActorComponents.Num() == 1)
-	{
-		inventory = Cast<UInventoryComponent>(inventoryActorComponents[0]);
-	}
-	else
-	{
-		/* More then one inventory is existing. Find the correct one to store this item */
-		/* TODO: Implement system to find the correct inventory. */
-		inventory = FindCorrectInventory(inventoryActorComponents);
-	}	
-	bool bItemSuccessfullyAdded = inventory->AddItem(this);
-	if (bItemSuccessfullyAdded)
-	{
-		Destroy();
-	}
-}
-
-
-UInventoryComponent* AItemBase::FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const
-{
-	return Cast<UInventoryComponent>(inventoryActorComponents[0]);
 }
 
 
