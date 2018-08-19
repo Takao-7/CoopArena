@@ -70,24 +70,20 @@ void UWeaponHolster::OnBeginInteract_Implementation(APawn* InteractingPawn)
 
 }
 
-
 void UWeaponHolster::OnEndInteract_Implementation(APawn* InteractingPawn)
 {
 
 }
-
 
 UUserWidget* UWeaponHolster::OnBeginLineTraceOver_Implementation(APawn* Pawn)
 {
 	return nullptr;
 }
 
-
 void UWeaponHolster::OnEndLineTraceOver_Implementation(APawn* Pawn)
 {
 
 }
-
 
 void UWeaponHolster::ToggleIsInUse()
 {
