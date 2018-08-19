@@ -11,7 +11,6 @@
 class UCharacterMovementComponent;
 class IBAS_Interface;
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent, public IBAS_Interface
 {
@@ -21,6 +20,7 @@ private:
 	/* The owner's character movement component. */
 	UCharacterMovementComponent* _MovementComponent;
 
+	/* Relevant calculated variables from the actor. */
 	FBASVariables _variables;
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
@@ -28,6 +28,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
 	float _YawActor;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System")
+	FVector _lastInputVector;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
+	float _IdleTurnAngleThreshold;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _MaxCrouchSpeed;
@@ -71,36 +77,29 @@ protected:
 public:	
 	UBasicAnimationSystemComponent();
 
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Basic Animation System")
 	FBASVariables GetActorVariables() const;
 
 	/* Begin BAS Interface */
-	bool IsCrouching_Implementation() override;
+
 	bool IsAiming_Implementation() override;
 	EWEaponType GetEquippedWeaponType_Implementation() override;
+	EMovementType GetMovementType_Implementation() override;
+	EMovementAdditive GetMovementAdditive_Implementation() override;
+
 	/* End BAS Interface */
 
 private:
+	void SetInputDirection();
+	void SetHorizontalVelocity();
+	void SetMovementType();
+	void SetIsMovingForward();
+	void SetAimPitch();
 	void SetYawActor();
 
-	void SetViewDirection(float DeltaTime);
-
 	void SetUseControlRotationYawOnCharacter();
-
 	void SetMovementComponentValues();
-
-	void SetAimPitch();
-
-	void SetIsMovingForward();
-
 	FVector GetMovementInputVectorLocalSpace();
-
-	void SetMovementType();
-
-	void SetHorizontalVelocity();
-
-	void SetInputDirection();
 };

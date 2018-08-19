@@ -52,9 +52,12 @@ public:
 	void SetEquippedWeapon(AGun* weapon);
 
 	/* Begin BAS Interface */
-	bool IsCrouching_Implementation() override;
+
 	bool IsAiming_Implementation() override;
 	EWEaponType GetEquippedWeaponType_Implementation() override;
+	EMovementType GetMovementType_Implementation() override;
+	EMovementAdditive GetMovementAdditive_Implementation() override;
+
 	/* End BAS Interface */
 
 protected:
@@ -165,6 +168,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsSprinting;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	bool bIsProne;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bAlreadyDied;

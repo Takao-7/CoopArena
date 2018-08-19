@@ -2,15 +2,21 @@
 
 #pragma once
 
-#include "MovementType.generated.h"
+#include "BAS_Enums.generated.h"
 
 UENUM(BlueprintType)
 enum class EMovementType : uint8
 {
 		Idle,
-		IdleCrouch,
-		Crouching,
-		Walking,
-		Jogging,
+		Moving,
 		Sprinting
+};
+
+
+UENUM(BlueprintType)
+enum class EMovementAdditive : uint8
+{
+	None,
+	Crouch,
+	Prone
 };

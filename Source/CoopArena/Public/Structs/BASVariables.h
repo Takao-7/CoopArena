@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Enums/WeaponEnums.h"
-#include "Enums/MovementType.h"
+#include "Enums/BAS_Enums.h"
 #include "BASVariables.generated.h"
 
 USTRUCT(BlueprintType)
@@ -14,10 +14,6 @@ struct FBASVariables
 	/* The yaw angle between the control rotation and the input direction. */
 	UPROPERTY(BlueprintReadOnly)
 	float InputDirection;
-
-	/* The input direction in the last frame or, when the actor is now idle, the last direction before stopping. */
-	UPROPERTY(BlueprintReadOnly)
-	float LastInputDirection;
 
 	/* The pitch angle between the control rotation and the actor's pitch.  */
 	UPROPERTY(BlueprintReadOnly)
@@ -40,9 +36,8 @@ struct FBASVariables
 	EMovementType MovementType;
 
 	UPROPERTY(BlueprintReadOnly)
-	EWEaponType EquippedWeaponType;
+	EMovementAdditive MovementAdditive;
 
-	/* The angle between the feet and the control (=head) direction. */
 	UPROPERTY(BlueprintReadOnly)
-	float ViewDirection;
+	EWEaponType EquippedWeaponType;
 };

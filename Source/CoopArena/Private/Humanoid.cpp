@@ -32,6 +32,7 @@ AHumanoid::AHumanoid()
 	bAlreadyDied = false;
 	bIsSprinting = false;
 	bIsCrouched = false;
+	bIsProne = false;
 
 	_SprintSpeedIncrease = 2.0f;
 }
@@ -50,12 +51,6 @@ void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 
 
 /////////////////////////////////////////////////////
-bool AHumanoid::IsCrouching_Implementation()
-{
-	return bIsCrouched;
-}
-
-
 bool AHumanoid::IsAiming_Implementation()
 {
 	return bIsAiming;
@@ -71,6 +66,40 @@ EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
 	else
 	{
 		return EWEaponType::None;
+	}
+}
+
+
+EMovementType AHumanoid::GetMovementType_Implementation()
+{
+	if (GetLastMovementInputVector().Size() == 0.0f)
+	{
+		return EMovementType::Idle;
+	}
+	else if (bIsSprinting)
+	{
+		return EMovementType::Sprinting;
+	}
+	else
+	{
+		return EMovementType::Moving;
+	}
+}
+
+
+EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
+{
+	if (bIsCrouched)
+	{
+		return EMovementAdditive::Crouch;
+	}
+	else if (bIsProne)
+	{
+		return EMovementAdditive::Prone;
+	}
+	else
+	{
+		return EMovementAdditive::None;
 	}
 }
 
