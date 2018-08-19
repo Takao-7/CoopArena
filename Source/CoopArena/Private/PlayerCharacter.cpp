@@ -60,6 +60,7 @@ void APlayerCharacter::CheckForInteractables()
 				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 			}
 			SetActorInFocus(hitActor);
+
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)

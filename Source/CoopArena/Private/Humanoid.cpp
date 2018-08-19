@@ -15,9 +15,11 @@
 // Sets default values
 AHumanoid::AHumanoid()
 {
+ 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
- 	// set our turn rates for input
+
+	// set our turn rates for input
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
 
@@ -96,7 +98,7 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 {
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetCapsuleComponent()->bGenerateOverlapEvents = false;
 }
 
 
@@ -312,7 +314,6 @@ void AHumanoid::Kill()
 void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-<<<<<<< HEAD
 
 	if (bIsSprinting)
 	{
@@ -321,6 +322,4 @@ void AHumanoid::Tick(float DeltaTime)
 			SetSprinting(false);
 		}
 	}
-=======
->>>>>>> master
 }
