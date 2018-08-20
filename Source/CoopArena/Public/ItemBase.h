@@ -28,9 +28,9 @@ public:
 	virtual void SetItemStats(FItemStats& newItemStats);
 
 	/* Interactable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
-	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
+	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	/* Interactable interface end */
 
