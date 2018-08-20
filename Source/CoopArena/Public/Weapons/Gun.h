@@ -201,7 +201,7 @@ public:
 	AGun();
 
 	/* IInteractable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	/* IInteractable interface end */
 
 	/** Returns the number of rounds the weapon can fire each minute. */
