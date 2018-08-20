@@ -182,6 +182,18 @@ void AHumanoid::ToggleSprinting()
 }
 
 
+void AHumanoid::StopSprinting()
+{
+	SetSprinting(false);
+}
+
+
+void AHumanoid::StartSprinting()
+{
+	SetSprinting(true);
+}
+
+
 void AHumanoid::SetSprinting(bool bSprint)
 {
 	if (bSprint)

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Structs/ItemStructs.h"
 #include "ItemBase.generated.h"
 
@@ -12,6 +12,7 @@
 class UInventoryComponent;
 class UUserWidget;
 class UMeshComponent;
+class UInventoryComponent;
 
 
 UCLASS(abstract)

@@ -58,3 +58,8 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 		_Mesh->SetRenderCustomDepth(false);
 	}
 }
+
+UInventoryComponent * AItemBase::FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const
+{
+	return nullptr;
+}
