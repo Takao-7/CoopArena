@@ -60,7 +60,7 @@ AGun::AGun()
 
 
 /////////////////////////////////////////////////////
-void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn)
+void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
 	if (character)

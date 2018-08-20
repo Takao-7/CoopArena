@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interactable.h"
+#include "Interfaces/Interactable.h"
 #include "Structs/ItemStructs.h"
 #include "ItemBase.generated.h"
 
@@ -12,7 +12,7 @@
 class UInventoryComponent;
 class UUserWidget;
 class UMeshComponent;
-class UShapeComponent;
+class UInventoryComponent;
 
 
 UCLASS(abstract)
@@ -28,11 +28,15 @@ public:
 	virtual void SetItemStats(FItemStats& newItemStats);
 
 	/* Interactable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
-	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
+	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	/* Interactable interface end */
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = ItemBase)
+	virtual UInventoryComponent* FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
@@ -43,10 +47,4 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
 	UMeshComponent* _Mesh;
-
-	/**
-	 * The volume that triggers the OnBeginLineTraceOver function.
-	 */
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
-	UShapeComponent* _InteractionVolume;
 };

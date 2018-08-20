@@ -129,6 +129,12 @@ protected:
 	void StartSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StopSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StartSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)

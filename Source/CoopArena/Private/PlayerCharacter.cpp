@@ -2,14 +2,13 @@
 
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
-#include "Interfaces/Interactable.h"
+#include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Enums/WeaponEnums.h"
-#include "Weapons/Gun.h"
+#include "Gun.h"
 #include "CoopArena.h"
-#include "Components/InputComponent.h"
-#include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 
 
@@ -52,22 +51,29 @@ void APlayerCharacter::CheckForInteractables()
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
+		UPrimitiveComponent* hitComponent = _InteractionHitResult.GetComponent();
 		IInteractable* interactable = Cast<IInteractable>(hitActor);
 		if (interactable)
 		{
-			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this);
-
-			if (interactable != _InteractableInFocus && _ActorInFocus)
+			// Only do Begin/End line traces calls if we are pointing at something new
+			if (interactable != _InteractableInFocus)
 			{
-				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
+				if (_ActorInFocus)
+				{
+					IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
+				}
+
+				IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
+				SetActorInFocus(hitActor);
 			}
-			SetActorInFocus(hitActor);
+			SetComponentInFocus(hitComponent);
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
+		SetComponentInFocus(nullptr);
 	}
 }
 
@@ -98,25 +104,25 @@ void APlayerCharacter::SetActorInFocus(AActor* actor)
 }
 
 
-/////////////////////////////////////////////////////
-bool APlayerCharacter::InteractionLineTrace(FHitResult& OutHitresult)
+void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
 {
-	return LineTraceByChannelFromView(OutHitresult, _InteractionRange, ECC_Item);
+	_ComponentInFocus = Component;
 }
 
 
-bool APlayerCharacter::LineTraceByChannelFromView(FHitResult& OutHitresult, float Length, ECollisionChannel Channel)
+/////////////////////////////////////////////////////
+bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 {
 	FVector cameraLocation = GetActiveCamera()->GetComponentLocation();
 	FVector forwardVector = GetActiveCamera()->GetForwardVector();
-	FVector traceEndLoaction = cameraLocation + forwardVector * Length;
+	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	if (_EquippedWeapon)
 	{
 		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
-	return GetWorld()->LineTraceSingleByChannel(OutHitresult, cameraLocation, traceEndLoaction, Channel, params);
+	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
 }
 
 
@@ -141,9 +147,10 @@ void APlayerCharacter::ToggleAiming()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
+
 	if (_InteractableInFocus)
 	{
-		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this);
+		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);
 	}
 }
 

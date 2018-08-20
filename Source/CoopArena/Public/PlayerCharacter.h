@@ -10,6 +10,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class IInteractable;
+class UPrimitiveComponent;
 
 
 UCLASS()
@@ -38,6 +39,7 @@ protected:
 	/* The interactable actor that is currently in focus (=the actor that this character is aiming at) */
 	IInteractable* _InteractableInFocus;
 	AActor* _ActorInFocus;
+	UPrimitiveComponent* _ComponentInFocus;
 
 	UPROPERTY(BlueprintReadWrite, Category = PlayerCharacter)
 	UCameraComponent* _LastCamera;
@@ -59,9 +61,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	bool InteractionLineTrace(FHitResult& outHitresult);
-
-	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	bool LineTraceByChannelFromView(FHitResult& outHitresult, float Length, ECollisionChannel Channel);
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	const FHitResult& GetInteractionLineTraceHitResult() const;
@@ -88,4 +87,7 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetActorInFocus(AActor* actor);
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void SetComponentInFocus(UPrimitiveComponent* Component);
 };

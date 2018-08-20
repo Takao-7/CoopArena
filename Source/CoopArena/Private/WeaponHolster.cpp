@@ -65,7 +65,7 @@ bool UWeaponHolster::WeaponCanReloadFrom_Implementation() const
 }
 
 
-void UWeaponHolster::OnBeginInteract_Implementation(APawn* InteractingPawn)
+void UWeaponHolster::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 
 }
@@ -77,7 +77,7 @@ void UWeaponHolster::OnEndInteract_Implementation(APawn* InteractingPawn)
 }
 
 
-UUserWidget* UWeaponHolster::OnBeginLineTraceOver_Implementation(APawn* Pawn)
+UUserWidget* UWeaponHolster::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
 	return nullptr;
 }
