@@ -70,7 +70,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Basic Animation System")
+	UFUNCTION(BlueprintPure, Category = "Basic Animation System")
 	FBASVariables GetActorVariables() const;
 
 	/* Begin BAS Interface */
