@@ -14,6 +14,7 @@ class IInteractable;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
 
+
 UCLASS()
 class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 {
@@ -191,6 +192,4 @@ public:
 	/* Called when the character wants to equip a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
 	FEquipWeapon_Signature EquipWeapon_Event;
-
-
 };
