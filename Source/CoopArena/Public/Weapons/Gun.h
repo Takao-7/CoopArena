@@ -13,6 +13,7 @@ class AProjectile;
 class USoundBase;
 class AMagazine;
 class AItemBase;
+class UBoxComponent;
 
 
 USTRUCT(BlueprintType)
@@ -84,6 +85,9 @@ protected:
 	/* The currently loaded magazine. */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UBoxComponent* _InteractionVolume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FGunStats _GunStats;

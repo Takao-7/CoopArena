@@ -112,10 +112,7 @@ protected:
 	virtual void ToggleAiming();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void StopSprinting();
-
-	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
-	void StartSprinting();
+	void ToggleSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
