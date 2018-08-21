@@ -13,6 +13,7 @@ class AProjectile;
 class USoundBase;
 class AMagazine;
 class AItemBase;
+class UBoxComponent;
 
 
 USTRUCT(BlueprintType)
@@ -45,6 +46,9 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float SpreadVertical;
 
+	/**
+	 * The maximum spread both, horizontal and vertical, the weapon will have.
+	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float MaxSpread;
 
@@ -83,6 +87,9 @@ protected:
 	AMagazine* _LoadedMagazine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UBoxComponent* _InteractionVolume;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FGunStats _GunStats;
 
 	/** Name of the bone or socket for the muzzle */
@@ -114,6 +121,9 @@ protected:
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+	class UCameraComponent* _ZoomCamera;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
@@ -191,7 +201,7 @@ public:
 	AGun();
 
 	/* IInteractable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	/* IInteractable interface end */
 
 	/** Returns the number of rounds the weapon can fire each minute. */
@@ -240,4 +250,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UMeshComponent* GetMesh() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UCameraComponent* GetZoomCamera() const;
 };

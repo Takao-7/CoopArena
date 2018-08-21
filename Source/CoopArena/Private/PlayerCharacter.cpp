@@ -4,8 +4,9 @@
 #include "Engine/World.h"
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "WeaponEnums.h"
+#include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
 #include "Camera/CameraComponent.h"
@@ -50,23 +51,29 @@ void APlayerCharacter::CheckForInteractables()
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
+		UPrimitiveComponent* hitComponent = _InteractionHitResult.GetComponent();
 		IInteractable* interactable = Cast<IInteractable>(hitActor);
 		if (interactable)
 		{
-			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this);
-
-			if (interactable != _InteractableInFocus && _ActorInFocus)
+			// Only do Begin/End line traces calls if we are pointing at something new
+			if (interactable != _InteractableInFocus)
 			{
-				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
-			}
-			SetActorInFocus(hitActor);
+				if (_ActorInFocus)
+				{
+					IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
+				}
 
+				IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
+				SetActorInFocus(hitActor);
+			}
+			SetComponentInFocus(hitComponent);
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
+		SetComponentInFocus(nullptr);
 	}
 }
 
@@ -97,6 +104,12 @@ void APlayerCharacter::SetActorInFocus(AActor* actor)
 }
 
 
+void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
+{
+	_ComponentInFocus = Component;
+}
+
+
 /////////////////////////////////////////////////////
 bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 {
@@ -113,14 +126,31 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 }
 
 
+void APlayerCharacter::ToggleAiming()
+{
+	if (bIsAiming)
+	{
+		bIsAiming = false;
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
+	}
+	else
+	{
+		bIsAiming = true;		
+		if (_EquippedWeapon)
+		{
+			Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+		}
+	}
+}
 
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
+
 	if (_InteractableInFocus)
 	{
-		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this);
+		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);
 	}
 }
 
@@ -170,11 +200,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleSprinting);
-
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::ToggleSprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::ToggleSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprinting);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprinting);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
