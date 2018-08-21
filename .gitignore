@@ -74,3 +74,6 @@ Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+Content/Static/._sync_30de15d1146c.db-shm
+Content/Static/._sync_30de15d1146c.db-wal
+Content/Static/._sync_30de15d1146c.db
