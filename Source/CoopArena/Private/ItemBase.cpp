@@ -19,7 +19,7 @@ void AItemBase::SetItemStats(FItemStats& newItemStats)
 }
 
 
-void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn)
+void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	TArray<UActorComponent*> inventoryActorComponents = InteractingPawn->GetComponentsByClass(UInventoryComponent::StaticClass());
 	UInventoryComponent* inventory;
@@ -58,7 +58,7 @@ void AItemBase::OnEndInteract_Implementation(APawn* InteractingPawn)
 }
 
 
-UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn)
+UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
 	if (_Mesh)
 	{
@@ -74,4 +74,9 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 	{
 		_Mesh->SetRenderCustomDepth(false);
 	}
+}
+
+UInventoryComponent * AItemBase::FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const
+{
+	return nullptr;
 }
