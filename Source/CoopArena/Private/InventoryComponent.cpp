@@ -48,23 +48,23 @@ bool UInventoryComponent::AddItem(AItemBase* itemToAdd)
 /////////////////////////////////////////////////////
 void UInventoryComponent::IncreaseMagazineCount(FItemStats &itemstats)
 {
-	if (itemstats.Type == EItemType::Ammo)
+	if (itemstats.type == EItemType::Ammo)
 	{
-		auto numMags = _StoredMagazines.Find(itemstats.Name);
+		auto numMags = _StoredMagazines.Find(itemstats.name);
 		if (numMags == nullptr)
 		{
-			_StoredMagazines.Add(itemstats.Name, 0);
+			_StoredMagazines.Add(itemstats.name, 0);
 		}
-		_StoredMagazines[itemstats.Name]++;
+		_StoredMagazines[itemstats.name]++;
 	}
 }
 
 
 void UInventoryComponent::ReduceMagazineCount(FItemStats &outItemStats)
 {
-	if (outItemStats.Type == EItemType::Ammo)
+	if (outItemStats.type == EItemType::Ammo)
 	{
-		_StoredMagazines[outItemStats.Name]--;
+		_StoredMagazines[outItemStats.name]--;
 	}
 }
 
@@ -91,7 +91,7 @@ bool UInventoryComponent::RemoveItemByClass(TSubclassOf<AItemBase> itemClass)
 	FItemStats statsToCompare = itemToCompare->GetItemStats();
 	for (int i = 0; i < _StoredItems.Num(); i++)
 	{
-		if (_StoredItems[i].Name == statsToCompare.Name)
+		if (_StoredItems[i].name == statsToCompare.name)
 		{
 			_StoredItems.RemoveAt(i);
 			ReduceMagazineCount(statsToCompare);
@@ -109,7 +109,7 @@ AItemBase* UInventoryComponent::DropItem(FItemStats& itemToDrop)
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	AItemBase* spawnedItem = GetWorld()->SpawnActor<AItemBase>(itemToDrop.Class, spawnLocation, FRotator::ZeroRotator, spawnParameters);
+	AItemBase* spawnedItem = GetWorld()->SpawnActor<AItemBase>(itemToDrop.itemClass, spawnLocation, FRotator::ZeroRotator, spawnParameters);
 	if (spawnedItem)
 	{
 		spawnedItem->SetItemStats(itemToDrop);
@@ -141,7 +141,7 @@ int32 UInventoryComponent::GetItemCountByClass(TSubclassOf<AItemBase> itemClass)
 	FItemStats statsToCompare = itemToCompare->GetItemStats();
 	for (FItemStats item : _StoredItems)
 	{
-		if (item.Name == statsToCompare.Name)
+		if (item.name == statsToCompare.name)
 		{
 			count++;
 		}

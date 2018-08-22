@@ -62,7 +62,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 {
 	if (OtherActor)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Projectile hit %s"), *OtherActor->GetName());
 		FDamageEvent damageEvent;
 		damageEvent.DamageTypeClass = _ProjectileValues.DamageType;
 		float damage = GetDamageWithFallOff();
@@ -72,11 +71,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			damage *= GetDamageMultiplicatorAgainstSurfaceType(&(*Hit.PhysMaterial));
 		}
 		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, _Instigator, OtherActor, _ProjectileValues.DamageType);
-
-		/*if (Hit.PhysMaterial != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Physical material: %s"), *Hit.PhysMaterial->GetName());
-		}*/
 	}
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), _DefaultHitEffect, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
 	Destroy();
@@ -90,5 +84,5 @@ void AProjectile::BeginPlay()
 
 	_TimeWhenSpawned = GetWorld()->GetTimeSeconds();
 
-	SetLifeSpan(10.0f);
+	SetLifeSpan(_ProjectileValues.lifeTime);
 }

@@ -49,8 +49,8 @@ AGun::AGun()
 
 	_MuzzleAttachPoint = "Muzzle";
 
-	_itemStats.Type = EItemType::Weapon;
-	_itemStats.Class = GetClass();
+	_itemStats.type = EItemType::Weapon;
+	_itemStats.itemClass = GetClass();
 
 	_GunStats.WeaponType = EWEaponType::Rifle;	
 

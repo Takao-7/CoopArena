@@ -28,15 +28,15 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = PlayerCharacter)
 	USpringArmComponent* _SpringArm;
 
-	/* The distance, in cm, at which the character can interact with Interactables */
+	/* The distance, in cm, at which the character can interact with intractables */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = PlayerCharacter)
 	float _InteractionRange;
 
-	/* The hit result for the line trace that runs every frame to look for Interactables */
+	/* The hit result for the line trace that runs every frame to look for intractables */
 	UPROPERTY(BlueprintReadOnly, Category = PlayerCharacter)
 	FHitResult _InteractionHitResult;
 
-	/* The interactable actor that is currently in focus (=the actor that this character is aiming at) */
+	/* The intractable actor that is currently in focus (=the actor that this character is aiming at) */
 	IInteractable* _InteractableInFocus;
 	AActor* _ActorInFocus;
 	UPrimitiveComponent* _ComponentInFocus;

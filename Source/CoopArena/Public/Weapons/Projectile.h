@@ -23,6 +23,7 @@ struct FProjectileValues
 		CriticalHitDamageMultiplier = 10.0f;
 		bLinealDamageDropOff = true;
 		DamageDropOffPerSecond = 1.0f;
+		lifeTime = 5.0f;
 	}
 
 	/* The projectiles base damage, without any modifiers */
@@ -43,6 +44,10 @@ struct FProjectileValues
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	TSubclassOf<UDamageType> DamageType;
+
+	/* Time in seconds that this projectile will life. 0 means that this projectile will not have a limited lifetime. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile, meta = (ClampMin = 0.0f))
+	float lifeTime;
 };
 
 UCLASS()
@@ -86,7 +91,7 @@ protected:
 	UParticleSystem* _DefaultHitEffect;
 
 public:
-	/* The controller how shot this projectile */
+	/* The controller who shot this projectile */
 	UPROPERTY(BlueprintReadWrite, Category = Projectile)
 	AController* _Instigator;
 };

@@ -38,6 +38,4 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 			UE_LOG(LogTemp, Error, TEXT("%s is not a AHumanoid!"), *GetOwner()->GetName());
 		}
 	}
-	
-	//UE_LOG(LogTemp, Warning, TEXT("%s recieved %f point damage from %s."), *GetOwner()->GetName(), Damage, *InstigatedBy->GetName());
 }
