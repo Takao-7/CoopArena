@@ -19,7 +19,7 @@ APlayerCharacter::APlayerCharacter()
 	_InteractableInFocus = nullptr;
 
 	_FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First person camera"));
-	_FirstPersonCamera->SetupAttachment(GetMesh(), "head");
+	_FirstPersonCamera->SetupAttachment(GetMesh(), "Head");
 	_FirstPersonCamera->bUsePawnControlRotation = true;
 	_FirstPersonCamera->SetRelativeLocationAndRotation(FVector(7.0f, 5.0f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
 
