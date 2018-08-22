@@ -22,7 +22,7 @@ struct FProjectileValues
 		BaseDamage = 20.0f;
 		CriticalHitDamageMultiplier = 10.0f;
 		bLinealDamageDropOff = true;
-		DamageDropOffPerSecond = 0.5f;
+		DamageDropOffPerSecond = 1.0f;
 	}
 
 	/* The projectiles base damage, without any modifiers */
@@ -56,6 +56,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
 	float GetDamageWithFallOff() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	float GetDamageMultiplicatorAgainstSurfaceType(UPhysicalMaterial* Material) const;
 	
 protected:
 	// Called when the game starts or when spawned

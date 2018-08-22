@@ -205,8 +205,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);
+	PlayerInputComponent->BindAction("Prone", IE_Pressed, this, &APlayerCharacter::ToggleProne);
 }
 
 

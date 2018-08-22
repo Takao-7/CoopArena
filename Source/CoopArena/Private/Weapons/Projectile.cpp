@@ -6,6 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
+#include "CoopArena.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 
 // Sets default values
@@ -17,6 +19,7 @@ AProjectile::AProjectile()
 	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
 	Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	Mesh->bReturnMaterialOnMove = true;
 	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	RootComponent = Mesh;
 
@@ -40,6 +43,21 @@ float AProjectile::GetDamageWithFallOff() const
 }
 
 
+float AProjectile::GetDamageMultiplicatorAgainstSurfaceType(UPhysicalMaterial* Material) const
+{
+	switch (UPhysicalMaterial::DetermineSurfaceType(Material))
+	{
+	case SurfaceType_Body:
+		return 1.0f;
+		break;
+	case SurfaceType_Critical:
+		return _ProjectileValues.CriticalHitDamageMultiplier;
+		break;
+	}
+	return 1.0f;
+}
+
+
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor)
@@ -48,7 +66,17 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 		FDamageEvent damageEvent;
 		damageEvent.DamageTypeClass = _ProjectileValues.DamageType;
 		float damage = GetDamageWithFallOff();
+
+		if (Hit.PhysMaterial != nullptr)
+		{
+			damage *= GetDamageMultiplicatorAgainstSurfaceType(&(*Hit.PhysMaterial));
+		}
 		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, _Instigator, OtherActor, _ProjectileValues.DamageType);
+
+		/*if (Hit.PhysMaterial != nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Physical material: %s"), *Hit.PhysMaterial->GetName());
+		}*/
 	}
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), _DefaultHitEffect, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
 	Destroy();
