@@ -7,12 +7,14 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "CoopArena.h"
-#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "MyPhysicalMaterial.h"
 
 
 // Sets default values
 AProjectile::AProjectile()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetGenerateOverlapEvents(true);
@@ -29,7 +31,11 @@ AProjectile::AProjectile()
 
 float AProjectile::GetDamageWithFallOff() const
 {
-	float flightTime = GetWorld()->GetTimeSeconds() - _TimeWhenSpawned;
+	float flightTime = 0.0f;
+	if (_TimeSecondsWhenSpawned != 0.0f)
+	{
+		flightTime = GetWorld()->GetTimeSeconds() - _TimeSecondsWhenSpawned;
+	}
 	float damage;
 	if (_ProjectileValues.bLinealDamageDropOff)
 	{
@@ -43,37 +49,56 @@ float AProjectile::GetDamageWithFallOff() const
 }
 
 
-float AProjectile::GetDamageMultiplicatorAgainstSurfaceType(UPhysicalMaterial* Material) const
-{
-	switch (UPhysicalMaterial::DetermineSurfaceType(Material))
-	{
-	case SurfaceType_Body:
-		return 1.0f;
-		break;
-	case SurfaceType_Critical:
-		return _ProjectileValues.CriticalHitDamageMultiplier;
-		break;
-	}
-	return 1.0f;
-}
-
-
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UParticleSystem* particleSystem = nullptr;
 	if (OtherActor)
 	{
-		FDamageEvent damageEvent;
-		damageEvent.DamageTypeClass = _ProjectileValues.DamageType;
 		float damage = GetDamageWithFallOff();
+		UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(Hit.PhysMaterial);
 
-		if (Hit.PhysMaterial != nullptr)
+		if (material != nullptr)
 		{
-			damage *= GetDamageMultiplicatorAgainstSurfaceType(&(*Hit.PhysMaterial));
+			damage *= material->GetDamageMod();
+
+			UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject());
+			particleSystem = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 		}
 		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, _Instigator, OtherActor, _ProjectileValues.DamageType);
 	}
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), _DefaultHitEffect, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
+
+	if (particleSystem)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s"), *GetName(), *_Instigator->GetName());
+	}
 	Destroy();
+}
+
+
+void AProjectile::HitDetectionLineTrace()
+{
+	FVector traceStart = GetActorLocation();
+	FVector traceEnd = traceStart * (GetActorForwardVector() * GetVelocity().Size());
+
+
+	FHitResult hitResult;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration);
+
+	if (bHit)
+	{
+		FVector impulse = GetImpulse();
+		OnHit(Mesh, hitResult.GetActor(), hitResult.GetComponent(), impulse, hitResult);
+	}
+}
+
+
+FVector AProjectile::GetImpulse()
+{
+	return GetActorForwardVector() * (GetVelocity().Size() * _ProjectileValues.Mass);
 }
 
 
@@ -82,7 +107,15 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();	
 
-	_TimeWhenSpawned = GetWorld()->GetTimeSeconds();
-
+	_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
 	SetLifeSpan(_ProjectileValues.lifeTime);
+	HitDetectionLineTrace();
+}
+
+
+void AProjectile::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	HitDetectionLineTrace();
 }

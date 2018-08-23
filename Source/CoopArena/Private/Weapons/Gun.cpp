@@ -154,18 +154,21 @@ void AGun::OnFire()
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
 		SpawnDirection = ApplyWeaponSpread(SpawnDirection);		
 		FVector SpawnLocation = GetMuzzleLocation();
+		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
 
 		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+
+		AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(projectileClass, SpawnTransform, GetOwner(), GetOwner()->GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		//AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
 		if (!projectile)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
-		projectile->_Instigator = GetOwner()->GetInstigatorController();
+		//projectile->_Instigator = GetOwner()->GetInstigatorController();
+		projectile->FinishSpawning(SpawnTransform);
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
