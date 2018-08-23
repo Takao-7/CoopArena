@@ -111,9 +111,4 @@ protected:
 	/* The default hit effect that is played, when no specific hit effect is found or defined for the target material */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UParticleSystem* _DefaultHitEffect;
-
-public:
-	/* The controller who shot this projectile */
-	UPROPERTY(BlueprintReadWrite, Category = Projectile)
-	AController* _Instigator;
 };

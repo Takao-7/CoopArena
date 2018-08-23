@@ -7,7 +7,7 @@
 /* Line trace channels */
 
 #define ECC_Projectile				ECC_GameTraceChannel1
-/* Used to find intractable actors. */
+/* Used to find intractable actors. Actors that are interactables have*/
 #define ECC_Interactable			ECC_GameTraceChannel2
 /* Used to find actors or meshes that can be damaged or passed through by projectiles. */
 #define ECC_ProjectilePenetration	ECC_GameTraceChannel3

@@ -26,6 +26,7 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser)
 {
 	CurrentHealth -= Damage;
+	//UE_LOG(LogTemp, Warning, TEXT("Recieved %f damage."), Damage);
 	if (CurrentHealth <= 0.0f)
 	{
 		auto* ownerHumanoid = Cast<AHumanoid>(GetOwner());

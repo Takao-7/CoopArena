@@ -86,7 +86,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	UBoxComponent* _InteractionVolume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)

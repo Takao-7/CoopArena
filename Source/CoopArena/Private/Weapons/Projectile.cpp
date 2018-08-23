@@ -64,7 +64,13 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject());
 			particleSystem = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 		}
-		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, _Instigator, OtherActor, _ProjectileValues.DamageType);
+		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
+	}
+	else
+	{
+		FString compName = "";
+		GetOwner() ? compName = GetOwner()->GetName() : compName = "(no hit component)";
+		UE_LOG(LogTemp, Warning, TEXT("%s fired by %s: No hit actor! Hit component: %s"), *GetName(), *GetOwner()->GetName(), *compName);
 	}
 
 	if (particleSystem)
@@ -73,7 +79,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s"), *GetName(), *_Instigator->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s. Hit actor: %s"), *GetName(), *GetInstigator()->GetName(), *OtherActor->GetName());
 	}
 	Destroy();
 }
@@ -82,11 +88,12 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 void AProjectile::HitDetectionLineTrace()
 {
 	FVector traceStart = GetActorLocation();
-	FVector traceEnd = traceStart * (GetActorForwardVector() * GetVelocity().Size());
+	FVector traceEnd = traceStart + (GetActorForwardVector() * GetVelocity().Size());
 
-
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(GetOwner());
 	FHitResult hitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration, params);
 
 	if (bHit)
 	{

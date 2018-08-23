@@ -123,7 +123,7 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	{
 		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
-	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
+	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
 
 

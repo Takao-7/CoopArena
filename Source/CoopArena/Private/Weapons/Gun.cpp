@@ -29,7 +29,7 @@ AGun::AGun()
 	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_Mesh->SetSimulatePhysics(true);
 	_Mesh->CastShadow = true;
 	_Mesh->SetCustomDepthStencilValue(253);
@@ -37,7 +37,7 @@ AGun::AGun()
 
 	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction box"));
 	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_InteractionVolume->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	_InteractionVolume->SetupAttachment(RootComponent);
 
@@ -156,18 +156,14 @@ void AGun::OnFire()
 		FVector SpawnLocation = GetMuzzleLocation();
 		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
 
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
 
-		AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(projectileClass, SpawnTransform, GetOwner(), GetOwner()->GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		//AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+		AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(projectileClass, SpawnTransform, GetOwner(), _MyOwner, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (!projectile)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
-		//projectile->_Instigator = GetOwner()->GetInstigatorController();
 		projectile->FinishSpawning(SpawnTransform);
 		_LoadedMagazine->RemoveRound();
 
