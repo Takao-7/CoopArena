@@ -79,7 +79,6 @@ public:
 	float GetDamageWithFallOff() const;
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -88,9 +87,15 @@ protected:
 
 	/* Function to check if the bullet will hit something in the next frame. Called at begin play and on every frame. */
 	UFUNCTION(BlueprintCallable, Category = Projectile)
-	void HitDetectionLineTrace();
+	void HitDetectionLineTrace(float DeltaTime);
 
-	FVector GetImpulse();
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	FORCEINLINE FVector GetImpulse() const;
+
+	/* When this projectile "hits" something. Will apply damage do the hit actor and destroy this projectile.
+	 * TODO: Add penetration functionality. */
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)

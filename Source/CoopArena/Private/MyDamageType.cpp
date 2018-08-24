@@ -13,5 +13,13 @@ float UMyDamageType::GetDamageModAgainstMaterial(UMyPhysicalMaterial* Material)
 
 UParticleSystem* UMyDamageType::GetHitEffect(EPhysicalSurface Surface) const
 {
-	return *_HitEffects.Find(Surface);
+	UParticleSystem*const* pointer = _HitEffects.Find(Surface);	
+	if (pointer == nullptr)
+	{
+		return nullptr;
+	}
+	else
+	{
+		return *pointer;
+	}
 }
