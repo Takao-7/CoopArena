@@ -82,12 +82,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintCallable, Category = Projectile)
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
-
 	/* Function to check if the bullet will hit something in the next frame. Called at begin play and on every frame. */
 	UFUNCTION(BlueprintCallable, Category = Projectile)
-	void HitDetectionLineTrace(float DeltaTime);
+	FHitResult HitDetectionLineTrace(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	FORCEINLINE FVector GetImpulse() const;
@@ -116,4 +113,7 @@ protected:
 	/* The default hit effect that is played, when no specific hit effect is found or defined for the target material */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UParticleSystem* _DefaultHitEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
+	UParticleSystem* _TrailEffect;
 };

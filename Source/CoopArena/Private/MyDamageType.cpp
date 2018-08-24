@@ -3,12 +3,7 @@
 #include "MyDamageType.h"
 #include "MyPhysicalMaterial.h"
 #include "Particles/ParticleSystem.h"
-
-
-float UMyDamageType::GetDamageModAgainstMaterial(UMyPhysicalMaterial* Material)
-{
-	return 1.0;
-}
+//#include "Engine/EngineTypes.h"
 
 
 UParticleSystem* UMyDamageType::GetHitEffect(EPhysicalSurface Surface) const

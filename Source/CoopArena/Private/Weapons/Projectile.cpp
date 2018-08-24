@@ -16,13 +16,14 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	Mesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECC_ProjectilePenetration, ECR_Ignore);
 	Mesh->bReturnMaterialOnMove = true;
-	//Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleOverlap);
 	RootComponent = Mesh;
 
@@ -44,58 +45,13 @@ float AProjectile::GetDamageWithFallOff() const
 	}
 	else
 	{
-		damage = _ProjectileValues.BaseDamage - (FMath::Pow(flightTime, 2) * _ProjectileValues.DamageDropOffPerSecond);
+		damage = _ProjectileValues.BaseDamage - (flightTime * FMath::Pow(_ProjectileValues.DamageDropOffPerSecond, 2));
 	}
 	return damage;
 }
 
 
-void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	UParticleSystem* particleSystem = _DefaultHitEffect;
-	if (OtherActor)
-	{
-		float damage = GetDamageWithFallOff();
-		UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(Hit.PhysMaterial.Get());
-
-		if (Hit.PhysMaterial == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("No PhysMaterial on: %s"), *OtherActor->GetName());
-		}
-
-		if (material != nullptr)
-		{
-			damage *= material->GetDamageMod();
-
-			UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject());
-			particleSystem = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("No MyPhsicalMaterial on: %s"), *OtherActor->GetName());
-		}
-		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
-	}
-	else
-	{
-		FString compName = "";
-		GetOwner() ? compName = GetOwner()->GetName() : compName = "(no hit component)";
-		UE_LOG(LogTemp, Warning, TEXT("%s fired by %s: No hit actor! Hit component: %s"), *GetName(), *GetOwner()->GetName(), *compName);
-	}
-
-	if (particleSystem)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s. Hit actor: %s"), *GetName(), *GetInstigator()->GetName(), *OtherActor->GetName());
-	}
-	Destroy();
-}
-
-
-void AProjectile::HitDetectionLineTrace(float DeltaTime)
+FHitResult AProjectile::HitDetectionLineTrace(float DeltaTime)
 {
 	FVector traceStart = GetActorLocation();
 	FVector traceEnd = traceStart + (GetActorForwardVector() * GetVelocity().Size() * DeltaTime);
@@ -104,13 +60,9 @@ void AProjectile::HitDetectionLineTrace(float DeltaTime)
 	params.AddIgnoredActor(GetOwner());
 	params.bReturnPhysicalMaterial = true;
 	FHitResult hitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration, params);
+	GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration, params);
 
-	if (bHit)
-	{
-		FVector impulse = GetImpulse();
-		OnHit(Mesh, hitResult.GetActor(), hitResult.GetComponent(), impulse, hitResult);
-	}
+	return hitResult;
 }
 
 
@@ -174,12 +126,15 @@ void AProjectile::BeginPlay()
 
 	_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
 	SetLifeSpan(_ProjectileValues.lifeTime);
-	//HitDetectionLineTrace(1/60.0f);
 }
 
 
 void AProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	//HitDetectionLineTrace(DeltaSeconds);
+
+	if (_TrailEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(_TrailEffect, Mesh, "", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+	}
 }
