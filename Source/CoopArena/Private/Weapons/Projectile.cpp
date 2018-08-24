@@ -148,17 +148,18 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		UE_LOG(LogTemp, Error, TEXT("No MyPhysicalMaterial on: %s"), *OtherActor->GetName());
 	}
 
-	if (hitEffect == nullptr)
+	if (hitEffect == nullptr && _DefaultHitEffect)
 	{
 		hitEffect = _DefaultHitEffect;
-		if (hitEffect)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, SweepResult.Location, SweepResult.Normal.Rotation(), true, EPSCPoolMethod::None);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s. Hit actor: %s"), *GetName(), *GetInstigator()->GetName(), *OtherActor->GetName());
-		}
+	}
+
+	if (hitEffect)
+	{	
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, SweepResult.Location, SweepResult.Normal.Rotation(), true, EPSCPoolMethod::None);		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s. Hit actor: %s"), *GetName(), *GetInstigator()->GetName(), *OtherActor->GetName());
 	}
 
 	UGameplayStatics::ApplyPointDamage(OtherActor, damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
