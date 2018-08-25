@@ -335,20 +335,54 @@ void AHumanoid::ChangeWeaponFireMode()
 }
 
 
-void AHumanoid::AttachTo(AActor* ActorToAttach, USkeletalMeshComponent* Target, FName Socket, bool bKeepRelativeOffset)
+void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
 {
 	EAttachmentRule attachmentRule;
 	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
-	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, true);
-	ActorToAttach->AttachToActor(Target->GetOwner(), rules, "");
-	ActorToAttach->AttachToComponent(Target, rules, Socket);
+	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
+	FName handSocket = "HandLeft";
+
+	ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
+	_ItemInHand = ItemToGrab;
+	if (bKeepRelativeOffset)
+	{
+		CalcAndSafeActorOffset(ItemToGrab);
+	}
+	else
+	{
+		ItemToGrab->SetActorRelativeTransform(Offset);
+	}	
 }
 
 
-void AHumanoid::DropItem(AItemBase* Item)
+FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 {
-	Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	Item->SetSimulatePhysics(true);
+	FTransform offset;
+	FVector itemLocation = OtherActor->GetActorLocation();
+	FVector handLocation = GetMesh()->GetSocketLocation("HandLeft");
+	offset.SetLocation(itemLocation - handLocation);
+
+	FRotator itemRotation = OtherActor->GetActorRotation();
+	FRotator handRotation = GetMesh()->GetSocketRotation("HandLeft");
+	offset.SetRotation((itemRotation - handRotation).Quaternion());
+	_ItemOffset = offset;
+	return offset;
+}
+
+
+AItemBase* AHumanoid::DropItem()
+{
+	if (_ItemInHand == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
+		return nullptr;
+	}
+	AItemBase* itemToDrop = _ItemInHand;	
+	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	itemToDrop->SetSimulatePhysics(true);
+	
+	_ItemInHand = nullptr;
+	return itemToDrop;
 }
 
 

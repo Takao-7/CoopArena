@@ -22,17 +22,22 @@ class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	/* 
-	 * Attaches the given actor to the skeletal mesh at the socket without.
-	 * Parameters must not be null.
+	 * Attaches an item to a hand.
+	 * @param ItemToGrab Must not be null.
+	 * @param bKeepRelativeOffset Weather or not to keep the relative offset between the ActorToGrab and this actor.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void AttachTo(AActor* ActorToAttach, USkeletalMeshComponent* Target, FName Socket, bool bKeepRelativeOffset);
+	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset);
+
+	/* Calculates and safes the offset between the currently held item and this character. */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	FTransform CalcAndSafeActorOffset(AActor* OtherActor);
 
 	/* Drops an actor and activates physics on that actor. */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void DropItem(AItemBase* Item);
+	AItemBase* DropItem();
 
 	/**
 	 * Checks if the character is alive.
@@ -209,6 +214,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	AItemBase* _ItemInHand;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	FTransform _ItemOffset;
 
 public:
 	/* Called when the character wants to equip a weapon. */

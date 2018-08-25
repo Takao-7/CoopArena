@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual void SetItemStats(FItemStats& newItemStats);
 
+	UFUNCTION(BlueprintPure, Category = ItemBase)
+	virtual UMeshComponent* GetMesh() const;
+
 	/* Interactable interface */
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
@@ -47,7 +50,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
 	UUserWidget* _itemWidget;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
-	UMeshComponent* _Mesh;
 };

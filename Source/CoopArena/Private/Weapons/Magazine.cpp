@@ -2,6 +2,7 @@
 
 #include "Magazine.h"
 #include "Weapons/Projectile.h"
+#include "Components/StaticMeshComponent.h"
 
 
 // Called when the game starts or when spawned
@@ -9,6 +10,14 @@ void AMagazine::BeginPlay()
 {
 	Super::BeginPlay();	
 	_RoundsLeft = _Capacity;
+}
+
+
+AMagazine::AMagazine()
+{
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	_Mesh->SetupAttachment(RootComponent);
 }
 
 
@@ -43,3 +52,8 @@ TSubclassOf<AProjectile> AMagazine::GetProjectileClass() const
 	return _ProjectileType;
 }
 
+
+UMeshComponent* AMagazine::GetMesh() const
+{
+	return _Mesh;
+}

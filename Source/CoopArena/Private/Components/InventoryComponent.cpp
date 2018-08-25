@@ -152,5 +152,13 @@ int32 UInventoryComponent::GetItemCountByClass(TSubclassOf<AItemBase> itemClass)
 
 int32 UInventoryComponent::GetMagazineCountByName(FName magazineName) const
 {
-	return _StoredMagazines[magazineName];
+	const int32* pointer = _StoredMagazines.Find(magazineName);
+	if (pointer)
+	{
+		return *pointer;
+	}
+	else
+	{
+		return 0;
+	}
 }

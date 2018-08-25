@@ -357,7 +357,7 @@ void AGun::ReloadWeapon()
 			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
 			if (AnimInstance)
 			{
-				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);		
+				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
 			}
 		}
 	}
@@ -368,12 +368,12 @@ void AGun::ReloadWeapon()
 		FTimerDelegate lambda;
 		lambda.BindLambda([this]
 		{
-			bool bHasAmmo = CheckAmmo();
+			bool bHasAmmo = GetAmmoFromInventory();
 			if (bHasAmmo)
 			{
-				SpawnNewMagazine();
+				AMagazine* newMag = SpawnNewMagazine();
+				AttachMagazine(newMag);
 			}
-
 			FinishReloadWeapon();
 		});
 
@@ -389,17 +389,6 @@ void AGun::StopReloading()
 		_MyOwner->StopAnimMontage(_ReloadAnimation);
 	}
 	FinishReloadWeapon();
-}
-
-
-bool AGun::CheckAmmo()
-{
-	bool bHasAmmo = GetAmmoFromInventory();
-	if (_ReloadAnimation == nullptr)
-	{
-		FinishReloadWeapon();
-	}
-	return bHasAmmo;
 }
 
 
@@ -425,7 +414,7 @@ void AGun::FinishReloadWeapon()
 	}
 	else
 	{
-		_CurrentGunState = EWeaponState::Blocked;
+		_CurrentGunState = EWeaponState::NoMagazine;
 	}	
 }
 
@@ -458,25 +447,30 @@ void AGun::BeginPlay()
 	_CurrentFireMode = _GunStats.FireModes[0];
 	_CurrentFireModePointer = 0;
 
-	SpawnNewMagazine();
+	AMagazine* newMagazine = SpawnNewMagazine();
+	AttachMagazine(newMagazine);
 }
 
 
 /////////////////////////////////////////////////////
-void AGun::SpawnNewMagazine()
+AMagazine* AGun::SpawnNewMagazine()
+{
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+}
+
+
+void AGun::AttachMagazine(AMagazine* Magazine)
 {
 	if (_LoadedMagazine)
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s tried to attach a magazine to %s while a magazine is loaded. Destroying existing magazine."), *_MyOwner->GetName(), *GetName());
 		_LoadedMagazine->Destroy();
 	}
-	
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
-	if (_LoadedMagazine)
-	{
-		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "Magazine");
-	}
+
+	_LoadedMagazine = Magazine;
+	_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "Magazine");
 }
 
 

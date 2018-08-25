@@ -147,6 +147,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	EWeaponState _CurrentGunState;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
+	USkeletalMeshComponent* _Mesh;
+
 protected:
 	/**
 	* Adjusts the aim based on lineTraceRange.
@@ -186,11 +189,19 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SpawnNewMagazine();
+	AMagazine* SpawnNewMagazine();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetAmmoFromInventory();
+
+	/* 
+	 * Attaches a magazine to the gun at the correct location.
+	 * @param Magazine Must not be null.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void AttachMagazine(AMagazine* Magazine);
 
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
@@ -253,13 +264,9 @@ public:
 	void ToggleFireMode();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool CheckAmmo();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DropMagazine();
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	UMeshComponent* GetMesh() const;
+	UMeshComponent* GetMesh() const override;
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UCameraComponent* GetZoomCamera() const;
