@@ -3,7 +3,6 @@
 #include "MyDamageType.h"
 #include "MyPhysicalMaterial.h"
 #include "Particles/ParticleSystem.h"
-//#include "Engine/EngineTypes.h"
 
 
 UParticleSystem* UMyDamageType::GetHitEffect(EPhysicalSurface Surface) const
