@@ -334,6 +334,24 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
+
+void AHumanoid::AttachTo(AActor* ActorToAttach, USkeletalMeshComponent* Target, FName Socket, bool bKeepRelativeOffset)
+{
+	EAttachmentRule attachmentRule;
+	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
+	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, true);
+	ActorToAttach->AttachToActor(Target->GetOwner(), rules, "");
+	ActorToAttach->AttachToComponent(Target, rules, Socket);
+}
+
+
+void AHumanoid::DropItem(AItemBase* Item)
+{
+	Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Item->SetSimulatePhysics(true);
+}
+
+
 /////////////////////////////////////////////////////
 bool AHumanoid::IsAlive() const
 {

@@ -14,7 +14,7 @@
 #include "CoopArena.h"
 #include "Magazine.h"
 #include "Projectile.h"
-#include "InventoryComponent.h"
+#include "Components/InventoryComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
@@ -349,7 +349,6 @@ void AGun::ReloadWeapon()
 	}
 	_CurrentGunState = EWeaponState::Reloading;
 	float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
-	FTimerHandle reloadTH;
 	if (_ReloadAnimation)
 	{
 		UAnimInstance* AnimInstance;
@@ -362,19 +361,66 @@ void AGun::ReloadWeapon()
 			}
 		}
 	}
-	if (_ReloadSound)
+	else
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, _ReloadSound, GetActorLocation());
+		DropMagazine();
+		FTimerHandle reloadTH;
+		FTimerDelegate lambda;
+		lambda.BindLambda([this]
+		{
+			bool bHasAmmo = CheckAmmo();
+			if (bHasAmmo)
+			{
+				SpawnNewMagazine();
+			}
+
+			FinishReloadWeapon();
+		});
+
+		GetWorld()->GetTimerManager().SetTimer(reloadTH, lambda, reloadTime, false);
 	}
-	GetWorld()->GetTimerManager().SetTimer(reloadTH, this, &AGun::FinishReloadWeapon, reloadTime);
+}
+
+
+void AGun::StopReloading()
+{
+	if (_ReloadAnimation)
+	{
+		_MyOwner->StopAnimMontage(_ReloadAnimation);
+	}
+	FinishReloadWeapon();
+}
+
+
+bool AGun::CheckAmmo()
+{
+	bool bHasAmmo = GetAmmoFromInventory();
+	if (_ReloadAnimation == nullptr)
+	{
+		FinishReloadWeapon();
+	}
+	return bHasAmmo;
+}
+
+
+void AGun::DropMagazine()
+{
+	if (_LoadedMagazine == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s carried by %s tried to drop it's magazine without having one attached!"), *GetName(), *GetOwner()->GetName());
+		return;
+	}
+
+	_LoadedMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	_LoadedMagazine->SetSimulatePhysics(true);
+	_LoadedMagazine = nullptr;
 }
 
 
 void AGun::FinishReloadWeapon()
 {
-	if (GetAmmoFromInventory())
+	if (_LoadedMagazine)
 	{
-		SpawnNewMagazine();
 		_CurrentGunState = EWeaponState::Idle;
 	}
 	else

@@ -11,6 +11,7 @@
 class AGun;
 class IInteractable;
 class UDamageType;
+class AItemBase;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
@@ -22,6 +23,17 @@ class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 	GENERATED_BODY()
 
 public:	
+	/* 
+	 * Attaches the given actor to the skeletal mesh at the socket without.
+	 * Parameters must not be null.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void AttachTo(AActor* ActorToAttach, USkeletalMeshComponent* Target, FName Socket, bool bKeepRelativeOffset);
+
+	/* Drops an actor and activates physics on that actor. */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void DropItem(AItemBase* Item);
+
 	/**
 	 * Checks if the character is alive.
 	 * @return true if alive, otherwise false

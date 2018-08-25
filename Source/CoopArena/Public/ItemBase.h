@@ -21,6 +21,9 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = ItemBase)
+	void SetSimulatePhysics(bool bSimulatePhysics);
+
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual const FItemStats& GetItemStats() const;
 

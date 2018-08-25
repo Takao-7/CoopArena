@@ -1,11 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ItemBase.h"
-#include "InventoryComponent.h"
+#include "Components/InventoryComponent.h"
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
 #include "Components/MeshComponent.h"
 
+
+void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
+{
+	if (_Mesh)
+	{
+		if (bSimulatePhysics)
+		{
+			_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else
+		{
+			_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		_Mesh->SetSimulatePhysics(bSimulatePhysics);
+	}
+}
 
 const FItemStats& AItemBase::GetItemStats() const
 {
