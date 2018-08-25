@@ -429,7 +429,7 @@ void AGun::SpawnNewMagazine()
 	_LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
 	if (_LoadedMagazine)
 	{
-		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "Magazine");
+		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }
 
