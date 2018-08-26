@@ -21,11 +21,17 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = ItemBase)
+	void SetSimulatePhysics(bool bSimulatePhysics);
+
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual const FItemStats& GetItemStats() const;
 
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual void SetItemStats(FItemStats& newItemStats);
+
+	UFUNCTION(BlueprintPure, Category = ItemBase)
+	virtual UMeshComponent* GetMesh() const;
 
 	/* Interactable interface */
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
@@ -44,7 +50,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
 	UUserWidget* _itemWidget;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
-	UMeshComponent* _Mesh;
 };

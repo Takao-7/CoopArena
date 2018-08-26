@@ -86,7 +86,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	UBoxComponent* _InteractionVolume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
@@ -99,10 +99,6 @@ protected:
 	/** Sound to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	USoundBase* _FireSound;
-
-	/** Sound to play each time we reload */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USoundBase* _ReloadSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
@@ -151,6 +147,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	EWeaponState _CurrentGunState;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
+	USkeletalMeshComponent* _Mesh;
+
 protected:
 	/**
 	* Adjusts the aim based on lineTraceRange.
@@ -190,11 +189,22 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void SpawnNewMagazine();
+	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	AMagazine* SpawnNewMagazine();
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetAmmoFromInventory();
 
+	/* 
+	 * Attaches a magazine to the gun at the correct location.
+	 * @param Magazine Must not be null.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void AttachMagazine(AMagazine* Magazine);
+
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool CheckIfOwnerHasMagazine();
 
 public:
@@ -228,6 +238,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnFire();
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	FVector ApplyWeaponSpread(FVector SpawnDirection);
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
@@ -245,11 +256,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ReloadWeapon();
 
+	/* Stops the reloading process by stop playing the reload animation. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void StopReloading();
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ToggleFireMode();
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	UMeshComponent* GetMesh() const;
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void DropMagazine();
+
+	UMeshComponent* GetMesh() const override;
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UCameraComponent* GetZoomCamera() const;

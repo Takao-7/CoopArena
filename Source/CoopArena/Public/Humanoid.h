@@ -10,6 +10,8 @@
 
 class AGun;
 class IInteractable;
+class UDamageType;
+class AItemBase;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
@@ -20,7 +22,23 @@ class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 {
 	GENERATED_BODY()
 
-public:	
+public:
+	/* 
+	 * Attaches an item to a hand.
+	 * @param ItemToGrab Must not be null.
+	 * @param bKeepRelativeOffset Weather or not to keep the relative offset between the ActorToGrab and this actor.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset);
+
+	/* Calculates and safes the offset between the currently held item and this character. */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	FTransform CalcAndSafeActorOffset(AActor* OtherActor);
+
+	/* Drops an actor and activates physics on that actor. */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	AItemBase* DropItem();
+
 	/**
 	 * Checks if the character is alive.
 	 * @return true if alive, otherwise false
@@ -37,8 +55,8 @@ public:
 	void SetUpDefaultEquipment();
 
 	/* Kills this character */
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void Kill();
+	void Kill(const UDamageType* DamageType, FVector Direction, FVector HitLocation);
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -62,6 +80,11 @@ public:
 	/* End BAS Interface */
 
 protected:
+	UFUNCTION()
+	void ImpulseOnDeath(FVector Direction, FVector HitLocation);
+
+	virtual void ToggleProne();
+
 	virtual void OnEquipWeapon();
 
 	// Called when the game starts or when spawned
@@ -89,7 +112,7 @@ protected:
 	* @param direction The direction from which the last shot came.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void OnDeath(const FHitResult& hitInfo, FVector direction);
+	virtual void OnDeath();
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void DeactivateCollisionCapsuleComponent();
@@ -154,8 +177,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	float _BaseLookUpRate;
 
+	/* When the Kill() function is called and the damage type does not have any specific impulse, this value will be used instead. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
+	float _DefaultInpulsOnDeath;
+
 	/* The characters currently held weapon */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Humanoid)
+	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
 	AGun* _EquippedWeapon;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
@@ -184,6 +211,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	AItemBase* _ItemInHand;
+
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	FTransform _ItemOffset;
 
 public:
 	/* Called when the character wants to equip a weapon. */

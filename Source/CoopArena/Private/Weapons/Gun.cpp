@@ -14,7 +14,7 @@
 #include "CoopArena.h"
 #include "Magazine.h"
 #include "Projectile.h"
-#include "InventoryComponent.h"
+#include "Components/InventoryComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
@@ -29,7 +29,7 @@ AGun::AGun()
 	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_Mesh->SetSimulatePhysics(true);
 	_Mesh->CastShadow = true;
 	_Mesh->SetCustomDepthStencilValue(253);
@@ -37,7 +37,7 @@ AGun::AGun()
 
 	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction box"));
 	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_InteractionVolume->SetCollisionResponseToChannel(ECC_Item, ECR_Block);
+	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	_InteractionVolume->SetupAttachment(RootComponent);
 
@@ -49,8 +49,8 @@ AGun::AGun()
 
 	_MuzzleAttachPoint = "Muzzle";
 
-	_itemStats.Type = EItemType::Weapon;
-	_itemStats.Class = GetClass();
+	_itemStats.type = EItemType::Weapon;
+	_itemStats.itemClass = GetClass();
 
 	_GunStats.WeaponType = EWEaponType::Rifle;	
 
@@ -154,18 +154,17 @@ void AGun::OnFire()
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
 		SpawnDirection = ApplyWeaponSpread(SpawnDirection);		
 		FVector SpawnLocation = GetMuzzleLocation();
-
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
 
 		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnLocation, SpawnDirection.Rotation(), ActorSpawnParams);
+
+		AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(projectileClass, SpawnTransform, GetOwner(), _MyOwner, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (!projectile)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
-		projectile->_Instigator = GetOwner()->GetInstigatorController();
+		projectile->FinishSpawning(SpawnTransform);
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, _MyOwner, SpawnLocation);
@@ -350,7 +349,6 @@ void AGun::ReloadWeapon()
 	}
 	_CurrentGunState = EWeaponState::Reloading;
 	float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
-	FTimerHandle reloadTH;
 	if (_ReloadAnimation)
 	{
 		UAnimInstance* AnimInstance;
@@ -359,28 +357,64 @@ void AGun::ReloadWeapon()
 			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
 			if (AnimInstance)
 			{
-				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);		
+				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
 			}
 		}
 	}
-	if (_ReloadSound)
+	else
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, _ReloadSound, GetActorLocation());
+		DropMagazine();
+		FTimerHandle reloadTH;
+		FTimerDelegate lambda;
+		lambda.BindLambda([this]
+		{
+			bool bHasAmmo = GetAmmoFromInventory();
+			if (bHasAmmo)
+			{
+				AMagazine* newMag = SpawnNewMagazine();
+				AttachMagazine(newMag);
+			}
+			FinishReloadWeapon();
+		});
+
+		GetWorld()->GetTimerManager().SetTimer(reloadTH, lambda, reloadTime, false);
 	}
-	GetWorld()->GetTimerManager().SetTimer(reloadTH, this, &AGun::FinishReloadWeapon, reloadTime);
+}
+
+
+void AGun::StopReloading()
+{
+	if (_ReloadAnimation)
+	{
+		_MyOwner->StopAnimMontage(_ReloadAnimation);
+	}
+	FinishReloadWeapon();
+}
+
+
+void AGun::DropMagazine()
+{
+	if (_LoadedMagazine == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s carried by %s tried to drop it's magazine without having one attached!"), *GetName(), *GetOwner()->GetName());
+		return;
+	}
+
+	_LoadedMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	_LoadedMagazine->SetSimulatePhysics(true);
+	_LoadedMagazine = nullptr;
 }
 
 
 void AGun::FinishReloadWeapon()
 {
-	if (GetAmmoFromInventory())
+	if (_LoadedMagazine)
 	{
-		SpawnNewMagazine();
 		_CurrentGunState = EWeaponState::Idle;
 	}
 	else
 	{
-		_CurrentGunState = EWeaponState::Blocked;
+		_CurrentGunState = EWeaponState::NoMagazine;
 	}	
 }
 
@@ -413,25 +447,30 @@ void AGun::BeginPlay()
 	_CurrentFireMode = _GunStats.FireModes[0];
 	_CurrentFireModePointer = 0;
 
-	SpawnNewMagazine();
+	AMagazine* newMagazine = SpawnNewMagazine();
+	AttachMagazine(newMagazine);
 }
 
 
 /////////////////////////////////////////////////////
-void AGun::SpawnNewMagazine()
+AMagazine* AGun::SpawnNewMagazine()
+{
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+}
+
+
+void AGun::AttachMagazine(AMagazine* Magazine)
 {
 	if (_LoadedMagazine)
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s tried to attach a magazine to %s while a magazine is loaded. Destroying existing magazine."), *_MyOwner->GetName(), *GetName());
 		_LoadedMagazine->Destroy();
 	}
-	
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_LoadedMagazine = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
-	if (_LoadedMagazine)
-	{
-		_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
+
+	_LoadedMagazine = Magazine;
+	_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "Magazine");
 }
 
 

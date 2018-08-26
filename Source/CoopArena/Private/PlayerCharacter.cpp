@@ -6,6 +6,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
@@ -122,7 +123,7 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	{
 		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
-	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
+	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
 
 
@@ -205,8 +206,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);
+	PlayerInputComponent->BindAction("Prone", IE_Pressed, this, &APlayerCharacter::ToggleProne);
 }
 
 

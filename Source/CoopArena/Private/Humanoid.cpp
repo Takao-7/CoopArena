@@ -22,6 +22,8 @@ AHumanoid::AHumanoid()
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
 
+	_DefaultInpulsOnDeath = 500.0f;
+
 	_WeaponAttachPoint = "GripPoint";
 
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
@@ -104,6 +106,12 @@ EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
 }
 
 
+void AHumanoid::ToggleProne()
+{
+	bIsProne = !bIsProne;
+}
+
+
 /////////////////////////////////////////////////////
 void AHumanoid::OnEquipWeapon()
 {
@@ -141,9 +149,30 @@ void AHumanoid::StopFireEquippedWeapon()
 
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnDeath(const FHitResult& hitInfo, FVector direction)
+void AHumanoid::OnDeath()
 {
+	if (bAlreadyDied)
+	{
+		return;
+	}
+	bAlreadyDied = true;
 
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+
+
+	FTimerDelegate delegate;
+	delegate.BindLambda([this]
+	{
+		if (_EquippedWeapon)
+		{
+			_EquippedWeapon->OnUnequip(true);
+		}
+	});
+
+	FTimerHandle handle;
+	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 1.0f, false);
 }
 
 
@@ -305,6 +334,58 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
+
+void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
+{
+	EAttachmentRule attachmentRule;
+	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
+	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
+	FName handSocket = "HandLeft";
+
+	ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
+	_ItemInHand = ItemToGrab;
+	if (bKeepRelativeOffset)
+	{
+		CalcAndSafeActorOffset(ItemToGrab);
+	}
+	else
+	{
+		ItemToGrab->SetActorRelativeTransform(Offset);
+	}	
+}
+
+
+FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
+{
+	FTransform offset;
+	FVector itemLocation = OtherActor->GetActorLocation();
+	FVector handLocation = GetMesh()->GetSocketLocation("HandLeft");
+	offset.SetLocation(itemLocation - handLocation);
+
+	FRotator itemRotation = OtherActor->GetActorRotation();
+	FRotator handRotation = GetMesh()->GetSocketRotation("HandLeft");
+	offset.SetRotation((itemRotation - handRotation).Quaternion());
+	_ItemOffset = offset;
+	return offset;
+}
+
+
+AItemBase* AHumanoid::DropItem()
+{
+	if (_ItemInHand == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
+		return nullptr;
+	}
+	AItemBase* itemToDrop = _ItemInHand;	
+	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	itemToDrop->SetSimulatePhysics(true);
+	
+	_ItemInHand = nullptr;
+	return itemToDrop;
+}
+
+
 /////////////////////////////////////////////////////
 bool AHumanoid::IsAlive() const
 {
@@ -344,14 +425,24 @@ void AHumanoid::SetUpDefaultEquipment()
 
 void AHumanoid::Kill()
 {
-	if (bAlreadyDied)
-	{
-		return;
-	}
-	bAlreadyDied = true;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetSimulatePhysics(true);
+	OnDeath();
+}
+
+
+void AHumanoid::Kill(const UDamageType* DamageType, FVector Direction, FVector HitLocation)
+{
+	OnDeath();
+
+	/*FTimerDelegate delegate;
+	delegate.BindUFunction(this, "ImpulseOnDeath", Direction, HitLocation);
+	FTimerHandle timerHandle;
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, delegate, 0.1f, false);*/
+}
+
+
+void AHumanoid::ImpulseOnDeath(FVector Direction, FVector HitLocation)
+{
+	GetMesh()->AddImpulseAtLocation(Direction * _DefaultInpulsOnDeath, HitLocation, "Head");
 }
 
 

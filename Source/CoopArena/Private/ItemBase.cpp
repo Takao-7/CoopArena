@@ -1,11 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ItemBase.h"
-#include "InventoryComponent.h"
+#include "Components/InventoryComponent.h"
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
-#include "Components/MeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 
+
+void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
+{
+	if (GetMesh())
+	{
+		if (bSimulatePhysics)
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
+	}
+}
 
 const FItemStats& AItemBase::GetItemStats() const
 {
@@ -18,6 +38,11 @@ void AItemBase::SetItemStats(FItemStats& newItemStats)
 	_itemStats = newItemStats;
 }
 
+
+UMeshComponent* AItemBase::GetMesh() const
+{
+	return nullptr;
+}
 
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
@@ -60,9 +85,9 @@ void AItemBase::OnEndInteract_Implementation(APawn* InteractingPawn)
 
 UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
-	if (_Mesh)
+	if (GetMesh())
 	{
-		_Mesh->SetRenderCustomDepth(true);
+		GetMesh()->SetRenderCustomDepth(true);
 	}
 	return _itemWidget;
 }
@@ -70,13 +95,8 @@ UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimit
 
 void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 {
-	if (_Mesh)
+	if (GetMesh())
 	{
-		_Mesh->SetRenderCustomDepth(false);
+		GetMesh()->SetRenderCustomDepth(false);
 	}
-}
-
-UInventoryComponent * AItemBase::FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const
-{
-	return nullptr;
 }
