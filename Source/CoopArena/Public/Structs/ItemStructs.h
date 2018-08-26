@@ -11,7 +11,7 @@ struct FItemStats
 {
 	GENERATED_BODY()
 
-	FItemStats()
+		FItemStats()
 	{
 		Name = "Nobody";
 		Weight = 0.0f;

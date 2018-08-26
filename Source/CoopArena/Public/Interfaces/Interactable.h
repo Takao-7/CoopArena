@@ -8,7 +8,6 @@
 
 class APawn;
 class UUserWidget;
-class UPrimitiveComponent;
 
 
 UINTERFACE(Blueprintable)
@@ -28,10 +27,9 @@ public:
 	 * In case of a player, this is when the player presses the "Interact" button DOWN.
 	 * 
 	 * @param InteractingPawn The pawn that is interacting with this actor. 
-	 * @param HitComponent The specific component that is being interacted with.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
-	void OnBeginInteract(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+	void OnBeginInteract(APawn* InteractingPawn);
 
 	/**
 	 * This function is to be called when a pawn stops interacting with this actor.
@@ -47,12 +45,11 @@ public:
 	 * should enable RenderCustomDepths pass and set the CustomDepthStencil value from 252 to 255 (4 different colors).
 	 * 
 	 * @param Pawn The player's pawn that is looking at this actor.
-	 * @param HitComponent The specific component that was hit by the line trace.
 	 * @return A information widget that shows information about this actor.
 	 * Can be nullptr when there is no relevant information.
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
-	UUserWidget* OnBeginLineTraceOver(APawn* Pawn, UPrimitiveComponent* HitComponent);
+	UUserWidget* OnBeginLineTraceOver(APawn* Pawn);
 
 	/**
 	* This function is to be called, when a player stops looking at this actor and

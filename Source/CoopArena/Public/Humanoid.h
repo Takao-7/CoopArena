@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/BAS_Interface.h"
 #include "Humanoid.generated.h"
 
 
@@ -14,9 +13,8 @@ class IInteractable;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
 
-
 UCLASS()
-class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
+class COOPARENA_API AHumanoid : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -51,15 +49,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetEquippedWeapon(AGun* weapon);
-
-	/* Begin BAS Interface */
-
-	bool IsAiming_Implementation() override;
-	EWEaponType GetEquippedWeaponType_Implementation() override;
-	EMovementType GetMovementType_Implementation() override;
-	EMovementAdditive GetMovementAdditive_Implementation() override;
-
-	/* End BAS Interface */
 
 protected:
 	virtual void OnEquipWeapon();
@@ -126,6 +115,12 @@ protected:
 	void ToggleSprinting();
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StopSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
+	void StartSprinting();
+
+	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void SetSprinting(bool bSprint);
 
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
@@ -168,9 +163,6 @@ protected:
 	bool bIsSprinting;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	bool bIsProne;
-
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bAlreadyDied;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
@@ -184,6 +176,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
 	bool bIsJumping;
+
+	/* The feet direction. Used for aim offset. */
+	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	float _FeetDirection;
 
 public:
 	/* Called when the character wants to equip a weapon. */

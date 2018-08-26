@@ -18,6 +18,7 @@ AHumanoid::AHumanoid()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
 	// set our turn rates for input
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
@@ -32,7 +33,7 @@ AHumanoid::AHumanoid()
 	bAlreadyDied = false;
 	bIsSprinting = false;
 	bIsCrouched = false;
-	bIsProne = false;
+	bUseControllerRotationYaw = false;
 
 	_SprintSpeedIncrease = 2.0f;
 }
@@ -44,67 +45,12 @@ AGun* AHumanoid::GetEquippedGun() const
 }
 
 
-void AHumanoid::SetEquippedWeapon(AGun* Weapon)
+void AHumanoid::SetEquippedWeapon(AGun* weapon)
 {
-	_EquippedWeapon = Weapon;
+	_EquippedWeapon = weapon;
 }
 
 
-/////////////////////////////////////////////////////
-bool AHumanoid::IsAiming_Implementation()
-{
-	return bIsAiming;
-}
-
-
-EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
-{
-	if (_EquippedWeapon)
-	{
-		return _EquippedWeapon->GetWeaponType();
-	}
-	else
-	{
-		return EWEaponType::None;
-	}
-}
-
-
-EMovementType AHumanoid::GetMovementType_Implementation()
-{
-	if (GetLastMovementInputVector().Size() == 0.0f)
-	{
-		return EMovementType::Idle;
-	}
-	else if (bIsSprinting)
-	{
-		return EMovementType::Sprinting;
-	}
-	else
-	{
-		return EMovementType::Moving;
-	}
-}
-
-
-EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
-{
-	if (bIsCrouched)
-	{
-		return EMovementAdditive::Crouch;
-	}
-	else if (bIsProne)
-	{
-		return EMovementAdditive::Prone;
-	}
-	else
-	{
-		return EMovementAdditive::None;
-	}
-}
-
-
-/////////////////////////////////////////////////////
 void AHumanoid::OnEquipWeapon()
 {
 	EquipWeapon_Event.Broadcast();
@@ -152,27 +98,21 @@ void AHumanoid::DeactivateCollisionCapsuleComponent()
 {
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetCapsuleComponent()->bGenerateOverlapEvents = false;
 }
 
 
 /////////////////////////////////////////////////////
-void AHumanoid::MoveForward(float Value)
+void AHumanoid::MoveForward(float value)
 {
-	FRotator controlRotation = GetControlRotation();
-	controlRotation.Pitch = 0.0f;
-	FVector direction = controlRotation.Vector();
-	direction.Normalize();
-
-	if (Value > 0.0f)
+	if (value > 0.0f)
 	{
-
-		AddMovementInput(direction, Value);
+		AddMovementInput(GetActorForwardVector(), value);
 		bIsMovingForward = true;
 	}
-	else if (Value < 0.0f)
+	else if (value < 0.0f)
 	{
-		AddMovementInput(direction, Value);
+		AddMovementInput(GetActorForwardVector(), value);
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
@@ -181,46 +121,48 @@ void AHumanoid::MoveForward(float Value)
 		bIsMovingForward = false;
 		SetSprinting(false);
 	}
+
+	_FeetDirection = GetControlRotation().Yaw;
 }
 
 
-void AHumanoid::MoveRight(float Value)
+void AHumanoid::MoveRight(float value)
 {
-	if (Value != 0.0f && !bIsSprinting)
+	if (value != 0.0f && !bIsSprinting)
 	{
-		FRotator controlRotation = GetControlRotation();
-		controlRotation.Pitch = 0.0f;
-
-		FVector direction = controlRotation.Vector();
-		direction = direction.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
-		direction.Normalize();
-		
-		AddMovementInput(direction, Value);
+		AddMovementInput(GetActorRightVector(), value);
+		_FeetDirection = GetControlRotation().Yaw;
 	}
 }
 
 
-void AHumanoid::TurnAtRate(float Rate)
+void AHumanoid::TurnAtRate(float rate)
 {
-	AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+
+	float Yaw = GetControlRotation().Yaw;
+	if (Yaw - _FeetDirection >= 85.0f)
+	{
+		_FeetDirection = Yaw;
+	}
 }
 
 
-void AHumanoid::LookUpAtRate(float Rate)
+void AHumanoid::LookUpAtRate(float rate)
 {
-	AddControllerPitchInput(Rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
 }
 
 
 void AHumanoid::ToggleCrouch()
 {
-	if (bIsCrouched)
+	if (this->bIsCrouched)
 	{
-		UnCrouch();
+		this->UnCrouch();
 	}
 	else
 	{
-		Crouch();
+		this->Crouch();
 	}
 }
 
@@ -234,6 +176,19 @@ void AHumanoid::ToggleAiming()
 	else
 	{
 		bIsAiming = true;
+	}
+}
+
+
+void AHumanoid::ToggleSprinting()
+{
+	if (bIsSprinting)
+	{
+		SetSprinting(false);
+	}
+	else if (bIsMovingForward)
+	{
+		SetSprinting(true);
 	}
 }
 
@@ -360,8 +315,11 @@ void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsSprinting && bIsAiming)
+	if (bIsSprinting)
 	{
-		SetSprinting(false);	
+		if (bIsAiming)
+		{
+			SetSprinting(false);
+		}
 	}
 }

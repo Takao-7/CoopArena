@@ -13,7 +13,6 @@ class AProjectile;
 class USoundBase;
 class AMagazine;
 class AItemBase;
-class UBoxComponent;
 
 
 USTRUCT(BlueprintType)
@@ -85,9 +84,6 @@ protected:
 	/* The currently loaded magazine. */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UBoxComponent* _InteractionVolume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	FGunStats _GunStats;
@@ -201,7 +197,7 @@ public:
 	AGun();
 
 	/* IInteractable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
 	/* IInteractable interface end */
 
 	/** Returns the number of rounds the weapon can fire each minute. */

@@ -17,17 +17,13 @@ public:
 	UHealthComponent();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = Health)
-	float MaxHealth;
-
-	UPROPERTY(BlueprintReadOnly, Category = Health)
-	float CurrentHealth;
-
-protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+		
 	
-private:
-	UFUNCTION()
-	void HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
 };

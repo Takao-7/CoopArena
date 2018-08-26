@@ -40,9 +40,6 @@ struct FProjectileValues
 	/* False = exponential damage drop-off */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	bool bLinealDamageDropOff;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	TSubclassOf<UDamageType> DamageType;
 };
 
 UCLASS()
@@ -54,23 +51,22 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	UFUNCTION(BlueprintPure, Category = Projectile)
 	float GetDamageWithFallOff() const;
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-private:
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	UProjectileMovementComponent* _ProjectileMovementComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-	UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* _Mesh;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UCapsuleComponent* _CollisionCapsule;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	FProjectileValues _ProjectileValues;

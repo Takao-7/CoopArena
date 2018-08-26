@@ -2,7 +2,6 @@
 
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
@@ -11,16 +10,14 @@
 // Sets default values
 AProjectile::AProjectile()
 {
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
-	RootComponent = Mesh;
+	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_Mesh->SetupAttachment(_CollisionCapsule);
+	RootComponent = _Mesh;
 
 	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	_ProjectileMovementComponent->bForceSubStepping = true;
 }
 
 
@@ -30,28 +27,13 @@ float AProjectile::GetDamageWithFallOff() const
 	float damage;
 	if (_ProjectileValues.bLinealDamageDropOff)
 	{
-		damage = _ProjectileValues.BaseDamage - (flightTime * _ProjectileValues.DamageDropOffPerSecond);
+		damage = _ProjectileValues.BaseDamage * flightTime * _ProjectileValues.DamageDropOffPerSecond;
 	}
 	else
 	{
-		damage = _ProjectileValues.BaseDamage - (FMath::Pow(flightTime, 2) * _ProjectileValues.DamageDropOffPerSecond);
-	}
+		damage = _ProjectileValues.BaseDamage * FMath::Pow(flightTime, 2) * _ProjectileValues.DamageDropOffPerSecond;
+	}	
 	return damage;
-}
-
-
-void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (OtherActor)
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("Projectile hit %s"), *OtherActor->GetName());
-		FDamageEvent damageEvent;
-		damageEvent.DamageTypeClass = _ProjectileValues.DamageType;
-		float damage = GetDamageWithFallOff();
-		UGameplayStatics::ApplyPointDamage(OtherActor, damage, NormalImpulse, Hit, _Instigator, OtherActor, _ProjectileValues.DamageType);
-	}
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), _DefaultHitEffect, Hit.Location, Hit.Normal.Rotation(), true, EPSCPoolMethod::None);
-	Destroy();
 }
 
 

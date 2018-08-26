@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/Interactable.h"
+#include "Interactable.h"
 #include "Structs/ItemStructs.h"
 #include "ItemBase.generated.h"
 
@@ -12,7 +12,6 @@
 class UInventoryComponent;
 class UUserWidget;
 class UMeshComponent;
-class UInventoryComponent;
 
 
 UCLASS(abstract)
@@ -28,9 +27,10 @@ public:
 	virtual void SetItemStats(FItemStats& newItemStats);
 
 	/* Interactable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn) override;
+
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
-	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
+	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	/* Interactable interface end */
 
