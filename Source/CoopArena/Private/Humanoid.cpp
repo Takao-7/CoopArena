@@ -358,13 +358,14 @@ void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTrans
 FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 {
 	FTransform offset;
+	FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
+
 	FVector itemLocation = OtherActor->GetActorLocation();
-	FVector handLocation = GetMesh()->GetSocketLocation("HandLeft");
-	offset.SetLocation(itemLocation - handLocation);
+	offset.SetLocation(handTransform.InverseTransformPosition(itemLocation));
 
 	FRotator itemRotation = OtherActor->GetActorRotation();
-	FRotator handRotation = GetMesh()->GetSocketRotation("HandLeft");
-	offset.SetRotation((itemRotation - handRotation).Quaternion());
+	offset.SetRotation(handTransform.InverseTransformRotation(itemRotation.Quaternion()));
+	
 	_ItemOffset = offset;
 	return offset;
 }
