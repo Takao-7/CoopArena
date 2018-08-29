@@ -35,6 +35,19 @@ struct FItemStats
 		stackSize = 1.0f;
 	}
 
+
+	FItemStats(FItemStats ItemToCopy, float Stack)
+	{
+		name = ItemToCopy.name;
+		icon = ItemToCopy.icon;
+		weight = ItemToCopy.weight;
+		type = ItemToCopy.type;
+		itemClass = ItemToCopy.itemClass;
+		measureUnit = ItemToCopy.measureUnit;
+		stackSize = Stack;
+	}
+
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName name;
 
