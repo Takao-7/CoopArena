@@ -329,7 +329,7 @@ bool AGun::GetAmmoFromInventory()
 }
 
 
-bool AGun::CheckIfOwnerHasMagazine()
+bool AGun::CheckIfOwnerHasMagazine() const
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
 	if (inventory == nullptr)
