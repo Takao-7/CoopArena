@@ -15,24 +15,36 @@ void UStorageComponent::BeginPlay()
 
 	if (_ItemsToSpawnWith.Num() > 0)
 	{
-
+		
 	}
 }
 
 
-bool UStorageComponent::AddItem(FItemStats& ItemToAdd)
+bool UStorageComponent::AddItem(FItemStats& ItemToAdd, float Amount)
 {
+	if (_Capacity != 0.0f)
+	{
+		float addedWeight = ItemToAdd.density * Amount;
+		if (_CurrentLoad + addedWeight > _Capacity)
+		{
+			// TODO: Add functionality for adding just the amount that fits into the storage.
+			return false;
+		}
+	}
+	if (_Volume != 0.0f)
+	{
+		if (_CurrentVolume + Amount > _Volume)
+		{
+			// TODO: Add functionality for adding just the amount that fits into the storage.
+			return false;
+		}
+	}
+
+	
 	FItemStats* itemInStorage = FindItem(ItemToAdd.name);
 	if (itemInStorage)
 	{
-		if (_CurrentLoad + ItemToAdd.GetStackSize() <= _Capacity)
-		{
-			itemInStorage->ChangeAmount(itemInStorage->GetStackSize());
-		}
-		else
-		{
-			return false;
-		}
+		itemInStorage->ChangeAmount(itemInStorage->GetStackSize());		
 	}
 	else
 	{

@@ -8,6 +8,18 @@
 #include "StorageComponent.generated.h"
 
 
+USTRUCT()
+struct FStorageSlot
+{
+	GENERATED_BODY()
+
+	FItemStats item;
+
+	/* In m^3. Or, in case of non-splittable items, in whole items. */
+	float amount;
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UStorageComponent : public UActorComponent
 {
@@ -21,7 +33,7 @@ public:
 	 * @return True if the item was successfully added.
 	 * */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	bool AddItem(FItemStats& ItemToAdd);
+	bool AddItem(FItemStats& ItemToAdd, float Amount);
 
 	/*
 	 * @param ItemName The item name to look for.
@@ -58,18 +70,32 @@ protected:
 
 	FORCEINLINE FItemStats* FindItem(FName ItemName);
 
-	/* How much, in kg, this storage can hold. */
+	/**
+	 * How much, in kg, this storage can hold.
+	 * Set to 0 for no weight limit.
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = Storage)
 	float _Capacity;
+
+	/**
+	 * How much, in m^3, volume this storage can hold.
+	 * Set to 0 for no volume limit.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = Storage)
+	float _Volume;
 
 	/* How much, in kg, does this storage contains. */
 	UPROPERTY(BlueprintReadOnly, Category = Storage)
 	float _CurrentLoad;
+
+	/* How much volume, in m^3, does this storage contains. */
+	UPROPERTY(BlueprintReadOnly, Category = Storage)
+	float _CurrentVolume;
 
 	/* The type and amount of item that this container should spawn with. */
 	UPROPERTY(EditDefaultsOnly, Category = Storage)
 	TMap<TSubclassOf<AItemBase>, float> _ItemsToSpawnWith;
 
 	UPROPERTY(BlueprintReadOnly, Category = Storage)
-	TArray<FItemStats> _StoredItems;
+	TArray<FStorageSlot> _StoredItems;
 };

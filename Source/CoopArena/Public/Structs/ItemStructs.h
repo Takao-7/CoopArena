@@ -6,19 +6,7 @@
 #include "ItemStructs.generated.h"
 
 
-/*  */
-UENUM(BlueprintType)
-enum class  EMeasureUnit : uint8
-{
-	/* This item is not splittable. E.g. for weapons, etc. */
-	None,
-
-	/* In m^3 */
-	Volume,
-
-	/* In kg */
-	Mass
-};
+class AItemBase;
 
 
 USTRUCT(BlueprintType)
@@ -29,84 +17,80 @@ struct FItemStats
 	FItemStats()
 	{
 		name = "Nobody";
-		weight = 0.0f;
+		density = 1.0f;
+		volume = 1.0f;
 		type = EItemType::None;
-		measureUnit = EMeasureUnit::None;
-		stackSize = 1.0f;
+		bIsNotSplittable = true;
 	}
 
 
-	FItemStats(FItemStats ItemToCopy, float Stack)
-	{
-		name = ItemToCopy.name;
-		icon = ItemToCopy.icon;
-		weight = ItemToCopy.weight;
-		type = ItemToCopy.type;
-		itemClass = ItemToCopy.itemClass;
-		measureUnit = ItemToCopy.measureUnit;
-		stackSize = Stack;
-	}
-
-
+	/* This item's name. Must be unique! */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName name;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UTexture2D* icon;
 
-	/* How much does one "piece" of this item weights. In kg. */
+	/* Weight, in kg, of one cubic meter (m^3) (or one piece, in case of bIsNotSplittable = true) of this item. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float weight;
+	float density;
+
+	/**
+	 * This value is only used, when this item is not-splittable (bIsNotSplittable = true).
+	 * This item's volume, in m^3 per piece.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float volume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EItemType type;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<class AItemBase> itemClass;
+	TSubclassOf<AItemBase> itemClass;
 
-	/* 
-	 * The measure unit that this item will be counted in.
-	 * "None" means, that this item can't be split and therefore can only exist in whole pieces (e.g. a you can't have 0.5 guns).
-	 */
+	/**
+	 * Is this item splittable or not? A gun is not splittable, but ore, water, etc. would be splittable.
+	 * A not-splittable item is only moved in whole units.
+	 */ 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EMeasureUnit measureUnit;
+	bool bIsNotSplittable;
 
-private:
-	/* How much or many, depending on the measure unit, are currently stored in this inventory. */
-	UPROPERTY()
-	float stackSize;
-
-public:
-	/* 
-	 * Changes the amount of this item.
-	 * Will through an error, when the measureUnit is "None" and a not int-like value is given.
-	 * @param AmountToChange The amount the stack size should be changed by. Positive for increasing, negative for decreasing the stack.
-	 * @return How much was changed.
-	 */
-	float ChangeAmount(float AmountToChange)
-	{
-		if (measureUnit == EMeasureUnit::None)
-		{
-			float intPart;
-			float fractPart = FMath::Modf(AmountToChange, &intPart);
-			if (fractPart != 0.0f)
-			{
-				UE_LOG(LogTemp, Fatal, TEXT("Try to reduce a not-whole amount from an item with a none measure unit. AmountToChange: %f. FractPart: %f."), AmountToChange, fractPart);
-			}
-		}
-
-		float rest = stackSize - AmountToChange;
-		float actualAmountRemoved = AmountToChange;
-
-		if (rest < 0.0f)
-		{
-			UE_LOG(LogTemp, Error, TEXT("It was tried to remove more from a stack then there was. Stacksize: %f. AmountToChange: %f."), stackSize, AmountToChange);
-			actualAmountRemoved = stackSize;
-		}
-
-		stackSize += actualAmountRemoved;
-		return actualAmountRemoved;
-	}
-
-	float GetStackSize() const { return stackSize; }
+//private:
+//	/* How much or many, depending on the measure unit, are currently stored in this inventory. */
+//	UPROPERTY()
+//	float stackSize;
+//
+//public:
+//	/* 
+//	 * Changes the amount of this item.
+//	 * Will through an error, when the measureUnit is "None" and a not int-like value is given.
+//	 * @param AmountToChange The amount the stack size should be changed by. Positive for increasing, negative for decreasing the stack.
+//	 * @return How much was changed.
+//	 */
+//	float ChangeAmount(float AmountToChange)
+//	{
+//		if (measureUnit == EMeasureUnit::None)
+//		{
+//			float intPart;
+//			float fractPart = FMath::Modf(AmountToChange, &intPart);
+//			if (fractPart != 0.0f)
+//			{
+//				UE_LOG(LogTemp, Fatal, TEXT("Try to reduce a not-whole amount from an item with a none measure unit. AmountToChange: %f. FractPart: %f."), AmountToChange, fractPart);
+//			}
+//		}
+//
+//		float rest = stackSize - AmountToChange;
+//		float actualAmountRemoved = AmountToChange;
+//
+//		if (rest < 0.0f)
+//		{
+//			UE_LOG(LogTemp, Error, TEXT("It was tried to remove more from a stack then there was. Stacksize: %f. AmountToChange: %f."), stackSize, AmountToChange);
+//			actualAmountRemoved = stackSize;
+//		}
+//
+//		stackSize += actualAmountRemoved;
+//		return actualAmountRemoved;
+//	}
+//
+//	float GetStackSize() const { return stackSize; }
 };
