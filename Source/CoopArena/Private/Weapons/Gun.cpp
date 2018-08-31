@@ -24,8 +24,6 @@
 
 AGun::AGun()
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
 	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetUpMesh();
 
