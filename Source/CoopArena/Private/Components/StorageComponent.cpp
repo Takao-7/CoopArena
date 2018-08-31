@@ -102,7 +102,7 @@ bool UStorageComponent::CheckCapacity(float Amount)
 	{
 		if (_CurrentVolume + Amount > _Capacity)
 		{
-			// TODO: Add functionality for adding just the amount that fits into the storage.
+			// #TODO: Add functionality for adding just the amount that fits into the storage.
 			return false;
 		}
 	}
@@ -118,7 +118,7 @@ bool UStorageComponent::CheckWeight(float Density, float Amount)
 		float addedWeight = Density * Amount;
 		if (_CurrentWeight + addedWeight > _WeightLimit)
 		{
-			// TODO: Add functionality for adding just the amount that fits into the storage.
+			// #TODO: Add functionality for adding just the amount that fits into the storage.
 			return false;
 		}		
 	}	

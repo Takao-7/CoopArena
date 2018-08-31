@@ -4,7 +4,6 @@
 #include "Humanoid.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "Enums/WeaponEnums.h"
 #include "Enums/ItemEnums.h"
@@ -14,8 +13,9 @@
 #include "CoopArena.h"
 #include "Magazine.h"
 #include "Projectile.h"
-#include "Components/InventoryComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/InventoryComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
@@ -24,26 +24,17 @@
 
 AGun::AGun()
 {
-	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
-	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
-	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_Mesh->SetSimulatePhysics(true);
-	_Mesh->CastShadow = true;
-	_Mesh->SetCustomDepthStencilValue(253);
-	SetRootComponent(_Mesh);
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
-	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction box"));
-	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	_InteractionVolume->SetupAttachment(RootComponent);
+	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	SetUpMesh();
 
-	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Zoom Camera"));
+	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
+	SetUpInteractionVolume();
+
+	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomCamera"));
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
-	_ZoomCamera->SetAutoActivate(false);
+	_ZoomCamera->SetAutoActivate(true);
 
 	_CurrentGunState = EWeaponState::Idle;
 
@@ -56,6 +47,20 @@ AGun::AGun()
 
 	_BurstCount = 0;
 	_SalvoCount = 0;
+}
+
+
+void AGun::SetUpMesh()
+{
+	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	_Mesh->SetSimulatePhysics(true);
+	_Mesh->CastShadow = true;
+	_Mesh->SetCustomDepthStencilValue(253);
+	RootComponent = _Mesh;
 }
 
 
@@ -113,6 +118,11 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 	if (NewOwner)
 	{
 		NewOwner->SetEquippedWeapon(this);
+		SetCanBeInteractedWith_Implementation(false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
 }
 
@@ -125,6 +135,7 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	{
 		DetachMeshFromPawn();
 		SetOwningPawn(nullptr);
+		SetCanBeInteractedWith_Implementation(true);
 	}
 	else
 	{
@@ -425,6 +436,11 @@ void AGun::DropMagazine()
 
 	_LoadedMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	_LoadedMagazine->SetSimulatePhysics(true);
+	if (_LoadedMagazine->RoundsLeft() == _LoadedMagazine->GetCapacity())
+	{
+		_LoadedMagazine->SetCanBeInteractedWith_Implementation(true);
+	}
+
 	_LoadedMagazine = nullptr;
 }
 
@@ -488,7 +504,10 @@ AMagazine* AGun::SpawnNewMagazine()
 	}
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	AMagazine* newMag = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	newMag->SetCanBeInteractedWith_Implementation(false);
+
+	return newMag;
 }
 
 

@@ -5,6 +5,8 @@
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/ShapeComponent.h"
+#include "CoopArena.h"
 
 
 void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
@@ -83,6 +85,27 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 }
 
 
+void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
+{
+	if (bCanbeInteractedWith)
+	{
+		_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+		if (GetMesh())
+		{
+			GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+		}
+	}
+	else
+	{
+		_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+		if (GetMesh())
+		{
+			GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+		}
+	}
+}
+
+
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -91,4 +114,13 @@ void AItemBase::BeginPlay()
 	{
 		GetMesh()->SetCustomDepthStencilValue(253);
 	}
+}
+
+
+void AItemBase::SetUpInteractionVolume()
+{
+	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh() ? _InteractionVolume->SetupAttachment(GetMesh()) : _InteractionVolume->SetupAttachment(RootComponent);
 }

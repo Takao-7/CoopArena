@@ -13,6 +13,7 @@ class UInventoryComponent;
 class UUserWidget;
 class UMeshComponent;
 class UInventoryComponent;
+class UShapeComponent;
 
 
 UCLASS(abstract)
@@ -39,14 +40,20 @@ public:
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
+	void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith);
 
 	/* Interactable interface end */
 protected:
 	virtual void BeginPlay() override;	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
+	void SetUpInteractionVolume();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Stats"))
 	FItemStats _itemStats;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Widget"))
 	UUserWidget* _itemWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
+	UShapeComponent* _InteractionVolume;
 };

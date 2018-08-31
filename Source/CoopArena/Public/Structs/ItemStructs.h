@@ -34,9 +34,7 @@ struct FItemStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float density;
 
-	/**
-	 * This item's volume, in m^3 per piece.
-	 */
+	/* This item's volume, in m^3 per piece. Only used if the item is not-splittable. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bIsNotSplittable"))
 	float volume;
 
@@ -47,7 +45,7 @@ struct FItemStats
 	TSubclassOf<AItemBase> itemClass;
 
 	/**
-	 * Is this item splittable or not? A gun is not splittable, but ore, water, etc. would be splittable.
+	 * Is this item splittable? A gun is not splittable, but ore, water, etc. would be splittable.
 	 * A not-splittable item is only moved in whole units.
 	 */ 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

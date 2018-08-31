@@ -82,17 +82,14 @@ class COOPARENA_API AGun : public AItemBase
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UBoxComponent* _InteractionVolume;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Gun Stats"))
 	FGunStats _GunStats;
 
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (DisplayName = "Zoom Camera"))
 	class UCameraComponent* _ZoomCamera;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
@@ -102,7 +99,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AHumanoid* _MyOwner;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
 	USkeletalMeshComponent* _Mesh;
 
 protected:
@@ -119,6 +116,8 @@ protected:
 	void SetOwningPawn(AHumanoid* NewOwner);
 
 	virtual void BeginPlay() override;
+
+	void SetUpMesh();
 
 public:
 	AGun();
