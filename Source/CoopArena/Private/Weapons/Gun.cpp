@@ -325,7 +325,19 @@ bool AGun::GetAmmoFromInventory()
 	{
 		return false;
 	}
-	return inventory->RemoveItemByClass(_GunStats.UsableMagazineClass);
+	
+	bool bHasMag = false;
+	if (_LoadedMagazine)
+	{
+		bHasMag = inventory->RemoveItem(_LoadedMagazine->GetItemStats(), 1.0f);
+	}
+	else
+	{
+		AMagazine* magObject = Cast<AMagazine>(_GunStats.UsableMagazineClass->GetDefaultObject(true));
+		bHasMag = inventory->RemoveItem(magObject->GetItemStats(), 1.0f);
+	}
+
+	return bHasMag;
 }
 
 
@@ -336,7 +348,18 @@ bool AGun::CheckIfOwnerHasMagazine() const
 	{
 		return false;
 	}
-	return inventory->GetItemCountByClass(_GunStats.UsableMagazineClass);
+
+	if (_LoadedMagazine)
+	{
+		FItemStats& magStats = _LoadedMagazine->GetItemStats();
+		return inventory->HasItem(magStats);
+	}
+	else
+	{
+		AMagazine* magObject = Cast<AMagazine>(_GunStats.UsableMagazineClass->GetDefaultObject(true));
+		FItemStats& magStats = magObject->GetItemStats();
+		return inventory->HasItem(magStats);
+	}	
 }
 
 
@@ -448,13 +471,21 @@ void AGun::BeginPlay()
 	_CurrentFireModePointer = 0;
 
 	AMagazine* newMagazine = SpawnNewMagazine();
-	AttachMagazine(newMagazine);
+	if (newMagazine)
+	{
+		AttachMagazine(newMagazine);
+	}
 }
 
 
 /////////////////////////////////////////////////////
 AMagazine* AGun::SpawnNewMagazine()
 {
+	if (_GunStats.UsableMagazineClass == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("'UsableMagazineClass' for %s is not set!"), *GetName());
+		return nullptr;
+	}
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);

@@ -1,0 +1,204 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "Structs/ItemStructs.h"
+#include "StorageComponent.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FItemStack
+{
+	GENERATED_BODY()
+
+public:
+	FItemStack() {}
+
+	FItemStack(FItemStats& Item, float Amount)
+	{
+		this->item = Item;
+		this->m_stackSize = Amount;
+	}
+
+	UPROPERTY(BlueprintReadWrite)
+	FItemStats item;
+
+private:
+	/* In m^3. Or, in case of non-splittable items, in whole items. */
+	UPROPERTY()
+	float m_stackSize;
+
+public:
+	FORCEINLINE bool operator==(const FItemStack& otherStack) const
+	{
+		return otherStack.item.name == item.name;
+	}
+
+	/**
+	 * Changes the amount of this item.
+	 * Will through an error, when the item is not-splittable and a not whole value is given.
+	 * @param AmountToChange The amount the stack size should be changed by. Positive for increasing, negative for decreasing the stack.
+	 * @return How much was actually changed.
+	 */
+	float ChangeAmount(float AmountToChange)
+	{
+		if (item.bIsNotSplittable)
+		{
+			float intPart;
+			float fractPart = FMath::Modf(AmountToChange, &intPart);
+			if (fractPart != 0.0f)
+			{
+				UE_LOG(LogTemp, Fatal, TEXT("Try to reduce a not-whole amount from an item with a none measure unit. AmountToChange: %f. FractPart: %f."), AmountToChange, fractPart);
+			}
+		}
+
+		float rest = m_stackSize - AmountToChange;
+		float actualAmountRemoved = AmountToChange;
+
+		if (rest < 0.0f)
+		{
+			//UE_LOG(LogTemp, Error, TEXT("It was tried to remove more from a stack then there was. Stack size: %f. AmountToChange: %f."), _stackSize, AmountToChange);
+			actualAmountRemoved = m_stackSize;
+		}
+
+		m_stackSize += actualAmountRemoved;
+		return actualAmountRemoved;
+	}
+
+	float GetStackSize() const { return m_stackSize; }
+};
+
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class COOPARENA_API UStorageComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+
+	/////////////////////////////////////////////////////
+				/* Parameters & variables */
+	/////////////////////////////////////////////////////
+protected:
+	/**
+	 * How much, in kg, this storage can hold.
+	 * Set to -1 for no weight limit.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = Storage)
+	float _WeightLimit;
+
+	/**
+	 * How much, in m^3, volume this storage can hold.
+	 * Set to -1 for no volume limit.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = Storage)
+	float _Capacity;
+
+	/* The type and amount of item that this container should spawn with. */
+	UPROPERTY(EditDefaultsOnly, Category = Storage)
+	TMap<TSubclassOf<AItemBase>, float> _ItemsToSpawnWith;
+
+	/* How much, in kg, does this storage contains. */
+	UPROPERTY(BlueprintReadOnly, Category = Storage)
+	float _CurrentWeight;
+
+	/* How much volume, in m^3, is occupied in this storage. */
+	UPROPERTY(BlueprintReadOnly, Category = Storage)
+	float _CurrentVolume;
+
+	UPROPERTY(BlueprintReadOnly, Category = Storage)
+	TArray<FItemStack> _StoredItems;
+
+
+	/////////////////////////////////////////////////////
+				/* Alter items in Storage */
+	/////////////////////////////////////////////////////
+public:
+	/**
+	 * Changes the item stack by adding or removing the given amount.
+	 * @param Item The item.
+	 * @param AmountToChange The volume, m^3 (or whole pieces in case of non-splittable items) that the given item should be changed by.
+	 * A positive value means adding that amount to the storage, a negative will remove that amount.
+	 * If the given item is not in this storage, it will be added to it, if Amount is positive.
+	 * @return The actual amount that was changed. 0 means that nothing has changed.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	float ChangeItemStack(FItemStats& Item, float AmountToChange);
+
+	/** 
+	 * Adds the given item to the storage, or, when the item is already in storage, adds the given amount to it.
+	 * @param ItemToAdd The item to add to this storage.
+	 * @param Amount How much to add to the inventory. Must be > 0.
+	 * @return True if the item was successfully added.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	bool AddItem(FItemStats& ItemToAdd, float Amount);
+
+	/**
+	 * Removes an item from the storage.
+	 * @param ItemToRemove The item and amount to remove.
+	 * @param Amount How much (or many) of the given item should be removed.
+	 * Set to -1 to remove the entire stack in this storage.
+	 * @return The amount that was actually removed. 0 means that the given item is not in this storage or Amount was 0.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	float RemoveItem(FItemStats& ItemToRemove, float Amount);
+
+
+	/////////////////////////////////////////////////////
+						/* Checks */
+	/////////////////////////////////////////////////////
+public:
+	/* Checks if this storage has enough free volume for the given volume. */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	bool CheckCapacity(float Amount);
+
+	/* Checks if this storage can hold the given weight. */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	bool CheckWeight(float Density, float Amount);
+
+	/* Checks if the inventory contains the given item at any quantity and returns true if that is the case. */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	bool HasItem(FItemStats& Item);
+
+protected:
+	/* Checks if the weight limit and capacity is set correctly. Will crash if not. */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	void CheckWeightLimitAndCapacity() const;
+
+
+	/////////////////////////////////////////////////////
+						/* Getter */
+	/////////////////////////////////////////////////////
+public:
+	/**
+	 * @param ItemName The item name to look for.
+	 * @return How much (or many) of the given item is in this storage.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	float GetItemStackSize(FName ItemName);	
+
+	/* Returns a copy of the entire storage. */
+	UFUNCTION(BlueprintPure, Category = Storage)
+	FORCEINLINE TArray<FItemStack> GetStorageCopy() const;
+
+protected:
+	FORCEINLINE FItemStack* FindItem(FName ItemName);
+
+
+	/////////////////////////////////////////////////////
+					/* Misc functions */
+	/////////////////////////////////////////////////////
+public:
+	UStorageComponent();
+
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	void PrintInventory();
+
+protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = Storage)
+	void AddStartingItems();	
+};

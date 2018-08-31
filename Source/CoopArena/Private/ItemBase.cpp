@@ -27,7 +27,8 @@ void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
 	}
 }
 
-const FItemStats& AItemBase::GetItemStats() const
+
+FItemStats& AItemBase::GetItemStats()
 {
 	return _itemStats;
 }
@@ -44,36 +45,16 @@ UMeshComponent* AItemBase::GetMesh() const
 	return nullptr;
 }
 
+
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	TArray<UActorComponent*> inventoryActorComponents = InteractingPawn->GetComponentsByClass(UInventoryComponent::StaticClass());
-	UInventoryComponent* inventory;
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
 
-	if (inventoryActorComponents.Num() == 0)
-	{
-		return;
-	}
-	else if (inventoryActorComponents.Num() == 1)
-	{
-		inventory = Cast<UInventoryComponent>(inventoryActorComponents[0]);
-	}
-	else
-	{
-		/* More then one inventory is existing. Find the correct one to store this item */
-		/* TODO: Implement system to find the correct inventory. */
-		inventory = FindCorrectInventory(inventoryActorComponents);
-	}	
-	bool bItemSuccessfullyAdded = inventory->AddItem(this);
+	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
 	if (bItemSuccessfullyAdded)
 	{
 		Destroy();
 	}
-}
-
-
-UInventoryComponent* AItemBase::FindCorrectInventory(TArray<UActorComponent*> inventoryActorComponents) const
-{
-	return Cast<UInventoryComponent>(inventoryActorComponents[0]);
 }
 
 
@@ -98,5 +79,16 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 	if (GetMesh())
 	{
 		GetMesh()->SetRenderCustomDepth(false);
+	}
+}
+
+
+void AItemBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetMesh())
+	{
+		GetMesh()->SetCustomDepthStencilValue(253);
 	}
 }
