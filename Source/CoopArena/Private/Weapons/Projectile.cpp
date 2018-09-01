@@ -84,27 +84,32 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		UE_LOG(LogTemp, Error, TEXT("%s fired by %s overlapped with an actor but component was hit!"), *GetName(), *GetOwner()->GetName());
 	}
 
-	float damage = GetDamageWithFallOff();
-	UParticleSystem* hitEffect = nullptr;
+	float damage = GetDamageWithFallOff();	
 	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());
-
 	if (material)
 	{
 		damage *= material->GetDamageMod();
-
-		UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject());
-		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("No MyPhysicalMaterial on: %s"), *OtherActor->GetName());
 	}
 
+	UParticleSystem* hitEffect = nullptr;
+	if (_ProjectileValues.DamageType)
+	{
+		UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject(true));
+		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("DamageType on %s is not set!"), *OtherActor->GetName());
+	}
+
 	if (hitEffect == nullptr && _DefaultHitEffect)
 	{
 		hitEffect = _DefaultHitEffect;
 	}
-
 	if (hitEffect)
 	{	
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, SweepResult.Location, SweepResult.Normal.Rotation(), true, EPSCPoolMethod::None);		

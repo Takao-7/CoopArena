@@ -4,77 +4,134 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/StorageComponent.h"
 #include "Structs/ItemStructs.h"
+#include "Gun.h"
+#include "Components/MeshComponent.h"
 #include "InventoryComponent.generated.h"
 
 
-class AItemBase;
-class AMagazine;
+USTRUCT(BlueprintType)
+struct FWeaponAttachPoint
+{
+	GENERATED_BODY()	
+
+	FWeaponAttachPoint()
+	{
+		bAllowedTypesIsWhiteList = true;
+		slotName = "NoName";
+	}
+
+	/**
+	 * Attaches the given weapon to this holster.
+	 * @param Weapon The weapon.
+	 * @param Actor The actor to attach the weapon to.
+	 * @return True if the weapon was successfully attached.
+	 */
+	bool AttachWeapon(AGun* Weapon, UMeshComponent* Mesh)
+	{
+		bool bCanAttach = CanAttachWeapon(Weapon);
+
+		if (bCanAttach)
+		{
+			m_currentlyHeldWeapon = Weapon;
+			Weapon->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);
+			return true;
+		}
+		else
+		{
+			return false;
+		}		
+	}
+
+
+	bool CanAttachWeapon(AGun* Weapon)
+	{
+		if (Weapon == nullptr || m_currentlyHeldWeapon || !allowedWeaponTypes.Find(Weapon->GetWeaponType()))
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	/**
+	 * Removes the attached weapon.
+	 * @return The detached weapon. Nullptr if there wasn't any weapon attached to this holster.
+	 */
+	AGun* DetachWeapon()
+	{
+		AGun* gunTemp = m_currentlyHeldWeapon;
+		m_currentlyHeldWeapon = nullptr;
+		gunTemp->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+		return gunTemp;
+	}
+
+	/**
+	 * Gets the attached weapon.
+	 * @return The attached weapon. Nullptr if there isn't any weapon attached to this holster.
+	 */
+	FORCEINLINE AGun* GetAttachedWeapon() { return m_currentlyHeldWeapon; }
+
+	FORCEINLINE bool operator==(const AGun* otherGun) const
+	{
+		return otherGun == m_currentlyHeldWeapon;
+	}
+
+	/* The socket on the owner's mesh to attach the held weapon to. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName socket;
+
+	UPROPERTY(EditDefaultsOnly)
+	FString slotName;
+
+	/* Which weapon types can / can't (@see bAllowedTypesIsWHiteList) be held in this holster. */
+	UPROPERTY(EditDefaultsOnly)
+	TArray<EWEaponType> allowedWeaponTypes;
+
+	/* Is 'allowedWeaponTypes' a white- or blacklist? */
+	UPROPERTY(EditDefaultsOnly)
+	bool bAllowedTypesIsWhiteList;
+
+	/* The animation to play when holstering the weapon. */
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* holsterAnimation;
+
+private:
+	UPROPERTY()
+	AGun* m_currentlyHeldWeapon;
+};
+
+
+class AHumanoid;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class COOPARENA_API UInventoryComponent : public UActorComponent
+class COOPARENA_API UInventoryComponent : public UStorageComponent
 {
 	GENERATED_BODY()
-
-public:	
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool AddItem(AItemBase* itemToAdd);
-
-	void IncreaseMagazineCount(FItemStats &itemstats);
-
-	UFUNCTION(BlueprintPure, Category = Inventory)
-	int32 GetItemCountByClass(TSubclassOf<AItemBase> itemClass) const;
-
-	/*
-	* Returns the number of magazines held by this inventory. Prefer this function over GetItemCountByClass,
-	* if you want to get the number of magazines.
-	*/
-	UFUNCTION(BlueprintPure, Category = Inventory)
-	int32 GetMagazineCountByName(FName magazineName) const;
-	
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool RemoveItemByIndex(int32 itemIndexToRemove, FItemStats& outItemStats);
-
-	void ReduceMagazineCount(FItemStats &outItemStats);
-
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool RemoveItemByClass(TSubclassOf<AItemBase> itemClass);
-	
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	bool HasSpaceForItem(FItemStats& item) const;
-
-	UFUNCTION(BlueprintPure, Category = Inventory)
-	int32 GetInventorySize() const;
-
-	/**
-	 * Drops (= spawns) an item one meter in front of the owner.
-	 * @param itemToDrop The item that should be dropped and spawned.
-	 * @return The dropped item. Null-pointer if the item couldn't be spawned for some reason.
-	 */
-	UFUNCTION(BlueprintCallable, Category = Inventory)
-	AItemBase* DropItem(FItemStats& itemToDrop);
 	
 protected:
-	// Called when the game starts
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Inventory)
+	FWeaponAttachPoint _WeaponAttachPoint;
+
+	UPROPERTY(BlueprintReadOnly, Category = Inventory)
+	AHumanoid* _Owner;
+
 	virtual void BeginPlay() override;
 
-	void AddDefaultItems();
+	UFUNCTION(BlueprintCallable, Category = Inventory)
+	void OnOwnerWeaponHolster(AGun* Gun);
 
-protected:
-	/* The number of items that the inventory can hold */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
-	int32 _InventorySize;
-
-	/* All items that are currently in this inventory */
-	UPROPERTY(BlueprintReadWrite, Category = Inventory)
-	TArray<FItemStats> _StoredItems;
-
-	/* Items this inventory starts with. */
-	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	TArray<TSubclassOf<AItemBase>> _InitialItems;
-
-	/* Number of magazines stored in this inventory for each magazine type. */
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
-	TMap<FName, int32> _StoredMagazines;
+public:
+	/**
+	 * Called when a weapon holstering is in progress and the hand is over the holster.
+	 * @param bAttachToHolster True when the gun should be attached to the holster.
+	 * False if the gun should be attached to the owner's hand.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Inventory)
+	void OnWeaponHolstering();
 };

@@ -62,4 +62,8 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
 	void OnEndLineTraceOver(APawn* Pawn);
+
+	/* Sets the line trace response to the interactable channel depending on the given value. */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Interactable)
+	void SetCanBeInteractedWith(bool bCanbeInteractedWith);
 };
