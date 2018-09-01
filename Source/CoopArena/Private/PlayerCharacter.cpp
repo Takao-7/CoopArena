@@ -82,12 +82,13 @@ void APlayerCharacter::CheckForInteractables()
 
 void APlayerCharacter::OnEquipWeapon()
 {
-	AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
+	
+	/*AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
 	if (GunInFocus && !_EquippedWeapon)
 	{
 		GunInFocus->OnEquip(this);
-	}	
-	EquipWeapon_Event.Broadcast();
+	}*/	
 }
 
 
@@ -217,7 +218,6 @@ void APlayerCharacter::ToggleAiming()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
-
 	if (_InteractableInFocus)
 	{
 		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);

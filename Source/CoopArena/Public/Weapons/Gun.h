@@ -37,26 +37,26 @@ struct FGunStats
 	* However, this value should NOT be <= 0.0f because then enemies will fire to quickly in single mode
 	* and player could abuse the single mode for rapid fire.
 	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float Cooldown;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadHorizontal;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadVertical;
 
 	/**
 	 * The maximum spread both, horizontal and vertical, the weapon will have.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float MaxSpread;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TArray<EFireMode> FireModes;
 
 	/* If the weapon supports Burst mode, how many shots are fired in that mode. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	int32 ShotsPerBurst;
 
 	/* The magazine type this gun can use. */

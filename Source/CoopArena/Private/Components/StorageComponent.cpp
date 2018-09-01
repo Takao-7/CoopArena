@@ -6,33 +6,32 @@
 
 UStorageComponent::UStorageComponent()
 {
-	_WeightLimit = -1.0f;
-	_Capacity = -1.0f;
+	_WeightLimit = -1;
+	_Capacity = -1;
 }
 
 
 /////////////////////////////////////////////////////
 			/* Alter items in Storage */
 /////////////////////////////////////////////////////
-float UStorageComponent::ChangeItemStack(FItemStats& Item, float AmountToChange)
+int32 UStorageComponent::ChangeItemStack(FItemStats& Item, int32 AmountToChange)
 {
-	if (AmountToChange == 0.0f)
+	if (AmountToChange == 0)
 	{
-		return 0.0f;
+		return 0;
 	}
 
-	float changedAmount = 0.0f;
-	if (AmountToChange > 0.0f)
+	int32 changedAmount = 0;
+	if (AmountToChange > 0)
 	{
 		bool bItemAdded = AddItem(Item, AmountToChange);
 		if (bItemAdded)
 		{
-			changedAmount = AmountToChange;
-			return changedAmount;
+			return AmountToChange;
 		}
 		else
 		{
-			return 0.0f;
+			return 0; // Inventory is full, nothing was added.
 		}
 	}
 	else
@@ -43,10 +42,10 @@ float UStorageComponent::ChangeItemStack(FItemStats& Item, float AmountToChange)
 }
 
 
-bool UStorageComponent::AddItem(FItemStats& ItemToAdd, float Amount)
+bool UStorageComponent::AddItem(FItemStats& ItemToAdd, int32 Amount)
 {
-	bool bCorrectAmountValue = Amount > 0.0f;
-	bool bEnoughFreeWeight = CheckWeight(ItemToAdd.density, Amount);
+	bool bCorrectAmountValue = Amount > 0;
+	bool bEnoughFreeWeight = CheckWeight(ItemToAdd.weight);
 	bool bEnoughCapacity = CheckCapacity(Amount);
 	if(!bCorrectAmountValue || !bEnoughFreeWeight || !bEnoughCapacity)
 	{
@@ -54,40 +53,40 @@ bool UStorageComponent::AddItem(FItemStats& ItemToAdd, float Amount)
 	}
 		
 	FItemStack* itemInStorage = FindItem(ItemToAdd.name);
-	itemInStorage ? itemInStorage->ChangeAmount(Amount) : _StoredItems.Add(FItemStack(ItemToAdd, Amount));
+	itemInStorage ? itemInStorage->ChangeStackSize(Amount) : _StoredItems.Add(FItemStack(ItemToAdd, Amount));
 
-	ItemToAdd.bIsNotSplittable ? _CurrentVolume += ItemToAdd.volume * Amount : _CurrentVolume += Amount;
-	_CurrentWeight += ItemToAdd.density * Amount;
+	_CurrentVolume += ItemToAdd.volume * Amount;
+	_CurrentWeight += ItemToAdd.weight * Amount;
 
 	return true;
 }
 
 
-float UStorageComponent::RemoveItem(FItemStats& ItemToRemove, float Amount)
+int32 UStorageComponent::RemoveItem(FItemStats& ItemToRemove, int32 Amount)
 {
 	FItemStack* itemStack = FindItem(ItemToRemove.name);
-	if (itemStack == nullptr || Amount == 0.0f || (Amount < 0.0f && Amount != -1.0f))
+	if (itemStack == nullptr || Amount == 0 || (Amount < 0 && Amount != -1))
 	{
-		return 0.0f;
+		return 0;
 	}
 
-	float changedAmount = 0.0f;
-	if (Amount == -1.0f)
+	int32 changedAmount = Amount;
+	if (Amount == -1)
 	{
 		changedAmount = itemStack->GetStackSize();
 		_StoredItems.RemoveSingleSwap(*itemStack);
 	}
 	else
 	{
-		changedAmount = itemStack->ChangeAmount(-Amount);
-		if (itemStack->GetStackSize() == 0.0f)
+		changedAmount = itemStack->ChangeStackSize(-changedAmount);
+		if (itemStack->GetStackSize() == 0)
 		{
 			_StoredItems.RemoveSingleSwap(*itemStack);
 		}
 	}
 
-	ItemToRemove.bIsNotSplittable ? _CurrentVolume -= ItemToRemove.volume * changedAmount : _CurrentVolume -= changedAmount;
-	_CurrentWeight -= ItemToRemove.density * changedAmount;
+	_CurrentVolume -= ItemToRemove.volume * changedAmount;
+	_CurrentWeight -= ItemToRemove.weight * changedAmount;
 
 	return changedAmount;
 }
@@ -96,11 +95,11 @@ float UStorageComponent::RemoveItem(FItemStats& ItemToRemove, float Amount)
 /////////////////////////////////////////////////////
 					/* Checks */
 /////////////////////////////////////////////////////
-bool UStorageComponent::CheckCapacity(float Amount)
+bool UStorageComponent::CheckCapacity(float VolumeToAdd)
 {
-	if (_Capacity != -1.0f)
+	if (_Capacity != -1)
 	{
-		if (_CurrentVolume + Amount > _Capacity)
+		if (_CurrentVolume + VolumeToAdd > _Capacity)
 		{
 			// #TODO: Add functionality for adding just the amount that fits into the storage.
 			return false;
@@ -111,12 +110,11 @@ bool UStorageComponent::CheckCapacity(float Amount)
 }
 
 
-bool UStorageComponent::CheckWeight(float Density, float Amount)
+bool UStorageComponent::CheckWeight(float WeightToAdd)
 {
-	if (_WeightLimit != -1.0f)
+	if (_WeightLimit != -1)
 	{
-		float addedWeight = Density * Amount;
-		if (_CurrentWeight + addedWeight > _WeightLimit)
+		if (_CurrentWeight + WeightToAdd > _WeightLimit)
 		{
 			// #TODO: Add functionality for adding just the amount that fits into the storage.
 			return false;
@@ -137,8 +135,8 @@ bool UStorageComponent::HasItem(FItemStats& Item)
 
 void UStorageComponent::CheckWeightLimitAndCapacity() const
 {
-	bool bCorrectSetWeightLimit = _WeightLimit == -1.0f || _WeightLimit >= 0.0f;
-	bool bCorrectSetCapacity = _Capacity == -1.0f || _Capacity >= 0.0f;
+	bool bCorrectSetWeightLimit = _WeightLimit == -1 || _WeightLimit >= 0;
+	bool bCorrectSetCapacity = _Capacity == -1 || _Capacity >= 0;
 	if (!bCorrectSetCapacity || !bCorrectSetWeightLimit)
 	{
 		UE_LOG(LogTemp, Fatal, TEXT("WeightLimit or Capacity on %s isn't correctly set! WeightLimit: %f. Capacity: %f"), *GetName(), _WeightLimit, _Capacity);
@@ -149,7 +147,7 @@ void UStorageComponent::CheckWeightLimitAndCapacity() const
 /////////////////////////////////////////////////////
 					/* Getter */
 /////////////////////////////////////////////////////
-float UStorageComponent::GetItemStackSize(FName ItemName)
+int32 UStorageComponent::GetItemStackSize(FName ItemName)
 {
 	FItemStack* itemInStorage = FindItem(ItemName);
 	if (itemInStorage)
@@ -158,7 +156,7 @@ float UStorageComponent::GetItemStackSize(FName ItemName)
 	}
 	else
 	{
-		return 0.0f;
+		return 0;
 	}
 }
 
@@ -205,7 +203,7 @@ void UStorageComponent::AddStartingItems()
 		{
 			AItemBase* itemBase = Cast<AItemBase>(item.Key->GetDefaultObject(true));
 
-			float amount = item.Value;
+			uint32 amount = item.Value;
 			FItemStats stats = itemBase->GetItemStats();
 
 			AddItem(stats, amount);

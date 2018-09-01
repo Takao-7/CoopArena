@@ -14,7 +14,8 @@ class UDamageType;
 class AItemBase;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipWeapon_Signature);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHolsterWeapon_Signature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
 
 
 UCLASS()
@@ -145,7 +146,7 @@ protected:
 	/////////////////////////////////////////////////////
 public:
 	UFUNCTION(BlueprintPure, Category = Humanoid)
-	FName GetWeaponAttachPoint() const;
+	FName GetEquippedWeaponAttachPoint() const;
 
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	AGun* GetEquippedGun() const;
@@ -168,9 +169,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	bool SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
 
-	/* Called when the character wants to equip a weapon. */
+	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
-	FEquipWeapon_Signature EquipWeapon_Event;
+	FHolsterWeapon_Signature HolsterWeapon_Event;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -199,7 +200,7 @@ protected:
 
 	/** Socket or bone name for attaching weapons when equipped */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	FName _WeaponAttachPoint;	
+	FName _EquippedWeaponAttachPoint;	
 
 	/* When the Kill() function is called and the damage type does not have any specific impulse, this value will be used instead. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)

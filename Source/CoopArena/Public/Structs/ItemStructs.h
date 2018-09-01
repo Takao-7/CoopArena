@@ -17,10 +17,9 @@ struct FItemStats
 	FItemStats()
 	{
 		name = "Nobody";
-		density = 1.0f;
+		weight = 1.0f;
 		volume = 1.0f;
 		type = EItemType::None;
-		bIsNotSplittable = true;
 	}
 		
 	/* This item's name. Must be unique! */
@@ -30,12 +29,12 @@ struct FItemStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UTexture2D* icon;
 
-	/* Weight, in kg, of one cubic meter (m^3) (or one piece, in case of bIsNotSplittable = true) of this item. */
+	/* This item's weight, in kg. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float density;
+	float weight;
 
-	/* This item's volume, in m^3 per piece. Only used if the item is not-splittable. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bIsNotSplittable"))
+	/* This item's volume, in cm^3. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float volume;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -43,11 +42,4 @@ struct FItemStats
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AItemBase> itemClass;
-
-	/**
-	 * Is this item splittable? A gun is not splittable, but ore, water, etc. would be splittable.
-	 * A not-splittable item is only moved in whole units.
-	 */ 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bIsNotSplittable;
 };

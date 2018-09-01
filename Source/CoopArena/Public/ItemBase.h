@@ -40,7 +40,7 @@ public:
 	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
-	void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith);
+	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
 
 	/* Interactable interface end */
 protected:

@@ -24,7 +24,7 @@ AHumanoid::AHumanoid()
 
 	_DefaultInpulsOnDeath = 500.0f;
 
-	_WeaponAttachPoint = "GripPoint";
+	_EquippedWeaponAttachPoint = "GripPoint";
 
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
@@ -125,7 +125,7 @@ EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
 /////////////////////////////////////////////////////
 void AHumanoid::OnEquipWeapon()
 {
-	EquipWeapon_Event.Broadcast();
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon);	
 }
 
 
@@ -344,9 +344,9 @@ bool AHumanoid::CanFire() const
 }
 
 
-FName AHumanoid::GetWeaponAttachPoint() const
+FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
-	return _WeaponAttachPoint;
+	return _EquippedWeaponAttachPoint;
 }
 
 
@@ -357,7 +357,7 @@ void AHumanoid::SetUpDefaultEquipment()
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
 	}
-	if (!GetWeaponAttachPoint().IsValid())
+	if (!GetEquippedWeaponAttachPoint().IsValid())
 	{
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;

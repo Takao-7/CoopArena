@@ -185,15 +185,12 @@ void AGun::OnFire()
 
 		if (_FireAnimation)
 		{
-			UAnimInstance* AnimInstance;
-			if (_MyOwner->IsPlayerControlled())
+			UAnimInstance* AnimInstance;			
+			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
 			{
-				AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-				if (AnimInstance)
-				{
-					AnimInstance->Montage_Play(_FireAnimation, 1.f);
-				}
-			}
+				AnimInstance->Montage_Play(_FireAnimation, 1.f);
+			}			
 		}
 
 		if (_MuzzleFlash && !_SpawnedMuzzleFlashComponent)
@@ -298,7 +295,7 @@ void AGun::AttachMeshToPawn()
 {
 	if (_MyOwner)
 	{
-		FName AttachPoint = _MyOwner->GetWeaponAttachPoint();
+		FName AttachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
 		if (_Mesh)

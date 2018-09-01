@@ -16,58 +16,44 @@ struct FItemStack
 public:
 	FItemStack() {}
 
-	FItemStack(FItemStats& Item, float Amount)
+	/* Creates a new stack based on a given item and a stack size. */
+	FItemStack(FItemStats& Item, uint32 StackSize)
 	{
 		this->item = Item;
-		this->m_stackSize = Amount;
+		this->m_stackSize = StackSize;
 	}
 
 	UPROPERTY(BlueprintReadWrite)
 	FItemStats item;
 
-private:
-	/* In m^3. Or, in case of non-splittable items, in whole items. */
-	UPROPERTY()
-	float m_stackSize;
-
-public:
 	FORCEINLINE bool operator==(const FItemStack& otherStack) const
 	{
 		return otherStack.item.name == item.name;
 	}
 
 	/**
-	 * Changes the amount of this item.
-	 * Will through an error, when the item is not-splittable and a not whole value is given.
-	 * @param AmountToChange The amount the stack size should be changed by. Positive for increasing, negative for decreasing the stack.
-	 * @return How much was actually changed.
+	 * Changes the stack size.
+	 * @param AmountToChange The amount to change the stack size by.
+	 * A positive value will increase the stack, a negative will decrease it.
+	 * @return The amount that the stack was actually changed by (the stack size can't be smaller than 0).
 	 */
-	float ChangeAmount(float AmountToChange)
+	int32 ChangeStackSize(int32 AmountToChange)
 	{
-		if (item.bIsNotSplittable)
+		int32 changedAmount = AmountToChange;
+		if (FMath::Abs(changedAmount) > m_stackSize)
 		{
-			float intPart;
-			float fractPart = FMath::Modf(AmountToChange, &intPart);
-			if (fractPart != 0.0f)
-			{
-				UE_LOG(LogTemp, Fatal, TEXT("Try to reduce a not-whole amount from an item with a none measure unit. AmountToChange: %f. FractPart: %f."), AmountToChange, fractPart);
-			}
+			changedAmount = -m_stackSize;
 		}
-
-		float rest = m_stackSize - AmountToChange;
-		float actualAmountRemoved = AmountToChange;
-
-		if (rest < 0.0f)
-		{
-			//UE_LOG(LogTemp, Error, TEXT("It was tried to remove more from a stack then there was. Stack size: %f. AmountToChange: %f."), _stackSize, AmountToChange);
-			actualAmountRemoved = m_stackSize;
-		}
-
-		m_stackSize += actualAmountRemoved;
-		return actualAmountRemoved;
+		m_stackSize += changedAmount;
+		return FMath::Abs(changedAmount);
 	}
 
-	float GetStackSize() const { return m_stackSize; }
+	FORCEINLINE int32 GetStackSize() const	{ return m_stackSize;	}
+
+private:
+	/* How many items are in this stack. */
+	UPROPERTY()
+	int32 m_stackSize;
 };
 
 
@@ -82,14 +68,14 @@ class COOPARENA_API UStorageComponent : public UActorComponent
 	/////////////////////////////////////////////////////
 protected:
 	/**
-	 * How much, in kg, this storage can hold.
+	 * How much weight, in kg, this storage can hold.
 	 * Set to -1 for no weight limit.
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Storage)
 	float _WeightLimit;
 
 	/**
-	 * How much, in m^3, volume this storage can hold.
+	 * How much volume, in cm^3, this storage can hold.
 	 * Set to -1 for no volume limit.
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Storage)
@@ -97,16 +83,17 @@ protected:
 
 	/* The type and amount of item that this container should spawn with. */
 	UPROPERTY(EditDefaultsOnly, Category = Storage)
-	TMap<TSubclassOf<AItemBase>, float> _ItemsToSpawnWith;
+	TMap<TSubclassOf<AItemBase>, int32> _ItemsToSpawnWith;
 
 	/* How much, in kg, does this storage contains. */
 	UPROPERTY(BlueprintReadOnly, Category = Storage)
 	float _CurrentWeight;
 
-	/* How much volume, in m^3, is occupied in this storage. */
+	/* How much volume, in cm^3, is occupied in this storage. */
 	UPROPERTY(BlueprintReadOnly, Category = Storage)
 	float _CurrentVolume;
 
+	/* All items that are currently in this storage. */
 	UPROPERTY(BlueprintReadOnly, Category = Storage)
 	TArray<FItemStack> _StoredItems;
 
@@ -124,16 +111,16 @@ public:
 	 * @return The actual amount that was changed. 0 means that nothing has changed.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	float ChangeItemStack(FItemStats& Item, float AmountToChange);
+	int32 ChangeItemStack(FItemStats& Item, int32 AmountToChange);
 
 	/** 
 	 * Adds the given item to the storage, or, when the item is already in storage, adds the given amount to it.
 	 * @param ItemToAdd The item to add to this storage.
 	 * @param Amount How much to add to the inventory. Must be > 0.
-	 * @return True if the item was successfully added.
+	 * @return True if the amount was successfully added.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	bool AddItem(FItemStats& ItemToAdd, float Amount);
+	bool AddItem(FItemStats& ItemToAdd, int32 Amount);
 
 	/**
 	 * Removes an item from the storage.
@@ -143,7 +130,7 @@ public:
 	 * @return The amount that was actually removed. 0 means that the given item is not in this storage or Amount was 0.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	float RemoveItem(FItemStats& ItemToRemove, float Amount);
+	int32 RemoveItem(FItemStats& ItemToRemove, int32 Amount);
 
 
 	/////////////////////////////////////////////////////
@@ -152,11 +139,11 @@ public:
 public:
 	/* Checks if this storage has enough free volume for the given volume. */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	bool CheckCapacity(float Amount);
+	bool CheckCapacity(float VolumeToAdd);
 
 	/* Checks if this storage can hold the given weight. */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	bool CheckWeight(float Density, float Amount);
+	bool CheckWeight(float WeightToAdd);
 
 	/* Checks if the inventory contains the given item at any quantity and returns true if that is the case. */
 	UFUNCTION(BlueprintCallable, Category = Storage)
@@ -177,7 +164,7 @@ public:
 	 * @return How much (or many) of the given item is in this storage.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Storage)
-	float GetItemStackSize(FName ItemName);	
+	int32 GetItemStackSize(FName ItemName);	
 
 	/* Returns a copy of the entire storage. */
 	UFUNCTION(BlueprintPure, Category = Storage)
