@@ -22,7 +22,7 @@ enum class EWeaponState : uint8
 	Firing,
 	Reloading,
 	Equipping,
-	Blocked
+	NoMagazine
 };
 
 
