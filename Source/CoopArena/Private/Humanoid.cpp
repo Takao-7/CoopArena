@@ -15,24 +15,22 @@
 // Sets default values
 AHumanoid::AHumanoid()
 {
+ 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
- 	// set our turn rates for input
+	// set our turn rates for input
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
 
-	_WeaponAttachPoint = "GripPoint";
+	_DefaultInpulsOnDeath = 500.0f;
+
+	_EquippedWeaponAttachPoint = "GripPoint";
 
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
-	bIsAiming = false;
-	bIsMovingForward = false;
-	bAlreadyDied = false;
-	bIsSprinting = false;
-	bIsCrouched = false;
-
-	_SprintSpeedIncrease = 2.0f;
+	_MaxSprintSpeed = 650.0f;
+	bToggleProne = true;
 }
 
 
@@ -42,27 +40,117 @@ AGun* AHumanoid::GetEquippedGun() const
 }
 
 
-void AHumanoid::SetEquippedWeapon(AGun* weapon)
+void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 {
-	_EquippedWeapon = weapon;
+	_EquippedWeapon = Weapon;
 }
 
 
+bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
+{
+	if (Component == nullptr || (_BlockingComponent && _BlockingComponent != Component))
+	{
+		return false;
+	}
+
+	bComponentBlocksFiring = bIsBlocking;
+
+	if (bIsBlocking)
+	{
+		_BlockingComponent = Component;
+	}
+	else
+	{
+		_BlockingComponent = nullptr;
+	}
+
+	return true;
+}
+
+
+/////////////////////////////////////////////////////
+bool AHumanoid::IsAiming_Implementation()
+{
+	return bIsAiming;
+}
+
+
+EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
+{
+	if (_EquippedWeapon)
+	{
+		return _EquippedWeapon->GetWeaponType();
+	}
+	else
+	{
+		return EWEaponType::None;
+	}
+}
+
+
+EMovementType AHumanoid::GetMovementType_Implementation()
+{
+	if (GetLastMovementInputVector().Size() == 0.0f)
+	{
+		return EMovementType::Idle;
+	}
+	else if (bIsSprinting)
+	{
+		return EMovementType::Sprinting;
+	}
+	else
+	{
+		return EMovementType::Moving;
+	}
+}
+
+
+EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
+{
+	if (bIsCrouched)
+	{
+		return EMovementAdditive::Crouch;
+	}
+	else if (bIsProne)
+	{
+		return EMovementAdditive::Prone;
+	}
+	else
+	{
+		return EMovementAdditive::None;
+	}
+}
+
+
+/////////////////////////////////////////////////////
 void AHumanoid::OnEquipWeapon()
 {
-	EquipWeapon_Event.Broadcast();
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon);	
 }
 
 
-// Called when the game starts or when spawned
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_DefaultMaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
+	_MaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
 	SetUpDefaultEquipment();
 }
 
+
+void AHumanoid::SetSprinting(bool bSprint)
+{
+	if (bSprint)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
+		bIsSprinting = true;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
+		bIsSprinting = false;
+	}
+}
 
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
@@ -84,35 +172,18 @@ void AHumanoid::StopFireEquippedWeapon()
 
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnDeath(const FHitResult& hitInfo, FVector direction)
+void AHumanoid::MoveForward(float Value)
 {
+	FRotator controlRotation = GetControlRotation();
+	controlRotation.Pitch = 0.0f;
+	FVector direction = controlRotation.Vector();
+	direction.Normalize();
 
-}
-
-
-/////////////////////////////////////////////////////
-void AHumanoid::DeactivateCollisionCapsuleComponent()
-{
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
-}
-
-
-/////////////////////////////////////////////////////
-void AHumanoid::MoveForward(float value)
-{
-	if (value > 0.0f)
+	AddMovementInput(direction, Value);
+	if (Value > 0.0f)
 	{
-		AddMovementInput(GetActorForwardVector(), value);
 		bIsMovingForward = true;
 	}
-	else if (value < 0.0f)
-	{
-		AddMovementInput(GetActorForwardVector(), value);
-		bIsMovingForward = false;
-		SetSprinting(false);
-	}
 	else
 	{
 		bIsMovingForward = false;
@@ -121,84 +192,62 @@ void AHumanoid::MoveForward(float value)
 }
 
 
-void AHumanoid::MoveRight(float value)
+void AHumanoid::MoveRight(float Value)
 {
-	if (value != 0.0f && !bIsSprinting)
+	if (Value != 0.0f && !bIsSprinting)
 	{
-		// add movement in that direction
-		AddMovementInput(GetActorRightVector(), value);
+		FRotator controlRotation = GetControlRotation();
+		controlRotation.Pitch = 0.0f;
+
+		FVector direction = controlRotation.Vector();
+		direction = direction.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
+		direction.Normalize();
+		
+		AddMovementInput(direction, Value);
 	}
 }
 
 
-void AHumanoid::TurnAtRate(float rate)
+void AHumanoid::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 
-void AHumanoid::LookUpAtRate(float rate)
+void AHumanoid::LookUpAtRate(float Rate)
 {
-	AddControllerPitchInput(rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
 }
 
 
-void AHumanoid::ToggleCrouch()
+void AHumanoid::SetProne(bool bProne)
 {
-	if (this->bIsCrouched)
-	{
-		this->UnCrouch();
-	}
-	else
-	{
-		this->Crouch();
-	}
+	bIsProne = bProne;
 }
 
 
 void AHumanoid::ToggleAiming()
 {
-	if (bIsAiming)
-	{
-		bIsAiming = false;
-	}
-	else
-	{
-		bIsAiming = true;
-	}
+	bIsAiming = !bIsAiming;
 }
 
 
-void AHumanoid::ToggleSprinting()
-{
-	if (bIsSprinting)
-	{
-		SetSprinting(false);
-	}
-	else if (bIsMovingForward)
-	{
-		SetSprinting(true);
-	}
-}
-
-
-void AHumanoid::SetSprinting(bool bSprint)
+void AHumanoid::SetCrouch(bool bSprint)
 {
 	if (bSprint)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed * _SprintSpeedIncrease;
+		Crouch();
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _DefaultMaxWalkingSpeed;
-	}	
-	bIsSprinting = bSprint;
+		UnCrouch();
+	}
 }
 
 
 void AHumanoid::ToggleJump()
 {
-	if (!bIsJumping)
+	if (GetCharacterMovement()->IsMovingOnGround())
 	{
 		float veloctiy_abs = FMath::Abs(GetVelocity().Size());
 		if (veloctiy_abs <= 10.0f)
@@ -210,12 +259,10 @@ void AHumanoid::ToggleJump()
 		{
 			Jump();
 		}
-		bIsJumping = true;
 	}
 	else
 	{
 		StopJumping();
-		bIsJumping = false;
 	}
 }
 
@@ -237,22 +284,69 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
-/////////////////////////////////////////////////////
-bool AHumanoid::IsAlive() const
+
+void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
 {
-	return !bAlreadyDied;
+	EAttachmentRule attachmentRule;
+	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
+	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
+	FName handSocket = "HandLeft";
+
+	ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
+	_ItemInHand = ItemToGrab;
+	if (bKeepRelativeOffset)
+	{
+		CalcAndSafeActorOffset(ItemToGrab);
+	}
+	else
+	{
+		ItemToGrab->SetActorRelativeTransform(Offset);
+	}	
 }
+
+
+FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
+{
+	FTransform offset;
+	FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
+
+	FVector itemLocation = OtherActor->GetActorLocation();
+	offset.SetLocation(handTransform.InverseTransformPosition(itemLocation));
+
+	FRotator itemRotation = OtherActor->GetActorRotation();
+	offset.SetRotation(handTransform.InverseTransformRotation(itemRotation.Quaternion()));
+	
+	_ItemOffset = offset;
+	return offset;
+}
+
+
+AItemBase* AHumanoid::DropItem()
+{
+	if (_ItemInHand == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
+		return nullptr;
+	}
+	AItemBase* itemToDrop = _ItemInHand;	
+	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	itemToDrop->SetSimulatePhysics(true);
+	
+	_ItemInHand = nullptr;
+	return itemToDrop;
+}
+
 
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return IsAlive() && !bIsSprinting && !bIsJumping;
+	return !bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !bComponentBlocksFiring;
 }
 
 
-FName AHumanoid::GetWeaponAttachPoint() const
+FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
-	return _WeaponAttachPoint;
+	return _EquippedWeaponAttachPoint;
 }
 
 
@@ -260,10 +354,10 @@ void AHumanoid::SetUpDefaultEquipment()
 {
 	if (_DefaultGun == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null!"));
+		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
 	}
-	if (!GetWeaponAttachPoint().IsValid())
+	if (!GetEquippedWeaponAttachPoint().IsValid())
 	{
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;
@@ -274,21 +368,13 @@ void AHumanoid::SetUpDefaultEquipment()
 }
 
 
-void AHumanoid::Kill()
-{
-	if (bAlreadyDied)
-	{
-		return;
-	}
-	bAlreadyDied = true;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetSimulatePhysics(true);
-}
-
-
 // Called every frame
 void AHumanoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bIsSprinting && bIsAiming)
+	{
+		SetSprinting(false);
+	}
 }

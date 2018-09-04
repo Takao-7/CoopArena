@@ -1,13 +1,36 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ItemBase.h"
-#include "InventoryComponent.h"
+#include "Components/InventoryComponent.h"
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
-#include "Components/MeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/ShapeComponent.h"
+#include "CoopArena.h"
 
 
-const FItemStats& AItemBase::GetItemStats() const
+void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
+{
+	if (GetMesh())
+	{
+		if (bSimulatePhysics)
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
+	}
+}
+
+
+FItemStats& AItemBase::GetItemStats()
 {
 	return _itemStats;
 }
@@ -19,18 +42,20 @@ void AItemBase::SetItemStats(FItemStats& newItemStats)
 }
 
 
-void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn)
+UMeshComponent* AItemBase::GetMesh() const
 {
-	UActorComponent* inventoryActorComponents = InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass());
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(inventoryActorComponents);
-	
-	if (inventory)
+	return nullptr;
+}
+
+
+void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
+
+	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
+	if (bItemSuccessfullyAdded)
 	{
-		bool bItemSuccessfullyAdded = inventory->AddItem(this);
-		if (bItemSuccessfullyAdded)
-		{
-			Destroy();
-		}
+		Destroy();
 	}
 }
 
@@ -41,11 +66,11 @@ void AItemBase::OnEndInteract_Implementation(APawn* InteractingPawn)
 }
 
 
-UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn)
+UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
-	if (_Mesh)
+	if (GetMesh())
 	{
-		_Mesh->SetRenderCustomDepth(true);
+		GetMesh()->SetRenderCustomDepth(true);
 	}
 	return _itemWidget;
 }
@@ -53,8 +78,49 @@ UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn)
 
 void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 {
-	if (_Mesh)
+	if (GetMesh())
 	{
-		_Mesh->SetRenderCustomDepth(false);
+		GetMesh()->SetRenderCustomDepth(false);
 	}
+}
+
+
+void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
+{
+	if (bCanbeInteractedWith)
+	{
+		_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+		if (GetMesh())
+		{
+			GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+		}
+	}
+	else
+	{
+		_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+		if (GetMesh())
+		{
+			GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+		}
+	}
+}
+
+
+void AItemBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetMesh())
+	{
+		GetMesh()->SetCustomDepthStencilValue(253);
+	}
+}
+
+
+void AItemBase::SetUpInteractionVolume()
+{
+	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh() ? _InteractionVolume->SetupAttachment(GetMesh()) : _InteractionVolume->SetupAttachment(RootComponent);
 }

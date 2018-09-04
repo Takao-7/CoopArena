@@ -4,7 +4,10 @@
 #include "Engine/World.h"
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
@@ -50,34 +53,42 @@ void APlayerCharacter::CheckForInteractables()
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
+		UPrimitiveComponent* hitComponent = _InteractionHitResult.GetComponent();
 		IInteractable* interactable = Cast<IInteractable>(hitActor);
 		if (interactable)
 		{
-			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this);
-
-			if (interactable != _InteractableInFocus && _ActorInFocus)
+			// Only do Begin/End line traces calls if we are pointing at something new
+			if (interactable != _InteractableInFocus)
 			{
-				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
+				if (_ActorInFocus)
+				{
+					IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
+				}
+
+				IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
+				SetActorInFocus(hitActor);
 			}
-			SetActorInFocus(hitActor);
+			SetComponentInFocus(hitComponent);
 		}
 	}
 	else if (_InteractableInFocus && _ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
+		SetComponentInFocus(nullptr);
 	}
 }
 
 
 void APlayerCharacter::OnEquipWeapon()
 {
-	AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
+	
+	/*AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
 	if (GunInFocus && !_EquippedWeapon)
 	{
 		GunInFocus->OnEquip(this);
-	}	
-	EquipWeapon_Event.Broadcast();
+	}*/	
 }
 
 
@@ -96,6 +107,12 @@ void APlayerCharacter::SetActorInFocus(AActor* actor)
 }
 
 
+void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
+{
+	_ComponentInFocus = Component;
+}
+
+
 /////////////////////////////////////////////////////
 bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 {
@@ -108,7 +125,75 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	{
 		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
-	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Item, params);
+	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
+}
+
+
+void APlayerCharacter::OnPronePressed()
+{
+	if (bToggleProne)
+	{
+		bIsProne = !bIsProne;
+	}
+	else
+	{
+		bIsProne = true;
+	}
+}
+
+
+void APlayerCharacter::OnProneReleased()
+{
+	if (!bToggleProne)
+	{
+		bIsProne = false;
+	}
+}
+
+
+void APlayerCharacter::OnSprintPressed()
+{
+	if (bToggleSprinting)
+	{
+		SetSprinting(!bIsSprinting);
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
+		bIsSprinting = true;
+	}
+}
+
+
+void APlayerCharacter::OnSprintReleased()
+{
+	if (!bToggleSprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
+		bIsSprinting = false;
+	}
+}
+
+
+void APlayerCharacter::OnCrouchPressed()
+{
+	if (bToggleCrouching)
+	{
+		SetCrouch(!bIsCrouched);
+	}
+	else
+	{
+		Crouch();
+	}
+}
+
+
+void APlayerCharacter::OnCrouchReleased()
+{
+	if (!bToggleCrouching)
+	{
+		UnCrouch();
+	}
 }
 
 
@@ -135,7 +220,7 @@ void APlayerCharacter::OnBeginInteracting()
 {
 	if (_InteractableInFocus)
 	{
-		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this);
+		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);
 	}
 }
 
@@ -158,40 +243,36 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
-	// Bind jump events
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::ToggleJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::ToggleJump);
 
-	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-	// Bind mouse movement.
 	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::LookUpAtRate);
 
-	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::FireEquippedWeapon);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::StopFireEquippedWeapon);
 
-	// Bind crouch event
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::ToggleCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::ToggleCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::OnCrouchPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::OnCrouchReleased);
 
-	// Interact event
+	PlayerInputComponent->BindAction("Prone", IE_Pressed, this, &APlayerCharacter::OnPronePressed);
+	PlayerInputComponent->BindAction("Prone", IE_Released, this, &APlayerCharacter::OnProneReleased);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::OnSprintPressed);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::OnSprintReleased);
+
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
-
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprinting);
-
+	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);	
 }
 
 

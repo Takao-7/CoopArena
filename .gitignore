@@ -74,3 +74,6 @@ Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Temp  folder
+enc_temp_folder/*
