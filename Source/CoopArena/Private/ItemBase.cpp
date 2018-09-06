@@ -12,9 +12,8 @@
 AItemBase::AItemBase()
 {
 	SetReplicates(true);
+	SetReplicateMovement(false);
 	bNetUseOwnerRelevancy = true;
-	ShouldSimulatePhysics(false);
-	IInteractable::Execute_SetCanBeInteractedWith(this, true);
 }
 
 /////////////////////////////////////////////////////
@@ -25,12 +24,18 @@ void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
 		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
 		if (bSimulatePhysics)
 		{
-			SetReplicateMovement(true);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(true);
+			}
 			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 		else
 		{
-			SetReplicateMovement(false);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(false);
+			}
 			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}

@@ -335,8 +335,9 @@ void AGun::OnAnimNotify_SpawnNewMag()
 	}
 	
 	m_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
-	_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
 	UE_LOG(LogTemp, Warning, TEXT("(After spawning) Mag position: %s"), *m_ItemToGrab->GetActorLocation().ToCompactString());
+	OnItemGrab();
+	//_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
 }
 
 void AGun::OnAnimNotify_AttachMagToGun()
@@ -370,8 +371,9 @@ void AGun::OnItemGrab()
 {
 	if (m_ItemToGrab)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("[%s](Before attaching OnItemGrab()) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *m_ItemToGrab->GetActorLocation().ToCompactString());
 		_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
-		UE_LOG(LogTemp, Warning, TEXT("(After attaching) Mag position: %s"), *m_ItemToGrab->GetActorLocation().ToCompactString());
+		//UE_LOG(LogTemp, Warning, TEXT("[%s](After attaching OnItemGrab()) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *m_ItemToGrab->GetActorLocation().ToCompactString());
 		_LoadedMagazine = nullptr;
 	}
 }
