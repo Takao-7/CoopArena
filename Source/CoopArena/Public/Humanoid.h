@@ -14,7 +14,6 @@ class UDamageType;
 class AItemBase;
 
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHolsterWeapon_Signature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
 
 
@@ -25,8 +24,6 @@ class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
 
 
 public:
-	virtual void Tick(float DeltaTime) override;
-
 	AHumanoid();
 
 protected:
@@ -38,10 +35,10 @@ protected:
 protected:
 	/** Handles moving forward/backward */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void MoveForward(float value);
+	virtual void MoveForward(float value);
 	/** Handles strafing movement, left and right */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void MoveRight(float value);
+	virtual void MoveRight(float value);
 
 	/**
 	* Called via input to turn at a given rate.
@@ -85,14 +82,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	bool bToggleCrouching;
 
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(ReplicatedUsing=OnRep_bIsSprining, BlueprintReadOnly, Category = Humanoid)
 	bool bIsSprinting;
 
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
 	bool bIsProne;
-
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	bool bIsMovingForward;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	float _MaxSprintSpeed;
@@ -131,7 +125,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AItemBase* DropItem();	
 
-	void SetUpDefaultEquipment();			
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetUpDefaultEquipment();
+
+	UFUNCTION()
+	FTransform& GetItemOffset() { return _ItemOffset; };
+
+	/* Returns the item currently held in the hand. */
+	UFUNCTION()
+	AItemBase* GetItemInHand() { return _ItemInHand; };
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
@@ -164,10 +166,10 @@ public:
 	 * @param Component The component who wants to block this actor from firing. 
 	 * Must not be null or this function will not do anything.
 	 * @return True if the blocking status was successfully changed. E.g. if the given component
-	 * was allowed to change the value.
+	 * was allowed to change the value. False if the status wasn't changed.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	bool SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
+	bool Set_ComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
 
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
@@ -208,12 +210,12 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	UArrowComponent* _DroppedItemSpawnPoint;
-
+		
 	/* The characters currently held weapon */
-	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
 	AGun* _EquippedWeapon;
 
-	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
 	bool bIsAiming;
 
 private:
@@ -224,4 +226,17 @@ private:
 	/* The component that wants to prevent this actor from firing. */
 	UPROPERTY()
 	UActorComponent* _BlockingComponent;
+
+	/////////////////////////////////////////////////////
+						/* Networking */
+	/////////////////////////////////////////////////////
+protected:
+	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
+	void Server_SetSprinting(bool bSprint);
+
+	UFUNCTION()
+	void OnRep_bIsSprining();
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = Humanoid)
+	void RepMaxWalkSpeed(float NewMaxWalkSpeed);
 };

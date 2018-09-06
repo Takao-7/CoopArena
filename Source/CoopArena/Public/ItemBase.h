@@ -22,8 +22,11 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 	GENERATED_BODY()
 
 public:
+	AItemBase();
+
+	/* Sets simulate physics and collision. */
 	UFUNCTION(BlueprintCallable, Category = ItemBase)
-	virtual void SetSimulatePhysics(bool bSimulatePhysics);
+	virtual void ShouldSimulatePhysics(bool bSimulatePhysics);
 
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual FORCEINLINE FItemStats& GetItemStats();
@@ -37,7 +40,7 @@ public:
 	/* Interactable interface */
 
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
-	virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
+	//virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
@@ -56,4 +59,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
 	UShapeComponent* _InteractionVolume;
+
+
+	/////////////////////////////////////////////////////
+					/* Networking */
+	/////////////////////////////////////////////////////
+private:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_OnBeginInteract(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetSimulatePhysics(bool bSimulatePhysics);
 };

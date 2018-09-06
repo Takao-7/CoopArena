@@ -10,15 +10,12 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
+#include "UnrealNetwork.h"
 
 
 // Sets default values
 AHumanoid::AHumanoid()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	// set our turn rates for input
 	_BaseTurnRate = 45.f;
 	_BaseLookUpRate = 45.f;
 
@@ -29,24 +26,29 @@ AHumanoid::AHumanoid()
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
+	bIsSprinting = false;
+	bIsProne = false;
+	bIsCrouched = false;
+	bIsAiming = false;
+
 	_MaxSprintSpeed = 650.0f;
 	bToggleProne = true;
-}
 
+	SetReplicates(true);
+	SetReplicateMovement(true);
+}
 
 AGun* AHumanoid::GetEquippedGun() const
 {
 	return _EquippedWeapon;
 }
 
-
 void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 {
 	_EquippedWeapon = Weapon;
 }
 
-
-bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
+bool AHumanoid::Set_ComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
 {
 	if (Component == nullptr || (_BlockingComponent && _BlockingComponent != Component))
 	{
@@ -74,9 +76,9 @@ bool AHumanoid::IsAiming_Implementation()
 	return bIsAiming;
 }
 
-
+/////////////////////////////////////////////////////
 EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
-{
+{	
 	if (_EquippedWeapon)
 	{
 		return _EquippedWeapon->GetWeaponType();
@@ -87,7 +89,7 @@ EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 EMovementType AHumanoid::GetMovementType_Implementation()
 {
 	if (GetLastMovementInputVector().Size() == 0.0f)
@@ -104,7 +106,7 @@ EMovementType AHumanoid::GetMovementType_Implementation()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 EMovementAdditive AHumanoid::GetMovementAdditive_Implementation()
 {
 	if (bIsCrouched)
@@ -128,39 +130,32 @@ void AHumanoid::OnEquipWeapon()
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);	
 }
 
-
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_MaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
-	SetUpDefaultEquipment();
+	_MaxWalkingSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	if (HasAuthority())
+	{
+		SetUpDefaultEquipment();
+	}
 }
-
 
 void AHumanoid::SetSprinting(bool bSprint)
 {
-	if (bSprint)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
-		bIsSprinting = true;
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
-		bIsSprinting = false;
-	}
+	Server_SetSprinting(bSprint);
 }
+
 
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
 	if (CanFire() && _EquippedWeapon)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Humanoid name: %s. Weapon owner: %s"), *GetName(), *_EquippedWeapon->GetOwner()->GetName());
 		_EquippedWeapon->OnFire();
 	}
 }
-
 
 void AHumanoid::StopFireEquippedWeapon()
 {
@@ -170,67 +165,76 @@ void AHumanoid::StopFireEquippedWeapon()
 	}
 }
 
-
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
+	if (Controller == nullptr || Value == 0.0f)
+	{
+		return;
+	}
 	FRotator controlRotation = GetControlRotation();
 	controlRotation.Pitch = 0.0f;
-	FVector direction = controlRotation.Vector();
-	direction.Normalize();
+	controlRotation.Roll = 0.0f;
+	
+	FVector direction(1.0f, 0.0f, 0.0f);
+	direction = controlRotation.RotateVector(direction);
 
 	AddMovementInput(direction, Value);
-	if (Value > 0.0f)
+	if (Value < 0.0f && bIsSprinting)
 	{
-		bIsMovingForward = true;
-	}
-	else
-	{
-		bIsMovingForward = false;
 		SetSprinting(false);
 	}
 }
 
-
 void AHumanoid::MoveRight(float Value)
 {
-	if (Value != 0.0f && !bIsSprinting)
+	if (bIsSprinting || Controller == nullptr || Value == 0.0f)
 	{
-		FRotator controlRotation = GetControlRotation();
-		controlRotation.Pitch = 0.0f;
-
-		FVector direction = controlRotation.Vector();
-		direction = direction.RotateAngleAxis(90.0f, FVector(0.f, 0.f, 1.0f));
-		direction.Normalize();
-		
-		AddMovementInput(direction, Value);
+		return;
 	}
-}
+	
+	FRotator controlRotation = GetControlRotation();
+	controlRotation.Pitch = 0.0f;
+	controlRotation.Roll = 0.0f;
 
+	FVector direction(0.0f, 1.0f, 0.0f);
+	direction = controlRotation.RotateVector(direction);
+		
+	AddMovementInput(direction, Value);
+}
 
 void AHumanoid::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	if (Controller)
+	{
+		AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
 }
-
 
 void AHumanoid::LookUpAtRate(float Rate)
 {
-	AddControllerPitchInput(Rate * _BaseLookUpRate * GetWorld()->GetDeltaSeconds());	
+	if (Controller)
+	{
+		AddControllerPitchInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
 }
-
 
 void AHumanoid::SetProne(bool bProne)
 {
 	bIsProne = bProne;
 }
 
-
 void AHumanoid::ToggleAiming()
 {
-	bIsAiming = !bIsAiming;
+	if (!bIsSprinting)
+	{
+		bIsAiming = !bIsAiming;
+	}
+	else
+	{
+		bIsAiming = false;
+	}
 }
-
 
 void AHumanoid::SetCrouch(bool bSprint)
 {
@@ -243,7 +247,6 @@ void AHumanoid::SetCrouch(bool bSprint)
 		UnCrouch();
 	}
 }
-
 
 void AHumanoid::ToggleJump()
 {
@@ -266,15 +269,13 @@ void AHumanoid::ToggleJump()
 	}
 }
 
-
 void AHumanoid::ReloadWeapon()
 {
 	if (_EquippedWeapon)
 	{
-		_EquippedWeapon->ReloadWeapon();
+		_EquippedWeapon->Reload();
 	}
 }
-
 
 void AHumanoid::ChangeWeaponFireMode()
 {
@@ -284,9 +285,12 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
-
 void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
 {
+	/*if (!HasAuthority())
+	{
+		return;
+	}*/
 	EAttachmentRule attachmentRule;
 	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
 	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
@@ -304,7 +308,6 @@ void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTrans
 	}	
 }
 
-
 FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 {
 	FTransform offset;
@@ -320,7 +323,6 @@ FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 	return offset;
 }
 
-
 AItemBase* AHumanoid::DropItem()
 {
 	if (_ItemInHand == nullptr)
@@ -330,7 +332,7 @@ AItemBase* AHumanoid::DropItem()
 	}
 	AItemBase* itemToDrop = _ItemInHand;	
 	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	itemToDrop->SetSimulatePhysics(true);
+	itemToDrop->ShouldSimulatePhysics(true);
 	
 	_ItemInHand = nullptr;
 	return itemToDrop;
@@ -343,13 +345,13 @@ bool AHumanoid::CanFire() const
 	return !bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !bComponentBlocksFiring;
 }
 
-
+/////////////////////////////////////////////////////
 FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
 	return _EquippedWeaponAttachPoint;
 }
 
-
+/////////////////////////////////////////////////////
 void AHumanoid::SetUpDefaultEquipment()
 {
 	if (_DefaultGun == nullptr)
@@ -362,19 +364,62 @@ void AHumanoid::SetUpDefaultEquipment()
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;
 	}
-
-	_EquippedWeapon = GetWorld()->SpawnActor<AGun>(_DefaultGun);
-	_EquippedWeapon->OnEquip(this);
+	
+	_EquippedWeapon = AGun::SpawnGunAttached(this, _DefaultGun);
 }
 
 
-// Called every frame
-void AHumanoid::Tick(float DeltaTime)
+/////////////////////////////////////////////////////
+					/* Networking */
+/////////////////////////////////////////////////////
+void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::Tick(DeltaTime);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	if (bIsSprinting && bIsAiming)
+	DOREPLIFETIME(AHumanoid, bIsSprinting);
+	DOREPLIFETIME(AHumanoid, bIsAiming);
+	DOREPLIFETIME(AHumanoid, _EquippedWeapon);
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
+{
+	if (bSprint)
 	{
-		SetSprinting(false);
+		if (bIsAiming)
+		{
+			ToggleAiming();
+		}
+		//UE_LOG(LogTemp, Warning, TEXT("MaxSprintSpeed: %f"), _MaxSprintSpeed);
+		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
+		bIsSprinting = true;
 	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed: %f"), _MaxWalkingSpeed);
+		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
+		bIsSprinting = false;
+	}
+}
+
+bool AHumanoid::Server_SetSprinting_Validate(bool bSprint)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::OnRep_bIsSprining()
+{
+	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? _MaxSprintSpeed : _MaxWalkingSpeed;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::RepMaxWalkSpeed_Implementation(float NewMaxWalkSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewMaxWalkSpeed;
+}
+
+bool AHumanoid::RepMaxWalkSpeed_Validate(float NewMaxWalkSpeed)
+{
+	return true;
 }

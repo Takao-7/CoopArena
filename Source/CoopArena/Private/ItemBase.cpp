@@ -9,63 +9,47 @@
 #include "CoopArena.h"
 
 
-void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
+AItemBase::AItemBase()
 {
-	if (GetMesh())
+	SetReplicates(true);
+	SetReplicateMovement(true);
+	bNetUseOwnerRelevancy = true;
+}
+
+/////////////////////////////////////////////////////
+void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
+{
+	if (HasAuthority())
 	{
-		if (bSimulatePhysics)
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		}
-		else
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
+		Multicast_SetSimulatePhysics(bSimulatePhysics);
 	}
 }
 
-
+/////////////////////////////////////////////////////
 FItemStats& AItemBase::GetItemStats()
 {
 	return _itemStats;
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::SetItemStats(FItemStats& newItemStats)
 {
 	_itemStats = newItemStats;
 }
 
-
+/////////////////////////////////////////////////////
 UMeshComponent* AItemBase::GetMesh() const
 {
 	return nullptr;
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
-
-	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
-	if (bItemSuccessfullyAdded)
-	{
-		Destroy();
-	}
+	Server_OnBeginInteract(InteractingPawn, HitComponent);
 }
 
-
-void AItemBase::OnEndInteract_Implementation(APawn* InteractingPawn)
-{
-
-}
-
-
+/////////////////////////////////////////////////////
 UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
 	if (GetMesh())
@@ -75,7 +59,7 @@ UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimit
 	return _itemWidget;
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 {
 	if (GetMesh())
@@ -84,7 +68,7 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
 {
 	if (bCanbeInteractedWith)
@@ -105,7 +89,7 @@ void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -116,11 +100,51 @@ void AItemBase::BeginPlay()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void AItemBase::SetUpInteractionVolume()
 {
 	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh() ? _InteractionVolume->SetupAttachment(GetMesh()) : _InteractionVolume->SetupAttachment(RootComponent);
+}
+
+
+/////////////////////////////////////////////////////
+					/* Networking */
+/////////////////////////////////////////////////////
+void AItemBase::Server_OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
+
+	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
+	if (bItemSuccessfullyAdded)
+	{
+		Destroy();
+	}
+}
+
+bool AItemBase::Server_OnBeginInteract_Validate(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	return _InteractionVolume->GetCollisionResponseToChannel(ECC_Interactable) == ECR_Block;
+}
+
+void AItemBase::Multicast_SetSimulatePhysics_Implementation(bool bSimulatePhysics)
+{
+	if (GetMesh())
+	{
+		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
+		if (bSimulatePhysics)
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else
+		{
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
+	}
 }

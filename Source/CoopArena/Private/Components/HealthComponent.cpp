@@ -50,7 +50,7 @@ void UHealthComponent::OnDeath()
 
 	DeactivateCollisionCapsuleComponent();
 	SetPhysicsOnMesh();
-	_compOwner->SetComponentIsBlockingFiring(true, this);
+	_compOwner->Set_ComponentIsBlockingFiring(true, this);
 
 	FTimerDelegate delegate;
 	delegate.BindLambda([this]

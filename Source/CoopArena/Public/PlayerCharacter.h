@@ -119,4 +119,11 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnCrouchReleased();
+
+
+	/////////////////////////////////////////////////////
+						/* Networking */
+	/////////////////////////////////////////////////////
+
+
 };

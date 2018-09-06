@@ -4,6 +4,7 @@
 #include "Interfaces/BAS_Interface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerCharacter.h"
+#include "Engine/World.h"
 
 
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
@@ -27,6 +28,8 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	_variables.MovementType = EMovementType::Idle;
 	_variables.MovementAdditive = EMovementAdditive::None;
 	_variables.EquippedWeaponType = EWEaponType::None;
+
+	bReplicates = true;
 }
 
 
@@ -35,16 +38,24 @@ void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
-	if (_BASInterface == nullptr)
+	bool bOwnerIsLocallyControlled = GetOwner()->GetInstigator() && GetOwner()->GetInstigator()->IsLocallyControlled();
+	if(/*GetOwnerRole() == ROLE_AutonomousProxy ||*/ bOwnerIsLocallyControlled)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
-		PrimaryComponentTick.SetTickFunctionEnable(false);
+		IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
+		if (_BASInterface == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
+			PrimaryComponentTick.SetTickFunctionEnable(false);
+		}
+		else
+		{
+			SetMovementComponentValues();
+			SetUseControlRotationYawOnCharacter();
+		}
 	}
 	else
 	{
-		SetMovementComponentValues();
-		SetUseControlRotationYawOnCharacter();
+		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
 }
 
@@ -60,6 +71,8 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetIsMovingForward();
 	SetAimPitch();
 	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
+
+	Server_ReplicateVariables(_variables);
 }
 
 
@@ -213,4 +226,25 @@ EMovementAdditive UBasicAnimationSystemComponent::GetMovementAdditive_Implementa
 FBASVariables UBasicAnimationSystemComponent::GetActorVariables() const
 {
 	return _variables;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UBasicAnimationSystemComponent, _variables);
+}
+
+
+bool UBasicAnimationSystemComponent::Server_ReplicateVariables_Validate(FBASVariables Variables)
+{
+	return true;
+}
+
+
+void UBasicAnimationSystemComponent::Server_ReplicateVariables_Implementation(FBASVariables Variables)
+{
+	_variables = Variables;
 }

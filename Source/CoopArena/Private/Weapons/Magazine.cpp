@@ -7,14 +7,6 @@
 #include "CoopArena.h"
 
 
-// Called when the game starts or when spawned
-void AMagazine::BeginPlay()
-{
-	Super::BeginPlay();	
-	_RoundsLeft = _Capacity;
-}
-
-
 AMagazine::AMagazine()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -25,6 +17,11 @@ AMagazine::AMagazine()
 	SetUpInteractionVolume();
 }
 
+void AMagazine::BeginPlay()
+{
+	Super::BeginPlay();	
+	_RoundsLeft = _Capacity;
+}
 
 int32 AMagazine::RoundsLeft() const
 {

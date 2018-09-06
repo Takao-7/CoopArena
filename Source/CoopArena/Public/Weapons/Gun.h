@@ -96,7 +96,7 @@ protected:
 	bool _bCanShoot;	
 
 	/* The pawn that currently owns and carries this weapon */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Weapon)
 	AHumanoid* _MyOwner;
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
@@ -119,11 +119,16 @@ protected:
 
 	void SetUpMesh();
 
+	static void GetSpawnTransform(AHumanoid* NewOwner, FTransform& OutTransform);
+
 public:
 	AGun();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
+
+	UFUNCTION()
+	static AGun* SpawnGunAttached(AHumanoid* NewOwner, TSubclassOf<AGun> GunClass);
 
 	/* Unequip the gun. 
 	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
@@ -135,7 +140,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 	
-	UMeshComponent* GetMesh() const override;
+	virtual UMeshComponent* GetMesh() const override;
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	UCameraComponent* GetZoomCamera() const;
@@ -247,25 +252,25 @@ protected:
 	UAnimMontage* _ReloadAnimation;
 
 	/* The currently loaded magazine. */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
 
-public:
-	/* Reloads the weapon */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void ReloadWeapon();
-
 	/* Stops the reloading process by stop playing the reload animation. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void StopReloading();
-	
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
+	void Multicast_StopReloading();
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void FinishReloadWeapon();
 
 	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	AMagazine* SpawnNewMagazine();
+	AMagazine* SpawnNewMagazine(const FTransform& SpawnTransform);
 
+	/**
+	 * Removes a magazine from the owner's inventory.
+	 * @return True if the magazine was successfully removed, e.g. there was a magazine in the inventory.
+	 * Otherwise false.
+	 */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetAmmoFromInventory();
 
@@ -276,10 +281,69 @@ public:
 	 * Attaches a magazine to the gun at the correct location.
 	 * @param Magazine Must not be null.
 	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
 	void AttachMagazine(AMagazine* Magazine);
 
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool CheckIfOwnerHasMagazine() const;
+
+public:
+	/* Will attach the loaded magazine to the character's hand. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_AttachMagToHand();
+
+	/* Drops the attached magazine. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_DropMagazine();
+
+	/* Checks if the owner has ammo to reload. If not, the reload animation will be stopped. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_CheckForAmmo();
+
+	/* Gets a new magazine from the inventory, spawns and attaches it to the character's hand. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_SpawnNewMag();
+
+	/* Attaches the currently held magazine to the gun. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_AttachMagToGun();
+
+	/* Sets the new weapon state. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnAnimNotify_FinishReloading();
+
+	/* Reloads the weapon. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void Reload();
+
+
+	/////////////////////////////////////////////////////
+					/* Networking */
+	/////////////////////////////////////////////////////
+private:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_Reload();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_OnEquip(AHumanoid* NewOwner);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_OnStopFire();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_OnFire();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayReloadAnimation();
+
+	/* Spawns or destroys the muzzle flash particle system. */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_HandleMuzzleFlash(bool bSpawnMuzzleFlash);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayFireAnimation();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayFireSound();
 };

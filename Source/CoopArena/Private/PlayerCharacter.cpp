@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////
 APlayerCharacter::APlayerCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	_InteractionRange = 200.0f;
 	_InteractableInFocus = nullptr;
 
@@ -37,13 +39,15 @@ APlayerCharacter::APlayerCharacter()
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
 }
 
-
 /////////////////////////////////////////////////////
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckForInteractables();
+	if (IsLocallyControlled())
+	{
+		CheckForInteractables();
+	}
 }
 
 
@@ -83,12 +87,6 @@ void APlayerCharacter::CheckForInteractables()
 void APlayerCharacter::OnEquipWeapon()
 {
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
-	
-	/*AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
-	if (GunInFocus && !_EquippedWeapon)
-	{
-		GunInFocus->OnEquip(this);
-	}*/	
 }
 
 
@@ -157,10 +155,10 @@ void APlayerCharacter::OnSprintPressed()
 	{
 		SetSprinting(!bIsSprinting);
 	}
-	else
+	else if (!bIsSprinting)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
-		bIsSprinting = true;
+		//UE_LOG(LogTemp, Warning, TEXT("Start sprinting!"));
+		SetSprinting(true);
 	}
 }
 
@@ -169,8 +167,7 @@ void APlayerCharacter::OnSprintReleased()
 {
 	if (!bToggleSprinting)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
-		bIsSprinting = false;
+		SetSprinting(false);
 	}
 }
 
@@ -196,7 +193,7 @@ void APlayerCharacter::OnCrouchReleased()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void APlayerCharacter::ToggleAiming()
 {
 	if (bIsAiming)
@@ -213,7 +210,6 @@ void APlayerCharacter::ToggleAiming()
 		}
 	}
 }
-
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
@@ -240,7 +236,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::ToggleJump);

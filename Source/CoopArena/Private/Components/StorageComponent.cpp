@@ -2,6 +2,7 @@
 
 #include "StorageComponent.h"
 #include "ItemBase.h"
+#include "UnrealNetwork.h"
 
 
 UStorageComponent::UStorageComponent()
@@ -190,8 +191,11 @@ void UStorageComponent::PrintInventory()
 void UStorageComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	CheckWeightLimitAndCapacity();
-	AddStartingItems();
+	if(GetOwner()->HasAuthority())
+	{
+		CheckWeightLimitAndCapacity();
+		AddStartingItems();
+	}
 }
 
 
@@ -209,4 +213,15 @@ void UStorageComponent::AddStartingItems()
 			AddItem(stats, amount);
 		}
 	}
+}
+
+
+/////////////////////////////////////////////////////
+				/* Networking */
+/////////////////////////////////////////////////////
+void UStorageComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UStorageComponent, _StoredItems);
 }
