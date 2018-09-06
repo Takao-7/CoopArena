@@ -587,9 +587,9 @@ void AGun::AttachMagazine_Implementation(AMagazine* Magazine)
 	
 	Magazine->SetCanBeInteractedWith_Implementation(false);
 	Magazine->ShouldSimulatePhysics(false);
-	UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
-	Magazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale, "Magazine");
-	UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
+	//UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
+	Magazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale/*, "Magazine"*/);
+	//UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
 	_LoadedMagazine = Magazine;
 }
 

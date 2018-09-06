@@ -106,7 +106,7 @@ void AItemBase::SetUpInteractionVolume()
 	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh() ? _InteractionVolume->SetupAttachment(GetMesh()) : _InteractionVolume->SetupAttachment(RootComponent);
+	_InteractionVolume->SetupAttachment(RootComponent);
 }
 
 
