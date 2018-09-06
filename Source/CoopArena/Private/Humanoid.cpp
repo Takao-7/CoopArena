@@ -287,25 +287,25 @@ void AHumanoid::ChangeWeaponFireMode()
 
 void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset /*= true*/, const FTransform& Offset /*= FTransform()*/)
 {
+	//EAttachmentRule attachmentRule;
+	//attachmentRule = EAttachmentRule::SnapToTarget;
+	//FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
+	//FName handSocket = "HandLeft";
+
+	//FTransform AttachOffset = FTransform();
+	//AttachOffset.SetLocation(GetMesh()->GetSocketTransform(handSocket).InverseTransformPosition(ItemToGrab->GetActorLocation()));
+	//AttachOffset.SetRotation(GetMesh()->GetSocketTransform(handSocket).InverseTransformRotation(ItemToGrab->GetActorRotation().Quaternion()));
+
+	////UE_LOG(LogTemp, Warning, TEXT("[%s] Offset: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *AttachOffset.GetLocation().ToCompactString());
+	////UE_LOG(LogTemp, Warning, TEXT("[%s](Before attaching) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *ItemToGrab->GetActorLocation().ToCompactString());
+	//ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
+	////ItemToGrab->SetActorRelativeTransform(AttachOffset);
+	////UE_LOG(LogTemp, Warning, TEXT("[%s](After attaching) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *ItemToGrab->GetActorLocation().ToCompactString());
+	//_ItemInHand = ItemToGrab;
+
+
 	EAttachmentRule attachmentRule;
-	attachmentRule = EAttachmentRule::SnapToTarget;
-	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
-	FName handSocket = "HandLeft";
-
-	FTransform AttachOffset = FTransform();
-	AttachOffset.SetLocation(GetMesh()->GetSocketTransform(handSocket).InverseTransformPosition(ItemToGrab->GetActorLocation()));
-	AttachOffset.SetRotation(GetMesh()->GetSocketTransform(handSocket).InverseTransformRotation(ItemToGrab->GetActorRotation().Quaternion()));
-
-	UE_LOG(LogTemp, Warning, TEXT("[%s] Offset: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *AttachOffset.GetLocation().ToCompactString());
-	UE_LOG(LogTemp, Warning, TEXT("[%s](Before attaching) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *ItemToGrab->GetActorLocation().ToCompactString());
-	ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
-	ItemToGrab->SetActorRelativeTransform(AttachOffset);
-	UE_LOG(LogTemp, Warning, TEXT("[%s](After attaching) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *ItemToGrab->GetActorLocation().ToCompactString());
-	_ItemInHand = ItemToGrab;
-
-
-	/*EAttachmentRule attachmentRule;
-	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
+	/*bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : */attachmentRule = EAttachmentRule::SnapToTarget;
 	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
 	FName handSocket = "HandLeft";
 
@@ -320,7 +320,7 @@ void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset /*= tru
 	else
 	{
 		ItemToGrab->SetActorRelativeTransform(Offset);
-	}*/
+	}
 }
 
 FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
