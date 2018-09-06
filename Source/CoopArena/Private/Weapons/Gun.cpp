@@ -4,7 +4,6 @@
 #include "Humanoid.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "Enums/WeaponEnums.h"
 #include "Enums/ItemEnums.h"
@@ -14,8 +13,9 @@
 #include "CoopArena.h"
 #include "Magazine.h"
 #include "Projectile.h"
-#include "Components/InventoryComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/InventoryComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
@@ -24,26 +24,15 @@
 
 AGun::AGun()
 {
-	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
-	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
-	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_Mesh->SetSimulatePhysics(true);
-	_Mesh->CastShadow = true;
-	_Mesh->SetCustomDepthStencilValue(253);
-	SetRootComponent(_Mesh);
+	_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	SetUpMesh();
 
-	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction box"));
-	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	_InteractionVolume->SetupAttachment(RootComponent);
+	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
+	SetUpInteractionVolume();
 
-	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Zoom Camera"));
+	_ZoomCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomCamera"));
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
-	_ZoomCamera->SetAutoActivate(false);
+	_ZoomCamera->SetAutoActivate(true);
 
 	_CurrentGunState = EWeaponState::Idle;
 
@@ -56,6 +45,20 @@ AGun::AGun()
 
 	_BurstCount = 0;
 	_SalvoCount = 0;
+}
+
+
+void AGun::SetUpMesh()
+{
+	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	_Mesh->SetSimulatePhysics(true);
+	_Mesh->CastShadow = true;
+	_Mesh->SetCustomDepthStencilValue(253);
+	RootComponent = _Mesh;
 }
 
 
@@ -113,6 +116,11 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 	if (NewOwner)
 	{
 		NewOwner->SetEquippedWeapon(this);
+		SetCanBeInteractedWith_Implementation(false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
 }
 
@@ -125,6 +133,7 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 	{
 		DetachMeshFromPawn();
 		SetOwningPawn(nullptr);
+		SetCanBeInteractedWith_Implementation(true);
 	}
 	else
 	{
@@ -176,15 +185,12 @@ void AGun::OnFire()
 
 		if (_FireAnimation)
 		{
-			UAnimInstance* AnimInstance;
-			if (_MyOwner->IsPlayerControlled())
+			UAnimInstance* AnimInstance;			
+			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
 			{
-				AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-				if (AnimInstance)
-				{
-					AnimInstance->Montage_Play(_FireAnimation, 1.f);
-				}
-			}
+				AnimInstance->Montage_Play(_FireAnimation, 1.f);
+			}			
 		}
 
 		if (_MuzzleFlash && !_SpawnedMuzzleFlashComponent)
@@ -289,7 +295,7 @@ void AGun::AttachMeshToPawn()
 {
 	if (_MyOwner)
 	{
-		FName AttachPoint = _MyOwner->GetWeaponAttachPoint();
+		FName AttachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
 		if (_Mesh)
@@ -325,18 +331,41 @@ bool AGun::GetAmmoFromInventory()
 	{
 		return false;
 	}
-	return inventory->RemoveItemByClass(_GunStats.UsableMagazineClass);
+	
+	bool bHasMag = false;
+	if (_LoadedMagazine)
+	{
+		bHasMag = inventory->RemoveItem(_LoadedMagazine->GetItemStats(), 1.0f);
+	}
+	else
+	{
+		AMagazine* magObject = Cast<AMagazine>(_GunStats.UsableMagazineClass->GetDefaultObject(true));
+		bHasMag = inventory->RemoveItem(magObject->GetItemStats(), 1.0f);
+	}
+
+	return bHasMag;
 }
 
 
-bool AGun::CheckIfOwnerHasMagazine()
+bool AGun::CheckIfOwnerHasMagazine() const
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
 	if (inventory == nullptr)
 	{
 		return false;
 	}
-	return inventory->GetItemCountByClass(_GunStats.UsableMagazineClass);
+
+	if (_LoadedMagazine)
+	{
+		FItemStats& magStats = _LoadedMagazine->GetItemStats();
+		return inventory->HasItem(magStats);
+	}
+	else
+	{
+		AMagazine* magObject = Cast<AMagazine>(_GunStats.UsableMagazineClass->GetDefaultObject(true));
+		FItemStats& magStats = magObject->GetItemStats();
+		return inventory->HasItem(magStats);
+	}	
 }
 
 
@@ -402,6 +431,11 @@ void AGun::DropMagazine()
 
 	_LoadedMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	_LoadedMagazine->SetSimulatePhysics(true);
+	if (_LoadedMagazine->RoundsLeft() == _LoadedMagazine->GetCapacity())
+	{
+		_LoadedMagazine->SetCanBeInteractedWith_Implementation(true);
+	}
+
 	_LoadedMagazine = nullptr;
 }
 
@@ -448,16 +482,27 @@ void AGun::BeginPlay()
 	_CurrentFireModePointer = 0;
 
 	AMagazine* newMagazine = SpawnNewMagazine();
-	AttachMagazine(newMagazine);
+	if (newMagazine)
+	{
+		AttachMagazine(newMagazine);
+	}
 }
 
 
 /////////////////////////////////////////////////////
 AMagazine* AGun::SpawnNewMagazine()
 {
+	if (_GunStats.UsableMagazineClass == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("'UsableMagazineClass' for %s is not set!"), *GetName());
+		return nullptr;
+	}
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	AMagazine* newMag = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, GetActorLocation(), FRotator::ZeroRotator, spawnParams);
+	newMag->SetCanBeInteractedWith_Implementation(false);
+
+	return newMag;
 }
 
 

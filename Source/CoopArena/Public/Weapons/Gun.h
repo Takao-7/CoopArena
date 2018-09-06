@@ -37,26 +37,26 @@ struct FGunStats
 	* However, this value should NOT be <= 0.0f because then enemies will fire to quickly in single mode
 	* and player could abuse the single mode for rapid fire.
 	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float Cooldown;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadHorizontal;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadVertical;
 
 	/**
 	 * The maximum spread both, horizontal and vertical, the weapon will have.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float MaxSpread;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TArray<EFireMode> FireModes;
 
 	/* If the weapon supports Burst mode, how many shots are fired in that mode. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	int32 ShotsPerBurst;
 
 	/* The magazine type this gun can use. */
@@ -82,43 +82,14 @@ class COOPARENA_API AGun : public AItemBase
 	GENERATED_BODY()
 	
 protected:
-	/* The currently loaded magazine. */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AMagazine* _LoadedMagazine;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UBoxComponent* _InteractionVolume;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Gun Stats"))
 	FGunStats _GunStats;
-
-	/** Name of the bone or socket for the muzzle */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	FName _MuzzleAttachPoint;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USoundBase* _FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimMontage* _FireAnimation;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UAnimMontage* _ReloadAnimation;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UParticleSystem* _MuzzleFlash;
-
-	/* The spawned muzzle flash particle system */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
 
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	class UAnimInstance* _AnimInstance;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (DisplayName = "Zoom Camera"))
 	class UCameraComponent* _ZoomCamera;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
@@ -127,6 +98,63 @@ protected:
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AHumanoid* _MyOwner;
+
+	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
+	USkeletalMeshComponent* _Mesh;
+
+protected:
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	FVector GetForwardCameraVector() const;
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void AttachMeshToPawn();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void DetachMeshFromPawn();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void SetOwningPawn(AHumanoid* NewOwner);
+
+	virtual void BeginPlay() override;
+
+	void SetUpMesh();
+
+public:
+	AGun();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnEquip(AHumanoid* NewOwner);
+
+	/* Unequip the gun. 
+	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
+	 * otherwise it will be dropped.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnUnequip(bool DropGun = false);
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
+	
+	UMeshComponent* GetMesh() const override;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	UCameraComponent* GetZoomCamera() const;
+
+
+	/////////////////////////////////////////////////////
+					/* Interactable interface */
+	/////////////////////////////////////////////////////
+public:
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
+
+
+	/////////////////////////////////////////////////////
+					/* Firing */
+	/////////////////////////////////////////////////////
+protected:
+	/** Name of the bone or socket for the muzzle */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	FName _MuzzleAttachPoint;
 
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	EFireMode _CurrentFireMode;
@@ -147,10 +175,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	EWeaponState _CurrentGunState;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
-	USkeletalMeshComponent* _Mesh;
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	USoundBase* _FireSound;
 
-protected:
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	class UAnimMontage* _FireAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	class UParticleSystem* _MuzzleFlash;
+
+	/* The spawned muzzle flash particle system */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
+
 	/**
 	* Adjusts the aim based on lineTraceRange.
 	* Makes a line trace from startLocation forwards to StartLocation * lineTraceRange.
@@ -162,62 +201,30 @@ protected:
 	* @param direction The direction in which the line trace will go.
 	* @return RotatorIf a viable target was hit, then the target location, otherwise the StartLocation.
 	*/
-	FVector AdjustAimRotation(FVector startLocation, FVector direction);	
+	FVector AdjustAimRotation(FVector startLocation, FVector direction);
 
 	/** Function is called after the WeaponCooldownTimer is called and activated. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ContinousOnFire();
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	FVector GetForwardCameraVector() const;
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void AttachMeshToPawn();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void DetachMeshFromPawn();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SetOwningPawn(AHumanoid* NewOwner);
-
 	/* Checks if the weapon is able to fire in an automatic mode (= holding Fire button results in continuous fire) */
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	bool CanRapidFire() const;
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void FinishReloadWeapon();
-
-	virtual void BeginPlay() override;
-
-	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	AMagazine* SpawnNewMagazine();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool GetAmmoFromInventory();
-
-	/* 
-	 * Attaches a magazine to the gun at the correct location.
-	 * @param Magazine Must not be null.
-	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void AttachMagazine(AMagazine* Magazine);
-
-	/* Checks if this gun's owner has a suitable magazine in his inventory. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool CheckIfOwnerHasMagazine();
-
 public:
-	AGun();
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnFire();
 
-	/* IInteractable interface */
-	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
-	/* IInteractable interface end */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void OnStopFire();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	FVector ApplyWeaponSpread(FVector SpawnDirection);
 
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetRoundsPerMinute() const;
-	
+
 	/** Returns the muzzle sockets location in world space. */
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetMuzzleLocation() const;
@@ -226,48 +233,53 @@ public:
 	bool CanShoot() const;
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void OnEquip(AHumanoid* NewOwner);
-
-	/* Unequip the gun. 
-	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
-	 * otherwise it will be dropped.
-	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void OnUnequip(bool DropGun = false);
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void OnFire();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	FVector ApplyWeaponSpread(FVector SpawnDirection);
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void OnStopFire();
+	void ToggleFireMode();
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
-	/**
-	* Reloads the weapon.
-	*/
+	/////////////////////////////////////////////////////
+					/* Reloading */
+	/////////////////////////////////////////////////////
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UAnimMontage* _ReloadAnimation;
+
+	/* The currently loaded magazine. */
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	AMagazine* _LoadedMagazine;
+
+public:
+	/* Reloads the weapon */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ReloadWeapon();
 
 	/* Stops the reloading process by stop playing the reload animation. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void StopReloading();
+	
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void FinishReloadWeapon();
+
+	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	AMagazine* SpawnNewMagazine();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void ToggleFireMode();
+	bool GetAmmoFromInventory();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DropMagazine();
 
-	UMeshComponent* GetMesh() const override;
+	/*
+	 * Attaches a magazine to the gun at the correct location.
+	 * @param Magazine Must not be null.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void AttachMagazine(AMagazine* Magazine);
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	UCameraComponent* GetZoomCamera() const;
+	/* Checks if this gun's owner has a suitable magazine in his inventory. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	bool CheckIfOwnerHasMagazine() const;
 };
