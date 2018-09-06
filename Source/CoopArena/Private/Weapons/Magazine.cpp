@@ -10,7 +10,7 @@
 AMagazine::AMagazine()
 {
 	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	_Mesh->SetupAttachment(RootComponent);
+	RootComponent = _Mesh;
 
 	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	SetUpInteractionVolume();

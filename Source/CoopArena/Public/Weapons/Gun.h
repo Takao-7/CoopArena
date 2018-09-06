@@ -119,16 +119,11 @@ protected:
 
 	void SetUpMesh();
 
-	static void GetSpawnTransform(AHumanoid* NewOwner, FTransform& OutTransform);
-
 public:
 	AGun();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
-
-	UFUNCTION()
-	static AGun* SpawnGunAttached(AHumanoid* NewOwner, TSubclassOf<AGun> GunClass);
 
 	/* Unequip the gun. 
 	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
@@ -252,7 +247,7 @@ protected:
 	UAnimMontage* _ReloadAnimation;
 
 	/* The currently loaded magazine. */
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AMagazine* _LoadedMagazine;
 
 	/* Stops the reloading process by stop playing the reload animation. */
@@ -262,12 +257,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void FinishReloadWeapon();
 
-	/* Spawns a new magazine from the class that this weapon can use. Does NOT attach it to anything. */
+	/**
+	 * [Server] Spawns a new magazine from the class that this weapon can use.
+	 * Does NOT attach it to anything.
+	 */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	AMagazine* SpawnNewMagazine(const FTransform& SpawnTransform);
 
 	/**
-	 * Removes a magazine from the owner's inventory.
+	 * [Server] Removes a magazine from the owner's inventory.
 	 * @return True if the magazine was successfully removed, e.g. there was a magazine in the inventory.
 	 * Otherwise false.
 	 */
@@ -277,11 +275,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void DropMagazine();
 
-	/*
-	 * Attaches a magazine to the gun at the correct location.
-	 * @param Magazine Must not be null.
+	/**
+	 * Attaches the given magazine to the gun at the correct location on the gun.
 	 */
-	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AttachMagazine(AMagazine* Magazine);
 
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
@@ -322,11 +319,20 @@ public:
 					/* Networking */
 	/////////////////////////////////////////////////////
 private:
+	UPROPERTY(ReplicatedUsing = OnItemGrab)
+	AItemBase* m_ItemToGrab;
+
+	UPROPERTY(ReplicatedUsing = OnMagAttached)
+	AMagazine* m_MagToAttach;
+	
+	UFUNCTION()
+	void OnItemGrab();
+
+	UFUNCTION()
+	void OnMagAttached();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Reload();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_OnEquip(AHumanoid* NewOwner);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_OnStopFire();

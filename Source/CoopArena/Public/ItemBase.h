@@ -37,6 +37,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual FORCEINLINE UMeshComponent* GetMesh() const;
 
+	/* Function to call when this item is being dropped or spawned in the world without the intention to directly attach it to something. */
+	UFUNCTION(BlueprintCallable, Category = ItemBase)
+	void OnDrop();
+
 	/* Interactable interface */
 
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
@@ -47,7 +51,7 @@ public:
 
 	/* Interactable interface end */
 protected:
-	virtual void BeginPlay() override;	
+	virtual void BeginPlay() override;		
 
 	void SetUpInteractionVolume();
 
@@ -67,7 +71,4 @@ protected:
 private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_OnBeginInteract(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_SetSimulatePhysics(bool bSimulatePhysics);
 };

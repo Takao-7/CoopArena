@@ -115,57 +115,8 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 {
 	SetOwningPawn(NewOwner);
 	AttachMeshToPawn();
-	if (NewOwner)
-	{
-		NewOwner->SetEquippedWeapon(this);
-		SetCanBeInteractedWith_Implementation(false);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
-	}
-
-	//Multicast_OnEquip(NewOwner);
-}
-
-/////////////////////////////////////////////////////
-AGun* AGun::SpawnGunAttached(AHumanoid* NewOwner, TSubclassOf<AGun> GunClass)
-{
-	FTransform spawnTransform = FTransform();
-	AGun::GetSpawnTransform(NewOwner, spawnTransform);
-
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	AGun* newGun = NewOwner->GetWorld()->SpawnActor<AGun>(GunClass, spawnTransform, params);
-	newGun->OnEquip(NewOwner);
-
-	return newGun;
-}
-
-/////////////////////////////////////////////////////
-void AGun::GetSpawnTransform(AHumanoid* NewOwner, FTransform& OutTransform)
-{
-	FVector location;
-	FRotator rotation;
-	FName AttachPoint = NewOwner->GetEquippedWeaponAttachPoint();
-	NewOwner->GetMesh()->GetSocketWorldLocationAndRotation(AttachPoint, location, rotation);
-
-	OutTransform.SetLocation(location);
-	OutTransform.SetRotation(rotation.Quaternion());
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_OnEquip_Implementation(AHumanoid* NewOwner)
-{
-	SetOwningPawn(NewOwner);
-	AttachMeshToPawn();
-	if (NewOwner)
-	{
-		NewOwner->SetEquippedWeapon(this);
-		SetCanBeInteractedWith_Implementation(false);
-	}
-	else
+	IInteractable::Execute_SetCanBeInteractedWith(this, false);
+	if (NewOwner == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
@@ -233,7 +184,6 @@ void AGun::OnStopFire()
 	Multicast_HandleMuzzleFlash(false);
 }
 
-
 /////////////////////////////////////////////////////
 FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
 {
@@ -242,11 +192,10 @@ FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
 	return FMath::VRandCone(SpawnDirection, spreadHorizontal, spreadVertical);
 }
 
-
 /////////////////////////////////////////////////////
 void AGun::SetOwningPawn(AHumanoid* NewOwner)
 {
-	if (GetOwner() != NewOwner)
+	if(NewOwner != _MyOwner)
 	{
 		Instigator = NewOwner;
 		SetOwner(NewOwner);
@@ -254,14 +203,13 @@ void AGun::SetOwningPawn(AHumanoid* NewOwner)
 	}
 }
 
-
 /////////////////////////////////////////////////////
 bool AGun::CanRapidFire() const
 {
 	return (_GunStats.FireModes.Contains(EFireMode::Burst) || _GunStats.FireModes.Contains(EFireMode::Auto)) && GetCooldownTime() > 0.0f;
 }
 
-
+/////////////////////////////////////////////////////
 bool AGun::CanShoot() const
 {
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
@@ -270,7 +218,6 @@ bool AGun::CanShoot() const
 	bool bHasProjectileToSpawn = _GunStats.UsableMagazineClass;
 	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
-
 
 /////////////////////////////////////////////////////
 void AGun::AttachMeshToPawn()
@@ -353,14 +300,13 @@ bool AGun::CheckIfOwnerHasMagazine() const
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
 {
-	_MyOwner->GrabItem(_LoadedMagazine, true, FTransform());	
+	_MyOwner->GrabItem(_LoadedMagazine, true, FTransform());
+	_LoadedMagazine = nullptr;
 }
 
 void AGun::OnAnimNotify_DropMagazine()
 {
-	
-	DropMagazine();
-	
+	DropMagazine();	
 }
 
 void AGun::OnAnimNotify_CheckForAmmo()
@@ -388,26 +334,24 @@ void AGun::OnAnimNotify_SpawnNewMag()
 		UE_LOG(LogTemp, Error, TEXT("%s dosn't has any magazines in his inventory, but tried to spawn a new one!"), *GetOwner()->GetName());
 	}
 	
-	AMagazine* newMagazine = SpawnNewMagazine(_MyOwner->GetItemOffset());
-	_MyOwner->GrabItem(newMagazine, false, _MyOwner->GetItemOffset());
+	m_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
+	_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
+	UE_LOG(LogTemp, Warning, TEXT("(After spawning) Mag position: %s"), *m_ItemToGrab->GetActorLocation().ToCompactString());
 }
 
 void AGun::OnAnimNotify_AttachMagToGun()
 {
-	if (!HasAuthority())
+	AMagazine* magInHand = Cast<AMagazine>(_MyOwner->GetItemInHand());
+	if (HasAuthority())
 	{
-		return;
+		_MyOwner->Multicast_ClearItemInHand();
 	}
-	AMagazine* magazine = Cast<AMagazine>(_MyOwner->GetItemInHand());
-	AttachMagazine(magazine);
+	AttachMagazine(magInHand);	
 }
 
 void AGun::OnAnimNotify_FinishReloading()
 {
-	if (HasAuthority())
-	{
-		FinishReloadWeapon();
-	}
+	FinishReloadWeapon();	
 }
 
 /////////////////////////////////////////////////////
@@ -421,6 +365,27 @@ void AGun::Reload()
 	Server_Reload();
 }
 
+/////////////////////////////////////////////////////
+void AGun::OnItemGrab()
+{
+	if (m_ItemToGrab)
+	{
+		_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
+		UE_LOG(LogTemp, Warning, TEXT("(After attaching) Mag position: %s"), *m_ItemToGrab->GetActorLocation().ToCompactString());
+		_LoadedMagazine = nullptr;
+	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::OnMagAttached()
+{
+	if (m_MagToAttach)
+	{
+		AttachMagazine(m_MagToAttach);
+	}
+}
+
+/////////////////////////////////////////////////////
 void AGun::Server_Reload_Implementation()
 {
 	if (_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
@@ -450,7 +415,8 @@ void AGun::Server_Reload_Implementation()
 			if (bHasAmmo)
 			{
 				FTransform magazineLocation = GetMesh()->GetSocketTransform("Magazine");
-				_LoadedMagazine = SpawnNewMagazine(magazineLocation);
+				AMagazine* newMag = SpawnNewMagazine(magazineLocation);
+				AttachMagazine(newMag);
 			}
 			FinishReloadWeapon();
 		});
@@ -488,20 +454,19 @@ void AGun::Multicast_StopReloading_Implementation()
 /////////////////////////////////////////////////////
 void AGun::DropMagazine()
 {
-	if (_LoadedMagazine == nullptr)
+	AMagazine* magazineInHand = Cast<AMagazine>(_MyOwner->GetItemInHand());
+	if (magazineInHand == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s carried by %s tried to drop it's magazine without having one attached!"), *GetName(), *GetOwner()->GetName());
+		UE_LOG(LogTemp, Error, TEXT("%s carried by %s tried to drop it's magazine without having one in his hand!"), *GetName(), *GetOwner()->GetName());
 		return;
 	}
 
-	_LoadedMagazine->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	_LoadedMagazine->ShouldSimulatePhysics(true);
-	if (_LoadedMagazine->RoundsLeft() == _LoadedMagazine->GetCapacity())
-	{
-		_LoadedMagazine->SetCanBeInteractedWith_Implementation(true);
-	}
+	magazineInHand->OnDrop();
 
-	_LoadedMagazine = nullptr;
+	if (magazineInHand->RoundsLeft() < magazineInHand->GetCapacity())
+	{
+		IInteractable::Execute_SetCanBeInteractedWith(magazineInHand, false);
+	}
 }
 
 
@@ -548,12 +513,17 @@ void AGun::BeginPlay()
 
 	if(HasAuthority())
 	{
+		AHumanoid* humanoidOwner = Cast<AHumanoid>(GetInstigator());
+		if (humanoidOwner)
+		{
+			_MyOwner = humanoidOwner;
+		}
+		
 		FTransform spawnTransform = GetMesh()->GetSocketTransform("Magazine", RTS_World);
-		AMagazine* newMagazine = SpawnNewMagazine(spawnTransform);
-		AttachMagazine(newMagazine);
+		m_MagToAttach = SpawnNewMagazine(spawnTransform);
+		AttachMagazine(m_MagToAttach);
 	}
 }
-
 
 /////////////////////////////////////////////////////
 AMagazine* AGun::SpawnNewMagazine(const FTransform& SpawnTransform)
@@ -570,29 +540,19 @@ AMagazine* AGun::SpawnNewMagazine(const FTransform& SpawnTransform)
 	}
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	AMagazine* newMag = GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, SpawnTransform, params);
-
-	return newMag;
+	params.Owner = this;
+	params.Instigator = GetInstigator();
+	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, SpawnTransform, params);
 }
 
-
-void AGun::AttachMagazine_Implementation(AMagazine* Magazine)
-{
-	if (Magazine == nullptr)
-	{
-		return;
-	}
-	
-	Magazine->SetReplicateMovement(false);
-	
-	Magazine->SetCanBeInteractedWith_Implementation(false);
+/////////////////////////////////////////////////////
+void AGun::AttachMagazine(AMagazine* Magazine)
+{	
+	IInteractable::Execute_SetCanBeInteractedWith(Magazine, false);
 	Magazine->ShouldSimulatePhysics(false);
-	//UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
-	Magazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale/*, "Magazine"*/);
-	//UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *Magazine->GetActorLocation().ToCompactString());
+	Magazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale, "Magazine");
 	_LoadedMagazine = Magazine;
 }
-
 
 /////////////////////////////////////////////////////
 float AGun::GetCooldownTime() const
@@ -600,13 +560,13 @@ float AGun::GetCooldownTime() const
 	return _GunStats.Cooldown;
 }
 
-
+/////////////////////////////////////////////////////
 float AGun::GetRoundsPerMinute() const
 {
 	return 60.0f / GetCooldownTime();
 }
 
-
+/////////////////////////////////////////////////////
 FVector AGun::GetMuzzleLocation() const
 {
 	FVector VecMuzzleLocation;
@@ -619,7 +579,7 @@ FVector AGun::GetMuzzleLocation() const
 	return VecMuzzleLocation;
 }
 
-
+/////////////////////////////////////////////////////
 FVector AGun::GetForwardCameraVector() const
 {
 	if (_MyOwner->IsPlayerControlled())
@@ -644,7 +604,8 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGun, _MyOwner);
-	DOREPLIFETIME(AGun, _LoadedMagazine);
+	DOREPLIFETIME(AGun, m_ItemToGrab);
+	DOREPLIFETIME(AGun, m_MagToAttach);
 }
 
 /////////////////////////////////////////////////////

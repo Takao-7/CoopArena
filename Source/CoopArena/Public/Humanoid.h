@@ -115,7 +115,7 @@ public:
 	 * @param bKeepRelativeOffset Weather or not to keep the relative offset between the ActorToGrab and this actor.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset);
+	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, const FTransform& Offset);
 
 	/* Calculates and safes the offset between the currently held item and this character. */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -128,12 +128,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetUpDefaultEquipment();
 
+	/* Returns the item offset in local (relative to the 'HandLeft' socket, or world space. */
 	UFUNCTION()
-	FTransform& GetItemOffset() { return _ItemOffset; };
+	FTransform GetItemOffset(bool bInLocalSpace = true);
 
 	/* Returns the item currently held in the hand. */
 	UFUNCTION()
 	AItemBase* GetItemInHand() { return _ItemInHand; };
+
+	/* Sets the item in hand to nullptr, if it's not attached to this actor. */
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Humanoid)
+	void Multicast_ClearItemInHand();
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
@@ -157,7 +162,7 @@ public:
 	bool CanFire() const;
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetEquippedWeapon(AGun* weapon);
+	void SetEquippedWeapon(AGun* Weapon);
 
 	/* 
 	 * Use this function, when a component has to prevent this actor from firing his weapon.
@@ -174,6 +179,9 @@ public:
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
 	FHolsterWeapon_Signature HolsterWeapon_Event;
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -196,6 +204,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ChangeWeaponFireMode();
 
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void GetWeaponSpawnTransform(FTransform& OutTransform);
+
 	/** The tool or weapon that the character will start the game with */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
 	TSubclassOf<AGun> _DefaultGun;
@@ -212,7 +223,7 @@ protected:
 	UArrowComponent* _DroppedItemSpawnPoint;
 		
 	/* The characters currently held weapon */
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
+	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
 	AGun* _EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
@@ -231,6 +242,13 @@ private:
 						/* Networking */
 	/////////////////////////////////////////////////////
 protected:
+	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
+	UPROPERTY(ReplicatedUsing = OnWeaponEquip)
+	AGun* m_WeaponToEquip;
+
+	UFUNCTION()
+	void OnWeaponEquip();
+
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
 	void Server_SetSprinting(bool bSprint);
 

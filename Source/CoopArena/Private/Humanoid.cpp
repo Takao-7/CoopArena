@@ -285,12 +285,8 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
-void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
+void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset /*= true*/, const FTransform& Offset /*= FTransform()*/)
 {
-	/*if (!HasAuthority())
-	{
-		return;
-	}*/
 	EAttachmentRule attachmentRule;
 	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
 	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
@@ -364,10 +360,61 @@ void AHumanoid::SetUpDefaultEquipment()
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;
 	}
-	
-	_EquippedWeapon = AGun::SpawnGunAttached(this, _DefaultGun);
+
+	if(HasAuthority())
+	{
+		m_WeaponToEquip = SpawnWeapon(_DefaultGun);
+		OnWeaponEquip();
+	}
 }
 
+/////////////////////////////////////////////////////
+AGun* AHumanoid::SpawnWeapon(TSubclassOf<AGun> Class)
+{
+	FTransform spawnTransform = FTransform();
+	GetWeaponSpawnTransform(spawnTransform);
+
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	params.Owner = this;
+	params.Instigator = this;
+
+	return GetWorld()->SpawnActor<AGun>(Class, spawnTransform, params);
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::GetWeaponSpawnTransform(FTransform& OutTransform)
+{
+	FVector location;
+	FRotator rotation;
+	FName AttachPoint = GetEquippedWeaponAttachPoint();
+	GetMesh()->GetSocketWorldLocationAndRotation(AttachPoint, location, rotation);
+
+	OutTransform.SetLocation(location);
+	OutTransform.SetRotation(rotation.Quaternion());
+}
+
+/////////////////////////////////////////////////////
+FTransform AHumanoid::GetItemOffset(bool bInLocalSpace /*= true*/)
+{
+	FTransform offset = FTransform(_ItemOffset);
+	if (!bInLocalSpace)
+	{
+		const FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
+		offset.SetLocation(handTransform.TransformPosition(offset.GetLocation()));
+		offset.SetRotation(handTransform.TransformRotation(offset.GetRotation()));
+	}
+	return offset;
+}
+
+
+void AHumanoid::Multicast_ClearItemInHand_Implementation()
+{
+	if (_ItemInHand && !_ItemInHand->IsAttachedTo(this))
+	{
+		_ItemInHand = nullptr;
+	}
+}
 
 /////////////////////////////////////////////////////
 					/* Networking */
@@ -378,7 +425,8 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME(AHumanoid, bIsSprinting);
 	DOREPLIFETIME(AHumanoid, bIsAiming);
-	DOREPLIFETIME(AHumanoid, _EquippedWeapon);
+	DOREPLIFETIME(AHumanoid, bIsProne);
+	DOREPLIFETIME(AHumanoid, m_WeaponToEquip);
 }
 
 /////////////////////////////////////////////////////
@@ -405,6 +453,16 @@ void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
 bool AHumanoid::Server_SetSprinting_Validate(bool bSprint)
 {
 	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::OnWeaponEquip()
+{
+	if(m_WeaponToEquip)
+	{
+		SetEquippedWeapon(m_WeaponToEquip);
+		_EquippedWeapon->OnEquip(this);
+	}
 }
 
 /////////////////////////////////////////////////////

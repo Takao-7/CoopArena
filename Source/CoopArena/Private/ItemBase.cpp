@@ -12,16 +12,31 @@
 AItemBase::AItemBase()
 {
 	SetReplicates(true);
-	SetReplicateMovement(true);
 	bNetUseOwnerRelevancy = true;
+	ShouldSimulatePhysics(false);
+	IInteractable::Execute_SetCanBeInteractedWith(this, true);
 }
 
 /////////////////////////////////////////////////////
 void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
 {
-	if (HasAuthority())
+	if (GetMesh())
 	{
-		Multicast_SetSimulatePhysics(bSimulatePhysics);
+		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
+		if (bSimulatePhysics)
+		{
+			SetReplicateMovement(true);
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		}
+		else
+		{
+			SetReplicateMovement(false);
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
 	}
 }
 
@@ -98,6 +113,25 @@ void AItemBase::BeginPlay()
 	{
 		GetMesh()->SetCustomDepthStencilValue(253);
 	}
+
+	if (GetOwner() == nullptr)
+	{
+		OnDrop();
+	}
+}
+
+/////////////////////////////////////////////////////
+void AItemBase::OnDrop()
+{
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	ShouldSimulatePhysics(true);
+	IInteractable::Execute_SetCanBeInteractedWith(this, true);
+
+	if (HasAuthority())
+	{
+		SetReplicateMovement(true);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -127,24 +161,4 @@ void AItemBase::Server_OnBeginInteract_Implementation(APawn* InteractingPawn, UP
 bool AItemBase::Server_OnBeginInteract_Validate(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	return _InteractionVolume->GetCollisionResponseToChannel(ECC_Interactable) == ECR_Block;
-}
-
-void AItemBase::Multicast_SetSimulatePhysics_Implementation(bool bSimulatePhysics)
-{
-	if (GetMesh())
-	{
-		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
-		if (bSimulatePhysics)
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		}
-		else
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
-	}
 }
