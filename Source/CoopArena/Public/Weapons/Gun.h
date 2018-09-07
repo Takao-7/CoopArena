@@ -96,7 +96,7 @@ protected:
 	bool _bCanShoot;	
 
 	/* The pawn that currently owns and carries this weapon */
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = Weapon)
 	AHumanoid* _MyOwner;
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
@@ -331,6 +331,9 @@ private:
 	UFUNCTION()
 	void OnMagAttached();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_RepMyOwner(AHumanoid* NewOwner);
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Reload();
 
@@ -338,7 +341,7 @@ private:
 	void Server_OnStopFire();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_OnFire();
+	void Server_OnFire(EFireMode FireMode, FTransform SpawnTransform);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayReloadAnimation();
@@ -352,4 +355,8 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayFireSound();
+
+public:
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_OnUnequip(bool bDropGun);
 };

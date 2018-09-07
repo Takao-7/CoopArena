@@ -74,19 +74,22 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = character->GetEquippedGun();
 		if (equippedGun)
 		{
-			equippedGun->OnUnequip(true);
-			FTimerHandle timerHandle;
+			equippedGun->Multicast_OnUnequip(true);
+
 			FTimerDelegate timerDelegate;
-			timerDelegate.BindUFunction(this, FName("OnEquip"), character);
+			FTimerHandle timerHandle;
+			timerDelegate.BindLambda([this, character]
+			{
+				character->SetWeaponToEquip(this);
+			});
 			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
 		}
 		else
 		{
-			OnEquip(character);
+			character->SetWeaponToEquip(this);
 		}
 	}
 }
-
 
 /////////////////////////////////////////////////////
 FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
@@ -132,11 +135,19 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 		DetachMeshFromPawn();
 		SetOwningPawn(nullptr);
 		SetCanBeInteractedWith_Implementation(true);
+		if (HasAuthority())
+		{
+			SetReplicateMovement(true);
+		}
 	}
 	else
 	{
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		if (HasAuthority())
+		{
+			SetReplicateMovement(false);
+		}
 	}
 }
 
@@ -144,7 +155,35 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 /////////////////////////////////////////////////////
 void AGun::OnFire()
 {
-	Server_OnFire();
+	if (CanShoot())
+	{
+		_CurrentGunState = EWeaponState::Firing;
+		FVector traceStartLocation;
+		if (_MyOwner->IsPlayerControlled())
+		{
+			traceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetCameraLocation();
+		}
+		else
+		{
+			traceStartLocation = GetMuzzleLocation();
+		}
+
+		FVector lineTraceDirection = GetForwardCameraVector();
+		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
+		SpawnDirection = ApplyWeaponSpread(SpawnDirection);
+		FVector SpawnLocation = GetMuzzleLocation();
+		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
+		Server_OnFire(_CurrentFireMode, SpawnTransform);
+
+		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
+		{
+			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
+		}
+	}
+	else
+	{
+		OnStopFire();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -181,7 +220,7 @@ void AGun::OnStopFire()
 {
 	_CurrentGunState = EWeaponState::Idle;
 	_SalvoCount = 0;
-	Multicast_HandleMuzzleFlash(false);
+	Server_OnStopFire();
 }
 
 /////////////////////////////////////////////////////
@@ -300,7 +339,7 @@ bool AGun::CheckIfOwnerHasMagazine() const
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
 {
-	_MyOwner->GrabItem(_LoadedMagazine, true, FTransform());
+	_MyOwner->GrabItem(_LoadedMagazine, true);
 	_LoadedMagazine = nullptr;
 }
 
@@ -332,12 +371,11 @@ void AGun::OnAnimNotify_SpawnNewMag()
 	if (!bHasAmmo)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s dosn't has any magazines in his inventory, but tried to spawn a new one!"), *GetOwner()->GetName());
+		return;
 	}
 	
 	m_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
-	UE_LOG(LogTemp, Warning, TEXT("(After spawning) Mag position: %s"), *m_ItemToGrab->GetActorLocation().ToCompactString());
 	OnItemGrab();
-	//_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
 }
 
 void AGun::OnAnimNotify_AttachMagToGun()
@@ -371,9 +409,7 @@ void AGun::OnItemGrab()
 {
 	if (m_ItemToGrab)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("[%s](Before attaching OnItemGrab()) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *m_ItemToGrab->GetActorLocation().ToCompactString());
-		_MyOwner->GrabItem(m_ItemToGrab, true, FTransform());
-		//UE_LOG(LogTemp, Warning, TEXT("[%s](After attaching OnItemGrab()) Mag position: %s"), HasAuthority() ? *FString("Server") : *FString("Client"), *m_ItemToGrab->GetActorLocation().ToCompactString());
+		_MyOwner->GrabItem(m_ItemToGrab, true);
 		_LoadedMagazine = nullptr;
 	}
 }
@@ -385,6 +421,12 @@ void AGun::OnMagAttached()
 	{
 		AttachMagazine(m_MagToAttach);
 	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::Multicast_OnUnequip_Implementation(bool bDropGun)
+{
+	OnUnequip(true);
 }
 
 /////////////////////////////////////////////////////
@@ -518,7 +560,7 @@ void AGun::BeginPlay()
 		AHumanoid* humanoidOwner = Cast<AHumanoid>(GetInstigator());
 		if (humanoidOwner)
 		{
-			_MyOwner = humanoidOwner;
+			Multicast_RepMyOwner(humanoidOwner);
 		}
 		
 		FTransform spawnTransform = GetMesh()->GetSocketTransform("Magazine", RTS_World);
@@ -605,7 +647,6 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AGun, _MyOwner);
 	DOREPLIFETIME(AGun, m_ItemToGrab);
 	DOREPLIFETIME(AGun, m_MagToAttach);
 }
@@ -613,7 +654,9 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 /////////////////////////////////////////////////////
 void AGun::Server_OnStopFire_Implementation()
 {
-	
+	_CurrentGunState = EWeaponState::Idle;
+	_SalvoCount = 0;
+	Multicast_HandleMuzzleFlash(false);
 }
 
 /////////////////////////////////////////////////////
@@ -623,56 +666,44 @@ bool AGun::Server_OnStopFire_Validate()
 }
 
 /////////////////////////////////////////////////////
-void AGun::Server_OnFire_Implementation()
+void AGun::Multicast_RepMyOwner_Implementation(AHumanoid* NewOwner)
+{
+	_MyOwner = NewOwner;
+}
+
+/////////////////////////////////////////////////////
+void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTransform)
 {
 	if (CanShoot())
 	{
-		_CurrentGunState = EWeaponState::Firing;
-		FVector traceStartLocation;
-		if (_MyOwner->IsPlayerControlled())
-		{
-			traceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetCameraLocation();
-		}
-		else
-		{
-			traceStartLocation = GetMuzzleLocation();
-		}
-
-		FVector lineTraceDirection = GetForwardCameraVector();
-		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
-		SpawnDirection = ApplyWeaponSpread(SpawnDirection);
-		FVector SpawnLocation = GetMuzzleLocation();
-		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
-
+		_CurrentFireMode = FireMode;
+	
 		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
+		FActorSpawnParameters params;
+		params.Owner = GetOwner();
+		params.Instigator = GetInstigator();
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-		AProjectile* projectile = GetWorld()->SpawnActorDeferred<AProjectile>(projectileClass, SpawnTransform, GetOwner(), _MyOwner, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnTransform, params);
 		if (!projectile)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
-		projectile->FinishSpawning(SpawnTransform);
 		_LoadedMagazine->RemoveRound();
 
-		MakeNoise(1.0f, _MyOwner, SpawnLocation);
+		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());
 		Multicast_PlayFireSound();
 		Multicast_PlayFireAnimation();
 		Multicast_HandleMuzzleFlash(true);
-
-		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
-		{
-			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
-		}
 	}
 	else
 	{
-		OnStopFire();
-	}
+		Server_OnStopFire();
+	}	
 }
 
-/////////////////////////////////////////////////////
-bool AGun::Server_OnFire_Validate()
+bool AGun::Server_OnFire_Validate(EFireMode FireMode, FTransform SpawnTransform)
 {
 	return true;
 }

@@ -82,7 +82,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	bool bToggleCrouching;
 
-	UPROPERTY(ReplicatedUsing=OnRep_bIsSprining, BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
 	bool bIsSprinting;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
@@ -115,7 +115,7 @@ public:
 	 * @param bKeepRelativeOffset Weather or not to keep the relative offset between the ActorToGrab and this actor.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, const FTransform& Offset);
+	void GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset);
 
 	/* Calculates and safes the offset between the currently held item and this character. */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -241,13 +241,18 @@ private:
 	/////////////////////////////////////////////////////
 						/* Networking */
 	/////////////////////////////////////////////////////
-protected:
-	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
-	UPROPERTY(ReplicatedUsing = OnWeaponEquip)
-	AGun* m_WeaponToEquip;
+public:
+	/* [Server] Sets _WeaponToEquip and will trigger the replication function OnWeaponEquip. */
+	UFUNCTION(BlueprintCallable, Category = AHumanoid)
+	void SetWeaponToEquip(AGun* Weapon);
 
 	UFUNCTION()
 	void OnWeaponEquip();
+
+protected:
+	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
+	UPROPERTY(ReplicatedUsing = OnWeaponEquip)
+	AGun* _WeaponToEquip;
 
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
 	void Server_SetSprinting(bool bSprint);

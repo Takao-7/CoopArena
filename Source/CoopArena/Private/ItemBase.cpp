@@ -14,6 +14,13 @@ AItemBase::AItemBase()
 	SetReplicates(true);
 	SetReplicateMovement(false);
 	bNetUseOwnerRelevancy = true;
+
+
+	_collisionChannels.Visibility = ECR_Block;
+	_collisionChannels.Camera = ECR_Block;
+	_collisionChannels.GameTraceChannel1 = ECR_Ignore;	// Projectile
+	_collisionChannels.GameTraceChannel2 = ECR_Block;	// Interactable
+	_collisionChannels.GameTraceChannel3 = ECR_Ignore;	// Projectile penetration
 }
 
 /////////////////////////////////////////////////////
@@ -24,18 +31,10 @@ void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
 		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
 		if (bSimulatePhysics)
 		{
-			if (HasAuthority())
-			{
-				SetReplicateMovement(true);
-			}
 			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 		else
 		{
-			if (HasAuthority())
-			{
-				SetReplicateMovement(false);
-			}
 			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
@@ -66,7 +65,17 @@ UMeshComponent* AItemBase::GetMesh() const
 /////////////////////////////////////////////////////
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	Server_OnBeginInteract(InteractingPawn, HitComponent);
+	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
+	if (inventory == nullptr)
+	{
+		return;
+	}
+
+	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
+	if (bItemSuccessfullyAdded)
+	{
+		Destroy();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -117,11 +126,17 @@ void AItemBase::BeginPlay()
 	if (GetMesh())
 	{
 		GetMesh()->SetCustomDepthStencilValue(253);
+		GetMesh()->SetCollisionResponseToChannels(_collisionChannels);
 	}
 
 	if (GetOwner() == nullptr)
 	{
 		OnDrop();
+	}
+	else
+	{
+		ShouldSimulatePhysics(false);
+		IInteractable::Execute_SetCanBeInteractedWith(this, false);
 	}
 }
 
@@ -133,8 +148,11 @@ void AItemBase::OnDrop()
 	ShouldSimulatePhysics(true);
 	IInteractable::Execute_SetCanBeInteractedWith(this, true);
 
+	SetOwner(nullptr);
+
 	if (HasAuthority())
 	{
+		SetReplicates(true);
 		SetReplicateMovement(true);
 	}
 }
@@ -146,24 +164,4 @@ void AItemBase::SetUpInteractionVolume()
 	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	_InteractionVolume->SetupAttachment(RootComponent);
-}
-
-
-/////////////////////////////////////////////////////
-					/* Networking */
-/////////////////////////////////////////////////////
-void AItemBase::Server_OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
-{
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
-
-	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
-	if (bItemSuccessfullyAdded)
-	{
-		Destroy();
-	}
-}
-
-bool AItemBase::Server_OnBeginInteract_Validate(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
-{
-	return _InteractionVolume->GetCollisionResponseToChannel(ECC_Interactable) == ECR_Block;
 }

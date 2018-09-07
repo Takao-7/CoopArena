@@ -64,11 +64,5 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
 	UShapeComponent* _InteractionVolume;
 
-
-	/////////////////////////////////////////////////////
-					/* Networking */
-	/////////////////////////////////////////////////////
-private:
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_OnBeginInteract(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+	FCollisionResponseContainer _collisionChannels;
 };

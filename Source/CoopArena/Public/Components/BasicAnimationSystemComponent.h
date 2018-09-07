@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "Structs/BASVariables.h"
 #include "Interfaces/BAS_Interface.h"
-#include "UnrealNetwork.h"
 #include "BasicAnimationSystemComponent.generated.h"
 
 
@@ -67,7 +66,6 @@ protected:
 	float _BrakingDecleration;	
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;	
 
 	UFUNCTION(Server, Unreliable, WithValidation)

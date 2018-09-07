@@ -44,7 +44,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() && InputEnabled())
 	{
 		CheckForInteractables();
 	}
@@ -157,7 +157,6 @@ void APlayerCharacter::OnSprintPressed()
 	}
 	else if (!bIsSprinting)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Start sprinting!"));
 		SetSprinting(true);
 	}
 }
@@ -216,7 +215,7 @@ void APlayerCharacter::OnBeginInteracting()
 {
 	if (_InteractableInFocus)
 	{
-		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);
+		Server_OnBeginInteracting(_ActorInFocus, _ComponentInFocus);
 	}
 }
 
@@ -285,14 +284,36 @@ FVector APlayerCharacter::GetCameraLocation() const
 	}
 }
 
-
+/////////////////////////////////////////////////////
 UCameraComponent* APlayerCharacter::GetActiveCamera() const
 {
 	return _FirstPersonCamera->IsActive() ? _FirstPersonCamera : _ThirdPersonCamera;
 }
 
-
+/////////////////////////////////////////////////////
 const FHitResult& APlayerCharacter::GetInteractionLineTraceHitResult() const
 {
 	return _InteractionHitResult;
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::Server_OnBeginInteracting_Implementation(AActor* ActorInFocus, UPrimitiveComponent* ComponentInFocus)
+{
+	IInteractable::Execute_OnBeginInteract(ActorInFocus, this, ComponentInFocus);
+}
+
+bool APlayerCharacter::Server_OnBeginInteracting_Validate(AActor* ActorInFocus, UPrimitiveComponent* ComponentInFocus)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::Server_OnEndInteracting_Implementation(AActor* ActorInFocus)
+{
+	IInteractable::Execute_OnEndInteract(ActorInFocus, this);
+}
+
+bool APlayerCharacter::Server_OnEndInteracting_Validate(AActor* ActorInFocus)
+{
+	return true;
 }
