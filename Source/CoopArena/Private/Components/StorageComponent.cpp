@@ -2,6 +2,12 @@
 
 #include "StorageComponent.h"
 #include "ItemBase.h"
+<<<<<<< HEAD
+=======
+#include "UnrealNetwork.h"
+#include "Engine/NetDriver.h"
+#include "Net/RepLayout.h"
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 
 UStorageComponent::UStorageComponent()
@@ -41,7 +47,11 @@ int32 UStorageComponent::ChangeItemStack(FItemStats& Item, int32 AmountToChange)
 	}	
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 bool UStorageComponent::AddItem(FItemStats& ItemToAdd, int32 Amount)
 {
 	bool bCorrectAmountValue = Amount > 0;
@@ -109,7 +119,11 @@ bool UStorageComponent::CheckCapacity(float VolumeToAdd)
 	return true;
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 bool UStorageComponent::CheckWeight(float WeightToAdd)
 {
 	if (_WeightLimit != -1)
@@ -124,7 +138,11 @@ bool UStorageComponent::CheckWeight(float WeightToAdd)
 	return true;
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 bool UStorageComponent::HasItem(FItemStats& Item)
 {
 	bool bHasItem = false;
@@ -132,7 +150,11 @@ bool UStorageComponent::HasItem(FItemStats& Item)
 	return bHasItem;
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UStorageComponent::CheckWeightLimitAndCapacity() const
 {
 	bool bCorrectSetWeightLimit = _WeightLimit == -1 || _WeightLimit >= 0;
@@ -160,13 +182,21 @@ int32 UStorageComponent::GetItemStackSize(FName ItemName)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 TArray<FItemStack> UStorageComponent::GetStorageCopy() const
 {
 	return _StoredItems;
 }
 
+<<<<<<< HEAD
 
+=======
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 FItemStack* UStorageComponent::FindItem(FName ItemName)
 {
 	FItemStack* foundStack = _StoredItems.FindByPredicate([ItemName](FItemStack stack) {return stack.item.name == ItemName; });
@@ -186,6 +216,7 @@ void UStorageComponent::PrintInventory()
 	}
 }
 
+<<<<<<< HEAD
 
 void UStorageComponent::BeginPlay()
 {
@@ -195,6 +226,31 @@ void UStorageComponent::BeginPlay()
 }
 
 
+=======
+/////////////////////////////////////////////////////
+void UStorageComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if(GetOwner()->HasAuthority())
+	{
+		CheckWeightLimitAndCapacity();
+		AddStartingItems();
+
+		//if (GetOwner()->GetInstigator() == nullptr)
+		//{
+		//	// We are not attached to a pawn, so we are a container and will replicate our stored items to everyone.
+		//	UNetDriver* netDriver = GetOwner()->GetNetDriver();
+		//	if (netDriver)
+		//	{
+		//		netDriver->FindOrCreateRepChangedPropertyTracker(this).Get()->SetCustomIsActiveOverride(COND_Max, true);
+		//	}
+		//}
+	}
+}
+
+/////////////////////////////////////////////////////
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UStorageComponent::AddStartingItems()
 {
 	if (_ItemsToSpawnWith.Num() > 0)
@@ -209,4 +265,18 @@ void UStorageComponent::AddStartingItems()
 			AddItem(stats, amount);
 		}
 	}
+<<<<<<< HEAD
+=======
+}
+
+
+/////////////////////////////////////////////////////
+				/* Networking */
+/////////////////////////////////////////////////////
+void UStorageComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UStorageComponent, _StoredItems, COND_Custom);
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }

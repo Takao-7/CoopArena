@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////
 APlayerCharacter::APlayerCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	_InteractionRange = 200.0f;
 	_InteractableInFocus = nullptr;
 
@@ -37,13 +39,15 @@ APlayerCharacter::APlayerCharacter()
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
 }
 
-
 /////////////////////////////////////////////////////
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckForInteractables();
+	if (IsLocallyControlled() && InputEnabled())
+	{
+		CheckForInteractables();
+	}
 }
 
 
@@ -83,12 +87,15 @@ void APlayerCharacter::CheckForInteractables()
 void APlayerCharacter::OnEquipWeapon()
 {
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
+<<<<<<< HEAD
 	
 	/*AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
 	if (GunInFocus && !_EquippedWeapon)
 	{
 		GunInFocus->OnEquip(this);
 	}*/	
+=======
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 
@@ -157,6 +164,7 @@ void APlayerCharacter::OnSprintPressed()
 	{
 		SetSprinting(!bIsSprinting);
 	}
+<<<<<<< HEAD
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
@@ -193,10 +201,46 @@ void APlayerCharacter::OnCrouchReleased()
 	if (!bToggleCrouching)
 	{
 		UnCrouch();
+=======
+	else if (!bIsSprinting)
+	{
+		SetSprinting(true);
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	}
 }
 
 
+void APlayerCharacter::OnSprintReleased()
+{
+	if (!bToggleSprinting)
+	{
+		SetSprinting(false);
+	}
+}
+
+
+void APlayerCharacter::OnCrouchPressed()
+{
+	if (bToggleCrouching)
+	{
+		SetCrouch(!bIsCrouched);
+	}
+	else
+	{
+		Crouch();
+	}
+}
+
+
+void APlayerCharacter::OnCrouchReleased()
+{
+	if (!bToggleCrouching)
+	{
+		UnCrouch();
+	}
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::ToggleAiming()
 {
 	if (bIsAiming)
@@ -214,13 +258,12 @@ void APlayerCharacter::ToggleAiming()
 	}
 }
 
-
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
 	if (_InteractableInFocus)
 	{
-		IInteractable::Execute_OnBeginInteract(_ActorInFocus, this, _ComponentInFocus);
+		Server_OnBeginInteracting(_ActorInFocus, _ComponentInFocus);
 	}
 }
 
@@ -240,7 +283,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::ToggleJump);
@@ -290,14 +332,36 @@ FVector APlayerCharacter::GetCameraLocation() const
 	}
 }
 
-
+/////////////////////////////////////////////////////
 UCameraComponent* APlayerCharacter::GetActiveCamera() const
 {
 	return _FirstPersonCamera->IsActive() ? _FirstPersonCamera : _ThirdPersonCamera;
 }
 
-
+/////////////////////////////////////////////////////
 const FHitResult& APlayerCharacter::GetInteractionLineTraceHitResult() const
 {
 	return _InteractionHitResult;
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::Server_OnBeginInteracting_Implementation(AActor* ActorInFocus, UPrimitiveComponent* ComponentInFocus)
+{
+	IInteractable::Execute_OnBeginInteract(ActorInFocus, this, ComponentInFocus);
+}
+
+bool APlayerCharacter::Server_OnBeginInteracting_Validate(AActor* ActorInFocus, UPrimitiveComponent* ComponentInFocus)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::Server_OnEndInteracting_Implementation(AActor* ActorInFocus)
+{
+	IInteractable::Execute_OnEndInteract(ActorInFocus, this);
+}
+
+bool APlayerCharacter::Server_OnEndInteracting_Validate(AActor* ActorInFocus)
+{
+	return true;
 }

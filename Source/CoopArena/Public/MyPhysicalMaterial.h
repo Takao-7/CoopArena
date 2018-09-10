@@ -16,24 +16,38 @@ class COOPARENA_API UMyPhysicalMaterial : public UPhysicalMaterial
 {
 	GENERATED_BODY()
 
+<<<<<<< HEAD
 public:
 	UMyPhysicalMaterial();
 
 protected:
+=======
+private:
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	/* Rolled homogeneous amour equivalent against kinetic damage. Comparison factor for how well this material can protect from kinetic damage in comparison to steel.
 	 * A value of 1 would mean that this material is equivalent to steel. A value of 0.5 means, that this material is only half as good as steel
 	 * (e.g. you would need 2 mm of this material to achieve the same protection level against kinetic damage than 1 mm of steel).
 	 */
+<<<<<<< HEAD
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance")
 	float RHA_Kinetic;
 
 	/* Rolled homogeneous amour equivalent against explosive damage. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance")
 	float RHA_Explosive;
+=======
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Kinetic"))
+	float m_RHA_Kinetic;
+
+	/* Rolled homogeneous amour equivalent against explosive damage. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Explosive"))
+	float m_RHA_Explosive;
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	/* The physical thickness of this amour. Use ONLY if the amour and the body are NOT separate components.
 	 * Set to 0 if this is material is on a mesh that is NOT the actual body of a person (e.g. the scenery, etc.).
 	 */
+<<<<<<< HEAD
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance")
 	float Thickness;
 
@@ -50,6 +64,26 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Damage Resistance")
 	FORCEINLINE float GetDamageMod() { return DamageMod; };
+=======
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "Thickness"))
+	float m_Thickness;
+
+	/* Base damage modification. All incoming damage will be modified by this value. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta	= (DisplayName = "Damage modification"))
+	float m_DamageModification;
+
+public:
+	UMyPhysicalMaterial();
+
+	UFUNCTION(BlueprintPure, Category = "Damage Resistance")
+	FORCEINLINE float GetRHA_Kinetic() { return m_RHA_Kinetic; };
+
+	UFUNCTION(BlueprintPure, Category = "Damage Resistance")
+	FORCEINLINE float GetRHA_Explosive() { return m_RHA_Explosive; };
+
+	UFUNCTION(BlueprintPure, Category = "Damage Resistance")
+	FORCEINLINE float GetDamageMod() { return m_DamageModification; };
+>>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	/* 
 	 * Calculates the effective thickness of this armor (or object).
