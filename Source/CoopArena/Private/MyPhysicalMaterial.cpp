@@ -7,18 +7,18 @@
 
 UMyPhysicalMaterial::UMyPhysicalMaterial()
 {
-	RHA_Kinetic = 1.0f;
-	RHA_Explosive = 1.0f;
-	Thickness = 0.0f;
-	DamageMod = 1.0f;
+	m_RHA_Kinetic = 1.0f;
+	m_RHA_Explosive = 1.0f;
+	m_Thickness = 0.0f;
+	m_DamageModification = 1.0f;
 }
 
 
 float UMyPhysicalMaterial::GetAmourThickness(FVector ImpactPoint, FVector Direction, float RayLength /*= 500.0f*/)
 {
-	if (Thickness != 0.0f)
+	if (m_Thickness != 0.0f)
 	{
-		return Thickness;
+		return m_Thickness;
 	}
 	
 	TArray<FHitResult> hitResults;

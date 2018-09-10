@@ -8,8 +8,10 @@
 #include "Interfaces/BAS_Interface.h"
 #include "BasicAnimationSystemComponent.generated.h"
 
+
 class UCharacterMovementComponent;
 class IBAS_Interface;
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent, public IBAS_Interface
@@ -21,7 +23,9 @@ private:
 	UCharacterMovementComponent* _MovementComponent;
 
 	/* Relevant calculated variables from the actor. */
+	UPROPERTY(Replicated)
 	FBASVariables _variables;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _IdleTurnAngleThreshold;
@@ -62,8 +66,10 @@ protected:
 	float _BrakingDecleration;	
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;	
+
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void Server_ReplicateVariables(FBASVariables Variables);
 
 public:	
 	UBasicAnimationSystemComponent();
@@ -83,12 +89,11 @@ public:
 	/* End BAS Interface */
 
 private:
-	void SetInputDirection();
+	void SetMovementDirection();
 	void SetHorizontalVelocity();
 	void SetMovementType();
 	void SetIsMovingForward();
 	void SetAimPitch();
-	void SetYawActor();
 
 	void SetUseControlRotationYawOnCharacter();
 	void SetMovementComponentValues();

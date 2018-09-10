@@ -4,6 +4,8 @@
 #include "Interfaces/BAS_Interface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerCharacter.h"
+#include "Engine/World.h"
+#include "UnrealNetwork.h"
 
 
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
@@ -27,61 +29,73 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	_variables.MovementType = EMovementType::Idle;
 	_variables.MovementAdditive = EMovementAdditive::None;
 	_variables.EquippedWeaponType = EWEaponType::None;
-}
 
+	bReplicates = true;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
-	if (_BASInterface == nullptr)
+	bool bOwnerIsLocallyControlled = GetOwner()->GetInstigator() && GetOwner()->GetInstigator()->IsLocallyControlled();
+	if(bOwnerIsLocallyControlled)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
-		PrimaryComponentTick.SetTickFunctionEnable(false);
+		IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
+		if (_BASInterface == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
+			PrimaryComponentTick.SetTickFunctionEnable(false);
+		}
+		else
+		{
+			SetMovementComponentValues();
+			SetUseControlRotationYawOnCharacter();
+		}
 	}
 	else
 	{
-		SetMovementComponentValues();
-		SetUseControlRotationYawOnCharacter();
+		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetInputDirection();
+	SetMovementDirection();
 	SetHorizontalVelocity();
 	SetMovementType();
 	SetIsMovingForward();
 	SetAimPitch();
 	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
+
+	Server_ReplicateVariables(_variables);
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetInputDirection()
+void UBasicAnimationSystemComponent::SetMovementDirection()
 {
-	FVector inputVector = GetOwner()->GetInstigator()->GetLastMovementInputVector();
-	if (inputVector.Size() == 0.0f)	// Only set input direction if we are moving.
+	FVector velocity = GetOwner()->GetVelocity();
+	FTransform actorTransform = GetOwner()->GetActorTransform();
+
+	if (FMath::IsNearlyZero(velocity.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
 	}
 
-	FRotator inputRotator = inputVector.ToOrientationRotator();
+	FRotator inputRotator = velocity.ToOrientationRotator();
 	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
 	FRotator deltaRotation = inputRotator - controlRotation;
 	deltaRotation.Normalize();
+	//UE_LOG(LogTemp, Warning, TEXT("Input: %s | Control: %s | Delta: %s"), *inputRotator.ToCompactString(), *controlRotation.ToCompactString(), *deltaRotation.ToCompactString());
 
 	_variables.LastInputDirection = _variables.InputDirection;
 	_variables.InputDirection = deltaRotation.Yaw;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 {
 	FVector velocityVector = GetOwner()->GetVelocity();
@@ -90,14 +104,14 @@ void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 	_variables.HorizontalVelocity = velocityVector.Size();
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementType()
 {
 	_variables.MovementType = IBAS_Interface::Execute_GetMovementType(GetOwner());
 	_variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
 	FVector inputVectorLocalSpace = GetMovementInputVectorLocalSpace();
@@ -128,7 +142,7 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 	_variables.bWasMovingForward = _variables.bIsMovingForward;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimPitch()
 {
 	float controlPitch = GetOwner()->GetInstigator()->GetControlRotation().Pitch;
@@ -138,7 +152,6 @@ void UBasicAnimationSystemComponent::SetAimPitch()
 	}
 	_variables.AimPitch = controlPitch;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetUseControlRotationYawOnCharacter()
@@ -157,7 +170,7 @@ void UBasicAnimationSystemComponent::SetUseControlRotationYawOnCharacter()
 	}
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementComponentValues()
 {
 	_MovementComponent = Cast<UCharacterMovementComponent>(GetOwner()->FindComponentByClass<UCharacterMovementComponent>());
@@ -176,13 +189,12 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 	_MovementComponent->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 FVector UBasicAnimationSystemComponent::GetMovementInputVectorLocalSpace()
 {
 	FTransform actorTransform = GetOwner()->GetTransform();
 	return actorTransform.InverseTransformVector(GetOwner()->GetInstigator()->GetLastMovementInputVector());
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 bool UBasicAnimationSystemComponent::IsAiming_Implementation()
@@ -190,27 +202,46 @@ bool UBasicAnimationSystemComponent::IsAiming_Implementation()
 	return _variables.bIsAiming;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 EWEaponType UBasicAnimationSystemComponent::GetEquippedWeaponType_Implementation()
 {
 	return _variables.EquippedWeaponType;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 EMovementType UBasicAnimationSystemComponent::GetMovementType_Implementation()
 {
 	return _variables.MovementType;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 EMovementAdditive UBasicAnimationSystemComponent::GetMovementAdditive_Implementation()
 {
 	return _variables.MovementAdditive;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////
 FBASVariables UBasicAnimationSystemComponent::GetActorVariables() const
 {
 	return _variables;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UBasicAnimationSystemComponent, _variables);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+bool UBasicAnimationSystemComponent::Server_ReplicateVariables_Validate(FBASVariables Variables)
+{
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::Server_ReplicateVariables_Implementation(FBASVariables Variables)
+{
+	_variables = Variables;
 }
