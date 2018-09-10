@@ -21,21 +21,21 @@ private:
 	 * A value of 1 would mean that this material is equivalent to steel. A value of 0.5 means, that this material is only half as good as steel
 	 * (e.g. you would need 2 mm of this material to achieve the same protection level against kinetic damage than 1 mm of steel).
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Kinetic"))
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Kinetic"))
 	float m_RHA_Kinetic;
 
 	/* Rolled homogeneous amour equivalent against explosive damage. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Explosive"))
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta = (DisplayName = "RHA Explosive"))
 	float m_RHA_Explosive;
 
 	/* The physical thickness of this amour. Use ONLY if the amour and the body are NOT separate components.
 	 * Set to 0 if this is material is on a mesh that is NOT the actual body of a person (e.g. the scenery, etc.).
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta = (DisplayName = "Thickness"))
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta = (DisplayName = "Thickness"))
 	float m_Thickness;
 
 	/* Base damage modification. All incoming damage will be modified by this value. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage Resistance", meta	= (DisplayName = "Damage modification"))
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta	= (DisplayName = "Damage modification"))
 	float m_DamageModification;
 
 public:
