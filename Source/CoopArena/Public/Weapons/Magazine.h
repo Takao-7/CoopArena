@@ -8,6 +8,7 @@
 
 
 class AProjectile;
+class UMeshComponent;
 
 
 UCLASS()
@@ -16,6 +17,7 @@ class COOPARENA_API AMagazine : public AItemBase
 	GENERATED_BODY()
 	
 public:	
+	AMagazine();
 	/**
 	* How many rounds are left in the magazine.
 	* A value of -1 means that the magazine has infinite ammo.
@@ -40,6 +42,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = Magazine)
 	TSubclassOf<AProjectile> GetProjectileClass() const;
 
+	virtual UMeshComponent* GetMesh() const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,4 +59,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Magazine)
 	TSubclassOf<AProjectile> _ProjectileType;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Magazine)
+	UStaticMeshComponent* _Mesh;
 };

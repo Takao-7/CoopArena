@@ -9,7 +9,8 @@ enum class EMovementType : uint8
 {
 		Idle,
 		Moving,
-		Sprinting
+		Sprinting,
+		Jumping
 };
 
 
