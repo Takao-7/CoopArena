@@ -30,7 +30,6 @@ public:
 	void Kill();
 
 protected:
-<<<<<<< HEAD
 	UPROPERTY(EditDefaultsOnly, Category = Health)
 	float MaxHealth;
 
@@ -38,20 +37,6 @@ protected:
 	float CurrentHealth;
 
 	// Called when the game starts
-=======
-	UPROPERTY(EditDefaultsOnly, Category = Health, meta = (DisplayName = "Max health"))
-	float _MaxHealth;
-
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = Health, meta = (DisplayName = "Current health"))
-	float _CurrentHealth;
-
-	UPROPERTY()
-	bool bAlreadyDied;
-
-	UPROPERTY()
-	AHumanoid* _compOwner;
-
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	virtual void BeginPlay() override;
 
 	/**
@@ -70,12 +55,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Health)
 	void OnDeath();
 
-<<<<<<< HEAD
-=======
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_OnDeath();
-
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	void SetPhysicsOnMesh();
 
 	AHumanoid* GetOwnerAsHumanoid();
@@ -86,11 +65,8 @@ protected:
 private:
 	UFUNCTION()
 	void HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
-<<<<<<< HEAD
 
 	bool bAlreadyDied;
 
 	AHumanoid* _compOwner;
-=======
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 };

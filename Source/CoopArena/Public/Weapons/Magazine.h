@@ -54,7 +54,7 @@ protected:
 	int32 _Capacity;
 
 	/* How many rounds are left in the magazine. -1 means infinite rounds left. */
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Magazine)
+	UPROPERTY(BlueprintReadWrite, Category = Magazine)
 	int32 _RoundsLeft;
 
 	UPROPERTY(EditDefaultsOnly, Category = Magazine)

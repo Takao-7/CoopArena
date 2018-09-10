@@ -20,7 +20,6 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
-#include "UnrealNetwork.h"
 
 
 AGun::AGun()
@@ -46,22 +45,6 @@ AGun::AGun()
 
 	_BurstCount = 0;
 	_SalvoCount = 0;
-
-	bReplicates = true;
-}
-
-
-void AGun::SetUpMesh()
-{
-	_Mesh->SetCollisionObjectType(ECC_PhysicsBody);
-	_Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	_Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_Mesh->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_Mesh->SetSimulatePhysics(true);
-	_Mesh->CastShadow = true;
-	_Mesh->SetCustomDepthStencilValue(253);
-	RootComponent = _Mesh;
 }
 
 
@@ -88,22 +71,19 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = character->GetEquippedGun();
 		if (equippedGun)
 		{
-			equippedGun->Multicast_OnUnequip(true);
-
-			FTimerDelegate timerDelegate;
+			equippedGun->OnUnequip(true);
 			FTimerHandle timerHandle;
-			timerDelegate.BindLambda([this, character]
-			{
-				character->SetWeaponToEquip(this);
-			});
+			FTimerDelegate timerDelegate;
+			timerDelegate.BindUFunction(this, FName("OnEquip"), character);
 			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
 		}
 		else
 		{
-			character->SetWeaponToEquip(this);
-		}
-	}
+			OnEquip(character);
+		}		
+	}	
 }
+
 
 /////////////////////////////////////////////////////
 FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
@@ -127,27 +107,24 @@ FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 	return adjustetDirection;
 }
 
+
 /////////////////////////////////////////////////////
 void AGun::OnEquip(AHumanoid* NewOwner)
 {
 	SetOwningPawn(NewOwner);
 	AttachMeshToPawn();
-	IInteractable::Execute_SetCanBeInteractedWith(this, false);
-	if (NewOwner == nullptr)
+	if (NewOwner)
 	{
-<<<<<<< HEAD
 		NewOwner->SetEquippedWeapon(this);
 		SetCanBeInteractedWith_Implementation(false);
 	}
 	else
 	{
-=======
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
 }
 
-/////////////////////////////////////////////////////
+
 void AGun::OnUnequip(bool DropGun /*= false*/)
 {
 	_MyOwner->SetEquippedWeapon(nullptr);
@@ -157,22 +134,11 @@ void AGun::OnUnequip(bool DropGun /*= false*/)
 		DetachMeshFromPawn();
 		SetOwningPawn(nullptr);
 		SetCanBeInteractedWith_Implementation(true);
-<<<<<<< HEAD
-=======
-		if (HasAuthority())
-		{
-			SetReplicateMovement(true);
-		}
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	}
 	else
 	{
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		if (HasAuthority())
-		{
-			SetReplicateMovement(false);
-		}
 	}
 }
 
@@ -195,10 +161,9 @@ void AGun::OnFire()
 
 		FVector lineTraceDirection = GetForwardCameraVector();
 		FVector SpawnDirection = AdjustAimRotation(traceStartLocation, lineTraceDirection);
-		SpawnDirection = ApplyWeaponSpread(SpawnDirection);
+		SpawnDirection = ApplyWeaponSpread(SpawnDirection);		
 		FVector SpawnLocation = GetMuzzleLocation();
 		FTransform SpawnTransform = FTransform(SpawnDirection.Rotation(), SpawnLocation);
-<<<<<<< HEAD
 
 		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
 
@@ -232,9 +197,6 @@ void AGun::OnFire()
 		{
 			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 		}
-=======
-		Server_OnFire(_CurrentFireMode, SpawnTransform);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
 		{
@@ -247,7 +209,7 @@ void AGun::OnFire()
 	}
 }
 
-/////////////////////////////////////////////////////
+
 void AGun::ContinousOnFire()
 {
 	if (_CurrentFireMode == EFireMode::Auto && _CurrentGunState == EWeaponState::Firing)
@@ -276,13 +238,19 @@ void AGun::ContinousOnFire()
 	}
 }
 
-/////////////////////////////////////////////////////
+
+
 void AGun::OnStopFire()
 {
 	_CurrentGunState = EWeaponState::Idle;
 	_SalvoCount = 0;
-	Server_OnStopFire();
+	if (_SpawnedMuzzleFlashComponent)
+	{
+		_SpawnedMuzzleFlashComponent->DestroyComponent();
+		_SpawnedMuzzleFlashComponent = nullptr;
+	}
 }
+
 
 /////////////////////////////////////////////////////
 FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
@@ -292,10 +260,11 @@ FVector AGun::ApplyWeaponSpread(FVector SpawnDirection)
 	return FMath::VRandCone(SpawnDirection, spreadHorizontal, spreadVertical);
 }
 
+
 /////////////////////////////////////////////////////
 void AGun::SetOwningPawn(AHumanoid* NewOwner)
 {
-	if(NewOwner != _MyOwner)
+	if (GetOwner() != NewOwner)
 	{
 		Instigator = NewOwner;
 		SetOwner(NewOwner);
@@ -303,13 +272,14 @@ void AGun::SetOwningPawn(AHumanoid* NewOwner)
 	}
 }
 
+
 /////////////////////////////////////////////////////
 bool AGun::CanRapidFire() const
 {
 	return (_GunStats.FireModes.Contains(EFireMode::Burst) || _GunStats.FireModes.Contains(EFireMode::Auto)) && GetCooldownTime() > 0.0f;
 }
 
-/////////////////////////////////////////////////////
+
 bool AGun::CanShoot() const
 {
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
@@ -318,6 +288,7 @@ bool AGun::CanShoot() const
 	bool bHasProjectileToSpawn = _GunStats.UsableMagazineClass;
 	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
 }
+
 
 /////////////////////////////////////////////////////
 void AGun::AttachMeshToPawn()
@@ -338,7 +309,7 @@ void AGun::AttachMeshToPawn()
 	}
 }
 
-/////////////////////////////////////////////////////
+
 void AGun::DetachMeshFromPawn()
 {
 	if (_Mesh)
@@ -351,11 +322,12 @@ void AGun::DetachMeshFromPawn()
 	}
 }
 
+
 /////////////////////////////////////////////////////
 bool AGun::GetAmmoFromInventory()
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));
-	if (inventory == nullptr || !HasAuthority())
+	if (inventory == nullptr)
 	{
 		return false;
 	}
@@ -370,20 +342,11 @@ bool AGun::GetAmmoFromInventory()
 		AMagazine* magObject = Cast<AMagazine>(_GunStats.UsableMagazineClass->GetDefaultObject(true));
 		bHasMag = inventory->RemoveItem(magObject->GetItemStats(), 1.0f);
 	}
-<<<<<<< HEAD
-
-	return bHasMag;
-}
-=======
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	return bHasMag;
 }
 
-<<<<<<< HEAD
-=======
-/////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
+
 bool AGun::CheckIfOwnerHasMagazine() const
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
@@ -403,107 +366,11 @@ bool AGun::CheckIfOwnerHasMagazine() const
 		FItemStats& magStats = magObject->GetItemStats();
 		return inventory->HasItem(magStats);
 	}	
-<<<<<<< HEAD
-=======
 }
 
 
 /////////////////////////////////////////////////////
-void AGun::OnAnimNotify_AttachMagToHand()
-{
-	_MyOwner->GrabItem(_LoadedMagazine, true);
-	_LoadedMagazine = nullptr;
-}
-
-void AGun::OnAnimNotify_DropMagazine()
-{
-	DropMagazine();	
-}
-
-void AGun::OnAnimNotify_CheckForAmmo()
-{
-	if (HasAuthority())
-	{
-		bool bHasMagazine = CheckIfOwnerHasMagazine();
-		if (!bHasMagazine)
-		{
-			Multicast_StopReloading();
-		}
-	}
-}
-
-void AGun::OnAnimNotify_SpawnNewMag()
-{
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	bool bHasAmmo = GetAmmoFromInventory();
-	if (!bHasAmmo)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s dosn't has any magazines in his inventory, but tried to spawn a new one!"), *GetOwner()->GetName());
-		return;
-	}
-	
-	m_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
-	OnItemGrab();
-}
-
-void AGun::OnAnimNotify_AttachMagToGun()
-{
-	AMagazine* magInHand = Cast<AMagazine>(_MyOwner->GetItemInHand());
-	if (HasAuthority())
-	{
-		_MyOwner->Multicast_ClearItemInHand();
-	}
-	AttachMagazine(magInHand);	
-}
-
-void AGun::OnAnimNotify_FinishReloading()
-{
-	FinishReloadWeapon();	
-}
-
-/////////////////////////////////////////////////////
-void AGun::Reload()
-{
-	if (_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
-	{
-		return;
-	}
-
-	Server_Reload();
-}
-
-/////////////////////////////////////////////////////
-void AGun::OnItemGrab()
-{
-	if (m_ItemToGrab)
-	{
-		_MyOwner->GrabItem(m_ItemToGrab, true);
-		_LoadedMagazine = nullptr;
-	}
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-}
-
-/////////////////////////////////////////////////////
-void AGun::OnMagAttached()
-{
-	if (m_MagToAttach)
-	{
-		AttachMagazine(m_MagToAttach);
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_OnUnequip_Implementation(bool bDropGun)
-{
-	OnUnequip(true);
-}
-
-/////////////////////////////////////////////////////
-void AGun::Server_Reload_Implementation()
+void AGun::ReloadWeapon()
 {
 	if (_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
 	{
@@ -514,62 +381,15 @@ void AGun::Server_Reload_Implementation()
 	if (_ReloadAnimation)
 	{
 		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
+		if (_MyOwner->IsPlayerControlled())
 		{
-			reloadTime = _ReloadAnimation->GetSectionLength(0);
-			Multicast_PlayReloadAnimation();
+			AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
+			}
 		}
 	}
-	else
-	{
-		DropMagazine();
-		FTimerHandle reloadTH;
-		FTimerDelegate lambda;
-		lambda.BindLambda([this]
-		{
-			bool bHasAmmo = GetAmmoFromInventory();
-			if (bHasAmmo)
-			{
-<<<<<<< HEAD
-				reloadTime = AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
-=======
-				FTransform magazineLocation = GetMesh()->GetSocketTransform("Magazine");
-				AMagazine* newMag = SpawnNewMagazine(magazineLocation);
-				AttachMagazine(newMag);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-			}
-			FinishReloadWeapon();
-		});
-
-		GetWorld()->GetTimerManager().SetTimer(reloadTH, lambda, reloadTime, false);
-	}
-}
-
-bool AGun::Server_Reload_Validate()
-{
-	return true;
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_PlayReloadAnimation_Implementation()
-{
-	UAnimInstance* AnimInstance;	
-	AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_StopReloading_Implementation()
-{
-	if (_ReloadAnimation)
-	{
-		_MyOwner->StopAnimMontage(_ReloadAnimation);
-	}
-<<<<<<< HEAD
 	else
 	{
 		DropMagazine();
@@ -617,27 +437,6 @@ void AGun::DropMagazine()
 	}
 
 	_LoadedMagazine = nullptr;
-=======
-	FinishReloadWeapon();
-}
-
-/////////////////////////////////////////////////////
-void AGun::DropMagazine()
-{
-	AMagazine* magazineInHand = Cast<AMagazine>(_MyOwner->GetItemInHand());
-	if (magazineInHand == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s carried by %s tried to drop it's magazine without having one in his hand!"), *GetName(), *GetOwner()->GetName());
-		return;
-	}
-
-	magazineInHand->OnDrop();
-
-	if (magazineInHand->RoundsLeft() < magazineInHand->GetCapacity())
-	{
-		IInteractable::Execute_SetCanBeInteractedWith(magazineInHand, false);
-	}
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 
@@ -682,29 +481,15 @@ void AGun::BeginPlay()
 	_CurrentFireMode = _GunStats.FireModes[0];
 	_CurrentFireModePointer = 0;
 
-<<<<<<< HEAD
 	AMagazine* newMagazine = SpawnNewMagazine();
 	if (newMagazine)
 	{
 		AttachMagazine(newMagazine);
-=======
-	if(HasAuthority())
-	{
-		AHumanoid* humanoidOwner = Cast<AHumanoid>(GetInstigator());
-		if (humanoidOwner)
-		{
-			Multicast_RepMyOwner(humanoidOwner);
-		}
-		
-		FTransform spawnTransform = GetMesh()->GetSocketTransform("Magazine", RTS_World);
-		m_MagToAttach = SpawnNewMagazine(spawnTransform);
-		AttachMagazine(m_MagToAttach);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	}
 }
 
+
 /////////////////////////////////////////////////////
-<<<<<<< HEAD
 AMagazine* AGun::SpawnNewMagazine()
 {
 	if (_GunStats.UsableMagazineClass == nullptr)
@@ -731,35 +516,8 @@ void AGun::AttachMagazine(AMagazine* Magazine)
 
 	_LoadedMagazine = Magazine;
 	_LoadedMagazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "Magazine");
-=======
-AMagazine* AGun::SpawnNewMagazine(const FTransform& SpawnTransform)
-{
-	if (!HasAuthority())
-	{
-		return nullptr;
-	}
-
-	if (_GunStats.UsableMagazineClass == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("'UsableMagazineClass' for %s is not set!"), *GetName());
-		return nullptr;
-	}
-	FActorSpawnParameters params;
-	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	params.Owner = this;
-	params.Instigator = GetInstigator();
-	return GetWorld()->SpawnActor<AMagazine>(_GunStats.UsableMagazineClass, SpawnTransform, params);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
-/////////////////////////////////////////////////////
-void AGun::AttachMagazine(AMagazine* Magazine)
-{	
-	IInteractable::Execute_SetCanBeInteractedWith(Magazine, false);
-	Magazine->ShouldSimulatePhysics(false);
-	Magazine->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale, "Magazine");
-	_LoadedMagazine = Magazine;
-}
 
 /////////////////////////////////////////////////////
 float AGun::GetCooldownTime() const
@@ -767,13 +525,13 @@ float AGun::GetCooldownTime() const
 	return _GunStats.Cooldown;
 }
 
-/////////////////////////////////////////////////////
+
 float AGun::GetRoundsPerMinute() const
 {
 	return 60.0f / GetCooldownTime();
 }
 
-/////////////////////////////////////////////////////
+
 FVector AGun::GetMuzzleLocation() const
 {
 	FVector VecMuzzleLocation;
@@ -786,7 +544,7 @@ FVector AGun::GetMuzzleLocation() const
 	return VecMuzzleLocation;
 }
 
-/////////////////////////////////////////////////////
+
 FVector AGun::GetForwardCameraVector() const
 {
 	if (_MyOwner->IsPlayerControlled())
@@ -799,117 +557,5 @@ FVector AGun::GetForwardCameraVector() const
 	else
 	{
 		return _MyOwner->GetActorForwardVector();
-	}
-}
-
-
-/////////////////////////////////////////////////////
-					/* Networking */
-/////////////////////////////////////////////////////
-void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AGun, m_ItemToGrab);
-	DOREPLIFETIME(AGun, m_MagToAttach);
-}
-
-/////////////////////////////////////////////////////
-void AGun::Server_OnStopFire_Implementation()
-{
-	_CurrentGunState = EWeaponState::Idle;
-	_SalvoCount = 0;
-	Multicast_HandleMuzzleFlash(false);
-}
-
-/////////////////////////////////////////////////////
-bool AGun::Server_OnStopFire_Validate()
-{
-	return true;
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_RepMyOwner_Implementation(AHumanoid* NewOwner)
-{
-	_MyOwner = NewOwner;
-}
-
-/////////////////////////////////////////////////////
-void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTransform)
-{
-	if (CanShoot())
-	{
-		_CurrentFireMode = FireMode;
-	
-		TSubclassOf<AProjectile> projectileClass = _LoadedMagazine->GetProjectileClass();
-		FActorSpawnParameters params;
-		params.Owner = GetOwner();
-		params.Instigator = GetInstigator();
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, SpawnTransform, params);
-		if (!projectile)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
-			return;
-		}
-		_LoadedMagazine->RemoveRound();
-
-		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());
-		Multicast_PlayFireSound();
-		Multicast_PlayFireAnimation();
-		Multicast_HandleMuzzleFlash(true);
-	}
-	else
-	{
-		Server_OnStopFire();
-	}	
-}
-
-bool AGun::Server_OnFire_Validate(EFireMode FireMode, FTransform SpawnTransform)
-{
-	return true;
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_HandleMuzzleFlash_Implementation(bool bSpawnMuzzleFlash)
-{
-	if(bSpawnMuzzleFlash)
-	{
-		if (_MuzzleFlash && _SpawnedMuzzleFlashComponent == nullptr)
-		{
-			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint);
-		}
-	}
-	else
-	{
-		if (_SpawnedMuzzleFlashComponent)
-		{
-			_SpawnedMuzzleFlashComponent->DeactivateSystem();
-			_SpawnedMuzzleFlashComponent = nullptr;
-		}
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_PlayFireAnimation_Implementation()
-{
-	if (_FireAnimation)
-	{
-		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			AnimInstance->Montage_Play(_FireAnimation, 1.f);
-		}
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_PlayFireSound_Implementation()
-{
-	if (_FireSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
 	}
 }

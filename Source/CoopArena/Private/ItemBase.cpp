@@ -9,7 +9,6 @@
 #include "CoopArena.h"
 
 
-<<<<<<< HEAD
 void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
 {
 	if (GetMesh())
@@ -32,87 +31,26 @@ void AItemBase::SetSimulatePhysics(bool bSimulatePhysics)
 
 
 FItemStats& AItemBase::GetItemStats()
-=======
-AItemBase::AItemBase()
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-{
-	SetReplicates(true);
-	SetReplicateMovement(false);
-	bNetUseOwnerRelevancy = true;
-
-
-	_collisionChannels.Visibility = ECR_Block;
-	_collisionChannels.Camera = ECR_Block;
-	_collisionChannels.GameTraceChannel1 = ECR_Ignore;	// Projectile
-	_collisionChannels.GameTraceChannel2 = ECR_Block;	// Interactable
-	_collisionChannels.GameTraceChannel3 = ECR_Ignore;	// Projectile penetration
-}
-
-<<<<<<< HEAD
-
-UMeshComponent* AItemBase::GetMesh() const
-{
-	return nullptr;
-}
-
-
-void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
-{
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
-
-	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
-	if (bItemSuccessfullyAdded)
-	{
-		Destroy();
-=======
-/////////////////////////////////////////////////////
-void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
-{
-	if (GetMesh())
-	{
-		GetMesh()->SetSimulatePhysics(bSimulatePhysics);
-		if (bSimulatePhysics)
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		}
-		else
-		{
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No mesh on %s."), *GetName());
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-	}
-}
-
-/////////////////////////////////////////////////////
-FItemStats& AItemBase::GetItemStats()
 {
 	return _itemStats;
 }
 
-/////////////////////////////////////////////////////
+
 void AItemBase::SetItemStats(FItemStats& newItemStats)
 {
 	_itemStats = newItemStats;
 }
 
-/////////////////////////////////////////////////////
+
 UMeshComponent* AItemBase::GetMesh() const
 {
 	return nullptr;
 }
 
-/////////////////////////////////////////////////////
+
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
-	if (inventory == nullptr)
-	{
-		return;
-	}
 
 	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
 	if (bItemSuccessfullyAdded)
@@ -121,7 +59,13 @@ void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiv
 	}
 }
 
-/////////////////////////////////////////////////////
+
+void AItemBase::OnEndInteract_Implementation(APawn* InteractingPawn)
+{
+
+}
+
+
 UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
 {
 	if (GetMesh())
@@ -131,7 +75,7 @@ UUserWidget* AItemBase::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimit
 	return _itemWidget;
 }
 
-/////////////////////////////////////////////////////
+
 void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 {
 	if (GetMesh())
@@ -140,11 +84,7 @@ void AItemBase::OnEndLineTraceOver_Implementation(APawn* Pawn)
 	}
 }
 
-<<<<<<< HEAD
 
-=======
-/////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
 {
 	if (bCanbeInteractedWith)
@@ -163,7 +103,6 @@ void AItemBase::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
 			GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
 		}
 	}
-<<<<<<< HEAD
 }
 
 
@@ -184,54 +123,4 @@ void AItemBase::SetUpInteractionVolume()
 	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh() ? _InteractionVolume->SetupAttachment(GetMesh()) : _InteractionVolume->SetupAttachment(RootComponent);
-=======
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-}
-
-/////////////////////////////////////////////////////
-void AItemBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (GetMesh())
-	{
-		GetMesh()->SetCustomDepthStencilValue(253);
-		GetMesh()->SetCollisionResponseToChannels(_collisionChannels);
-	}
-
-	if (GetOwner() == nullptr)
-	{
-		OnDrop();
-	}
-	else
-	{
-		ShouldSimulatePhysics(false);
-		IInteractable::Execute_SetCanBeInteractedWith(this, false);
-	}
-}
-
-/////////////////////////////////////////////////////
-void AItemBase::OnDrop()
-{
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-	ShouldSimulatePhysics(true);
-	IInteractable::Execute_SetCanBeInteractedWith(this, true);
-
-	SetOwner(nullptr);
-
-	if (HasAuthority())
-	{
-		SetReplicates(true);
-		SetReplicateMovement(true);
-	}
-}
-
-/////////////////////////////////////////////////////
-void AItemBase::SetUpInteractionVolume()
-{
-	_InteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	_InteractionVolume->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_InteractionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	_InteractionVolume->SetupAttachment(RootComponent);
 }
