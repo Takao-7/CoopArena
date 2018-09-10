@@ -99,7 +99,7 @@ EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
 /////////////////////////////////////////////////////
 EMovementType AHumanoid::GetMovementType_Implementation()
 {
-	if (GetLastMovementInputVector().Size() == 0.0f)
+	if (FMath::IsNearlyZero(GetVelocity().Size(), 0.1f))
 	{
 		return EMovementType::Idle;
 	}
