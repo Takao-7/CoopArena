@@ -90,12 +90,17 @@ public:
 
 private:
 	void SetMovementDirection();
-	void SetHorizontalVelocity();
+
+	/**
+	 * Sets the horizontal velocity in _variables.
+	 * @return The velocity vector. Z-value set to 0.
+	 */ 
+	FVector SetHorizontalVelocity();
 	void SetMovementType();
 	void SetIsMovingForward();
 	void SetAimPitch();
 
 	void SetUseControlRotationYawOnCharacter();
 	void SetMovementComponentValues();
-	FVector GetMovementInputVectorLocalSpace();
+	FVector GetVelocityVectorLocalSpace();
 };
