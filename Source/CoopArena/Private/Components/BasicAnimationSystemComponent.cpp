@@ -96,12 +96,13 @@ void UBasicAnimationSystemComponent::SetMovementDirection()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetHorizontalVelocity()
+FVector UBasicAnimationSystemComponent::SetHorizontalVelocity()
 {
 	FVector velocityVector = GetOwner()->GetVelocity();
 	velocityVector.Z = 0.0f;
 
 	_variables.HorizontalVelocity = velocityVector.Size();
+	return velocityVector;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +115,10 @@ void UBasicAnimationSystemComponent::SetMovementType()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	FVector inputVectorLocalSpace = GetMovementInputVectorLocalSpace();
-	if (inputVectorLocalSpace.Size() == 0.0f)	// Only set movement direction if we are moving.
+	FVector velocityVectorLocalSpace = GetVelocityVectorLocalSpace();
+	velocityVectorLocalSpace.Normalize();
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity local: %s"), *velocityVectorLocalSpace.ToCompactString());
+	if (FMath::IsNearlyZero(velocityVectorLocalSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
 	}
@@ -131,7 +134,7 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 	}
 	else
 	{
-		int32 xInput = FMath::RoundToInt(inputVectorLocalSpace.X);
+		int32 xInput = FMath::RoundToInt(velocityVectorLocalSpace.X);
 		/*
 		 * We are moving forward when:
 		 * a) The X-Input is positive or
@@ -190,10 +193,10 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-FVector UBasicAnimationSystemComponent::GetMovementInputVectorLocalSpace()
+FVector UBasicAnimationSystemComponent::GetVelocityVectorLocalSpace()
 {
 	FTransform actorTransform = GetOwner()->GetTransform();
-	return actorTransform.InverseTransformVector(GetOwner()->GetInstigator()->GetLastMovementInputVector());
+	return actorTransform.InverseTransformVector(GetOwner()->GetVelocity());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
