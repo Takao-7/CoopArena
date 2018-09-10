@@ -8,22 +8,12 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Gun.h"
-<<<<<<< HEAD
-=======
 #include "UnrealNetwork.h"
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
-<<<<<<< HEAD
-	MaxHealth = 100.0f;
-	CurrentHealth = MaxHealth;
-}
-
-
-=======
 	_MaxHealth = 100.0f;
 	_CurrentHealth = _MaxHealth;
 	
@@ -31,28 +21,18 @@ UHealthComponent::UHealthComponent()
 }
 
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 FORCEINLINE bool UHealthComponent::IsAlive() const
 {
 	return !bAlreadyDied;
 }
 
-<<<<<<< HEAD
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UHealthComponent::Kill()
 {
 	OnDeath();
 }
 
-<<<<<<< HEAD
-
-// Called when the game starts
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,15 +41,6 @@ void UHealthComponent::BeginPlay()
 	_compOwner = GetOwnerAsHumanoid();
 }
 
-<<<<<<< HEAD
-
-void UHealthComponent::OnDeath()
-{
-	if (bAlreadyDied)
-	{
-		return;
-	}
-=======
 /////////////////////////////////////////////////////
 void UHealthComponent::OnDeath()
 {
@@ -83,15 +54,10 @@ void UHealthComponent::OnDeath()
 /////////////////////////////////////////////////////
 void UHealthComponent::Multicast_OnDeath_Implementation()
 {
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	bAlreadyDied = true;
 
 	DeactivateCollisionCapsuleComponent();
 	SetPhysicsOnMesh();
-<<<<<<< HEAD
-	_compOwner->SetComponentIsBlockingFiring(true, this);
-
-=======
 	_compOwner->Set_ComponentIsBlockingFiring(true, this);
 
 	if (_compOwner->IsLocallyControlled())
@@ -101,7 +67,6 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 
 	_compOwner->GetEquippedGun()->SetActorEnableCollision(true);
 	
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	FTimerDelegate delegate;
 	delegate.BindLambda([this]
 	{
@@ -112,27 +77,17 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 	});
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);
-<<<<<<< HEAD
-}
-
-
-=======
 
 }
 
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UHealthComponent::SetPhysicsOnMesh()
 {
 	_compOwner->GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_compOwner->GetMesh()->SetSimulatePhysics(true);
 }
 
-<<<<<<< HEAD
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 AHumanoid* UHealthComponent::GetOwnerAsHumanoid()
 {
 	AHumanoid* compOwner = Cast<AHumanoid>(GetOwner());
@@ -143,11 +98,7 @@ AHumanoid* UHealthComponent::GetOwnerAsHumanoid()
 	return compOwner;
 }
 
-<<<<<<< HEAD
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void UHealthComponent::DeactivateCollisionCapsuleComponent()
 {
 	UCapsuleComponent* capsule = _compOwner->GetCapsuleComponent();
@@ -156,16 +107,6 @@ void UHealthComponent::DeactivateCollisionCapsuleComponent()
 	capsule->SetGenerateOverlapEvents(false);
 }
 
-<<<<<<< HEAD
-
-void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser)
-{
-	CurrentHealth -= Damage;
-	if (CurrentHealth <= 0.0f)
-	{
-		OnDeath();
-	}
-=======
 /////////////////////////////////////////////////////
 void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, 
 										FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser)
@@ -183,5 +124,4 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UHealthComponent, _CurrentHealth);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }

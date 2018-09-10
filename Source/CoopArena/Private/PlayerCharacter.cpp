@@ -87,15 +87,6 @@ void APlayerCharacter::CheckForInteractables()
 void APlayerCharacter::OnEquipWeapon()
 {
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
-<<<<<<< HEAD
-	
-	/*AGun* GunInFocus = Cast<AGun>(_ActorInFocus);
-	if (GunInFocus && !_EquippedWeapon)
-	{
-		GunInFocus->OnEquip(this);
-	}*/	
-=======
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 
@@ -164,48 +155,9 @@ void APlayerCharacter::OnSprintPressed()
 	{
 		SetSprinting(!bIsSprinting);
 	}
-<<<<<<< HEAD
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
-		bIsSprinting = true;
-	}
-}
-
-
-void APlayerCharacter::OnSprintReleased()
-{
-	if (!bToggleSprinting)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
-		bIsSprinting = false;
-	}
-}
-
-
-void APlayerCharacter::OnCrouchPressed()
-{
-	if (bToggleCrouching)
-	{
-		SetCrouch(!bIsCrouched);
-	}
-	else
-	{
-		Crouch();
-	}
-}
-
-
-void APlayerCharacter::OnCrouchReleased()
-{
-	if (!bToggleCrouching)
-	{
-		UnCrouch();
-=======
 	else if (!bIsSprinting)
 	{
 		SetSprinting(true);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	}
 }
 

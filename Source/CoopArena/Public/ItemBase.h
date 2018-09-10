@@ -22,16 +22,11 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 	GENERATED_BODY()
 
 public:
-<<<<<<< HEAD
-	UFUNCTION(BlueprintCallable, Category = ItemBase)
-	virtual void SetSimulatePhysics(bool bSimulatePhysics);
-=======
 	AItemBase();
 
 	/* Sets simulate physics and collision. */
 	UFUNCTION(BlueprintCallable, Category = ItemBase)
 	virtual void ShouldSimulatePhysics(bool bSimulatePhysics);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual FORCEINLINE FItemStats& GetItemStats();
@@ -42,13 +37,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = ItemBase)
 	virtual FORCEINLINE UMeshComponent* GetMesh() const;
 
-<<<<<<< HEAD
-=======
 	/* Function to call when this item is being dropped or spawned in the world without the intention to directly attach it to something. */
 	UFUNCTION(BlueprintCallable, Category = ItemBase)
 	void OnDrop();
 
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	/* Interactable interface */
 
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
@@ -59,11 +51,7 @@ public:
 
 	/* Interactable interface end */
 protected:
-<<<<<<< HEAD
-	virtual void BeginPlay() override;	
-=======
 	virtual void BeginPlay() override;		
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	void SetUpInteractionVolume();
 
@@ -75,9 +63,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
 	UShapeComponent* _InteractionVolume;
-<<<<<<< HEAD
-=======
 
 	FCollisionResponseContainer _collisionChannels;
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 };

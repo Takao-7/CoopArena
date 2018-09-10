@@ -34,12 +34,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = PlayerCharacter)
 	UCameraComponent* GetActiveCamera() const;
 
-<<<<<<< HEAD
-=======
 	UFUNCTION(BlueprintPure, Category = PlayerCharacter)
 	UCameraComponent* GetFirstPersonCamera() { return _FirstPersonCamera; };
 
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 protected:
 	virtual void ToggleAiming() override;
 
@@ -125,8 +122,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnCrouchReleased();
-<<<<<<< HEAD
-=======
 
 
 	/////////////////////////////////////////////////////
@@ -139,5 +134,4 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_OnEndInteracting(AActor* ActorInFocus);
 
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 };

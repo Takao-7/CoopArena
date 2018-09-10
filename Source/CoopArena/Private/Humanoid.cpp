@@ -29,11 +29,6 @@ AHumanoid::AHumanoid()
 	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
-<<<<<<< HEAD
-	_MaxSprintSpeed = 650.0f;
-	bToggleProne = true;
-}
-=======
 	bIsSprinting = false;
 	bIsProne = false;
 	bIsCrouched = false;
@@ -41,7 +36,6 @@ AHumanoid::AHumanoid()
 
 	_MaxSprintSpeed = 650.0f;
 	bToggleProne = true;
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -62,28 +56,6 @@ void AHumanoid::SetEquippedWeapon(AGun* Weapon)
 
 /////////////////////////////////////////////////////
 bool AHumanoid::Set_ComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
-{
-	if (Component == nullptr || (_BlockingComponent && _BlockingComponent != Component))
-	{
-		return false;
-	}
-
-	bComponentBlocksFiring = bIsBlocking;
-
-	if (bIsBlocking)
-	{
-		_BlockingComponent = Component;
-	}
-	else
-	{
-		_BlockingComponent = nullptr;
-	}
-
-	return true;
-}
-
-
-bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
 {
 	if (Component == nullptr || (_BlockingComponent && _BlockingComponent != Component))
 	{
@@ -164,25 +136,16 @@ void AHumanoid::OnEquipWeapon()
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);	
 }
 
-<<<<<<< HEAD
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 
-<<<<<<< HEAD
-	_MaxWalkingSpeed = GetCharacterMovement()->GetMaxSpeed();	
-	SetUpDefaultEquipment();
-=======
 	_MaxWalkingSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	if (HasAuthority())
 	{
 		SetUpDefaultEquipment();
 	}
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 /////////////////////////////////////////////////////
@@ -205,20 +168,6 @@ void AHumanoid::SetSprinting(bool bSprint)
 	Server_SetSprinting(bSprint);
 }
 
-void AHumanoid::SetSprinting(bool bSprint)
-{
-	if (bSprint)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
-		bIsSprinting = true;
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
-		bIsSprinting = false;
-	}
-}
-
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
@@ -236,25 +185,6 @@ void AHumanoid::StopFireEquippedWeapon()
 	}
 }
 
-<<<<<<< HEAD
-
-/////////////////////////////////////////////////////
-void AHumanoid::MoveForward(float Value)
-{
-	FRotator controlRotation = GetControlRotation();
-	controlRotation.Pitch = 0.0f;
-	FVector direction = controlRotation.Vector();
-	direction.Normalize();
-
-	AddMovementInput(direction, Value);
-	if (Value > 0.0f)
-	{
-		bIsMovingForward = true;
-	}
-	else
-	{
-		bIsMovingForward = false;
-=======
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
@@ -268,7 +198,6 @@ void AHumanoid::MoveForward(float Value)
 	}
 	else if (Value < 0.0f && bIsSprinting)
 	{
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 		SetSprinting(false);
 	}
 }
@@ -294,11 +223,7 @@ void AHumanoid::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());	
 }
 
-<<<<<<< HEAD
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void AHumanoid::SetProne(bool bProne)
 {
 	bIsProne = bProne;
@@ -307,12 +232,6 @@ void AHumanoid::SetProne(bool bProne)
 /////////////////////////////////////////////////////
 void AHumanoid::ToggleAiming()
 {
-<<<<<<< HEAD
-	bIsAiming = !bIsAiming;
-}
-
-
-=======
 	if (!bIsSprinting)
 	{
 		bIsAiming = !bIsAiming;
@@ -324,7 +243,6 @@ void AHumanoid::ToggleAiming()
 }
 
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 void AHumanoid::SetCrouch(bool bSprint)
 {
 	if (bSprint)
@@ -377,58 +295,6 @@ void AHumanoid::ChangeWeaponFireMode()
 	}
 }
 
-<<<<<<< HEAD
-
-void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset, FTransform Offset)
-{
-	EAttachmentRule attachmentRule;
-	bKeepRelativeOffset ? attachmentRule = EAttachmentRule::KeepWorld : attachmentRule = EAttachmentRule::SnapToTarget;
-	FAttachmentTransformRules rules = FAttachmentTransformRules(attachmentRule, false);
-	FName handSocket = "HandLeft";
-
-	ItemToGrab->AttachToComponent(GetMesh(), rules, handSocket);
-	_ItemInHand = ItemToGrab;
-	if (bKeepRelativeOffset)
-	{
-		CalcAndSafeActorOffset(ItemToGrab);
-	}
-	else
-	{
-		ItemToGrab->SetActorRelativeTransform(Offset);
-	}	
-}
-
-
-FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
-{
-	FTransform offset;
-	FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
-
-	FVector itemLocation = OtherActor->GetActorLocation();
-	offset.SetLocation(handTransform.InverseTransformPosition(itemLocation));
-
-	FRotator itemRotation = OtherActor->GetActorRotation();
-	offset.SetRotation(handTransform.InverseTransformRotation(itemRotation.Quaternion()));
-	
-	_ItemOffset = offset;
-	return offset;
-}
-
-
-AItemBase* AHumanoid::DropItem()
-{
-	if (_ItemInHand == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
-		return nullptr;
-	}
-	AItemBase* itemToDrop = _ItemInHand;	
-	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	itemToDrop->SetSimulatePhysics(true);
-	
-	_ItemInHand = nullptr;
-	return itemToDrop;
-=======
 /////////////////////////////////////////////////////
 void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset)
 {
@@ -441,16 +307,11 @@ void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset)
 	{
 		ItemToGrab->AddActorLocalTransform(_ItemOffset);		
 	}
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
-
 
 /////////////////////////////////////////////////////
 FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 {
-<<<<<<< HEAD
-	return !bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !bComponentBlocksFiring;
-=======
 	FTransform offset;
 	FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
 
@@ -462,7 +323,6 @@ FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 	
 	_ItemOffset = offset;
 	return offset;
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 /////////////////////////////////////////////////////
@@ -481,16 +341,10 @@ AItemBase* AHumanoid::DropItem()
 	return itemToDrop;
 }
 
-<<<<<<< HEAD
-FName AHumanoid::GetEquippedWeaponAttachPoint() const
-{
-	return _EquippedWeaponAttachPoint;
-=======
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
 	return !bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !bComponentBlocksFiring;
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
 
 /////////////////////////////////////////////////////
@@ -575,10 +429,6 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-<<<<<<< HEAD
-// Called every frame
-void AHumanoid::Tick(float DeltaTime)
-=======
 	DOREPLIFETIME(AHumanoid, bIsSprinting);
 	DOREPLIFETIME(AHumanoid, bIsAiming);
 	DOREPLIFETIME(AHumanoid, bIsProne);
@@ -611,7 +461,6 @@ bool AHumanoid::Server_SetSprinting_Validate(bool bSprint)
 
 /////////////////////////////////////////////////////
 void AHumanoid::SetWeaponToEquip(AGun* Weapon)
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 {
 	if (HasAuthority())
 	{
@@ -625,12 +474,8 @@ void AHumanoid::OnWeaponEquip()
 {
 	if(_WeaponToEquip)
 	{
-<<<<<<< HEAD
-		SetSprinting(false);
-=======
 		SetEquippedWeapon(_WeaponToEquip);
 		_EquippedWeapon->OnEquip(this);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	}
 }
 

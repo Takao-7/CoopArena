@@ -94,11 +94,7 @@ protected:
 	float _CurrentVolume;
 
 	/* All items that are currently in this storage. */
-<<<<<<< HEAD
-	UPROPERTY(BlueprintReadOnly, Category = Storage)
-=======
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Storage)
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 	TArray<FItemStack> _StoredItems;
 
 

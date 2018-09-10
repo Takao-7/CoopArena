@@ -5,10 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "CoopArena.h"
-<<<<<<< HEAD
-=======
 #include "UnrealNetwork.h"
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 
 
 AMagazine::AMagazine()
@@ -27,22 +24,7 @@ void AMagazine::BeginPlay()
 	_RoundsLeft = _Capacity;
 }
 
-<<<<<<< HEAD
-
-AMagazine::AMagazine()
-{
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	_Mesh->SetupAttachment(RootComponent);
-
-	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
-	SetUpInteractionVolume();
-}
-
-
-=======
 /////////////////////////////////////////////////////
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 int32 AMagazine::RoundsLeft() const
 {
 	return _RoundsLeft;
@@ -74,12 +56,6 @@ TSubclassOf<AProjectile> AMagazine::GetProjectileClass() const
 	return _ProjectileType;
 }
 
-<<<<<<< HEAD
-
-UMeshComponent* AMagazine::GetMesh() const
-{
-	return _Mesh;
-=======
 /////////////////////////////////////////////////////
 UMeshComponent* AMagazine::GetMesh() const
 {
@@ -92,5 +68,4 @@ void AMagazine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMagazine, _RoundsLeft);
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
 }
