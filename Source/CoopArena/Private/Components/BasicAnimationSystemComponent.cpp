@@ -64,7 +64,7 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetInputDirection();
+	SetMovementDirection();
 	SetHorizontalVelocity();
 	SetMovementType();
 	SetIsMovingForward();
@@ -75,19 +75,21 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetInputDirection()
+void UBasicAnimationSystemComponent::SetMovementDirection()
 {
-	FVector inputVector = GetOwner()->GetInstigator()->GetLastMovementInputVector();
+	FVector velocity = GetOwner()->GetVelocity();
+	FTransform actorTransform = GetOwner()->GetActorTransform();
 
-	if (inputVector.Size() == 0.0f)	// Only set input direction if we are moving.
+	if (FMath::IsNearlyZero(velocity.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
 	}
 
-	FRotator inputRotator = inputVector.ToOrientationRotator();
+	FRotator inputRotator = velocity.ToOrientationRotator();
 	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
 	FRotator deltaRotation = inputRotator - controlRotation;
 	deltaRotation.Normalize();
+	//UE_LOG(LogTemp, Warning, TEXT("Input: %s | Control: %s | Delta: %s"), *inputRotator.ToCompactString(), *controlRotation.ToCompactString(), *deltaRotation.ToCompactString());
 
 	_variables.LastInputDirection = _variables.InputDirection;
 	_variables.InputDirection = deltaRotation.Yaw;

@@ -50,7 +50,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 }
 
-
 /////////////////////////////////////////////////////
 void APlayerCharacter::CheckForInteractables()
 {
@@ -83,12 +82,11 @@ void APlayerCharacter::CheckForInteractables()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnEquipWeapon()
 {
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
 }
-
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::SetActorInFocus(AActor* actor)
@@ -110,7 +108,6 @@ void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
 	_ComponentInFocus = Component;
 }
 
-
 /////////////////////////////////////////////////////
 bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 {
@@ -126,7 +123,7 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
 
-
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnPronePressed()
 {
 	if (bToggleProne)
@@ -139,7 +136,6 @@ void APlayerCharacter::OnPronePressed()
 	}
 }
 
-
 void APlayerCharacter::OnProneReleased()
 {
 	if (!bToggleProne)
@@ -148,7 +144,7 @@ void APlayerCharacter::OnProneReleased()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnSprintPressed()
 {
 	if (bToggleSprinting)
@@ -161,7 +157,6 @@ void APlayerCharacter::OnSprintPressed()
 	}
 }
 
-
 void APlayerCharacter::OnSprintReleased()
 {
 	if (!bToggleSprinting)
@@ -170,7 +165,7 @@ void APlayerCharacter::OnSprintReleased()
 	}
 }
 
-
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnCrouchPressed()
 {
 	if (bToggleCrouching)
@@ -182,7 +177,6 @@ void APlayerCharacter::OnCrouchPressed()
 		Crouch();
 	}
 }
-
 
 void APlayerCharacter::OnCrouchReleased()
 {
@@ -200,13 +194,10 @@ void APlayerCharacter::ToggleAiming()
 		bIsAiming = false;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
 	}
-	else
+	else if (_EquippedWeapon && !bIsSprinting)
 	{
-		bIsAiming = true;		
-		if (_EquippedWeapon)
-		{
-			Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
-		}
+		bIsAiming = true;	
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);		
 	}
 }
 
@@ -230,7 +221,6 @@ void APlayerCharacter::OnEndInteracting()
 
 
 /////////////////////////////////////////////////////
-// Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
