@@ -96,12 +96,13 @@ void UBasicAnimationSystemComponent::SetMovementDirection()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetHorizontalVelocity()
+FVector UBasicAnimationSystemComponent::SetHorizontalVelocity()
 {
 	FVector velocityVector = GetOwner()->GetVelocity();
 	velocityVector.Z = 0.0f;
 
 	_variables.HorizontalVelocity = velocityVector.Size();
+	return velocityVector;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +115,8 @@ void UBasicAnimationSystemComponent::SetMovementType()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	FVector inputVectorLocalSpace = GetMovementInputVectorLocalSpace();
-	if (inputVectorLocalSpace.Size() == 0.0f)	// Only set movement direction if we are moving.
+	FVector inputVectorLocalSpace = GetVelocityVectorLocalSpace();
+	if (FMath::IsNearlyZero(inputVectorLocalSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
 	}
@@ -190,10 +191,10 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-FVector UBasicAnimationSystemComponent::GetMovementInputVectorLocalSpace()
+FVector UBasicAnimationSystemComponent::GetVelocityVectorLocalSpace()
 {
 	FTransform actorTransform = GetOwner()->GetTransform();
-	return actorTransform.InverseTransformVector(GetOwner()->GetInstigator()->GetLastMovementInputVector());
+	return actorTransform.InverseTransformVector(GetOwner()->GetVelocity());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
