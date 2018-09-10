@@ -89,7 +89,7 @@ public:
 	/* End BAS Interface */
 
 private:
-	void SetInputDirection();
+	void SetMovementDirection();
 	void SetHorizontalVelocity();
 	void SetMovementType();
 	void SetIsMovingForward();
