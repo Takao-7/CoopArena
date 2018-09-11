@@ -95,7 +95,7 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 	}
 
-	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.Location, SweepResult.ImpactNormal.Rotation());
+	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
 	Destroy();
 }
 
@@ -112,11 +112,6 @@ void AProjectile::BeginPlay()
 void AProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	/*if (_TrailEffect)
-	{
-		UGameplayStatics::SpawnEmitterAttached(_TrailEffect, Mesh, "", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-	}*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

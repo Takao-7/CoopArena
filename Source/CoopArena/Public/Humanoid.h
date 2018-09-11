@@ -37,14 +37,14 @@ protected:
 					/* Components */
 	/////////////////////////////////////////////////////
 protected:
-	UPROPERTY(VisibleDefaultsOnly, meta	= (DisplayName = "Health component"))
-	UHealthComponent* _HealthComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName="Health"))
+	UHealthComponent* HealthComponent;
 
-	UPROPERTY(VisibleDefaultsOnly, meta = (DisplayName = "BAS component"))
-	UBasicAnimationSystemComponent* _BASComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Basic Animation System"))
+	UBasicAnimationSystemComponent* BASComponent;
 
-	UPROPERTY(VisibleDefaultsOnly, meta = (DisplayName = "Inventory"))
-	UInventoryComponent* _Inventory;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Inventory"))
+	UInventoryComponent* Inventory;
 
 
 	/////////////////////////////////////////////////////

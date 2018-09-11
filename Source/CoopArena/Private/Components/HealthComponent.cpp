@@ -11,13 +11,13 @@
 #include "UnrealNetwork.h"
 
 
-// Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
 	_MaxHealth = 100.0f;
 	_CurrentHealth = _MaxHealth;
 	
 	bReplicates = true;
+	bAutoActivate = true;
 }
 
 /////////////////////////////////////////////////////

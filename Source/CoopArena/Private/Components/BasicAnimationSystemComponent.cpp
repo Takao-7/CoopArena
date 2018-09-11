@@ -31,6 +31,7 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	_variables.EquippedWeaponType = EWEaponType::None;
 
 	bReplicates = true;
+	bAutoActivate = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +88,6 @@ void UBasicAnimationSystemComponent::SetMovementDirection()
 	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
 	FRotator deltaRotation = inputRotator - controlRotation;
 	deltaRotation.Normalize();
-	//UE_LOG(LogTemp, Warning, TEXT("Input: %s | Control: %s | Delta: %s"), *inputRotator.ToCompactString(), *controlRotation.ToCompactString(), *deltaRotation.ToCompactString());
 
 	_variables.LastInputDirection = _variables.InputDirection;
 	_variables.InputDirection = deltaRotation.Yaw;
@@ -179,6 +179,11 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 		UE_LOG(LogTemp, Warning, TEXT("%s: No CharacterMovementComponent found."), *GetOwner()->GetName());
 		return;
 	}
+
+	_MovementComponent->AirControl = _AirControl;
+	_MovementComponent->BrakingDecelerationWalking = _BrakingDecleration;
+	_MovementComponent->MaxAcceleration = _MaxAcceleration;
+	_MovementComponent->CrouchedHalfHeight = _CrouchHalfHeight;
 
 	_MovementComponent->MaxWalkSpeedCrouched = _MaxCrouchSpeed;
 	_MovementComponent->MaxWalkSpeed = _MaxWalkSpeed;

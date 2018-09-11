@@ -19,6 +19,9 @@ void UInventoryComponent::BeginPlay()
 	check(_Owner);
 
 	_Owner->HolsterWeapon_Event.AddDynamic(this, &UInventoryComponent::OnOwnerWeaponHolster);
+
+	bReplicates = true;
+	bAutoActivate = true;
 }
 
 

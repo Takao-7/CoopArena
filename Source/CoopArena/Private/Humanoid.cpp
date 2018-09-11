@@ -45,12 +45,12 @@ AHumanoid::AHumanoid()
 
 	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 
-	_HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-	_BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("BASComponent"));
-	_Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	AddOwnedComponent(_HealthComponent);
-	AddOwnedComponent(_BASComponent);
-	AddOwnedComponent(_Inventory);
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
+	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	AddOwnedComponent(HealthComponent);
+	AddOwnedComponent(BASComponent);
+	AddOwnedComponent(Inventory);
 }
 
 /////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ void AHumanoid::BeginPlay()
 /////////////////////////////////////////////////////
 void AHumanoid::SetSprinting(bool bWantsToSprint)
 {
-	bool bCanSprint = _BASComponent->GetActorVariables().bIsMovingForward;
+	bool bCanSprint = BASComponent->GetActorVariables().bIsMovingForward;
 	if (bWantsToSprint && bCanSprint)
 	{
 		if (bIsAiming)
