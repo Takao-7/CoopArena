@@ -39,12 +39,6 @@ void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!GetOwner()->GetInstigator()->IsLocallyControlled())
-	{
-		PrimaryComponentTick.SetTickFunctionEnable(false);
-		return;
-	}
-
 	IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
 	if (_BASInterface == nullptr)
 	{
@@ -55,6 +49,11 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	{
 		SetMovementComponentValues();
 		SetUseControlRotationYawOnCharacter();
+	}
+
+	if (!GetOwner()->GetInstigator()->IsLocallyControlled())
+	{
+		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
 }
 
