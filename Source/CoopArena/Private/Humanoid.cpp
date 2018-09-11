@@ -8,6 +8,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/HealthComponent.h"
+#include "Components/BasicAnimationSystemComponent.h"
+#include "Components/InventoryComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
 #include "GameFramework/Controller.h"
@@ -41,6 +44,13 @@ AHumanoid::AHumanoid()
 	SetReplicateMovement(true);
 
 	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+
+	_HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	_BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("BASComponent"));
+	_Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	AddOwnedComponent(_HealthComponent);
+	AddOwnedComponent(_BASComponent);
+	AddOwnedComponent(_Inventory);
 }
 
 /////////////////////////////////////////////////////
@@ -149,9 +159,10 @@ void AHumanoid::BeginPlay()
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::SetSprinting(bool bSprint)
+void AHumanoid::SetSprinting(bool bWantsToSprint)
 {
-	if (bSprint)
+	bool bCanSprint = _BASComponent->GetActorVariables().bIsMovingForward;
+	if (bWantsToSprint && bCanSprint)
 	{
 		if (bIsAiming)
 		{
@@ -165,7 +176,7 @@ void AHumanoid::SetSprinting(bool bSprint)
 		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
 		bIsSprinting = false;
 	}
-	Server_SetSprinting(bSprint);
+	Server_SetSprinting(bIsSprinting);
 }
 
 /////////////////////////////////////////////////////
@@ -413,7 +424,7 @@ FTransform AHumanoid::GetItemOffset(bool bInLocalSpace /*= true*/)
 	return offset;
 }
 
-
+/////////////////////////////////////////////////////
 void AHumanoid::Multicast_ClearItemInHand_Implementation()
 {
 	if (_ItemInHand && !_ItemInHand->IsAttachedTo(this))
@@ -421,6 +432,7 @@ void AHumanoid::Multicast_ClearItemInHand_Implementation()
 		_ItemInHand = nullptr;
 	}
 }
+
 
 /////////////////////////////////////////////////////
 					/* Networking */
@@ -438,19 +450,18 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 /////////////////////////////////////////////////////
 void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
 {
-	if (bSprint)
+	bIsSprinting = bSprint;
+	if (bIsSprinting)
 	{
+		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
 		if (bIsAiming)
 		{
 			ToggleAiming();
 		}
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
-		bIsSprinting = true;
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
-		bIsSprinting = false;
 	}
 }
 

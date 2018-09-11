@@ -12,6 +12,9 @@ class AGun;
 class IInteractable;
 class UDamageType;
 class AItemBase;
+class UHealthComponent;
+class UBasicAnimationSystemComponent;
+class UInventoryComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
@@ -28,6 +31,21 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+
+	/////////////////////////////////////////////////////
+					/* Components */
+	/////////////////////////////////////////////////////
+protected:
+	UPROPERTY(VisibleDefaultsOnly, meta	= (DisplayName = "Health component"))
+	UHealthComponent* _HealthComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, meta = (DisplayName = "BAS component"))
+	UBasicAnimationSystemComponent* _BASComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, meta = (DisplayName = "Inventory"))
+	UInventoryComponent* _Inventory;
+
 
 	/////////////////////////////////////////////////////
 					/* Movement */
@@ -57,7 +75,7 @@ protected:
 	void SetProne(bool bProne);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetSprinting(bool bSprint);
+	void SetSprinting(bool bWantsToSprint);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetCrouch(bool bSprint);

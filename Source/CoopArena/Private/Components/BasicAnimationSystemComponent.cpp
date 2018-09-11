@@ -38,24 +38,22 @@ void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bool bOwnerIsLocallyControlled = GetOwner()->GetInstigator() && GetOwner()->GetInstigator()->IsLocallyControlled();
-	if(bOwnerIsLocallyControlled)
+	if (!GetOwner()->GetInstigator()->IsLocallyControlled())
 	{
-		IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
-		if (_BASInterface == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
-			PrimaryComponentTick.SetTickFunctionEnable(false);
-		}
-		else
-		{
-			SetMovementComponentValues();
-			SetUseControlRotationYawOnCharacter();
-		}
+		PrimaryComponentTick.SetTickFunctionEnable(false);
+		return;
+	}
+
+	IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
+	if (_BASInterface == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
+		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
 	else
 	{
-		PrimaryComponentTick.SetTickFunctionEnable(false);
+		SetMovementComponentValues();
+		SetUseControlRotationYawOnCharacter();
 	}
 }
 
@@ -71,7 +69,7 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetAimPitch();
 	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
 
-	Server_ReplicateVariables(_variables);
+	SetVariables_Server(_variables);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +115,6 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
 	FVector velocityVectorLocalSpace = GetVelocityVectorLocalSpace();
 	velocityVectorLocalSpace.Normalize();
-	//UE_LOG(LogTemp, Warning, TEXT("Velocity local: %s"), *velocityVectorLocalSpace.ToCompactString());
 	if (FMath::IsNearlyZero(velocityVectorLocalSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
@@ -200,6 +197,17 @@ FVector UBasicAnimationSystemComponent::GetVelocityVectorLocalSpace()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetVariables_Server_Implementation(FBASVariables Variables)
+{
+	_variables = Variables;
+}
+
+bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables Variables)
+{
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 bool UBasicAnimationSystemComponent::IsAiming_Implementation()
 {
 	return _variables.bIsAiming;
@@ -235,16 +243,4 @@ void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UBasicAnimationSystemComponent, _variables);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-bool UBasicAnimationSystemComponent::Server_ReplicateVariables_Validate(FBASVariables Variables)
-{
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::Server_ReplicateVariables_Implementation(FBASVariables Variables)
-{
-	_variables = Variables;
 }

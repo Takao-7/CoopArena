@@ -65,11 +65,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _BrakingDecleration;	
 
-protected:
-	virtual void BeginPlay() override;	
-
-	UFUNCTION(Server, Unreliable, WithValidation)
-	void Server_ReplicateVariables(FBASVariables Variables);
+	virtual void BeginPlay() override;
 
 public:	
 	UBasicAnimationSystemComponent();
@@ -79,14 +75,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Basic Animation System")
 	FBASVariables GetActorVariables() const;
 
-	/* Begin BAS Interface */
 
+	/////////////////////////////////////////////////////
+				/* Begin BAS Interface */
+	/////////////////////////////////////////////////////
+public:
 	bool IsAiming_Implementation() override;
 	EWEaponType GetEquippedWeaponType_Implementation() override;
 	EMovementType GetMovementType_Implementation() override;
 	EMovementAdditive GetMovementAdditive_Implementation() override;
 
-	/* End BAS Interface */
+	/////////////////////////////////////////////////////
+				/* End BAS Interface */
+	/////////////////////////////////////////////////////
+
 
 private:
 	void SetMovementDirection();
@@ -99,8 +101,10 @@ private:
 	void SetMovementType();
 	void SetIsMovingForward();
 	void SetAimPitch();
-
 	void SetUseControlRotationYawOnCharacter();
 	void SetMovementComponentValues();
 	FVector GetVelocityVectorLocalSpace();
+
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void SetVariables_Server(FBASVariables Variables);
 };
