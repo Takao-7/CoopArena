@@ -85,5 +85,9 @@ Content/Static/._sync_30de15d1146c.db
 
 # Temp  folder
 enc_temp_folder/*
+<<<<<<< HEAD
 >>>>>>> master
 >>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
+=======
+._sync*
+>>>>>>> master
