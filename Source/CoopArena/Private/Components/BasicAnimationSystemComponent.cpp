@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "BasicAnimationSystemComponent.h"
 #include "Interfaces/BAS_Interface.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -76,8 +74,6 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 void UBasicAnimationSystemComponent::SetMovementDirection()
 {
 	FVector velocity = GetOwner()->GetVelocity();
-	FTransform actorTransform = GetOwner()->GetActorTransform();
-
 	if (FMath::IsNearlyZero(velocity.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
