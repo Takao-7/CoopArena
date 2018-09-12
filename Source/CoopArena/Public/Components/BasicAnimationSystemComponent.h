@@ -26,44 +26,23 @@ private:
 	UPROPERTY(Replicated)
 	FBASVariables _variables;
 
+	void RotateCharacterToMovement(float DeltaTime);
+	FVector GetVelocityVectorControllerSpace();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _IdleTurnAngleThreshold;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MaxCrouchSpeed;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MaxWalkSpeed;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MaxJogSpeed;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _MaxSprintSpeed;
 
-	/* Speed, in degree per second, used to rotate the actor towards the control rotation while moving. */
+	/* Speed used to rotate the actor towards the control rotation while moving. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _MovingTurnSpeed;
 
-	/* Speed used for resetting the view direction. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _ViewDirectionResetSpeed;
+	FVector _localVelocityVector;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _CrouchHalfHeight;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MaxAcceleration;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _JumpZVelocity;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _AirControl;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _BrakingDecleration;	
+	FRotator _newRotationLastFrame;
 
 	virtual void BeginPlay() override;
 

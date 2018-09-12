@@ -10,23 +10,15 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	_AirControl = 0.0f;
-	_BrakingDecleration = 800.0f;
-	_MaxAcceleration = 800.0f;
-	_CrouchHalfHeight = 65.0f;
-	_JumpZVelocity = 300.0f;
-	_MovingTurnSpeed = 260.0f;
-	_ViewDirectionResetSpeed = 7.5f;
+	_MovingTurnSpeed = 10.0f;
 	_IdleTurnAngleThreshold = 90.0f;
-
-	_MaxCrouchSpeed = 200.0f;
-	_MaxWalkSpeed = 200.0f;
-	_MaxJogSpeed = 300.0f;
 	_MaxSprintSpeed = 600.0f;
 
 	_variables.MovementType = EMovementType::Idle;
 	_variables.MovementAdditive = EMovementAdditive::None;
 	_variables.EquippedWeaponType = EWEaponType::None;
+
+	_newRotationLastFrame = FRotator();
 
 	bReplicates = true;
 	bAutoActivate = true;
@@ -45,8 +37,8 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	}
 	else
 	{
-		SetMovementComponentValues();
-		SetUseControlRotationYawOnCharacter();
+		//SetMovementComponentValues();
+		//SetUseControlRotationYawOnCharacter();
 	}
 
 	if (!GetOwner()->GetInstigator()->IsLocallyControlled())
@@ -65,6 +57,7 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetMovementType();
 	SetIsMovingForward();
 	SetAimPitch();
+	RotateCharacterToMovement(DeltaTime);
 	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
 
 	SetVariables_Server(_variables);
@@ -94,7 +87,14 @@ FVector UBasicAnimationSystemComponent::SetHorizontalVelocity()
 	FVector velocityVector = GetOwner()->GetVelocity();
 	velocityVector.Z = 0.0f;
 
-	_variables.HorizontalVelocity = velocityVector.Size();
+	FTransform actorTransform = GetOwner()->GetActorTransform();
+	_localVelocityVector = actorTransform.InverseTransformVector(velocityVector);
+	float localForwardVelocity = _localVelocityVector.X;
+
+	float velocity = velocityVector.Size();
+	localForwardVelocity < 0.0f ? velocity *= -1.0f : velocity;
+	
+	_variables.HorizontalVelocity = velocity;
 	return velocityVector;
 }
 
@@ -108,7 +108,7 @@ void UBasicAnimationSystemComponent::SetMovementType()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	FVector velocityVectorLocalSpace = GetVelocityVectorLocalSpace();
+	FVector velocityVectorLocalSpace = GetVelocityVectorControllerSpace();
 	velocityVectorLocalSpace.Normalize();
 	if (FMath::IsNearlyZero(velocityVectorLocalSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
@@ -126,13 +126,13 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 	}
 	else
 	{
-		int32 xInput = FMath::RoundToInt(velocityVectorLocalSpace.X);
+		int32 xVelocity = FMath::RoundToInt(velocityVectorLocalSpace.X);
 		/*
 		 * We are moving forward when:
 		 * a) The X-Input is positive or
 		 * b) The X-Input is 0 and the last input was positive
 		 */
-		_variables.bIsMovingForward = (xInput > 0) || (FMath::Abs(xInput) == 0 && _variables.bWasMovingForward);
+		_variables.bIsMovingForward = xVelocity > 0 || (FMath::Abs(xVelocity) == 0 && _variables.bWasMovingForward);
 	}
 	_variables.bWasMovingForward = _variables.bIsMovingForward;
 }
@@ -175,14 +175,6 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 		return;
 	}
 
-	_MovementComponent->AirControl = _AirControl;
-	_MovementComponent->BrakingDecelerationWalking = _BrakingDecleration;
-	_MovementComponent->MaxAcceleration = _MaxAcceleration;
-	_MovementComponent->CrouchedHalfHeight = _CrouchHalfHeight;
-
-	_MovementComponent->MaxWalkSpeedCrouched = _MaxCrouchSpeed;
-	_MovementComponent->MaxWalkSpeed = _MaxWalkSpeed;
-
 	_MovementComponent->bUseControllerDesiredRotation = true;
 	_MovementComponent->RotationRate.Yaw = _MovingTurnSpeed;
 
@@ -190,6 +182,49 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::RotateCharacterToMovement(float DeltaTime)
+{
+	if (FMath::IsNearlyZero(_localVelocityVector.Size(), 0.1f))
+	{
+		return;
+	}
+
+	FRotator actorRotation = GetOwner()->GetActorRotation();
+	FVector velocityVector = GetOwner()->GetVelocity();
+	if (!_variables.bIsMovingForward)
+	{
+		velocityVector *= -1.0f;
+	}
+	FRotator velocity = velocityVector.ToOrientationRotator();
+
+	FRotator newRotation = FMath::RInterpTo(actorRotation, velocity, DeltaTime, _MovingTurnSpeed);
+	FRotator delta = velocity - actorRotation;
+	/*if (delta.Yaw > 180.0f)
+	{
+		newRotation.Yaw -= 180.0f;
+	}
+	else if (delta.Yaw < -180.0f)
+	{
+		newRotation.Yaw += 180.0f;
+	}*/
+
+	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s | Actor: %s | Delta: %s | New Rotation: %s"), *velocity.ToCompactString(), *actorRotation.ToCompactString(), *delta.ToCompactString(), *newRotation.ToCompactString());
+
+	//UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *newRotation.ToCompactString());
+	//UE_LOG(LogTemp, Warning, TEXT("Delta: %s"), *delta.ToCompactString());
+
+	GetOwner()->SetActorRotation(newRotation);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+FVector UBasicAnimationSystemComponent::GetVelocityVectorControllerSpace()
+{
+	FTransform controlTransform = GetOwner()->GetActorTransform();
+	controlTransform.SetRotation(GetOwner()->GetInstigatorController()->GetControlRotation().Quaternion());
+	FVector velocity = GetOwner()->GetVelocity();
+	return controlTransform.InverseTransformVector(velocity);
+}
+
 FVector UBasicAnimationSystemComponent::GetVelocityVectorLocalSpace()
 {
 	FTransform actorTransform = GetOwner()->GetTransform();

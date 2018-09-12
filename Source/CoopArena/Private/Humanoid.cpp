@@ -201,10 +201,9 @@ void AHumanoid::MoveForward(float Value)
 {
 	if (Controller && Value != 0.0f)
 	{
-		// Limit pitch when walking or falling
-		const bool bLimitRotation = (GetCharacterMovement()->IsMovingOnGround() || GetCharacterMovement()->IsFalling());
-		const FRotator Rotation = bLimitRotation ? GetActorRotation() : Controller->GetControlRotation();
-		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0.0f;
+		const FVector Direction = Rotation.Vector();
 		AddMovementInput(Direction, Value);
 	}
 	else if (Value < 0.0f && bIsSprinting)
@@ -215,10 +214,11 @@ void AHumanoid::MoveForward(float Value)
 
 void AHumanoid::MoveRight(float Value)
 {
-	if (Value != 0.0f && !bIsSprinting)
+	if (Controller && Value != 0.0f && !bIsSprinting)
 	{
-		const FQuat Rotation = GetActorQuat();
-		const FVector Direction = FQuatRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
+		FRotator Rotation = Controller->GetControlRotation();
+		Rotation.Pitch = 0.0f;
+		const FVector Direction = Rotation.Vector().RotateAngleAxis(90.0f, FVector(0.0f, 0.0f, 1.0f));
 		AddMovementInput(Direction, Value);
 	}
 }
