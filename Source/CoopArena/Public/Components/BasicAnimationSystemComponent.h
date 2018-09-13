@@ -40,11 +40,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
 	float _MovingTurnSpeed;
 
-	FVector _localVelocityVector;
-
-	FRotator _newRotationLastFrame;
-
 	virtual void BeginPlay() override;
+
+private:
+	FVector m_LocalVelocityVector;
+	/* Normalized velocity relative to the controller. */
+	FVector m_VelocityControlSpace_LastFrame;
 
 public:	
 	UBasicAnimationSystemComponent();

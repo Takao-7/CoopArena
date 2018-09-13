@@ -18,8 +18,6 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	_variables.MovementAdditive = EMovementAdditive::None;
 	_variables.EquippedWeaponType = EWEaponType::None;
 
-	_newRotationLastFrame = FRotator();
-
 	bReplicates = true;
 	bAutoActivate = true;
 }
@@ -72,9 +70,9 @@ void UBasicAnimationSystemComponent::SetMovementDirection()
 		return;
 	}
 
-	FRotator inputRotator = velocity.ToOrientationRotator();
+	FRotator velocityRotation = velocity.ToOrientationRotator();
 	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
-	FRotator deltaRotation = inputRotator - controlRotation;
+	FRotator deltaRotation = velocityRotation - controlRotation;
 	deltaRotation.Normalize();
 
 	_variables.LastInputDirection = _variables.InputDirection;
@@ -88,8 +86,8 @@ FVector UBasicAnimationSystemComponent::SetHorizontalVelocity()
 	velocityVector.Z = 0.0f;
 
 	FTransform actorTransform = GetOwner()->GetActorTransform();
-	_localVelocityVector = actorTransform.InverseTransformVector(velocityVector);
-	float localForwardVelocity = _localVelocityVector.X;
+	m_LocalVelocityVector = actorTransform.InverseTransformVector(velocityVector);
+	float localForwardVelocity = m_LocalVelocityVector.X;
 
 	float velocity = velocityVector.Size();
 	localForwardVelocity < 0.0f ? velocity *= -1.0f : velocity;
@@ -108,32 +106,27 @@ void UBasicAnimationSystemComponent::SetMovementType()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	FVector velocityVectorLocalSpace = GetVelocityVectorControllerSpace();
-	velocityVectorLocalSpace.Normalize();
-	if (FMath::IsNearlyZero(velocityVectorLocalSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
+	FVector velocityControlSpace = GetVelocityVectorControllerSpace();
+	velocityControlSpace.Normalize();
+	if (FMath::IsNearlyZero(velocityControlSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
 	{
 		return;
 	}
 
-	/*
-	 * If the angle between this and the last input direction is very high (optimal 180°),
-	 * we are moving at the exact opposite direction, so we don't have to turn around.
-	 */
-	float inputDirectionDelta = FMath::Abs(_variables.InputDirection - _variables.LastInputDirection);
-	if (inputDirectionDelta >= 179.0f)
+	//UE_LOG(LogTemp, Display, TEXT("Velocity: %s"), *velocityControlSpace.ToCompactString());
+	if (FMath::Abs(velocityControlSpace.X) < 0.5f) // Are we moving sideways?
 	{
-		_variables.bIsMovingForward = !_variables.bIsMovingForward;
+		// We are moving (roughly) sideways, so only change direction, if we move in the opposite direction.
+		if (FMath::IsNearlyZero(velocityControlSpace.Y + m_VelocityControlSpace_LastFrame.Y, 0.1f))
+		{
+			_variables.bIsMovingForward = !_variables.bIsMovingForward;
+		}
 	}
 	else
 	{
-		int32 xVelocity = FMath::RoundToInt(velocityVectorLocalSpace.X);
-		/*
-		 * We are moving forward when:
-		 * a) The X-Input is positive or
-		 * b) The X-Input is 0 and the last input was positive
-		 */
-		_variables.bIsMovingForward = xVelocity > 0 || (FMath::Abs(xVelocity) == 0 && _variables.bWasMovingForward);
+		_variables.bIsMovingForward = velocityControlSpace.X > 0.0f;
 	}
+	m_VelocityControlSpace_LastFrame = velocityControlSpace;
 	_variables.bWasMovingForward = _variables.bIsMovingForward;
 }
 
@@ -184,34 +177,22 @@ void UBasicAnimationSystemComponent::SetMovementComponentValues()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::RotateCharacterToMovement(float DeltaTime)
 {
-	if (FMath::IsNearlyZero(_localVelocityVector.Size(), 0.1f))
+	if (FMath::IsNearlyZero(m_LocalVelocityVector.Size(), 0.1f))
 	{
 		return;
 	}
 
+	FVector velocity = GetOwner()->GetVelocity();
+	if(!_variables.bIsMovingForward)
+	{
+		velocity *= -1.0f;
+	}
+
 	FRotator actorRotation = GetOwner()->GetActorRotation();
-	FVector velocityVector = GetOwner()->GetVelocity();
-	if (!_variables.bIsMovingForward)
-	{
-		velocityVector *= -1.0f;
-	}
-	FRotator velocity = velocityVector.ToOrientationRotator();
-
-	FRotator newRotation = FMath::RInterpTo(actorRotation, velocity, DeltaTime, _MovingTurnSpeed);
-	FRotator delta = velocity - actorRotation;
-	/*if (delta.Yaw > 180.0f)
-	{
-		newRotation.Yaw -= 180.0f;
-	}
-	else if (delta.Yaw < -180.0f)
-	{
-		newRotation.Yaw += 180.0f;
-	}*/
-
-	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s | Actor: %s | Delta: %s | New Rotation: %s"), *velocity.ToCompactString(), *actorRotation.ToCompactString(), *delta.ToCompactString(), *newRotation.ToCompactString());
-
-	//UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *newRotation.ToCompactString());
-	//UE_LOG(LogTemp, Warning, TEXT("Delta: %s"), *delta.ToCompactString());
+	FRotator newRotation = actorRotation;
+	newRotation.Yaw = velocity.ToOrientationRotator().Yaw;
+	newRotation = FMath::RInterpTo(actorRotation, newRotation, DeltaTime, _MovingTurnSpeed);	
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity: %s | New Rotation: %s"), *velocity.ToCompactString(), *newRotation.ToCompactString());
 
 	GetOwner()->SetActorRotation(newRotation);
 }
