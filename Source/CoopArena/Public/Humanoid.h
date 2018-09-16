@@ -54,6 +54,7 @@ protected:
 	/** Handles moving forward/backward */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void MoveForward(float value);
+
 	/** Handles strafing movement, left and right */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void MoveRight(float value);
@@ -64,6 +65,7 @@ protected:
 	*/
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void TurnAtRate(float value);
+
 	/**
 	* Called via input to turn look up/down at a given rate.
 	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -74,6 +76,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetProne(bool bProne);
 
+	/*  */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetSprinting(bool bWantsToSprint);
 
