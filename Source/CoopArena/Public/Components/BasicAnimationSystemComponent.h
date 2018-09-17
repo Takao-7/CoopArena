@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Structs/BASVariables.h"
 #include "Interfaces/BAS_Interface.h"
 #include "BasicAnimationSystemComponent.generated.h"
 
@@ -13,10 +12,60 @@ class UCharacterMovementComponent;
 class IBAS_Interface;
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent, public IBAS_Interface
+USTRUCT(BlueprintType)
+struct FBASVariables
 {
 	GENERATED_BODY()
+
+	/* The yaw angle between the control rotation and the velocity direction. */
+	UPROPERTY(BlueprintReadOnly)
+	float AimYaw;
+
+	/* The pitch angle between the control rotation and the actor's pitch.  */
+	UPROPERTY(BlueprintReadOnly)
+	float AimPitch;
+
+	/* The actor's horizontal speed. */
+	UPROPERTY(BlueprintReadOnly)
+	float HorizontalVelocity;
+
+	/* Is the actor moving forward. */
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsMovingForward;
+
+	/* Is the actor aiming through his weapon's ironsights. */
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsAiming;
+
+	/* The actor's current movement type. */
+	UPROPERTY(BlueprintReadOnly)
+	EMovementType MovementType;
+
+	UPROPERTY(BlueprintReadOnly)
+	EMovementAdditive MovementAdditive;
+
+	UPROPERTY(BlueprintReadOnly)
+	EWEaponType EquippedWeaponType;
+};
+
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+protected:
+	/* The angle between the actor's feed and his head (controller) at which the actor will turn. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Idle turn angle threshold"))
+	float m_IdleTurnAngleThreshold;
+
+	/* The actor's max speed. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Max sprint speed"))
+	float m_MaxActorSpeed;
+
+	/* How fast the actor rotates towards his moving direction. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
+	float m_TurnSpeed;
 
 private:
 	/* The owner's character movement component. */
@@ -24,28 +73,12 @@ private:
 
 	/* Relevant calculated variables from the actor. */
 	UPROPERTY(Replicated)
-	FBASVariables _variables;
+	FBASVariables m_Variables;
 
-	void RotateCharacterToMovement(float DeltaTime);
-	FVector GetVelocityVectorControllerSpace();
+	float m_AimYawLastFrame;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _IdleTurnAngleThreshold;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MaxSprintSpeed;
-
-	/* Speed used to rotate the actor towards the control rotation while moving. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System")
-	float _MovingTurnSpeed;
-
 	virtual void BeginPlay() override;
-
-private:
-	FVector m_LocalVelocityVector;
-	/* Normalized velocity relative to the controller. */
-	FVector m_VelocityControlSpace_LastFrame;
 
 public:	
 	UBasicAnimationSystemComponent();
@@ -55,35 +88,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Basic Animation System")
 	FBASVariables GetActorVariables() const;
 
-
-	/////////////////////////////////////////////////////
-				/* Begin BAS Interface */
-	/////////////////////////////////////////////////////
-public:
-	bool IsAiming_Implementation() override;
-	EWEaponType GetEquippedWeaponType_Implementation() override;
-	EMovementType GetMovementType_Implementation() override;
-	EMovementAdditive GetMovementAdditive_Implementation() override;
-
-	/////////////////////////////////////////////////////
-				/* End BAS Interface */
-	/////////////////////////////////////////////////////
-
-
 private:
-	void SetMovementDirection();
-
-	/**
-	 * Sets the horizontal velocity in _variables.
-	 * @return The velocity vector. Z-value set to 0.
-	 */ 
-	FVector SetHorizontalVelocity();
-	void SetMovementType();
+	void SetHorizontalVelocity();
 	void SetIsMovingForward();
+	void SetMovementType();
+	void SetAimYaw(float DeltaTime);
 	void SetAimPitch();
-	void SetUseControlRotationYawOnCharacter();
-	void SetMovementComponentValues();
-	FVector GetVelocityVectorLocalSpace();
 
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void SetVariables_Server(FBASVariables Variables);

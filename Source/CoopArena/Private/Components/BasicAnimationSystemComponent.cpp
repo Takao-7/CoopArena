@@ -10,13 +10,13 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	_MovingTurnSpeed = 10.0f;
-	_IdleTurnAngleThreshold = 90.0f;
-	_MaxSprintSpeed = 600.0f;
+	m_IdleTurnAngleThreshold = 90.0f;
+	m_MaxActorSpeed = 600.0f;
+	m_TurnSpeed = 10.0f;
 
-	_variables.MovementType = EMovementType::Idle;
-	_variables.MovementAdditive = EMovementAdditive::None;
-	_variables.EquippedWeaponType = EWEaponType::None;
+	m_Variables.MovementType = EMovementType::Idle;
+	m_Variables.MovementAdditive = EMovementAdditive::None;
+	m_Variables.EquippedWeaponType = EWEaponType::None;
 
 	bReplicates = true;
 	bAutoActivate = true;
@@ -33,16 +33,14 @@ void UBasicAnimationSystemComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
 		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
-	else
-	{
-		//SetMovementComponentValues();
-		//SetUseControlRotationYawOnCharacter();
-	}
 
-	if (!GetOwner()->GetInstigator()->IsLocallyControlled())
+	bool bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
+	if (!bIsLocallyControlled)
 	{
 		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
+
+	m_AimYawLastFrame = GetOwner()->GetActorRotation().Yaw;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -50,84 +48,72 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetMovementDirection();
 	SetHorizontalVelocity();
-	SetMovementType();
 	SetIsMovingForward();
+	SetMovementType();
+	SetAimYaw(DeltaTime);
 	SetAimPitch();
-	RotateCharacterToMovement(DeltaTime);
-	_variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
+	m_Variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
 
-	SetVariables_Server(_variables);
+	SetVariables_Server(m_Variables);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetMovementDirection()
+void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 {
 	FVector velocity = GetOwner()->GetVelocity();
-	if (FMath::IsNearlyZero(velocity.Size(), 0.1f))	// Only set movement direction if we are moving.
-	{
-		return;
-	}
-
-	FRotator velocityRotation = velocity.ToOrientationRotator();
-	FRotator controlRotation = GetOwner()->GetInstigator()->GetControlRotation();
-	FRotator deltaRotation = velocityRotation - controlRotation;
-	deltaRotation.Normalize();
-
-	_variables.LastInputDirection = _variables.InputDirection;
-	_variables.InputDirection = deltaRotation.Yaw;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-FVector UBasicAnimationSystemComponent::SetHorizontalVelocity()
-{
-	FVector velocityVector = GetOwner()->GetVelocity();
-	velocityVector.Z = 0.0f;
+	velocity.Z = 0.0f;
+	float horizontalVelocity = velocity.Size();
+	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.01f) ? 0.0f : horizontalVelocity;
 
 	FTransform actorTransform = GetOwner()->GetActorTransform();
-	m_LocalVelocityVector = actorTransform.InverseTransformVector(velocityVector);
-	float localForwardVelocity = m_LocalVelocityVector.X;
+	float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
+	horizontalVelocity *= FMath::Abs(yawDelta) > 100.0f ? -1.0f : 1.0f;
 
-	float velocity = velocityVector.Size();
-	localForwardVelocity < 0.0f ? velocity *= -1.0f : velocity;
-	
-	_variables.HorizontalVelocity = velocity;
-	return velocityVector;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetMovementType()
-{
-	_variables.MovementType = IBAS_Interface::Execute_GetMovementType(GetOwner());
-	_variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
+	m_Variables.HorizontalVelocity = horizontalVelocity;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	FVector velocityControlSpace = GetVelocityVectorControllerSpace();
-	velocityControlSpace.Normalize();
-	if (FMath::IsNearlyZero(velocityControlSpace.Size(), 0.1f))	// Only set movement direction if we are moving.
+	if (m_Variables.HorizontalVelocity == 0.0f)
 	{
 		return;
 	}
 
-	//UE_LOG(LogTemp, Display, TEXT("Velocity: %s"), *velocityControlSpace.ToCompactString());
-	if (FMath::Abs(velocityControlSpace.X) < 0.5f) // Are we moving sideways?
+	m_Variables.bIsMovingForward = m_Variables.HorizontalVelocity > 0.0f ? true : false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetMovementType()
+{
+	m_Variables.MovementType = IBAS_Interface::Execute_GetMovementType(GetOwner());
+	m_Variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
+{
+	FRotator actorRotation = GetOwner()->GetActorRotation();
+
+	if (m_Variables.HorizontalVelocity == 0.0f)
 	{
-		// We are moving (roughly) sideways, so only change direction, if we move in the opposite direction.
-		if (FMath::IsNearlyZero(velocityControlSpace.Y + m_VelocityControlSpace_LastFrame.Y, 0.1f))
-		{
-			_variables.bIsMovingForward = !_variables.bIsMovingForward;
-		}
+		float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
+		m_Variables.AimYaw += deltaYaw;
 	}
 	else
 	{
-		_variables.bIsMovingForward = velocityControlSpace.X > 0.0f;
+		FVector velocity = GetOwner()->GetVelocity();
+		velocity.Z = 0.0f;
+		velocity *= m_Variables.bIsMovingForward ? 1.0f : -1.0f;
+
+		FTransform actorTransform = GetOwner()->GetActorTransform();
+		float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
+		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);
 	}
-	m_VelocityControlSpace_LastFrame = velocityControlSpace;
-	_variables.bWasMovingForward = _variables.bIsMovingForward;
+
+	m_AimYawLastFrame = actorRotation.Yaw;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -138,84 +124,13 @@ void UBasicAnimationSystemComponent::SetAimPitch()
 	{
 		controlPitch -= 360.0f;
 	}
-	_variables.AimPitch = controlPitch;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetUseControlRotationYawOnCharacter()
-{
-	APlayerCharacter* ownerCharacter = Cast<APlayerCharacter>(GetOwner());
-	if (ownerCharacter)
-	{
-		if (_MovementComponent)
-		{
-			ownerCharacter->bUseControllerRotationYaw = false;
-		}
-		else
-		{
-			ownerCharacter->bUseControllerRotationYaw = true;
-		}
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetMovementComponentValues()
-{
-	_MovementComponent = Cast<UCharacterMovementComponent>(GetOwner()->FindComponentByClass<UCharacterMovementComponent>());
-	if (_MovementComponent == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: No CharacterMovementComponent found."), *GetOwner()->GetName());
-		return;
-	}
-
-	_MovementComponent->bUseControllerDesiredRotation = true;
-	_MovementComponent->RotationRate.Yaw = _MovingTurnSpeed;
-
-	_MovementComponent->GetNavAgentPropertiesRef().bCanCrouch = true;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::RotateCharacterToMovement(float DeltaTime)
-{
-	if (FMath::IsNearlyZero(m_LocalVelocityVector.Size(), 0.1f))
-	{
-		return;
-	}
-
-	FVector velocity = GetOwner()->GetVelocity();
-	if(!_variables.bIsMovingForward)
-	{
-		velocity *= -1.0f;
-	}
-
-	FRotator actorRotation = GetOwner()->GetActorRotation();
-	FRotator newRotation = actorRotation;
-	newRotation.Yaw = velocity.ToOrientationRotator().Yaw;
-	newRotation = FMath::RInterpTo(actorRotation, newRotation, DeltaTime, _MovingTurnSpeed);	
-	//UE_LOG(LogTemp, Warning, TEXT("Velocity: %s | New Rotation: %s"), *velocity.ToCompactString(), *newRotation.ToCompactString());
-
-	GetOwner()->SetActorRotation(newRotation);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-FVector UBasicAnimationSystemComponent::GetVelocityVectorControllerSpace()
-{
-	FTransform controlTransform = GetOwner()->GetActorTransform();
-	controlTransform.SetRotation(GetOwner()->GetInstigatorController()->GetControlRotation().Quaternion());
-	FVector velocity = GetOwner()->GetVelocity();
-	return controlTransform.InverseTransformVector(velocity);
-}
-
-FVector UBasicAnimationSystemComponent::GetVelocityVectorLocalSpace()
-{
-	FTransform actorTransform = GetOwner()->GetTransform();
-	return actorTransform.InverseTransformVector(GetOwner()->GetVelocity());
+	m_Variables.AimPitch = controlPitch;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetVariables_Server_Implementation(FBASVariables Variables)
 {
-	_variables = Variables;
+	m_Variables = Variables;
 }
 
 bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables Variables)
@@ -224,33 +139,9 @@ bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-bool UBasicAnimationSystemComponent::IsAiming_Implementation()
-{
-	return _variables.bIsAiming;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-EWEaponType UBasicAnimationSystemComponent::GetEquippedWeaponType_Implementation()
-{
-	return _variables.EquippedWeaponType;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-EMovementType UBasicAnimationSystemComponent::GetMovementType_Implementation()
-{
-	return _variables.MovementType;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-EMovementAdditive UBasicAnimationSystemComponent::GetMovementAdditive_Implementation()
-{
-	return _variables.MovementAdditive;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
 FBASVariables UBasicAnimationSystemComponent::GetActorVariables() const
 {
-	return _variables;
+	return m_Variables;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -258,5 +149,5 @@ void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UBasicAnimationSystemComponent, _variables);
+	DOREPLIFETIME(UBasicAnimationSystemComponent, m_Variables);
 }
