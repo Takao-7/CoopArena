@@ -186,6 +186,15 @@ void AHumanoid::StopFireEquippedWeapon()
 }
 
 /////////////////////////////////////////////////////
+void AHumanoid::SetEquippedWeaponFireMode(EFireMode NewFireMode)
+{
+	if (_EquippedWeapon)
+	{
+		_EquippedWeapon->SetFireMode(NewFireMode);
+	}
+}
+
+/////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
 	if (Controller && Value != 0.0f)

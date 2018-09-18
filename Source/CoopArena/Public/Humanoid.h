@@ -183,17 +183,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
 
-protected:
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void OnEquipWeapon();	
-
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void FireEquippedWeapon();
-
+	
 	/* Stops firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void StopFireEquippedWeapon();		
+	virtual void StopFireEquippedWeapon();	
+
+	/* Sets the equipped weapon's fire mode to the given value if the weapon has that mode. */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void SetEquippedWeaponFireMode(EFireMode NewFireMode);
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	virtual void OnEquipWeapon();	
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void ToggleAiming();	
