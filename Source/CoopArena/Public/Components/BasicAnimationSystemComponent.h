@@ -67,15 +67,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
 
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System")
+	UAnimMontage* TurnLeftAnimation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System")
+	UAnimMontage* TurnRightAnimation;
+
 private:
 	/* The owner's character movement component. */
-	UCharacterMovementComponent* _MovementComponent;
+	UCharacterMovementComponent* m_MovementComponent;
 
 	/* Relevant calculated variables from the actor. */
 	UPROPERTY(Replicated)
 	FBASVariables m_Variables;
 
 	float m_AimYawLastFrame;
+
+	bool m_bTurnAnimIsPlaying;
+	bool m_bIsTurningRight;
+
+	UAnimInstance* m_AnimInstance;
 
 protected:
 	virtual void BeginPlay() override;
@@ -93,6 +104,9 @@ private:
 	void SetIsMovingForward();
 	void SetMovementType();
 	void SetAimYaw(float DeltaTime);
+
+	void ClampAimYaw();
+
 	void SetAimPitch();
 
 	UFUNCTION(Server, Unreliable, WithValidation)

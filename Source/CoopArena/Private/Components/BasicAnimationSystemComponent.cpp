@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
+#include "Animation/AnimInstance.h"
 #include "UnrealNetwork.h"
 
 
@@ -20,6 +21,8 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 
 	bReplicates = true;
 	bAutoActivate = true;
+
+	m_bTurnAnimIsPlaying = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +44,17 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	}
 
 	m_AimYawLastFrame = GetOwner()->GetActorRotation().Yaw;
+
+	/* Get animation instance */
+	ACharacter* character = Cast<ACharacter>(GetOwner());
+	if (character)
+	{
+		m_AnimInstance = character->GetMesh()->GetAnimInstance();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("'%s' does not have an animation instance!"), *GetOwner()->GetName());
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +82,7 @@ void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 
 	FTransform actorTransform = GetOwner()->GetActorTransform();
 	float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
-	horizontalVelocity *= FMath::Abs(yawDelta) > 100.0f ? -1.0f : 1.0f;
+	horizontalVelocity *= FMath::Abs(yawDelta) > 120.0f ? -1.0f : 1.0f;
 
 	m_Variables.HorizontalVelocity = horizontalVelocity;
 }
@@ -99,8 +113,34 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 	if (m_Variables.HorizontalVelocity == 0.0f)
 	{
-		float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
-		m_Variables.AimYaw += deltaYaw;
+		if (m_Variables.AimYaw <= -90.0f && !m_bTurnAnimIsPlaying && TurnRightAnimation)
+		{
+			m_AnimInstance->Montage_Play(TurnRightAnimation);
+			m_bTurnAnimIsPlaying = true;
+			m_bIsTurningRight = true;
+		}
+		else if (m_Variables.AimYaw >= 90.0f && !m_bTurnAnimIsPlaying && TurnLeftAnimation)
+		{
+			m_AnimInstance->Montage_Play(TurnLeftAnimation);
+			m_bTurnAnimIsPlaying = true;
+			m_bIsTurningRight = false;
+		}		
+
+		if (m_bTurnAnimIsPlaying)
+		{
+			float curveValue;
+			bool bFoundCurveValue = m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);
+			if(bFoundCurveValue)
+			{
+				float deltaYaw = 90.0f + curveValue;
+				m_Variables.AimYaw += deltaYaw * m_bIsTurningRight ? 1.0f : -1.0f;
+			}
+		}
+		else
+		{
+			float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
+			m_Variables.AimYaw += deltaYaw;
+		}
 	}
 	else
 	{
@@ -114,6 +154,30 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	}
 
 	m_AimYawLastFrame = actorRotation.Yaw;
+	ClampAimYaw();
+	
+	if (m_bTurnAnimIsPlaying)
+	{
+		bool bLeftAnimPlaying = m_AnimInstance->Montage_IsPlaying(TurnLeftAnimation);
+		bool bRightAnimPlaying = m_AnimInstance->Montage_IsPlaying(TurnRightAnimation);
+		if (!bLeftAnimPlaying && !bRightAnimPlaying)
+		{
+			m_bTurnAnimIsPlaying = false;
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::ClampAimYaw()
+{
+	if (m_Variables.AimYaw > 180.0f)
+	{
+		m_Variables.AimYaw -= 360.0f;
+	}
+	else if (m_Variables.AimYaw < -180.0f)
+	{
+		m_Variables.AimYaw += 360.0f;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
