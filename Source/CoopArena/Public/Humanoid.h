@@ -18,6 +18,7 @@ class UInventoryComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleAiming_Signature, bool, bIsAiming);
 
 
 UCLASS()
@@ -50,6 +51,21 @@ protected:
 	/////////////////////////////////////////////////////
 					/* Movement */
 	/////////////////////////////////////////////////////
+public:
+	/**
+	* Sets the character's velocity to the given value. Will clamp the new velocity to the allowed range.
+	* @return The new max walk velocity.
+	*/
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	float SetVelocity(float NewVelocity);
+
+	/**
+	 * Increments the character's velocity by the given value. Will clamp the new velocity to the allowed range.
+	 * @return The new max walk velocity.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	float IncrementVelocity(float Increment);
+
 protected:
 	/** Handles moving forward/backward */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -76,12 +92,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetProne(bool bProne);
 
-	/*  */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetSprinting(bool bWantsToSprint);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetCrouch(bool bSprint);
+	void SetCrouch(bool bCrouch);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ToggleJump();
@@ -109,11 +124,21 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
 	bool bIsProne;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float _MaxSprintSpeed;
+	/* The maximum speed at which this character can move forwards. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max forward speed"))
+	float m_MaxForwardSpeed;
 
-	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	float _MaxWalkingSpeed;
+	/* If the character's speed is greater than this, he is sprinting. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed threshold"))
+	float m_SprintingSpeedThreshold;
+
+	/* The maximum velocity, in cm/s, at which the character can crouch (forward and backward).  */
+	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
+	float m_MaxCrouchingSpeed;
+
+	/* The maximum speed at which the character can move backwards. */
+	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max backwards speed"))
+	float m_MaxBackwardsSpeed;
 
 
 	/////////////////////////////////////////////////////
@@ -173,6 +198,9 @@ protected:
 						/* Weapon */
 	/////////////////////////////////////////////////////
 public:
+	UPROPERTY(BlueprintAssignable, Category = Humanoid)
+	FOnToggleAiming_Signature OnToggleAiming_Event;
+
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	FName GetEquippedWeaponAttachPoint() const;
 

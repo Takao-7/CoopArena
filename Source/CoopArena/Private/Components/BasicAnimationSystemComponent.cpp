@@ -102,7 +102,7 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 void UBasicAnimationSystemComponent::SetMovementType()
 {
 	m_Variables.MovementType = IBAS_Interface::Execute_GetMovementType(GetOwner());
-	m_Variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
+	//m_Variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
 }
 
 
@@ -203,7 +203,7 @@ bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-FBASVariables UBasicAnimationSystemComponent::GetActorVariables() const
+FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 {
 	return m_Variables;
 }

@@ -12,6 +12,9 @@ class UCharacterMovementComponent;
 class IBAS_Interface;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJump_Signature);
+
+
 USTRUCT(BlueprintType)
 struct FBASVariables
 {
@@ -91,13 +94,17 @@ private:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
+	/* Event to call when the actor wants to jump. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Basic Animation System", meta = (DisplayName = "On jump event"))
+	FOnJump_Signature OnJumpEvent;
+
 	UBasicAnimationSystemComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
 	UFUNCTION(BlueprintPure, Category = "Basic Animation System")
-	FBASVariables GetActorVariables() const;
+	FBASVariables& GetActorVariables();
 
 private:
 	void SetHorizontalVelocity();

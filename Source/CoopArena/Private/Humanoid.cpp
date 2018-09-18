@@ -37,7 +37,8 @@ AHumanoid::AHumanoid()
 	bIsCrouched = false;
 	bIsAiming = false;
 
-	_MaxSprintSpeed = 650.0f;
+	m_MaxForwardSpeed = 600.0f;
+	m_MaxCrouchingSpeed = 200.0f;
 	bToggleProne = true;
 
 	SetReplicates(true);
@@ -109,16 +110,22 @@ EWEaponType AHumanoid::GetEquippedWeaponType_Implementation()
 /////////////////////////////////////////////////////
 EMovementType AHumanoid::GetMovementType_Implementation()
 {
-	if (FMath::IsNearlyZero(GetVelocity().Size(), 0.1f))
+	FVector velocityVector = GetVelocity();
+	velocityVector.Z = 0.0f;
+	float velocity = velocityVector.Size();
+	if (FMath::IsNearlyZero(velocity, 0.1f))
 	{
+		bIsSprinting = false;
 		return EMovementType::Idle;
 	}
-	else if (bIsSprinting)
+	else if (bIsSprinting || velocity > m_SprintingSpeedThreshold)
 	{
+		bIsSprinting = true;
 		return EMovementType::Sprinting;
 	}
 	else
 	{
+		bIsSprinting = false;
 		return EMovementType::Moving;
 	}
 }
@@ -151,7 +158,7 @@ void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_MaxWalkingSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	m_MaxBackwardsSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	if (HasAuthority())
 	{
 		SetUpDefaultEquipment();
@@ -168,12 +175,12 @@ void AHumanoid::SetSprinting(bool bWantsToSprint)
 		{
 			ToggleAiming();
 		}
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
 		bIsSprinting = true;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = m_SprintingSpeedThreshold;
 		bIsSprinting = false;
 	}
 	Server_SetSprinting(bIsSprinting);
@@ -194,6 +201,30 @@ void AHumanoid::StopFireEquippedWeapon()
 	{
 		_EquippedWeapon->OnStopFire();
 	}
+}
+
+/////////////////////////////////////////////////////
+float AHumanoid::SetVelocity(float NewVelocity)
+{
+	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(NewVelocity, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
+	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(NewVelocity, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
+
+	GetMovementType_Implementation();
+
+	return GetCharacterMovement()->MaxWalkSpeed;
+}
+
+float AHumanoid::IncrementVelocity(float Increment)
+{
+	float newMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed + Increment;
+	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(newMaxWalkSpeed, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
+
+	float newMaxCrouchingSpeed = GetCharacterMovement()->MaxWalkSpeedCrouched + Increment;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(newMaxCrouchingSpeed, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
+
+	GetMovementType_Implementation();
+
+	return GetCharacterMovement()->MaxWalkSpeed;
 }
 
 /////////////////////////////////////////////////////
@@ -246,22 +277,26 @@ void AHumanoid::ToggleAiming()
 	if (!bIsSprinting)
 	{
 		bIsAiming = !bIsAiming;
+		BASComponent->GetActorVariables().bIsAiming = bIsAiming;
 	}
 	else
 	{
 		bIsAiming = false;
+		BASComponent->GetActorVariables().bIsAiming = false;
 	}
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::SetCrouch(bool bSprint)
+void AHumanoid::SetCrouch(bool bCrouch)
 {
-	if (bSprint)
+	if (bCrouch)
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::Crouch;
 		Crouch();
 	}
 	else
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
 	}
 }
@@ -271,7 +306,8 @@ void AHumanoid::ToggleJump()
 {
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
-		float veloctiy_abs = FMath::Abs(GetVelocity().Size());
+		BASComponent->GetActorVariables().MovementType = EMovementType::Jumping;
+		/*float veloctiy_abs = FMath::Abs(GetVelocity().Size());
 		if (veloctiy_abs <= 10.0f)
 		{
 			FTimerHandle jumpTH;
@@ -280,10 +316,11 @@ void AHumanoid::ToggleJump()
 		else
 		{
 			Jump();
-		}
+		}*/
 	}
 	else
 	{
+		BASComponent->GetActorVariables().MovementType = GetMovementType_Implementation();
 		StopJumping();
 	}
 }
@@ -453,7 +490,7 @@ void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
 	bIsSprinting = bSprint;
 	if (bIsSprinting)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxSprintSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
 		if (bIsAiming)
 		{
 			ToggleAiming();
@@ -461,7 +498,7 @@ void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = _MaxWalkingSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = m_MaxBackwardsSpeed;
 	}
 }
 
@@ -493,7 +530,7 @@ void AHumanoid::OnWeaponEquip()
 /////////////////////////////////////////////////////
 void AHumanoid::OnRep_bIsSprining()
 {
-	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? _MaxSprintSpeed : _MaxWalkingSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? m_MaxForwardSpeed : m_MaxBackwardsSpeed;
 }
 
 /////////////////////////////////////////////////////

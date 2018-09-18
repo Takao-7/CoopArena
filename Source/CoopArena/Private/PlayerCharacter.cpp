@@ -5,6 +5,7 @@
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/BasicAnimationSystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -37,6 +38,8 @@ APlayerCharacter::APlayerCharacter()
 
 	_ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
+
+	m_IncrementVelocityAmount = 50.0f;
 }
 
 /////////////////////////////////////////////////////
@@ -174,6 +177,7 @@ void APlayerCharacter::OnCrouchPressed()
 	}
 	else
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::Crouch;
 		Crouch();
 	}
 }
@@ -182,8 +186,20 @@ void APlayerCharacter::OnCrouchReleased()
 {
 	if (!bToggleCrouching)
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
 	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::OnIncreaseVelocity()
+{
+	IncrementVelocity(m_IncrementVelocityAmount);
+}
+
+void APlayerCharacter::OnDecreaseVelocity()
+{
+	IncrementVelocity(-m_IncrementVelocityAmount);
 }
 
 /////////////////////////////////////////////////////
@@ -192,11 +208,13 @@ void APlayerCharacter::ToggleAiming()
 	if (bIsAiming)
 	{
 		bIsAiming = false;
+		BASComponent->GetActorVariables().bIsAiming = false;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
 	}
 	else if (_EquippedWeapon && !bIsSprinting)
 	{
-		bIsAiming = true;	
+		bIsAiming = true;
+		BASComponent->GetActorVariables().bIsAiming = true;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);		
 	}
 }
@@ -257,6 +275,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);	
+
+	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
+	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
 }
 
 
