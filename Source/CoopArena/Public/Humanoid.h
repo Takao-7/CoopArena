@@ -291,7 +291,7 @@ public:
 protected:
 	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
 	UPROPERTY(ReplicatedUsing = OnWeaponEquip)
-	AGun* _WeaponToEquip;
+	AGun* m_WeaponToEquip;
 
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
 	void Server_SetSprinting(bool bSprint);

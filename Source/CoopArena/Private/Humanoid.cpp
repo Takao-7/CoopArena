@@ -365,7 +365,7 @@ void AHumanoid::SetUpDefaultEquipment()
 
 	if(HasAuthority())
 	{
-		_WeaponToEquip = SpawnWeapon(_DefaultGun);
+		m_WeaponToEquip = SpawnWeapon(_DefaultGun);
 		OnWeaponEquip();
 	}
 }
@@ -429,7 +429,7 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AHumanoid, bIsSprinting);
 	DOREPLIFETIME(AHumanoid, bIsAiming);
 	DOREPLIFETIME(AHumanoid, bIsProne);
-	DOREPLIFETIME(AHumanoid, _WeaponToEquip);
+	DOREPLIFETIME(AHumanoid, m_WeaponToEquip);
 }
 
 /////////////////////////////////////////////////////
@@ -437,7 +437,7 @@ void AHumanoid::SetWeaponToEquip(AGun* Weapon)
 {
 	if (HasAuthority())
 	{
-		_WeaponToEquip = Weapon;
+		m_WeaponToEquip = Weapon;
 		OnWeaponEquip();
 	}
 }
@@ -445,9 +445,9 @@ void AHumanoid::SetWeaponToEquip(AGun* Weapon)
 /////////////////////////////////////////////////////
 void AHumanoid::OnWeaponEquip()
 {
-	if(_WeaponToEquip)
+	if(m_WeaponToEquip)
 	{
-		SetEquippedWeapon(_WeaponToEquip);
+		SetEquippedWeapon(m_WeaponToEquip);
 		m_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
 	}

@@ -10,6 +10,7 @@
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PostPhysics;
 
 	m_TurnSpeed = 10.0f;
 
@@ -22,15 +23,25 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::OnRepAimPitch()
+{
+	m_Variables.AimPitch = m_AimPitch;
+}
+
+void UBasicAnimationSystemComponent::OnRepYaw()
+{
+	m_Variables.AimYaw = m_Yaw;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CheckIfLocallyControlled();
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 	
-	m_AimYawLastFrame = GetOwner()->GetActorRotation().Yaw;
+	m_YawLastFrame = GetOwner()->GetActorRotation().Yaw;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -77,8 +88,7 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetAimYaw(DeltaTime);
 	SetAimPitch();
 	SetMovementType();
-
-	SetVariables_Server(m_Variables);
+	SetMovmentAdditive();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -87,12 +97,12 @@ void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 	FVector velocity = GetOwner()->GetVelocity();
 	velocity.Z = 0.0f;
 	float horizontalVelocity = velocity.Size();
-	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.01f) ? 0.0f : horizontalVelocity;
 
 	FTransform actorTransform = GetOwner()->GetActorTransform();
 	float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
 	horizontalVelocity *= FMath::Abs(yawDelta) > 120.0f ? -1.0f : 1.0f;
 
+	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.01f) ? 0.0f : horizontalVelocity;
 	m_Variables.HorizontalVelocity = horizontalVelocity;
 }
 
@@ -114,26 +124,11 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 	if (m_Variables.HorizontalVelocity == 0.0f)
 	{
-		if (m_Variables.AimYaw <= -90.0f && m_TurnAnimationPlaying == nullptr && m_TurnRight90Animation)
-		{
-			m_TurnAnimationPlaying = m_TurnRight90Animation;
-			m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
-			m_bIsTurningRight = true;
-		}
-		else if (m_Variables.AimYaw >= 90.0f && m_TurnAnimationPlaying == nullptr && m_TurnLeft90Animation)
-		{
-			m_TurnAnimationPlaying = m_TurnLeft90Animation;
-			m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
-			m_bIsTurningRight = false;
-		}
+		CheckWhetherToPlayTurnAnimation();
 
-		float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
-		if (m_TurnAnimationPlaying)
-		{
-			float curveValue = -90.0f;
-			m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);			
-			deltaYaw += (90.0f + curveValue) * m_bIsTurningRight ? 1.0f : -1.0f;			
-		}
+		float deltaYaw = m_YawLastFrame - actorRotation.Yaw;
+		AddCurveValueToDeltaWhenTurning(deltaYaw);
+
 		m_Variables.AimYaw += deltaYaw;
 	}
 	else
@@ -147,10 +142,42 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);
 	}
 
-	m_AimYawLastFrame = actorRotation.Yaw;
+	m_YawLastFrame = actorRotation.Yaw;
 	ClampAimYaw();
 	
 	CheckIfTurnAnimFinished();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::AddCurveValueToDeltaWhenTurning(float& deltaYaw)
+{
+	if (m_TurnAnimationPlaying)
+	{
+		float curveValue;
+		m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);
+		float curveDelta = m_CurveValueLastFrame - curveValue;
+		deltaYaw += curveValue * m_bIsTurningRight ? 1.0f : -1.0f;
+		m_CurveValueLastFrame = curveValue;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation()
+{
+	if (m_Variables.AimYaw <= -90.0f && m_TurnAnimationPlaying == nullptr && m_TurnRight90Animation)
+	{
+		m_TurnAnimationPlaying = m_TurnRight90Animation;
+		m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
+		m_AnimInstance->GetCurveValue("DistanceCurve", m_CurveValueLastFrame);
+		m_bIsTurningRight = true;
+	}
+	else if (m_Variables.AimYaw >= 90.0f && m_TurnAnimationPlaying == nullptr && m_TurnLeft90Animation)
+	{
+		m_TurnAnimationPlaying = m_TurnLeft90Animation;
+		m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
+		m_AnimInstance->GetCurveValue("DistanceCurve", m_CurveValueLastFrame);
+		m_bIsTurningRight = false;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -182,21 +209,24 @@ void UBasicAnimationSystemComponent::ClampAimYaw()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimPitch()
 {
-	float controlPitch = GetOwner()->GetInstigator()->GetControlRotation().Pitch;
-	if (controlPitch >= 90.0f)
+	if(GetOwner()->GetInstigator()->IsLocallyControlled())
 	{
-		controlPitch -= 360.0f;
+		float controlPitch = GetOwner()->GetInstigator()->GetControlRotation().Pitch;
+		if (controlPitch >= 90.0f)
+		{
+			controlPitch -= 360.0f;
+		}
+		m_Variables.AimPitch = controlPitch;
+		Server_SetAimPitch(controlPitch);
 	}
-	m_Variables.AimPitch = controlPitch;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetVariables_Server_Implementation(FBASVariables Variables)
+void UBasicAnimationSystemComponent::Server_SetAimPitch_Implementation(float AimPitch)
 {
-	m_Variables = Variables;
+	m_AimPitch = AimPitch;
 }
 
-bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables Variables)
+bool UBasicAnimationSystemComponent::Server_SetAimPitch_Validate(float AimPitch)
 {
 	return true;
 }
@@ -230,6 +260,15 @@ void UBasicAnimationSystemComponent::SetMovementType()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetMovmentAdditive()
+{
+	if (m_MovementComponent)
+	{
+		m_Variables.MovementAdditive = m_MovementComponent->IsCrouching() ? EMovementAdditive::Crouch : EMovementAdditive::None;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetSprintingSpeedThreshold(float SprintingSpeedThreshold)
 {
 	m_SprintingSpeedThreshold = SprintingSpeedThreshold;
@@ -240,5 +279,6 @@ void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UBasicAnimationSystemComponent, m_Variables);
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, m_AimPitch, COND_SkipOwner);
+	//DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, m_Yaw, COND_SkipOwner);
 }

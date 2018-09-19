@@ -76,10 +76,23 @@ private:
 	UCharacterMovementComponent* m_MovementComponent;
 
 	/* Relevant calculated variables from the actor. */
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	FBASVariables m_Variables;
 
-	float m_AimYawLastFrame;
+	UPROPERTY(ReplicatedUsing = OnRepAimPitch)
+	float m_AimPitch;
+
+	UPROPERTY(ReplicatedUsing = OnRepYaw)
+	float m_Yaw;
+
+	UFUNCTION()
+	void OnRepAimPitch();
+
+	UFUNCTION()
+	void OnRepYaw();
+
+	float m_YawLastFrame;
+	float m_CurveValueLastFrame;
 	bool m_bIsTurningRight;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
@@ -116,11 +129,18 @@ private:
 	void ClampAimYaw();
 
 	void SetMovementType();
+	void SetMovmentAdditive();
 	void SetHorizontalVelocity();
 	void SetIsMovingForward();
 	void SetAimYaw(float DeltaTime);
 	void SetAimPitch();
 
-	UFUNCTION(Server, Unreliable, WithValidation)
-	void SetVariables_Server(FBASVariables Variables);
+	/* Adds the curve delta value (value last frame - value this frame) to the given deltaYaw if a turn animation is playing. */
+	void AddCurveValueToDeltaWhenTurning(float& deltaYaw);
+
+	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
+	void CheckWhetherToPlayTurnAnimation();
+
+	UFUNCTION(Server, WithValidation, Unreliable)
+	void Server_SetAimPitch(float AimPitch);
 };
