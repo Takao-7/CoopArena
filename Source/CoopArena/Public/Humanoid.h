@@ -22,7 +22,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleAiming_Signature, bool, bIs
 
 
 UCLASS()
-class COOPARENA_API AHumanoid : public ACharacter, public IBAS_Interface
+class COOPARENA_API AHumanoid : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -142,16 +142,6 @@ protected:
 
 
 	/////////////////////////////////////////////////////
-			/* Basic Animation System Interface */
-	/////////////////////////////////////////////////////
-public:
-	bool IsAiming_Implementation() override;
-	EWEaponType GetEquippedWeaponType_Implementation() override;
-	EMovementType GetMovementType_Implementation() override;
-	EMovementAdditive GetMovementAdditive_Implementation() override;
-
-
-	/////////////////////////////////////////////////////
 						/* Interaction */
 	/////////////////////////////////////////////////////
 public:
@@ -223,7 +213,7 @@ public:
 	 * was allowed to change the value. False if the status wasn't changed.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	bool Set_ComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
+	bool SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
 
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
@@ -272,8 +262,8 @@ protected:
 	UArrowComponent* _DroppedItemSpawnPoint;
 		
 	/* The characters currently held weapon */
-	UPROPERTY(BlueprintReadWrite, Category = Humanoid)
-	AGun* _EquippedWeapon;
+	UPROPERTY(BlueprintReadWrite, Category = Humanoid, meta = (DisplayName = "Equipped weapon"))
+	AGun* m_EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
 	bool bIsAiming;
@@ -281,11 +271,11 @@ protected:
 private:
 	/* True if a component attached to this actor wants to prevent it from firing it's weapon. */
 	UPROPERTY()
-	bool bComponentBlocksFiring;
+	bool m_bComponentBlocksFiring;
 
 	/* The component that wants to prevent this actor from firing. */
 	UPROPERTY()
-	UActorComponent* _BlockingComponent;
+	UActorComponent* m_BlockingComponent;
 
 	/////////////////////////////////////////////////////
 						/* Networking */

@@ -11,8 +11,6 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	m_IdleTurnAngleThreshold = 90.0f;
-	m_MaxActorSpeed = 600.0f;
 	m_TurnSpeed = 10.0f;
 
 	m_Variables.MovementType = EMovementType::Idle;
@@ -21,8 +19,6 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 
 	bReplicates = true;
 	bAutoActivate = true;
-
-	m_bTurnAnimIsPlaying = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -30,22 +26,26 @@ void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	IBAS_Interface* _BASInterface = Cast<IBAS_Interface>(GetOwner());
-	if (_BASInterface == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s does not implement the BAS_Interface!"), *GetOwner()->GetName());
-		PrimaryComponentTick.SetTickFunctionEnable(false);
-	}
-
-	bool bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
-	if (!bIsLocallyControlled)
-	{
-		PrimaryComponentTick.SetTickFunctionEnable(false);
-	}
-
+	CheckIfLocallyControlled();
+	FindAnimInstance();
+	FindCharacterMovementComponent();
+	
 	m_AimYawLastFrame = GetOwner()->GetActorRotation().Yaw;
+}
 
-	/* Get animation instance */
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::FindCharacterMovementComponent()
+{
+	ACharacter* character = Cast<ACharacter>(GetOwner());
+	if (character)
+	{
+		m_MovementComponent = character->GetCharacterMovement();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::FindAnimInstance()
+{
 	ACharacter* character = Cast<ACharacter>(GetOwner());
 	if (character)
 	{
@@ -58,16 +58,25 @@ void UBasicAnimationSystemComponent::BeginPlay()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::CheckIfLocallyControlled()
+{
+	bool bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
+	if (!bIsLocallyControlled)
+	{
+		PrimaryComponentTick.SetTickFunctionEnable(false);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	SetHorizontalVelocity();
 	SetIsMovingForward();
-	SetMovementType();
 	SetAimYaw(DeltaTime);
 	SetAimPitch();
-	m_Variables.EquippedWeaponType = IBAS_Interface::Execute_GetEquippedWeaponType(GetOwner());
+	SetMovementType();
 
 	SetVariables_Server(m_Variables);
 }
@@ -99,48 +108,33 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetMovementType()
-{
-	m_Variables.MovementType = IBAS_Interface::Execute_GetMovementType(GetOwner());
-	//m_Variables.MovementAdditive = IBAS_Interface::Execute_GetMovementAdditive(GetOwner());
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
 	FRotator actorRotation = GetOwner()->GetActorRotation();
 
 	if (m_Variables.HorizontalVelocity == 0.0f)
 	{
-		if (m_Variables.AimYaw <= -90.0f && !m_bTurnAnimIsPlaying && TurnRightAnimation)
+		if (m_Variables.AimYaw <= -90.0f && m_TurnAnimationPlaying == nullptr && m_TurnRight90Animation)
 		{
-			m_AnimInstance->Montage_Play(TurnRightAnimation);
-			m_bTurnAnimIsPlaying = true;
+			m_TurnAnimationPlaying = m_TurnRight90Animation;
+			m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
 			m_bIsTurningRight = true;
 		}
-		else if (m_Variables.AimYaw >= 90.0f && !m_bTurnAnimIsPlaying && TurnLeftAnimation)
+		else if (m_Variables.AimYaw >= 90.0f && m_TurnAnimationPlaying == nullptr && m_TurnLeft90Animation)
 		{
-			m_AnimInstance->Montage_Play(TurnLeftAnimation);
-			m_bTurnAnimIsPlaying = true;
+			m_TurnAnimationPlaying = m_TurnLeft90Animation;
+			m_AnimInstance->Montage_Play(m_TurnAnimationPlaying);
 			m_bIsTurningRight = false;
-		}		
+		}
 
-		if (m_bTurnAnimIsPlaying)
+		float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
+		if (m_TurnAnimationPlaying)
 		{
-			float curveValue;
-			bool bFoundCurveValue = m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);
-			if(bFoundCurveValue)
-			{
-				float deltaYaw = 90.0f + curveValue;
-				m_Variables.AimYaw += deltaYaw * m_bIsTurningRight ? 1.0f : -1.0f;
-			}
+			float curveValue = -90.0f;
+			m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);			
+			deltaYaw += (90.0f + curveValue) * m_bIsTurningRight ? 1.0f : -1.0f;			
 		}
-		else
-		{
-			float deltaYaw = m_AimYawLastFrame - actorRotation.Yaw;
-			m_Variables.AimYaw += deltaYaw;
-		}
+		m_Variables.AimYaw += deltaYaw;
 	}
 	else
 	{
@@ -156,13 +150,18 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	m_AimYawLastFrame = actorRotation.Yaw;
 	ClampAimYaw();
 	
-	if (m_bTurnAnimIsPlaying)
+	CheckIfTurnAnimFinished();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
+{
+	if (m_TurnAnimationPlaying)
 	{
-		bool bLeftAnimPlaying = m_AnimInstance->Montage_IsPlaying(TurnLeftAnimation);
-		bool bRightAnimPlaying = m_AnimInstance->Montage_IsPlaying(TurnRightAnimation);
-		if (!bLeftAnimPlaying && !bRightAnimPlaying)
+		bool bMontageIsFinished = !m_AnimInstance->Montage_IsPlaying(m_TurnAnimationPlaying);
+		if (bMontageIsFinished)
 		{
-			m_bTurnAnimIsPlaying = false;
+			m_TurnAnimationPlaying = nullptr;
 		}
 	}
 }
@@ -206,6 +205,34 @@ bool UBasicAnimationSystemComponent::SetVariables_Server_Validate(FBASVariables 
 FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 {
 	return m_Variables;
+}
+
+/////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetMovementType()
+{
+	float velocity = m_Variables.HorizontalVelocity;
+	if (velocity == 0.0f)
+	{
+		m_Variables.MovementType = EMovementType::Idle;
+	}
+	else if (velocity > m_SprintingSpeedThreshold)
+	{
+		m_Variables.MovementType = EMovementType::Sprinting;
+	}
+	else if (m_MovementComponent && !m_MovementComponent->IsMovingOnGround())
+	{
+		m_Variables.MovementType = EMovementType::Jumping;
+	}
+	else
+	{
+		m_Variables.MovementType = EMovementType::Moving;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetSprintingSpeedThreshold(float SprintingSpeedThreshold)
+{
+	m_SprintingSpeedThreshold = SprintingSpeedThreshold;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

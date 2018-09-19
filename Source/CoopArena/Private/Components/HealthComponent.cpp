@@ -58,7 +58,7 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 
 	DeactivateCollisionCapsuleComponent();
 	SetPhysicsOnMesh();
-	_compOwner->Set_ComponentIsBlockingFiring(true, this);
+	_compOwner->SetComponentIsBlockingFiring(true, this);
 
 	if (_compOwner->IsLocallyControlled())
 	{

@@ -58,25 +58,20 @@ class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
 	GENERATED_BODY()
 
 protected:
-	/* The angle between the actor's feed and his head (controller) at which the actor will turn. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Idle turn angle threshold"))
-	float m_IdleTurnAngleThreshold;
-
-	/* The actor's max speed. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Max sprint speed"))
-	float m_MaxActorSpeed;
-
 	/* How fast the actor rotates towards his moving direction. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System")
-	UAnimMontage* TurnLeftAnimation;
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 90 degree animation"))
+	UAnimMontage* m_TurnLeft90Animation;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System")
-	UAnimMontage* TurnRightAnimation;
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 90 degree animation"))
+	UAnimMontage* m_TurnRight90Animation;
 
 private:
+	/* If the character's speed is greater than this, he is sprinting. */
+	float m_SprintingSpeedThreshold;
+
 	/* The owner's character movement component. */
 	UCharacterMovementComponent* m_MovementComponent;
 
@@ -85,16 +80,23 @@ private:
 	FBASVariables m_Variables;
 
 	float m_AimYawLastFrame;
-
-	bool m_bTurnAnimIsPlaying;
 	bool m_bIsTurningRight;
 
+	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
+	UAnimMontage* m_TurnAnimationPlaying;
+
+	/* Owner's animation instance. */
 	UAnimInstance* m_AnimInstance;
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
+	/**
+	* @param SprintingSpeedThreshold When the actor is moving faster than this value, then he is sprinting.
+	*/
+	void SetSprintingSpeedThreshold(float SprintingSpeedThreshold);
+
 	/* Event to call when the actor wants to jump. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Basic Animation System", meta = (DisplayName = "On jump event"))
 	FOnJump_Signature OnJumpEvent;
@@ -107,13 +109,16 @@ public:
 	FBASVariables& GetActorVariables();
 
 private:
-	void SetHorizontalVelocity();
-	void SetIsMovingForward();
-	void SetMovementType();
-	void SetAimYaw(float DeltaTime);
-
+	void FindAnimInstance();
+	void FindCharacterMovementComponent();
+	void CheckIfLocallyControlled();
+	void CheckIfTurnAnimFinished();
 	void ClampAimYaw();
 
+	void SetMovementType();
+	void SetHorizontalVelocity();
+	void SetIsMovingForward();
+	void SetAimYaw(float DeltaTime);
 	void SetAimPitch();
 
 	UFUNCTION(Server, Unreliable, WithValidation)
