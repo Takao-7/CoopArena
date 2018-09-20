@@ -52,19 +52,19 @@ protected:
 					/* Movement */
 	/////////////////////////////////////////////////////
 public:
-	/**
-	* Sets the character's velocity to the given value. Will clamp the new velocity to the allowed range.
-	* @return The new max walk velocity.
-	*/
+	/* Sets the character's velocity to the given value. Will clamp the new velocity to the allowed range. */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	float SetVelocity(float NewVelocity);
+	void SetVelocity(float NewVelocity);
+	
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
+	void SetVelocity_Server(float NewVelocity);
 
-	/**
-	 * Increments the character's velocity by the given value. Will clamp the new velocity to the allowed range.
-	 * @return The new max walk velocity.
-	 */
+	/* Increments the character's velocity by the given value. Will clamp the new velocity to the allowed range. */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	float IncrementVelocity(float Increment);
+	void IncrementVelocity(float Increment);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
+	void IncrementVelocity_Server(float Increment);
 
 protected:
 	/** Handles moving forward/backward */
@@ -133,12 +133,15 @@ protected:
 	float m_SprintingSpeedThreshold;
 
 	/* The maximum velocity, in cm/s, at which the character can crouch (forward and backward).  */
-	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
 	float m_MaxCrouchingSpeed;
 
 	/* The maximum speed at which the character can move backwards. */
-	UPROPERTY(BlueprintReadOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max backwards speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max backwards speed"))
 	float m_MaxBackwardsSpeed;
+
+	/* The character's speed before he started sprinting. */
+	float m_SpeedBeforeSprinting;
 
 
 	/////////////////////////////////////////////////////

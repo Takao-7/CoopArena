@@ -59,13 +59,13 @@ class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
 
 protected:
 	/* How fast the actor rotates towards his moving direction. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 90 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn left 90 degree animation"))
 	UAnimMontage* m_TurnLeft90Animation;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 90 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn right 90 degree animation"))
 	UAnimMontage* m_TurnRight90Animation;
 
 private:
@@ -76,24 +76,14 @@ private:
 	UCharacterMovementComponent* m_MovementComponent;
 
 	/* Relevant calculated variables from the actor. */
-	UPROPERTY()
 	FBASVariables m_Variables;
-
-	UPROPERTY(ReplicatedUsing = OnRepAimPitch)
-	float m_AimPitch;
-
-	UPROPERTY(ReplicatedUsing = OnRepYaw)
-	float m_Yaw;
-
-	UFUNCTION()
-	void OnRepAimPitch();
-
-	UFUNCTION()
-	void OnRepYaw();
 
 	float m_YawLastFrame;
 	float m_CurveValueLastFrame;
+	bool m_bCurveIsPlaying;
 	bool m_bIsTurningRight;
+
+	float m_ActorYawOnStop;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
 	UAnimMontage* m_TurnAnimationPlaying;
@@ -142,5 +132,14 @@ private:
 	void CheckWhetherToPlayTurnAnimation();
 
 	UFUNCTION(Server, WithValidation, Unreliable)
-	void Server_SetAimPitch(float AimPitch);
+	void SetAimPitch_Server(float AimPitch);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void SetAimPitch_Multicast(float AimPitch);
+
+	UFUNCTION(Server, WithValidation, Unreliable)
+	void SetAimYaw_Server(float AimYaw);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void SetAimYaw_Multicast(float AimYaw);
 };

@@ -41,7 +41,7 @@ void UInventoryComponent::OnOwnerWeaponHolster(AGun* Gun)
 			UAnimInstance* animInstance = m_Owner->GetMesh()->GetAnimInstance();
 			if (animInstance && m_WeaponAttachPoint.holsterAnimation)
 			{
-				animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation);
+				animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 			}
 			else
 			{
@@ -61,7 +61,7 @@ void UInventoryComponent::OnOwnerWeaponHolster(AGun* Gun)
 		UAnimInstance* animInstance = m_Owner->GetMesh()->GetAnimInstance();
 		if (animInstance && m_WeaponAttachPoint.holsterAnimation)
 		{
-			animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation);
+			animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 		}
 		else
 		{

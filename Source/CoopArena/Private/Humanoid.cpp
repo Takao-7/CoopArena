@@ -116,12 +116,13 @@ void AHumanoid::SetSprinting(bool bWantsToSprint)
 		{
 			ToggleAiming();
 		}
+		m_SpeedBeforeSprinting = GetCharacterMovement()->MaxWalkSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
 		bIsSprinting = true;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = m_SprintingSpeedThreshold;
+		GetCharacterMovement()->MaxWalkSpeed = m_SpeedBeforeSprinting;
 		bIsSprinting = false;
 	}
 	Server_SetSprinting(bIsSprinting);
@@ -167,15 +168,28 @@ void AHumanoid::StopFireEquippedWeapon()
 }
 
 /////////////////////////////////////////////////////
-float AHumanoid::SetVelocity(float NewVelocity)
+void AHumanoid::SetVelocity(float NewVelocity)
 {
 	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(NewVelocity, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
 	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(NewVelocity, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
-
-	return GetCharacterMovement()->MaxWalkSpeed;
+	
+	if (!HasAuthority())
+	{
+		SetVelocity_Server(NewVelocity);
+	}
 }
 
-float AHumanoid::IncrementVelocity(float Increment)
+void AHumanoid::SetVelocity_Server_Implementation(float NewVelocity)
+{
+	SetVelocity(NewVelocity);
+}
+
+bool AHumanoid::SetVelocity_Server_Validate(float NewVelocity)
+{
+	return true;
+}
+
+void AHumanoid::IncrementVelocity(float Increment)
 {
 	float newMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed + Increment;
 	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(newMaxWalkSpeed, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
@@ -183,7 +197,20 @@ float AHumanoid::IncrementVelocity(float Increment)
 	float newMaxCrouchingSpeed = GetCharacterMovement()->MaxWalkSpeedCrouched + Increment;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(newMaxCrouchingSpeed, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
 
-	return GetCharacterMovement()->MaxWalkSpeed;
+	if (!HasAuthority())
+	{
+		IncrementVelocity_Server(Increment);
+	}
+}
+
+void AHumanoid::IncrementVelocity_Server_Implementation(float Increment)
+{
+	IncrementVelocity(Increment);
+}
+
+bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
+{
+	return true;
 }
 
 /////////////////////////////////////////////////////

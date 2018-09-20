@@ -481,7 +481,7 @@ void AGun::Multicast_PlayReloadAnimation_Implementation()
 	AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		AnimInstance->Montage_Play(_ReloadAnimation, 1.f);
+		AnimInstance->Montage_Play(_ReloadAnimation, 1.f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 	}
 }
 
@@ -737,7 +737,7 @@ void AGun::Multicast_PlayFireAnimation_Implementation()
 		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
-			AnimInstance->Montage_Play(_FireAnimation, 1.f);
+			AnimInstance->Montage_Play(_FireAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 		}
 	}
 }
