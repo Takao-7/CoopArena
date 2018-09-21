@@ -20,6 +20,10 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 
 	bReplicates = true;
 	bAutoActivate = true;
+
+	m_180TurnThreshold = 165.0f;
+	m_AngleClampThreshold = 225.0f;
+	m_180TurnPredictionTime = 0.2f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +34,7 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 	
-	m_YawLastFrame = GetOwner()->GetActorRotation().Yaw;
+	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +79,6 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetHorizontalVelocity();
 	SetIsMovingForward();
 	SetMovementType();
-	//SetMovmentAdditive();
 	SetAimYaw(DeltaTime);
 	SetAimPitch();
 }
@@ -110,15 +113,17 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
 	FRotator actorRotation = GetOwner()->GetActorRotation();
+	m_AimYawLastFrame = m_Variables.AimYaw;
+
+	float yawDelta = 0.0f;
 	if (m_Variables.MovementType == EMovementType::Idle)
 	{
-		CheckWhetherToPlayTurnAnimation();
+		AddCurveValueToDeltaWhenTurning(yawDelta);
+		yawDelta += m_ActorYawLastFrame - actorRotation.Yaw;
+		ClampYawDelta(yawDelta);
+		m_Variables.AimYaw += yawDelta;
 
-		float deltaYaw = 0.0f;
-		AddCurveValueToDeltaWhenTurning(deltaYaw);
-		deltaYaw += m_YawLastFrame - actorRotation.Yaw;
-
-		m_Variables.AimYaw += deltaYaw;
+		CheckWhetherToPlayTurnAnimation(DeltaTime);
 	}
 	else
 	{
@@ -127,16 +132,30 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 		velocity *= m_Variables.bIsMovingForward ? 1.0f : -1.0f;
 
 		FTransform actorTransform = GetOwner()->GetActorTransform();
-		float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
+		yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
 		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);
+		ClampAimYaw();
 	}
-	m_YawLastFrame = actorRotation.Yaw;
-	ClampAimYaw();	
-	if (FMath::Abs(m_Variables.AimYaw) > 90.0f)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Aim yaw: %f"), m_Variables.AimYaw);
-	}
+
+	m_ActorYawLastFrame = actorRotation.Yaw;
+	
 	CheckIfTurnAnimFinished();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::ClampYawDelta(float& YawDelta)
+{
+	while (YawDelta > m_AngleClampThreshold)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Clamping yaw delta %f"), YawDelta);
+		YawDelta -= 360.0f;
+	}
+
+	while (YawDelta < -m_AngleClampThreshold)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Clamping yaw delta %f"), YawDelta);
+		YawDelta += 360.0f;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +171,6 @@ void UBasicAnimationSystemComponent::AddCurveValueToDeltaWhenTurning(float& delt
 			const float curveDelta = m_CurveValueLastFrame - curveValue;
 			deltaYaw += curveDelta;
 			m_CurveValueLastFrame = curveValue;
-			//UE_LOG(LogTemp, Display, TEXT("Curve delta: %f"), curveDelta);
 		}
 		else if (bFoundValue)
 		{
@@ -164,26 +182,45 @@ void UBasicAnimationSystemComponent::AddCurveValueToDeltaWhenTurning(float& delt
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation()
+void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float DeltaTime)
 {
-	if (m_Variables.AimYaw <= -90.0f && m_TurnAnimationPlaying == nullptr && m_TurnRight90Animation)
+	const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
+	const float aimYaw_Abs = FMath::Abs(m_Variables.AimYaw);
+	if (bIsTurning || aimYaw_Abs < 90.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Aim yaw: %f"), m_Variables.AimYaw);
-		m_TurnAnimationPlaying = m_TurnRight90Animation;
-		m_bCurveIsPlaying = false;
-		m_bIsTurningRight = true;
-		m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-		//UE_LOG(LogTemp, Warning, TEXT("Turning right"));
+		return;
 	}
-	else if (m_Variables.AimYaw >= 90.0f && m_TurnAnimationPlaying == nullptr && m_TurnLeft90Animation)
+
+	const float aimYawDelta = m_Variables.AimYaw - m_AimYawLastFrame;
+	const float predictedYaw = (aimYawDelta * (m_180TurnPredictionTime / DeltaTime)) + m_Variables.AimYaw;
+
+	if (m_Variables.AimYaw <= -90.0f) // Turn right
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Aim yaw: %f"), m_Variables.AimYaw);
-		m_TurnAnimationPlaying = m_TurnLeft90Animation;
-		m_bCurveIsPlaying = false;
+		if (predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation)
+		{
+			m_TurnAnimationPlaying = m_TurnRight180Animation;
+		}
+		else
+		{
+			m_TurnAnimationPlaying = m_TurnRight90Animation;
+		}		
+		m_bIsTurningRight = true;		
+	}
+	else  // Turn left
+	{
+		if (predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation)
+		{
+			m_TurnAnimationPlaying = m_TurnLeft180Animation;
+		}
+		else
+		{
+			m_TurnAnimationPlaying = m_TurnLeft90Animation;
+		}
 		m_bIsTurningRight = false;
-		m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-		//UE_LOG(LogTemp, Warning, TEXT("Turning left"));
 	}
+
+	m_bCurveIsPlaying = false;
+	m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -207,8 +244,8 @@ void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 {
 	if (m_TurnAnimationPlaying)
 	{
-		bool bMontageIsFinished = !m_AnimInstance->Montage_IsPlaying(m_TurnAnimationPlaying);
-		if (bMontageIsFinished)
+		const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
+		if (!bIsTurning)
 		{
 			m_TurnAnimationPlaying = nullptr;
 		}
@@ -218,12 +255,15 @@ void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::ClampAimYaw()
 {
-	if (m_Variables.AimYaw > 180.0f)
+	while (m_Variables.AimYaw > m_AngleClampThreshold)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Clamping angle %f"), m_Variables.AimYaw);
 		m_Variables.AimYaw -= 360.0f;
 	}
-	else if (m_Variables.AimYaw < -180.0f)
+
+	while (m_Variables.AimYaw < -m_AngleClampThreshold)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Clamping angle %f"), m_Variables.AimYaw);
 		m_Variables.AimYaw += 360.0f;
 	}
 }
