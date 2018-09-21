@@ -112,7 +112,7 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
-	FRotator actorRotation = GetOwner()->GetActorRotation();
+	const FRotator actorRotation = GetOwner()->GetActorRotation();
 	m_AimYawLastFrame = m_Variables.AimYaw;
 
 	float yawDelta = 0.0f;
@@ -131,7 +131,7 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 		velocity.Z = 0.0f;
 		velocity *= m_Variables.bIsMovingForward ? 1.0f : -1.0f;
 
-		FTransform actorTransform = GetOwner()->GetActorTransform();
+		const FTransform actorTransform = GetOwner()->GetActorTransform();
 		yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
 		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);
 		ClampAimYaw();
