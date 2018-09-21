@@ -138,8 +138,20 @@ private:
 	void FindCharacterMovementComponent();
 	void CheckIfLocallyControlled();
 	void CheckIfTurnAnimFinished();
-	void ClampAimYaw();
-	void ClampYawDelta(float& YawDelta);
+
+	/**
+	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.
+	 * @param Angle The angle to map.
+	 * @return The mapped angle.
+	 */
+	float MapAngleTo180_Forced(float Angle);
+
+	/**
+	 * Maps the given angle to a range of +/- 180° if we are not turning at the moment.
+	 * @param Angle The angle to map.
+	 * @return The mapped angle. If we are currently turning then this is the given, unmodified Angle.
+	 */
+	float MapAngleTo180(float Angle);
 
 	void SetMovementType();
 	void SetMovmentAdditive();
@@ -149,10 +161,10 @@ private:
 	void SetAimPitch();
 
 	/* Adds the curve delta value (value last frame - value this frame) to the given deltaYaw if a turn animation is playing. */
-	void AddCurveValueToDeltaWhenTurning(float& deltaYaw);
+	void AddCurveValueToYawWhenTurning(float& Yaw);
 
 	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
-	void CheckWhetherToPlayTurnAnimation(float DeltaTime);
+	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void SetAimPitch_Server(float AimPitch);
