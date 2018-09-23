@@ -158,6 +158,7 @@ void AGun::OnFire()
 	if (CanShoot())
 	{
 		_CurrentGunState = EWeaponState::Firing;
+		
 		FVector traceStartLocation;
 		if (_MyOwner->IsPlayerControlled())
 		{
@@ -252,7 +253,7 @@ bool AGun::CanRapidFire() const
 bool AGun::CanShoot() const
 {
 	bool bOwnerCanFire = _MyOwner && _MyOwner->CanFire();
-	bool bStateOKToFire = ((_CurrentGunState == EWeaponState::Idle) || (_CurrentGunState == EWeaponState::Firing));
+	bool bStateOKToFire = (_CurrentGunState == EWeaponState::Idle || _CurrentGunState == EWeaponState::Firing);
 	bool bMagazineIsNotEmpty = _LoadedMagazine && _LoadedMagazine->RoundsLeft() > 0;
 	bool bHasProjectileToSpawn = _GunStats.UsableMagazineClass;
 	return (bOwnerCanFire && bStateOKToFire && bMagazineIsNotEmpty && bHasProjectileToSpawn);
@@ -602,6 +603,19 @@ void AGun::AttachMagazine(AMagazine* Magazine)
 float AGun::GetCooldownTime() const
 {
 	return _GunStats.Cooldown;
+}
+
+/////////////////////////////////////////////////////
+void AGun::SetFireMode(EFireMode NewFireMode)
+{
+	int32 index;
+	bool bHasFireMode = _GunStats.FireModes.Find(NewFireMode, index);
+	
+	if (bHasFireMode)
+	{
+		_CurrentFireMode = NewFireMode;
+		_CurrentFireModePointer = index;
+	}	
 }
 
 /////////////////////////////////////////////////////
