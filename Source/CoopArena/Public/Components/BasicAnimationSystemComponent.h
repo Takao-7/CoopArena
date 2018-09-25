@@ -112,6 +112,13 @@ private:
 
 	float m_ActorYawLastFrame;
 	float m_CurveValueLastFrame;
+
+	UPROPERTY(Replicated)
+	float m_AimYaw;
+
+	UFUNCTION(Server, WithValidation, Unreliable)
+	void ReplicateAimYaw_Server(float AimYaw);
+
 	float m_AimYawLastFrame;
 
 	bool m_bCurveIsPlaying;

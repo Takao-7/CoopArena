@@ -29,6 +29,17 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Implementation(float AimYaw)
+{
+	m_AimYaw = AimYaw;
+}
+
+bool UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Validate(float AimYaw)
+{
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -134,6 +145,15 @@ void UBasicAnimationSystemComponent::SetMovementAdditive()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
+	if (GetOwner()->Role != ENetRole::ROLE_AutonomousProxy)
+	{
+		m_AimYawLastFrame = m_Variables.AimYaw;
+		m_Variables.AimYaw = m_AimYaw;
+		CheckWhetherToPlayTurnAnimation(DeltaTime, m_Variables.AimYaw);
+		CheckIfTurnAnimFinished();
+		return;
+	}
+
 	FRotator actorRotation = GetOwner()->GetActorRotation();
 	float yawDelta = 0.0f;
 	if (m_Variables.MovementType == EMovementType::Idle)
@@ -162,6 +182,15 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	m_ActorYawLastFrame = actorRotation.Yaw;
 	m_AimYawLastFrame = m_Variables.AimYaw;
 
+	if (!GetOwner()->HasAuthority())
+	{
+		ReplicateAimYaw_Server(m_Variables.AimYaw);
+	}
+	else
+	{
+		m_AimYaw = m_Variables.AimYaw;
+	}
+
 	CheckIfTurnAnimFinished();
 }
 
@@ -169,12 +198,12 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 float UBasicAnimationSystemComponent::MapAngleTo180_Forced(float Angle)
 {
 	float mappedAngle = Angle;
-	while (mappedAngle > m_AngleClampThreshold)
+	while (mappedAngle >= m_AngleClampThreshold)
 	{
 		mappedAngle -= 360.0f;
 	}
 
-	while (mappedAngle < -m_AngleClampThreshold)
+	while (mappedAngle <= -m_AngleClampThreshold)
 	{
 		mappedAngle += 360.0f;
 	}
@@ -351,4 +380,12 @@ void UBasicAnimationSystemComponent::SetMovmentAdditive()
 void UBasicAnimationSystemComponent::SetSprintingSpeedThreshold(float SprintingSpeedThreshold)
 {
 	m_SprintingSpeedThreshold = SprintingSpeedThreshold;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, m_AimYaw, COND_SkipOwner);
 }
