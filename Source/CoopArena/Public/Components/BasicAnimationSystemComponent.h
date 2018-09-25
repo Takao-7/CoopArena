@@ -59,37 +59,48 @@ class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
 
 protected:
 	/* If the yaw value is at least this value, we will make a 180 degree and not a 90 degree turn. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System|Turning", meta = (DisplayName = "180 degree turn threshold", ClampMin = 100.0f, ClampMax = 180.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "180 degree turn threshold", ClampMin = 100.0f, ClampMax = 180.0f))
 	float m_180TurnThreshold;
 
 	/**
 	 * When the yaw angle (m_variables.AimYaw) is greater than 90 degree, we calculate the yaw angle this many seconds into the future. If that angle is greater than the '180 degree turn threshold'
 	 * we will make a 180 degree and not a 90 degree turn.
 	 */ 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System|Turning", meta = (DisplayName = "180 degree turn prediction time", ClampMin = 0.0f, ClampMax = 1.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "180 degree turn prediction time", ClampMin = 0.0f, ClampMax = 1.0f))
 	float m_180TurnPredictionTime;
 
 	/* When the yaw value is at least this value, it will be clamped at +/- 180 degree */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System|Turning", meta = (DisplayName = "Angle clamp threshold", ClampMin = 180.0f, ClampMax = 360.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Angle clamp threshold", ClampMin = 180.0f, ClampMax = 360.0f))
 	float m_AngleClampThreshold;
 
 	/* How fast the actor rotates towards his moving direction. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn left 90 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 90 degree animation"))
 	UAnimMontage* m_TurnLeft90Animation;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn right 90 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 90 degree animation"))
 	UAnimMontage* m_TurnRight90Animation;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn left 180 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 180 degree animation"))
 	UAnimMontage* m_TurnLeft180Animation;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System|Turning", meta = (DisplayName = "Turn right 180 degree animation"))
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 180 degree animation"))
 	UAnimMontage* m_TurnRight180Animation;
 
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Idle jump animation"))
+	UAnimMontage* m_IdleJumpAnimation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Moving jump animation"))
+	UAnimMontage* m_MovingJumpAnimation;
+
 private:
+	ACharacter* m_Owner;
+
+	/* The owner's capsule half height (unmodified). */
+	float m_CapsuleHalfHeight;
+
 	/* If the character's speed is greater than this, he is sprinting. */
 	float m_SprintingSpeedThreshold;
 
@@ -102,10 +113,9 @@ private:
 	float m_ActorYawLastFrame;
 	float m_CurveValueLastFrame;
 	float m_AimYawLastFrame;
+
 	bool m_bCurveIsPlaying;
 	bool m_bIsTurningRight;
-
-	float m_ActorYawOnStop;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
 	UAnimMontage* m_TurnAnimationPlaying;
@@ -114,19 +124,27 @@ private:
 	UAnimInstance* m_AnimInstance;
 
 protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn animation play rate"))
+	float m_TurnAnimPlayRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Make 180 degree turn"))
+	bool m_bMake180Turn;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Predicted yaw"))
+	float m_PredictedYaw;
+
 	virtual void BeginPlay() override;
 
 public:
+	UBasicAnimationSystemComponent();
+
+	UPROPERTY(BlueprintAssignable, Category = "Basic Animation System")
+	FOnJump_Signature OnJumpEvent;
+
 	/**
 	* @param SprintingSpeedThreshold When the actor is moving faster than this value, then he is sprinting.
 	*/
 	void SetSprintingSpeedThreshold(float SprintingSpeedThreshold);
-
-	/* Event to call when the actor wants to jump. */
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Basic Animation System", meta = (DisplayName = "On jump event"))
-	FOnJump_Signature OnJumpEvent;
-
-	UBasicAnimationSystemComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
@@ -138,6 +156,9 @@ private:
 	void FindCharacterMovementComponent();
 	void CheckIfLocallyControlled();
 	void CheckIfTurnAnimFinished();
+
+	UFUNCTION()
+	void PlayJumpAnimation();
 
 	/**
 	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.
@@ -155,6 +176,7 @@ private:
 
 	void SetMovementType();
 	void SetMovmentAdditive();
+	void SetMovementAdditive();
 	void SetHorizontalVelocity();
 	void SetIsMovingForward();
 	void SetAimYaw(float DeltaTime);
@@ -166,15 +188,13 @@ private:
 	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
 	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
+
+	/////////////////////////////////////////////////////
+						/* Networking */
+	/////////////////////////////////////////////////////
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void SetAimPitch_Server(float AimPitch);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void SetAimPitch_Multicast(float AimPitch);
-
-	UFUNCTION(Server, WithValidation, Unreliable)
-	void SetAimYaw_Server(float AimYaw);
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void SetAimYaw_Multicast(float AimYaw);
 };

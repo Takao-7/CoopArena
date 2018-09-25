@@ -22,24 +22,26 @@ AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	_BaseTurnRate = 45.f;
-	_BaseLookUpRate = 45.f;
+	m_BaseTurnRate = 45.f;
+	m_BaseLookUpRate = 45.f;
 
-	_DefaultInpulsOnDeath = 500.0f;
+	m_EquippedWeaponAttachPoint = "GripPoint";
 
-	_EquippedWeaponAttachPoint = "GripPoint";
+	m_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
+	m_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
-	_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
-	_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
-
-	bIsSprinting = false;
-	bIsProne = false;
+	m_bIsSprinting = false;
+	m_bIsProne = false;
 	bIsCrouched = false;
-	bIsAiming = false;
+	m_bIsAiming = false;
 
 	m_MaxForwardSpeed = 600.0f;
 	m_MaxCrouchingSpeed = 200.0f;
-	bToggleProne = true;
+	m_MaxBackwardsSpeed = 300.0f;
+	m_SprintingSpeedThreshold = 355.0f;
+
+	m_bToggleProne = true;
+	m_bToggleCrouching = true;
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -112,40 +114,32 @@ void AHumanoid::SetSprinting(bool bWantsToSprint)
 	bool bCanSprint = BASComponent->GetActorVariables().bIsMovingForward;
 	if (bWantsToSprint && bCanSprint)
 	{
-		if (bIsAiming)
+		if (m_bIsAiming)
 		{
 			ToggleAiming();
 		}
 		m_SpeedBeforeSprinting = GetCharacterMovement()->MaxWalkSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
-		bIsSprinting = true;
+		m_bIsSprinting = true;
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = m_SpeedBeforeSprinting;
-		bIsSprinting = false;
+		m_bIsSprinting = false;
 	}
-	Server_SetSprinting(bIsSprinting);
+
+	if (!HasAuthority())
+	{
+		SetSprinting_Server(m_bIsSprinting);
+	}
 }
 
-void AHumanoid::Server_SetSprinting_Implementation(bool bSprint)
+void AHumanoid::SetSprinting_Server_Implementation(bool bWantsToSprint)
 {
-	bIsSprinting = bSprint;
-	if (bIsSprinting)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
-		if (bIsAiming)
-		{
-			ToggleAiming();
-		}
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = m_SprintingSpeedThreshold;
-	}
+	SetSprinting(bWantsToSprint);
 }
 
-bool AHumanoid::Server_SetSprinting_Validate(bool bSprint)
+bool AHumanoid::SetSprinting_Server_Validate(bool bWantsToSprint)
 {
 	return true;
 }
@@ -223,7 +217,7 @@ void AHumanoid::MoveForward(float Value)
 		const FVector Direction = Rotation.Vector();
 		AddMovementInput(Direction, Value);
 	}
-	else if (Value < 0.0f && bIsSprinting)
+	else if (Value < 0.0f && m_bIsSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -231,7 +225,7 @@ void AHumanoid::MoveForward(float Value)
 
 void AHumanoid::MoveRight(float Value)
 {
-	if (Controller && Value != 0.0f && !bIsSprinting)
+	if (Controller && Value != 0.0f && !m_bIsSprinting)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0.0f;
@@ -243,31 +237,31 @@ void AHumanoid::MoveRight(float Value)
 /////////////////////////////////////////////////////
 void AHumanoid::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerYawInput(Rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());	
 }
 
 void AHumanoid::LookUpAtRate(float Rate)
 {
-	AddControllerPitchInput(Rate * _BaseTurnRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerPitchInput(Rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());	
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::SetProne(bool bProne)
 {
-	bIsProne = bProne;
+	m_bIsProne = bProne;
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::ToggleAiming()
 {
-	if (!bIsSprinting)
+	if (!m_bIsSprinting)
 	{
-		bIsAiming = !bIsAiming;
-		BASComponent->GetActorVariables().bIsAiming = bIsAiming;
+		m_bIsAiming = !m_bIsAiming;
+		BASComponent->GetActorVariables().bIsAiming = m_bIsAiming;
 	}
 	else
 	{
-		bIsAiming = false;
+		m_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
 	}
 }
@@ -292,7 +286,7 @@ void AHumanoid::ToggleJump()
 {
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
-		BASComponent->GetActorVariables().MovementType = EMovementType::Jumping;
+		BASComponent->OnJumpEvent.Broadcast();
 	}
 	else
 	{
@@ -321,14 +315,14 @@ void AHumanoid::ChangeWeaponFireMode()
 /////////////////////////////////////////////////////
 void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset)
 {
-	_ItemInHand = ItemToGrab;
+	m_ItemInHand = ItemToGrab;
 	CalcAndSafeActorOffset(ItemToGrab);
 	FName handSocket = "HandLeft";
 	ItemToGrab->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, handSocket);
 	
 	if (bKeepRelativeOffset)
 	{
-		ItemToGrab->AddActorLocalTransform(_ItemOffset);		
+		ItemToGrab->AddActorLocalTransform(m_ItemOffset);		
 	}
 }
 
@@ -344,42 +338,42 @@ FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 	FRotator itemRotation = OtherActor->GetActorRotation();
 	offset.SetRotation(handTransform.InverseTransformRotation(itemRotation.Quaternion()));
 	
-	_ItemOffset = offset;
+	m_ItemOffset = offset;
 	return offset;
 }
 
 /////////////////////////////////////////////////////
 AItemBase* AHumanoid::DropItem()
 {
-	if (_ItemInHand == nullptr)
+	if (m_ItemInHand == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
 		return nullptr;
 	}
-	AItemBase* itemToDrop = _ItemInHand;	
+	AItemBase* itemToDrop = m_ItemInHand;	
 	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	itemToDrop->ShouldSimulatePhysics(true);
 	
-	_ItemInHand = nullptr;
+	m_ItemInHand = nullptr;
 	return itemToDrop;
 }
 
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return !bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
+	return !m_bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
 }
 
 /////////////////////////////////////////////////////
 FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
-	return _EquippedWeaponAttachPoint;
+	return m_EquippedWeaponAttachPoint;
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::SetUpDefaultEquipment()
 {
-	if (_DefaultGun == nullptr)
+	if (m_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
@@ -392,7 +386,7 @@ void AHumanoid::SetUpDefaultEquipment()
 
 	if(HasAuthority())
 	{
-		m_WeaponToEquip = SpawnWeapon(_DefaultGun);
+		m_WeaponToEquip = SpawnWeapon(m_DefaultGun);
 		OnWeaponEquip();
 	}
 }
@@ -426,7 +420,7 @@ void AHumanoid::GetWeaponSpawnTransform(FTransform& OutTransform)
 /////////////////////////////////////////////////////
 FTransform AHumanoid::GetItemOffset(bool bInLocalSpace /*= true*/)
 {
-	FTransform offset = FTransform(_ItemOffset);
+	FTransform offset = FTransform(m_ItemOffset);
 	if (!bInLocalSpace)
 	{
 		const FTransform handTransform = GetMesh()->GetSocketTransform("HandLeft");
@@ -439,9 +433,9 @@ FTransform AHumanoid::GetItemOffset(bool bInLocalSpace /*= true*/)
 /////////////////////////////////////////////////////
 void AHumanoid::Multicast_ClearItemInHand_Implementation()
 {
-	if (_ItemInHand && !_ItemInHand->IsAttachedTo(this))
+	if (m_ItemInHand && !m_ItemInHand->IsAttachedTo(this))
 	{
-		_ItemInHand = nullptr;
+		m_ItemInHand = nullptr;
 	}
 }
 
@@ -453,9 +447,9 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHumanoid, bIsSprinting);
-	DOREPLIFETIME(AHumanoid, bIsAiming);
-	DOREPLIFETIME(AHumanoid, bIsProne);
+	DOREPLIFETIME(AHumanoid, m_bIsSprinting);
+	DOREPLIFETIME(AHumanoid, m_bIsAiming);
+	DOREPLIFETIME(AHumanoid, m_bIsProne);
 	DOREPLIFETIME(AHumanoid, m_WeaponToEquip);
 }
 
@@ -483,7 +477,7 @@ void AHumanoid::OnWeaponEquip()
 /////////////////////////////////////////////////////
 void AHumanoid::OnRep_bIsSprining()
 {
-	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? m_MaxForwardSpeed : m_MaxBackwardsSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = m_bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
 }
 
 /////////////////////////////////////////////////////

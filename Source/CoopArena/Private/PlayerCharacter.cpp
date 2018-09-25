@@ -129,32 +129,32 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnPronePressed()
 {
-	if (bToggleProne)
+	if (m_bToggleProne)
 	{
-		bIsProne = !bIsProne;
+		m_bIsProne = !m_bIsProne;
 	}
 	else
 	{
-		bIsProne = true;
+		m_bIsProne = true;
 	}
 }
 
 void APlayerCharacter::OnProneReleased()
 {
-	if (!bToggleProne)
+	if (!m_bToggleProne)
 	{
-		bIsProne = false;
+		m_bIsProne = false;
 	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnSprintPressed()
 {
-	if (bToggleSprinting)
+	if (m_bToggleSprinting)
 	{
-		SetSprinting(!bIsSprinting);
+		SetSprinting(!m_bIsSprinting);
 	}
-	else if (!bIsSprinting)
+	else if (!m_bIsSprinting)
 	{
 		SetSprinting(true);
 	}
@@ -162,7 +162,7 @@ void APlayerCharacter::OnSprintPressed()
 
 void APlayerCharacter::OnSprintReleased()
 {
-	if (!bToggleSprinting)
+	if (!m_bToggleSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -171,7 +171,7 @@ void APlayerCharacter::OnSprintReleased()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnCrouchPressed()
 {
-	if (bToggleCrouching)
+	if (m_bToggleCrouching)
 	{
 		SetCrouch(!bIsCrouched);
 	}
@@ -184,7 +184,7 @@ void APlayerCharacter::OnCrouchPressed()
 
 void APlayerCharacter::OnCrouchReleased()
 {
-	if (!bToggleCrouching)
+	if (!m_bToggleCrouching)
 	{
 		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
@@ -205,15 +205,15 @@ void APlayerCharacter::OnDecreaseVelocity()
 /////////////////////////////////////////////////////
 void APlayerCharacter::ToggleAiming()
 {
-	if (bIsAiming)
+	if (m_bIsAiming)
 	{
-		bIsAiming = false;
+		m_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
 	}
-	else if (m_EquippedWeapon && !bIsSprinting)
+	else if (m_EquippedWeapon && !m_bIsSprinting)
 	{
-		bIsAiming = true;
+		m_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(m_EquippedWeapon, 0.2f);		
 	}

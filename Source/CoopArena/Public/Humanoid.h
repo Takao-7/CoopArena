@@ -18,7 +18,6 @@ class UInventoryComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleAiming_Signature, bool, bIsAiming);
 
 
 UCLASS()
@@ -38,7 +37,7 @@ protected:
 					/* Components */
 	/////////////////////////////////////////////////////
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName="Health"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Health"))
 	UHealthComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Basic Animation System"))
@@ -102,27 +101,27 @@ protected:
 	void ToggleJump();
 
 	/** Base turn rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float _BaseTurnRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base turn rate"))
+	float m_BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float _BaseLookUpRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base Look up rate"))
+	float m_BaseLookUpRate;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	bool bToggleProne;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle prone"))
+	bool m_bToggleProne;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	bool bToggleSprinting;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle sprinting"))
+	bool m_bToggleSprinting;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	bool bToggleCrouching;
-
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool bIsSprinting;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle crouching"))
+	bool m_bToggleCrouching;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool bIsProne;
+	bool m_bIsSprinting;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
+	bool m_bIsProne;
 
 	/* The maximum speed at which this character can move forwards. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max forward speed"))
@@ -141,6 +140,7 @@ protected:
 	float m_MaxBackwardsSpeed;
 
 	/* The character's speed before he started sprinting. */
+	UPROPERTY(Replicated)
 	float m_SpeedBeforeSprinting;
 
 
@@ -173,7 +173,7 @@ public:
 
 	/* Returns the item currently held in the hand. */
 	UFUNCTION()
-	AItemBase* GetItemInHand() { return _ItemInHand; };
+	AItemBase* GetItemInHand() { return m_ItemInHand; };
 
 	/* Sets the item in hand to nullptr, if it's not attached to this actor. */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Humanoid)
@@ -181,19 +181,16 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	AItemBase* _ItemInHand;
+	AItemBase* m_ItemInHand;
 
 	UPROPERTY(BlueprintReadOnly, Category = Humanoid)
-	FTransform _ItemOffset;
+	FTransform m_ItemOffset;
 
 
 	/////////////////////////////////////////////////////
 						/* Weapon */
 	/////////////////////////////////////////////////////
 public:
-	UPROPERTY(BlueprintAssignable, Category = Humanoid)
-	FOnToggleAiming_Signature OnToggleAiming_Event;
-
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	FName GetEquippedWeaponAttachPoint() const;
 
@@ -227,7 +224,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void OnEquipWeapon();	
+	virtual void OnEquipWeapon();
 
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -235,10 +232,10 @@ protected:
 
 	/* Stops firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void StopFireEquippedWeapon();		
+	virtual void StopFireEquippedWeapon();
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void ToggleAiming();	
+	virtual void ToggleAiming();
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ReloadWeapon();
@@ -250,26 +247,22 @@ protected:
 	void GetWeaponSpawnTransform(FTransform& OutTransform);
 
 	/** The tool or weapon that the character will start the game with */
-	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	TSubclassOf<AGun> _DefaultGun;
+	UPROPERTY(EditDefaultsOnly, Category = Humanoid, meta = (DisplayName = "Default gun"))
+	TSubclassOf<AGun> m_DefaultGun;
 
 	/** Socket or bone name for attaching weapons when equipped */
-	UPROPERTY(EditDefaultsOnly, Category = Humanoid)
-	FName _EquippedWeaponAttachPoint;	
-
-	/* When the Kill() function is called and the damage type does not have any specific impulse, this value will be used instead. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	float _DefaultInpulsOnDeath;
+	UPROPERTY(EditDefaultsOnly, Category = Humanoid, meta = (DisplayName = "Equipped weapon attach point"))
+	FName m_EquippedWeaponAttachPoint;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
-	UArrowComponent* _DroppedItemSpawnPoint;
+	UArrowComponent* m_DroppedItemSpawnPoint;
 		
 	/* The characters currently held weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Humanoid, meta = (DisplayName = "Equipped weapon"))
 	AGun* m_EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
-	bool bIsAiming;
+	bool m_bIsAiming;
 
 private:
 	/* True if a component attached to this actor wants to prevent it from firing it's weapon. */
@@ -280,11 +273,12 @@ private:
 	UPROPERTY()
 	UActorComponent* m_BlockingComponent;
 
+
 	/////////////////////////////////////////////////////
 						/* Networking */
 	/////////////////////////////////////////////////////
 public:
-	/* [Server] Sets _WeaponToEquip and will trigger the replication function OnWeaponEquip. */
+	/* [Server] Sets m_WeaponToEquip and will trigger the replication function OnWeaponEquip. */
 	UFUNCTION(BlueprintCallable, Category = AHumanoid)
 	void SetWeaponToEquip(AGun* Weapon);
 
@@ -297,7 +291,7 @@ protected:
 	AGun* m_WeaponToEquip;
 
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
-	void Server_SetSprinting(bool bSprint);
+	void SetSprinting_Server(bool bWantsToSprint);
 
 	UFUNCTION()
 	void OnRep_bIsSprining();

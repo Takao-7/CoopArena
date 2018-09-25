@@ -4,6 +4,7 @@
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
 #include "Animation/AnimInstance.h"
+#include "Components/CapsuleComponent.h"
 #include "UnrealNetwork.h"
 
 
@@ -24,6 +25,7 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	m_180TurnThreshold = 135.0f;
 	m_AngleClampThreshold = 180.0f;
 	m_180TurnPredictionTime = 0.2f;
+	m_TurnAnimPlayRate = 1.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +37,23 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	FindCharacterMovementComponent();
 	
 	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;
+	m_CapsuleHalfHeight = m_Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::FindAnimInstance()
+{
+	m_Owner = Cast<ACharacter>(GetOwner());
+	if (m_Owner)
+	{
+		m_AnimInstance = m_Owner->GetMesh()->GetAnimInstance();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Fatal, TEXT("'%s' does not have an animation instance!"), *GetOwner()->GetName());
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -44,20 +63,6 @@ void UBasicAnimationSystemComponent::FindCharacterMovementComponent()
 	if (character)
 	{
 		m_MovementComponent = character->GetCharacterMovement();
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::FindAnimInstance()
-{
-	ACharacter* character = Cast<ACharacter>(GetOwner());
-	if (character)
-	{
-		m_AnimInstance = character->GetMesh()->GetAnimInstance();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("'%s' does not have an animation instance!"), *GetOwner()->GetName());
 	}
 }
 
@@ -79,6 +84,7 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 	SetHorizontalVelocity();
 	SetIsMovingForward();
 	SetMovementType();
+	SetMovementAdditive();
 	SetAimYaw(DeltaTime);
 	SetAimPitch();
 }
@@ -90,11 +96,13 @@ void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 	velocity.Z = 0.0f;
 	float horizontalVelocity = velocity.Size();
 
-	FTransform actorTransform = GetOwner()->GetActorTransform();
-	float yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
+	const FTransform actorTransform = GetOwner()->GetActorTransform();
+	const FVector velocityActorSpace = actorTransform.InverseTransformVector(velocity);
+
+	const float yawDelta = velocityActorSpace.ToOrientationRotator().Yaw;
 	horizontalVelocity *= FMath::Abs(yawDelta) > 120.0f ? -1.0f : 1.0f;
 
-	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.01f) ? 0.0f : horizontalVelocity;
+	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.1f) ? 0.0f : horizontalVelocity;
 	m_Variables.HorizontalVelocity = horizontalVelocity;
 }
 
@@ -110,10 +118,18 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetMovementAdditive()
+{
+	if (GetOwner()->Role != ROLE_AutonomousProxy)
+	{
+		m_Variables.MovementAdditive = m_Owner->bIsCrouched ? EMovementAdditive::Crouch : EMovementAdditive::None;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
 	FRotator actorRotation = GetOwner()->GetActorRotation();
-
 	float yawDelta = 0.0f;
 	if (m_Variables.MovementType == EMovementType::Idle)
 	{
@@ -140,7 +156,7 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 	m_ActorYawLastFrame = actorRotation.Yaw;
 	m_AimYawLastFrame = m_Variables.AimYaw;
-	
+
 	CheckIfTurnAnimFinished();
 }
 
@@ -177,18 +193,17 @@ float UBasicAnimationSystemComponent::MapAngleTo180(float Angle)
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::AddCurveValueToYawWhenTurning(float& Yaw)
 {
-	const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
-	if (bIsTurning)
+	const bool bIsActive = m_AnimInstance->Montage_IsActive(m_TurnAnimationPlaying);
+	if (bIsActive && m_TurnAnimationPlaying)
 	{
-		float curveValue;
-		const bool bFoundValue = m_AnimInstance->GetCurveValue("DistanceCurve", curveValue);
+		const float curveValue = m_AnimInstance->GetCurveValue("DistanceCurve");
 		if (m_bCurveIsPlaying)
 		{
 			const float curveDelta = m_CurveValueLastFrame - curveValue;
 			Yaw += curveDelta;
-			m_CurveValueLastFrame = curveValue;
+			m_CurveValueLastFrame = curveValue;	
 		}
-		else if (bFoundValue)
+		else if (curveValue)
 		{
 			/* The first time we got a value from the curve, we want to just set the last curve value and not update delta yaw. */
 			m_CurveValueLastFrame = curveValue;
@@ -200,9 +215,9 @@ void UBasicAnimationSystemComponent::AddCurveValueToYawWhenTurning(float& Yaw)
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw)
 {
-	const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
+	/*const bool bIsTurning = m_AnimInstance->Montage_IsActive(m_TurnAnimationPlaying);*/
 	const float aimYaw_Abs = FMath::Abs(NewAimYaw);
-	if (bIsTurning || aimYaw_Abs < 90.0f)
+	if (m_TurnAnimationPlaying || aimYaw_Abs < 90.0f)
 	{
 		return;
 	}
@@ -210,64 +225,57 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 	const float aimYawDelta = NewAimYaw - m_AimYawLastFrame;
 	const float predictedYaw = (aimYawDelta * (m_180TurnPredictionTime / DeltaTime)) + NewAimYaw;
 	// Play the turn animation faster to avoid over bending the upper body.
-	const float playrate = FMath::Abs(predictedYaw) > (m_180TurnThreshold * 1.5f) ? 1.75f : 1.0f;
+	m_TurnAnimPlayRate = FMath::Abs(predictedYaw) > (m_180TurnThreshold * 1.5f) ? 1.75f : 1.0f;
 
 	if (NewAimYaw <= -90.0f) // Turn right
 	{
-		if (predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation)
-		{
-			m_TurnAnimationPlaying = m_TurnRight180Animation;
-		}
-		else
-		{
-			m_TurnAnimationPlaying = m_TurnRight90Animation;
-		}		
+		m_TurnAnimationPlaying = predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation ? m_TurnRight180Animation : m_TurnRight90Animation;	
 		m_bIsTurningRight = true;
 	}
 	else  // Turn left
 	{
-		if (predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation)
-		{
-			m_TurnAnimationPlaying = m_TurnLeft180Animation;
-		}
-		else
-		{
-			m_TurnAnimationPlaying = m_TurnLeft90Animation;
-		}
+		m_TurnAnimationPlaying = predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation ? m_TurnLeft180Animation : m_TurnLeft90Animation;
 		m_bIsTurningRight = false;
 	}
 
 	m_bCurveIsPlaying = false;
-	m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, playrate, EMontagePlayReturnType::MontageLength, 0.0f, false);
-}
+	m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, m_TurnAnimPlayRate, EMontagePlayReturnType::MontageLength, 0.0f, false);
 
-//////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::SetAimYaw_Server_Implementation(float AimYaw)
-{
-	SetAimYaw_Multicast(AimYaw);
-}
-
-bool UBasicAnimationSystemComponent::SetAimYaw_Server_Validate(float AimYaw)
-{
-	return true;
-}
-
-void UBasicAnimationSystemComponent::SetAimYaw_Multicast_Implementation(float AimYaw)
-{
-	m_Variables.AimYaw = AimYaw;
+	if (m_TurnAnimationPlaying)
+	{
+		FString role = GetOwner()->HasAuthority() ? "Server" : "Client";
+		UE_LOG(LogTemp, Display, TEXT("'%s'[%s]: Turn animation playing."), *GetOwner()->GetName(), *role);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 {
-	if (m_TurnAnimationPlaying)
+	const bool bIsActive = m_AnimInstance->Montage_IsActive(m_TurnAnimationPlaying);
+	if(!bIsActive && m_TurnAnimationPlaying)
 	{
-		const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
-		if (!bIsTurning)
+		m_TurnAnimationPlaying = nullptr;
+		m_bCurveIsPlaying = false;
+
+		FString role = GetOwner()->HasAuthority() ? "Server" : "Client";
+		UE_LOG(LogTemp, Warning, TEXT("'%s'[%s]: Turn animation stopped."), *GetOwner()->GetName(), *role);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::PlayJumpAnimation()
+{
+	if (m_Variables.HorizontalVelocity != 0.0f)
+	{
+		if (!m_AnimInstance->Montage_IsPlaying(m_MovingJumpAnimation))
 		{
-			m_TurnAnimationPlaying = nullptr;
+			m_AnimInstance->Montage_Play(m_MovingJumpAnimation);
 		}
 	}
+	else if (!m_AnimInstance->Montage_IsPlaying(m_IdleJumpAnimation))
+	{
+		m_AnimInstance->Montage_Play(m_IdleJumpAnimation);
+	}	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -307,25 +315,21 @@ FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 	return m_Variables;
 }
 
-/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementType()
 {
 	float velocity = m_Variables.HorizontalVelocity;
-	if (velocity == 0.0f)
+	if (m_MovementComponent && !m_MovementComponent->IsMovingOnGround())
+	{
+		m_Variables.MovementType = EMovementType::InAir;
+	}
+	else if (velocity == 0.0f)
 	{
 		m_Variables.MovementType = EMovementType::Idle;
 	}
-	else if (velocity > m_SprintingSpeedThreshold)
-	{
-		m_Variables.MovementType = EMovementType::Sprinting;
-	}
-	else if (m_MovementComponent && !m_MovementComponent->IsMovingOnGround())
-	{
-		m_Variables.MovementType = EMovementType::Jumping;
-	}
 	else
 	{
-		m_Variables.MovementType = EMovementType::Moving;
+		m_Variables.MovementType = velocity > m_SprintingSpeedThreshold ? EMovementType::Sprinting : EMovementType::Moving;
 	}
 }
 
