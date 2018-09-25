@@ -40,6 +40,11 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	m_CapsuleHalfHeight = m_Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
 	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
+
+	if (GetWorld()->GetNetMode() == ENetMode::NM_DedicatedServer)
+	{
+		PrimaryComponentTick.SetTickFunctionEnable(false);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
