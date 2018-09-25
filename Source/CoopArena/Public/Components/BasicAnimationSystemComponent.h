@@ -28,11 +28,11 @@ struct FBASVariables
 	UPROPERTY(BlueprintReadOnly)
 	float AimPitch;
 
-	/* The actor's horizontal speed. */
+	/* The actor's horizontal speed. Positive if moving forward, negative if moving backwards. */
 	UPROPERTY(BlueprintReadOnly)
 	float HorizontalVelocity;
 
-	/* Is the actor moving forward. */
+	/* Is the actor moving forward? */
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsMovingForward;
 
@@ -96,6 +96,7 @@ protected:
 	UAnimMontage* m_MovingJumpAnimation;
 
 private:
+	/* This components owner casted to ACharacter */
 	ACharacter* m_Owner;
 
 	/* The owner's capsule half height (unmodified). */
@@ -112,17 +113,18 @@ private:
 
 	float m_ActorYawLastFrame;
 	float m_CurveValueLastFrame;
+	float m_AimYawLastFrame;
 
+	/* Our aim yaw value. Identically to m_variables.AimYaw. Used for replication. */
 	UPROPERTY(Replicated)
 	float m_AimYaw;
 
-	UFUNCTION(Server, WithValidation, Unreliable)
-	void ReplicateAimYaw_Server(float AimYaw);
+	/* True if the turn animation montage is playing and the curve 'DistanceCurve' had at least one value. */
+	bool m_bTurnCurveIsPlaying;
 
-	float m_AimYawLastFrame;
-
-	bool m_bCurveIsPlaying;
 	bool m_bIsTurningRight;
+
+	bool m_bIsLocallyControlled;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
 	UAnimMontage* m_TurnAnimationPlaying;
@@ -131,20 +133,15 @@ private:
 	UAnimInstance* m_AnimInstance;
 
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn animation play rate"))
-	float m_TurnAnimPlayRate;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Make 180 degree turn"))
-	bool m_bMake180Turn;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Predicted yaw"))
-	float m_PredictedYaw;
-
 	virtual void BeginPlay() override;
 
 public:
 	UBasicAnimationSystemComponent();
 
+	/**
+	 * When this components owner is pressing the jump button, this event should be broadcasted.
+	 * This event will get replicated.
+	 */ 
 	UPROPERTY(BlueprintAssignable, Category = "Basic Animation System")
 	FOnJump_Signature OnJumpEvent;
 
@@ -161,8 +158,9 @@ public:
 private:
 	void FindAnimInstance();
 	void FindCharacterMovementComponent();
-	void CheckIfLocallyControlled();
 	void CheckIfTurnAnimFinished();
+
+	bool TurnAnimationIsActive();
 
 	UFUNCTION()
 	void PlayJumpAnimation();
@@ -199,9 +197,19 @@ private:
 	/////////////////////////////////////////////////////
 						/* Networking */
 	/////////////////////////////////////////////////////
+private:
 	UFUNCTION(Server, WithValidation, Unreliable)
 	void SetAimPitch_Server(float AimPitch);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void SetAimPitch_Multicast(float AimPitch);
+
+	UFUNCTION(Server, WithValidation, Unreliable)
+	void ReplicateAimYaw_Server(float AimYaw);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void BroadcastJumpEvent_Multicast();
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void BroadcastJumpEvent_Server();
 };
