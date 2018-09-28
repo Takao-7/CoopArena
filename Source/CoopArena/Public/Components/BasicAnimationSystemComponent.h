@@ -32,6 +32,10 @@ struct FBASVariables
 	UPROPERTY(BlueprintReadOnly)
 	float HorizontalVelocity;
 
+	/* The actor's velocity. */
+	UPROPERTY(BlueprintReadOnly)
+	FVector Velocity;
+
 	/* Is the actor moving forward? */
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsMovingForward;

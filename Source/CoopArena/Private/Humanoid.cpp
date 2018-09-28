@@ -406,6 +406,12 @@ AGun* AHumanoid::SpawnWeapon(TSubclassOf<AGun> Class)
 }
 
 /////////////////////////////////////////////////////
+bool AHumanoid::IsAiming() const
+{
+	return m_bIsAiming;
+}
+
+/////////////////////////////////////////////////////
 void AHumanoid::GetWeaponSpawnTransform(FTransform& OutTransform)
 {
 	FVector location;

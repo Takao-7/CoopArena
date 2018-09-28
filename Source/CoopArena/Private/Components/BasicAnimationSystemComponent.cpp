@@ -45,7 +45,7 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	{
 		OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::BroadcastJumpEvent_Server);
 	}
-
+	
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 	
@@ -93,14 +93,16 @@ void UBasicAnimationSystemComponent::TickComponent(float DeltaTime, ELevelTick T
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 {
-	FVector velocity = GetOwner()->GetVelocity();
-	velocity.Z = 0.0f;
-	float horizontalVelocity = velocity.Size();
+	m_Variables.Velocity = GetOwner()->GetVelocity();
+
+	FVector velocity_Vector = m_Variables.Velocity;
+	velocity_Vector.Z = 0.0f;
+	float horizontalVelocity = velocity_Vector.Size();
 
 	const FTransform actorTransform = GetOwner()->GetActorTransform();
-	const FVector velocityActorSpace = actorTransform.InverseTransformVector(velocity);
+	const FVector velocity_ActorSpace = actorTransform.InverseTransformVector(velocity_Vector);
 
-	const float yawDelta = velocityActorSpace.ToOrientationRotator().Yaw;
+	const float yawDelta = velocity_ActorSpace.ToOrientationRotator().Yaw;
 	horizontalVelocity *= FMath::Abs(yawDelta) > 120.0f ? -1.0f : 1.0f;
 
 	horizontalVelocity = FMath::IsNearlyZero(horizontalVelocity, 0.1f) ? 0.0f : horizontalVelocity;
@@ -110,12 +112,10 @@ void UBasicAnimationSystemComponent::SetHorizontalVelocity()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetIsMovingForward()
 {
-	if (m_Variables.HorizontalVelocity == 0.0f)
+	if (m_Variables.HorizontalVelocity != 0.0f)
 	{
-		return;
-	}
-
-	m_Variables.bIsMovingForward = m_Variables.HorizontalVelocity > 0.0f ? true : false;
+		m_Variables.bIsMovingForward = m_Variables.HorizontalVelocity > 0.0f ? true : false;
+	}	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	}
 	else
 	{
-		FVector velocity = GetOwner()->GetVelocity();
+		FVector velocity = m_Variables.Velocity;
 		velocity.Z = 0.0f;
 		velocity *= m_Variables.bIsMovingForward ? 1.0f : -1.0f;
 
@@ -233,9 +233,6 @@ void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 	{
 		m_TurnAnimationPlaying = nullptr;
 		m_bTurnCurveIsPlaying = false;
-
-		/*FString role = GetOwner()->HasAuthority() ? "Server" : "Client";
-		UE_LOG(LogTemp, Warning, TEXT("'%s'[%s]: Turn animation stopped."), *GetOwner()->GetName(), *role);*/
 	}
 }
 
@@ -265,7 +262,7 @@ float UBasicAnimationSystemComponent::MapAngleTo180_Forced(float Angle)
 float UBasicAnimationSystemComponent::MapAngleTo180(float Angle)
 {
 	const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
-	if (bIsTurning || m_TurnAnimationPlaying)
+	if ((bIsTurning || m_TurnAnimationPlaying) && FMath::Abs(Angle) < 360.0f)
 	{
 		return Angle;
 	}
@@ -331,18 +328,17 @@ FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementType()
 {
-	float velocity = m_Variables.HorizontalVelocity;
-	if (m_MovementComponent && !m_MovementComponent->IsMovingOnGround())
+	if (!FMath::IsNearlyZero(m_Variables.Velocity.Z))
 	{
 		m_Variables.MovementType = EMovementType::InAir;
 	}
-	else if (velocity == 0.0f)
+	else if (m_Variables.HorizontalVelocity == 0.0f)
 	{
 		m_Variables.MovementType = EMovementType::Idle;
 	}
 	else
 	{
-		m_Variables.MovementType = velocity > m_SprintingSpeedThreshold ? EMovementType::Sprinting : EMovementType::Moving;
+		m_Variables.MovementType = m_Variables.HorizontalVelocity > m_SprintingSpeedThreshold ? EMovementType::Sprinting : EMovementType::Moving;
 	}
 }
 

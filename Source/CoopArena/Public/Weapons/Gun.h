@@ -14,6 +14,7 @@ class USoundBase;
 class AMagazine;
 class AItemBase;
 class UBoxComponent;
+class UArrowComponent;
 
 
 USTRUCT(BlueprintType)
@@ -25,9 +26,8 @@ struct FGunStats
 	{
 		FireModes.Add(EFireMode::Single);
 		Cooldown = 0.1f;
-		SpreadHorizontal = 0.05;
-		SpreadVertical = 0.05f;
-		MaxSpread = 0.4f;
+		SpreadHorizontal = 0.5f;
+		SpreadVertical = 1.0f;
 		ShotsPerBurst = 3;	
 		lineTraceRange = 10000.0f;
 	}
@@ -40,17 +40,13 @@ struct FGunStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float Cooldown;
 
+	/* The horizontal spread cone (random between +/- SpreadHorizontal), in degree, that will be applied after each shot. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadHorizontal;
 
+	/* Vertical spread (kickback), in degree, that will be applied after each shot. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadVertical;
-
-	/**
-	 * The maximum spread both, horizontal and vertical, the weapon will have.
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	float MaxSpread;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TArray<EFireMode> FireModes;
@@ -83,7 +79,7 @@ class COOPARENA_API AGun : public AItemBase
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Gun Stats"))
-	FGunStats _GunStats;
+	FGunStats m_GunStats;
 
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
@@ -97,12 +93,15 @@ protected:
 
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AHumanoid* _MyOwner;
+	AHumanoid* m_MyOwner;
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
-	USkeletalMeshComponent* _Mesh;
+	USkeletalMeshComponent* m_Mesh;
 
-protected:
+	/* This gun's forward direction. Will be used for projectile spawning. */
+	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Forward direction"))
+	UArrowComponent* m_ForwardDirection;
+
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetForwardCameraVector() const;
 
@@ -133,7 +132,7 @@ public:
 	void OnUnequip(bool DropGun = false);
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
-	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
+	EWEaponType GetWeaponType() { return m_GunStats.WeaponType; }
 	
 	virtual UMeshComponent* GetMesh() const override;
 
@@ -157,7 +156,7 @@ protected:
 	FName _MuzzleAttachPoint;
 
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	EFireMode _CurrentFireMode;
+	EFireMode m_CurrentFireMode;
 
 	/* How many shots are fired already in the current salvo. Used for the increased spread during firing. */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
@@ -173,7 +172,7 @@ protected:
 	int32 _CurrentFireModePointer;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
-	EWeaponState _CurrentGunState;
+	EWeaponState m_CurrentGunState;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
@@ -196,7 +195,6 @@ protected:
 	* The line trace is by channel ECollisionChannel::ECC_Camera.
 	* If a viable target is hit, then the return rotator points from the muzzle location towards the hit point.
 	* If not viable target was hit, direction.Rotation() is returned.
-	*
 	* @param startLocation The start location where the line trace starts.
 	* @param direction The direction in which the line trace will go.
 	* @return RotatorIf a viable target was hit, then the target location, otherwise the StartLocation.
@@ -219,7 +217,7 @@ public:
 	void OnStopFire();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	FVector ApplyWeaponSpread(FVector SpawnDirection);
+	void ApplyWeaponSpread();
 
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)

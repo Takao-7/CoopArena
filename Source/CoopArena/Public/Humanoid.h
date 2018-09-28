@@ -222,6 +222,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
 
+	UFUNCTION(BlueprintPure, Category = Humanoid)
+	bool IsAiming() const;
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void OnEquipWeapon();
