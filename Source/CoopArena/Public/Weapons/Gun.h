@@ -217,7 +217,7 @@ public:
 	void OnStopFire();
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void ApplyWeaponSpread();
+	void AddWeaponSpread();
 
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)

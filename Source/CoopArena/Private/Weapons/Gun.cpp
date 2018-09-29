@@ -163,7 +163,7 @@ void AGun::OnFire()
 		m_CurrentGunState = EWeaponState::Firing;
 		
 		FVector spawnDirection;
-		if (m_MyOwner->IsAiming() || !m_MyOwner->IsPlayerControlled())
+		if (m_MyOwner->IsAiming() || m_MyOwner->IsPlayerControlled() == false)
 		{
 			spawnDirection = m_ForwardDirection->GetForwardVector();
 		}
@@ -178,7 +178,7 @@ void AGun::OnFire()
 		const FTransform spawnTransform = FTransform(spawnDirection.ToOrientationRotator(), spawnLocation);
 		Server_OnFire(m_CurrentFireMode, spawnTransform);
 
-		ApplyWeaponSpread();
+		AddWeaponSpread();
 
 		if (CanRapidFire() && m_CurrentGunState == EWeaponState::Firing)
 		{
@@ -229,7 +229,7 @@ void AGun::OnStopFire()
 }
 
 /////////////////////////////////////////////////////
-void AGun::ApplyWeaponSpread()
+void AGun::AddWeaponSpread()
 {
 	const float spreadHorizontal = FMath::RandRange(-m_GunStats.SpreadHorizontal, m_GunStats.SpreadHorizontal);
 

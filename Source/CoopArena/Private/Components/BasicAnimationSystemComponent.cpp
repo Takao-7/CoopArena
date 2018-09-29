@@ -164,7 +164,7 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	m_ActorYawLastFrame = actorRotation.Yaw;
 	m_AimYawLastFrame = m_Variables.AimYaw;
 
-	if (!GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority() == false)
 	{
 		ReplicateAimYaw_Server(m_Variables.AimYaw);
 	}
@@ -229,7 +229,7 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 {
-	if(!TurnAnimationIsActive())
+	if(TurnAnimationIsActive() == false)
 	{
 		m_TurnAnimationPlaying = nullptr;
 		m_bTurnCurveIsPlaying = false;
