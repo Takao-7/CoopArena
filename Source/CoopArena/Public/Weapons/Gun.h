@@ -25,11 +25,14 @@ struct FGunStats
 	FGunStats()
 	{
 		FireModes.Add(EFireMode::Single);
+		FireModes.Add(EFireMode::Burst);
+		FireModes.Add(EFireMode::Auto);
 		Cooldown = 0.1f;
-		SpreadHorizontal = 0.5f;
+		SpreadHorizontal = 0.25f;
 		SpreadVertical = 1.0f;
+		KickbackSpeed = 10.0f;
 		ShotsPerBurst = 3;	
-		lineTraceRange = 10000.0f;
+		LineTraceRange = 10000.0f;
 	}
 	/*
 	* Time, in seconds, between each shot. If this value is <= 0, then the weapon can only fire
@@ -47,6 +50,10 @@ struct FGunStats
 	/* Vertical spread (kickback), in degree, that will be applied after each shot. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	float SpreadVertical;
+
+	/* How fast the spread (kickback) is applied */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	float KickbackSpeed;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
 	TArray<EFireMode> FireModes;
@@ -68,7 +75,7 @@ struct FGunStats
 	* from the barrel in the owner's view direction.
 	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	float lineTraceRange;
+	float LineTraceRange;
 };
 
 
@@ -121,6 +128,8 @@ protected:
 public:
 	AGun();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
 
@@ -152,42 +161,49 @@ public:
 	/////////////////////////////////////////////////////
 protected:
 	/** Name of the bone or socket for the muzzle */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	FName _MuzzleAttachPoint;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle attach point"))
+	FName m_MuzzleAttachPoint;
 
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire sound"))
+	USoundBase* m_FireSound;
+
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire animation"))
+	class UAnimMontage* m_FireAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle flash"))
+	class UParticleSystem* m_MuzzleFlash;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	EFireMode m_CurrentFireMode;
 
 	/* How many shots are fired already in the current salvo. Used for the increased spread during firing. */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 _SalvoCount;
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	int32 m_SalvoCount;
 
 	/* How many shots are fired already in the current burst (see: burst mode). */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	int32 _BurstCount;
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	int32 m_BurstCount;
 
-	FTimerHandle _WeaponCooldownTH;
-
-	/* Used to set the new fire mode, when the player changes the fire mode. */
-	int32 _CurrentFireModePointer;
-
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	EWeaponState m_CurrentGunState;
 
-	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	USoundBase* _FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UAnimMontage* _FireAnimation;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	class UParticleSystem* _MuzzleFlash;
-
 	/* The spawned muzzle flash particle system */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	class UParticleSystemComponent* m_SpawnedMuzzleFlashComponent;
+
+private:
+	FTimerHandle m_WeaponCooldownTH;
+
+	/* Used to set the new fire mode, when the player changes the fire mode. */
+	int32 m_CurrentFireModePointer;
+
+	/* If non-zero, this is the remaining vertical spread (kickback) to apply after the weapon was fired. */
+	float m_VerticalSpreadToApply;
+
+	/* If non-zero, this is the remaining horizontal spread (kickback) to apply after the weapon was fired. */
+	float m_HorizontalSpreadToApply;
 
 	/**
 	* Adjusts the aim based on lineTraceRange.
@@ -208,6 +224,14 @@ protected:
 	/* Checks if the weapon is able to fire in an automatic mode (= holding Fire button results in continuous fire) */
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	bool CanRapidFire() const;
+	
+	/* Adds horizontal and vertical weapon spread to the variables 'm_HorizontalSpreadToApply' and 'm_VerticalSpreadToApply'. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void AddWeaponSpread();
+
+	/* Applies the set weapon spread (see @AddWeaponSpread) to this gun's owners controller. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void ApplyWeaponSpread(float DeltaSeconds);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
@@ -215,9 +239,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnStopFire();
-
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void AddWeaponSpread();
 
 	/** Returns the number of rounds the weapon can fire each minute. */
 	UFUNCTION(BlueprintPure, Category = Weapon)
@@ -241,12 +262,12 @@ public:
 					/* Reloading */
 	/////////////////////////////////////////////////////
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
-	UAnimMontage* _ReloadAnimation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Reload animation"))
+	UAnimMontage* m_ReloadAnimation;
 
 	/* The currently loaded magazine. */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AMagazine* _LoadedMagazine;
+	AMagazine* m_LoadedMagazine;
 
 	/* Stops the reloading process by stop playing the reload animation. */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
