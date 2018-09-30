@@ -34,12 +34,6 @@ void UBasicAnimationSystemComponent::BeginPlay()
 
 	m_bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
 
-	if (GetWorld()->GetNetMode() == ENetMode::NM_DedicatedServer)
-	{
-		PrimaryComponentTick.SetTickFunctionEnable(false);
-		return;
-	}
-
 	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
 	if (m_bIsLocallyControlled)
 	{
@@ -57,23 +51,19 @@ void UBasicAnimationSystemComponent::BeginPlay()
 void UBasicAnimationSystemComponent::FindAnimInstance()
 {
 	m_Owner = Cast<ACharacter>(GetOwner());
-	if (m_Owner)
-	{
-		m_AnimInstance = m_Owner->GetMesh()->GetAnimInstance();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("'%s' does not have an animation instance!"), *GetOwner()->GetName());
-	}
+	check(m_Owner);
+
+	m_AnimInstance = m_Owner->GetMesh()->GetAnimInstance();
+	check(m_AnimInstance);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::FindCharacterMovementComponent()
 {
-	ACharacter* character = Cast<ACharacter>(GetOwner());
-	if (character)
+	m_MovementComponent = m_Owner->GetCharacterMovement();
+	if (m_MovementComponent == nullptr)
 	{
-		m_MovementComponent = character->GetCharacterMovement();
+		UE_LOG(LogTemp, Error, TEXT("'%s' does not have a CharacterMovementComponent."), *GetOwner()->GetName());
 	}
 }
 
