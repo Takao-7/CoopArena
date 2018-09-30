@@ -210,9 +210,9 @@ bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 /////////////////////////////////////////////////////
 void AHumanoid::SetEquippedWeaponFireMode(EFireMode NewFireMode)
 {
-	if (_EquippedWeapon)
+	if (m_EquippedWeapon)
 	{
-		_EquippedWeapon->SetFireMode(NewFireMode);
+		m_EquippedWeapon->SetFireMode(NewFireMode);
 	}
 }
 
