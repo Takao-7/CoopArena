@@ -5,6 +5,7 @@
 #include "Interactable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/BasicAnimationSystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -37,6 +38,8 @@ APlayerCharacter::APlayerCharacter()
 
 	_ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
+
+	m_IncrementVelocityAmount = 50.0f;
 }
 
 /////////////////////////////////////////////////////
@@ -85,7 +88,7 @@ void APlayerCharacter::CheckForInteractables()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnEquipWeapon()
 {
-	HolsterWeapon_Event.Broadcast(_EquippedWeapon);
+	HolsterWeapon_Event.Broadcast(m_EquippedWeapon);
 }
 
 /////////////////////////////////////////////////////
@@ -116,9 +119,9 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	if (_EquippedWeapon)
+	if (m_EquippedWeapon)
 	{
-		params.AddIgnoredActor((AActor*)_EquippedWeapon);
+		params.AddIgnoredActor((AActor*)m_EquippedWeapon);
 	}
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
@@ -126,32 +129,32 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnPronePressed()
 {
-	if (bToggleProne)
+	if (m_bToggleProne)
 	{
-		bIsProne = !bIsProne;
+		m_bIsProne = !m_bIsProne;
 	}
 	else
 	{
-		bIsProne = true;
+		m_bIsProne = true;
 	}
 }
 
 void APlayerCharacter::OnProneReleased()
 {
-	if (!bToggleProne)
+	if (!m_bToggleProne)
 	{
-		bIsProne = false;
+		m_bIsProne = false;
 	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnSprintPressed()
 {
-	if (bToggleSprinting)
+	if (m_bToggleSprinting)
 	{
-		SetSprinting(!bIsSprinting);
+		SetSprinting(!m_bIsSprinting);
 	}
-	else if (!bIsSprinting)
+	else if (!m_bIsSprinting)
 	{
 		SetSprinting(true);
 	}
@@ -159,7 +162,7 @@ void APlayerCharacter::OnSprintPressed()
 
 void APlayerCharacter::OnSprintReleased()
 {
-	if (!bToggleSprinting)
+	if (!m_bToggleSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -168,36 +171,51 @@ void APlayerCharacter::OnSprintReleased()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnCrouchPressed()
 {
-	if (bToggleCrouching)
+	if (m_bToggleCrouching)
 	{
 		SetCrouch(!bIsCrouched);
 	}
 	else
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::Crouch;
 		Crouch();
 	}
 }
 
 void APlayerCharacter::OnCrouchReleased()
 {
-	if (!bToggleCrouching)
+	if (!m_bToggleCrouching)
 	{
+		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
 	}
 }
 
 /////////////////////////////////////////////////////
+void APlayerCharacter::OnIncreaseVelocity()
+{
+	IncrementVelocity(m_IncrementVelocityAmount);
+}
+
+void APlayerCharacter::OnDecreaseVelocity()
+{
+	IncrementVelocity(-m_IncrementVelocityAmount);
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::ToggleAiming()
 {
-	if (bIsAiming)
+	if (m_bIsAiming)
 	{
-		bIsAiming = false;
+		m_bIsAiming = false;
+		BASComponent->GetActorVariables().bIsAiming = false;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
 	}
-	else if (_EquippedWeapon && !bIsSprinting)
+	else if (m_EquippedWeapon && !m_bIsSprinting)
 	{
-		bIsAiming = true;	
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);		
+		m_bIsAiming = true;
+		BASComponent->GetActorVariables().bIsAiming = true;
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(m_EquippedWeapon, 0.2f);		
 	}
 }
 
@@ -257,6 +275,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);	
+
+	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
+	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
 }
 
 
