@@ -23,7 +23,7 @@ public:
 
 	/**
 	 * Re-spawn our owner. Kills (@see UHealthComponent & @see m_bRespawnOnDeathAndDestroy) or destroys (@see m_bRespawnOnDeathAndDestroy) our owner before re-spawning.
-	 * When m_RespawnDelay is set, the delay will be taken into account.
+	 * The re-spawn delay (@see m_RespawnDelay) will be taken into account if the our owner is not being destroyed.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Respawn")
 	void Respawn();
@@ -56,7 +56,7 @@ protected:
 	bool m_bDestroyOldActorOnRespawn;
 
 	/* The delay, in seconds, after death / destroy to re-spawn. */
-	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn delay"))
+	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn delay", ClampMin = 0.0f))
 	float m_RespawnDelay;
 
 	virtual void BeginPlay() override;
@@ -66,6 +66,8 @@ private:
 
 	AActor* FindRespawnPoint();
 	AActor* SpawnNewActor();
+
+	/* Handles the actual re-spawning. Shouldn't be called directly. Call Respawn() instead. */
 	void HandleRespawn();
 
 	UFUNCTION()

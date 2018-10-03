@@ -29,10 +29,14 @@ void URespawnComponent::Respawn()
 		{
 			HandleRespawn();
 		}
-		else
+		else if (m_RespawnDelay > 0.0f)
 		{
 			FTimerHandle timerhandle;
 			GetWorld()->GetTimerManager().SetTimer(timerhandle, this, &URespawnComponent::HandleRespawn, m_RespawnDelay, false);
+		}
+		else
+		{
+			HandleRespawn();
 		}
 	}
 }
@@ -97,7 +101,10 @@ AActor* URespawnComponent::FindRespawnPoint()
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 {
-	Respawn();
+	if (m_HealthComp && m_HealthComp->IsAlive() || m_HealthComp == nullptr)
+	{
+		Respawn();
+	}
 }
 
 /////////////////////////////////////////////////////
