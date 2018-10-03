@@ -15,7 +15,6 @@ URespawnComponent::URespawnComponent()
 
 	m_bRespawnAtDeathLocation = false;
 	m_bRespawnOnDeathAndDestroy = false;
-	m_OwnerAlreadyDestroyed = false;
 
 	m_bEnableRespawn = true;
 	m_RespawnDelay = 2.0f;
@@ -24,10 +23,17 @@ URespawnComponent::URespawnComponent()
 /////////////////////////////////////////////////////
 void URespawnComponent::Respawn()
 {
-	if (GetOwner()->HasAuthority() && m_bEnableRespawn)
+	if (m_bEnableRespawn && GetOwner()->HasAuthority())
 	{
-		FTimerHandle timerhandle;
-		GetWorld()->GetTimerManager().SetTimer(timerhandle, this, &URespawnComponent::HandleRespawn, m_RespawnDelay, false);
+		if (GetOwner()->IsActorBeingDestroyed())
+		{
+			HandleRespawn();
+		}
+		else
+		{
+			FTimerHandle timerhandle;
+			GetWorld()->GetTimerManager().SetTimer(timerhandle, this, &URespawnComponent::HandleRespawn, m_RespawnDelay, false);
+		}
 	}
 }
 
@@ -47,7 +53,7 @@ void URespawnComponent::HandleRespawn()
 
 	OnRespawn_Event.Broadcast(newActor, controller);
 
-	if (m_bDestroyOldActorOnRespawn && !m_OwnerAlreadyDestroyed)
+	if (m_bDestroyOldActorOnRespawn)
 	{
 		GetOwner()->Destroy();
 	}
@@ -91,7 +97,6 @@ AActor* URespawnComponent::FindRespawnPoint()
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 {
-	m_OwnerAlreadyDestroyed = true;
 	Respawn();
 }
 

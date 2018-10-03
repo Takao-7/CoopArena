@@ -21,15 +21,15 @@ class COOPARENA_API URespawnComponent : public UActorComponent
 public:	
 	URespawnComponent();
 
-	/** 
-	 * Re-spawn our owner. Kills (@see UHealthComponent & @see m_bRespawnOnDeathAndDestroy) or destroys (@see m_bRespawnOnDeathAndDestroy) our owner before.
+	/**
+	 * Re-spawn our owner. Kills (@see UHealthComponent & @see m_bRespawnOnDeathAndDestroy) or destroys (@see m_bRespawnOnDeathAndDestroy) our owner before re-spawning.
 	 * When m_RespawnDelay is set, the delay will be taken into account.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Respawn")
 	void Respawn();
 
 	UFUNCTION(BlueprintCallable, Category = "Respawn")
-	void EnableRespawn(bool bShouldRespawn) { m_bEnableRespawn = bShouldRespawn; };
+	void SetEnableRespawn(bool bShouldRespawn) { m_bEnableRespawn = bShouldRespawn; };
 
 	/* Event will be called when we re-spawned. Controller can be null, if our owner isn't a pawn. */
 	FRespawn_Signature OnRespawn_Event;
@@ -55,7 +55,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Destroy old actor on respawn"))
 	bool m_bDestroyOldActorOnRespawn;
 
-	/* The time, in seconds, after death / destroy it takes for us to re-spawn. */
+	/* The delay, in seconds, after death / destroy to re-spawn. */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn delay"))
 	float m_RespawnDelay;
 
@@ -63,7 +63,6 @@ protected:
 
 private:
 	UHealthComponent* m_HealthComp;
-	bool m_OwnerAlreadyDestroyed;
 
 	AActor* FindRespawnPoint();
 	AActor* SpawnNewActor();
