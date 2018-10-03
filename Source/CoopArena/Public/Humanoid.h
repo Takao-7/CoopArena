@@ -15,6 +15,7 @@ class AItemBase;
 class UHealthComponent;
 class UBasicAnimationSystemComponent;
 class UInventoryComponent;
+class URespawnComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
@@ -46,6 +47,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Inventory"))
 	UInventoryComponent* Inventory;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Respawn"))
+	URespawnComponent* RespawnComponent;
 
 	/////////////////////////////////////////////////////
 					/* Movement */

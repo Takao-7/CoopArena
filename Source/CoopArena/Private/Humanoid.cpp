@@ -11,6 +11,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
 #include "Components/InventoryComponent.h"
+#include "Components/RespawnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
 #include "GameFramework/Controller.h"
@@ -51,9 +52,11 @@ AHumanoid::AHumanoid()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("Respawn"));
 	AddOwnedComponent(HealthComponent);
 	AddOwnedComponent(BASComponent);
 	AddOwnedComponent(Inventory);
+	AddOwnedComponent(RespawnComponent);
 }
 
 /////////////////////////////////////////////////////
