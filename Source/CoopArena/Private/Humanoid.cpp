@@ -16,6 +16,7 @@
 #include "Weapons/Gun.h"
 #include "GameFramework/Controller.h"
 #include "UnrealNetwork.h"
+#include "GameModes/CoopArenaGameMode.h"
 
 
 // Sets default values
@@ -60,6 +61,18 @@ AHumanoid::AHumanoid()
 }
 
 /////////////////////////////////////////////////////
+void AHumanoid::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	ACoopArenaGameMode* gameMode =  Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
+	if (gameMode)
+	{
+		m_TeamName = gameMode->CheckForTeamTag(*NewController);
+	}
+}
+
+/////////////////////////////////////////////////////
 AGun* AHumanoid::GetEquippedGun() const
 {
 	return m_EquippedWeapon;
@@ -88,7 +101,7 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 	{
 		m_BlockingComponent = nullptr;
 	}
-
+	
 	return true;
 }
 

@@ -13,6 +13,10 @@ class UHealthComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRespawn_Signature, AActor*, NewSpawnedActor, AController*, Controller);
 
 
+/**
+ * Component for re-spawn logic.
+ * Can be used for both, pawns and pickups, etc. to let them re-spawn after death (if they have a HealthComponent) or after they get destroyed.
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API URespawnComponent : public UActorComponent
 {
@@ -34,6 +38,9 @@ public:
 	/* Event will be called when we re-spawned. Controller can be null, if our owner isn't a pawn. */
 	FRespawn_Signature OnRespawn_Event;
 
+	UFUNCTION(BlueprintPure, Category = "Respawn")
+	float GetRespawnDelay() const { return m_RespawnDelay; };
+
 protected:
 	/* Should we re-spawn at all? This can be enabled during gameplay and only has to be true when our owner dies or gets destroyed. */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Enable respawn"))
@@ -48,8 +55,8 @@ protected:
 	* We will not re-spawn two times.
 	* If false, we will only re-spawn if we die. When there is no HealthComponent, then only when our owner gets destroyed.
 	*/
-	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn on death and OnDestroy()?"))
-	bool m_bRespawnOnDeathAndDestroy;
+	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn on OnDestroy()?"))
+	bool m_bRespawnOnDestroy;
 
 	/* If true, the old actor will be destroyed when we re-spawn. */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Destroy old actor on respawn"))

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/BAS_Interface.h"
+#include "GameplayTagContainer.h"
 #include "Humanoid.generated.h"
 
 
@@ -30,8 +31,19 @@ class COOPARENA_API AHumanoid : public ACharacter
 public:
 	AHumanoid();
 
+	UFUNCTION(BlueprintCallable, Category = "Humanoid")
+	const FString& GetTeamName() const { return m_TeamName; };
+
+	UFUNCTION(BlueprintCallable, Category = "Humanoid")
+	void SetTeamName(FString NewTeamName) { m_TeamName = NewTeamName; };
+
+	virtual void PossessedBy(AController* NewController) override;
+
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
+	FString m_TeamName;
 
 
 	/////////////////////////////////////////////////////

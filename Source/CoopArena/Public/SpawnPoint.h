@@ -24,13 +24,13 @@ public:
 	 * @return True if there are no pawn without the given tag in the safe zone.	 
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spawn point")
-	bool IsSafeToSpawn(FName ActorTag) const;
+	bool IsSafeToSpawn(const FString& TagToCompare) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spawn point")
 	UBoxComponent* GetSafeZone() const;
 
 protected:
 	/* Area around the spawn point that needs to be enemy-free in order to spawn a player. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn point")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spawn point")
 	UBoxComponent* SafeZone;
 };

@@ -31,6 +31,7 @@ void UHealthComponent::Kill()
 {
 	if (GetOwner()->HasAuthority() && !bAlreadyDied)
 	{
+		_CurrentHealth = 0.0f;
 		OnDeathEvent_Multicast();
 	}	
 }
@@ -122,7 +123,7 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 	_CurrentHealth -= Damage;
 	if (_CurrentHealth <= 0.0f)
 	{
-		OnDeathEvent.Broadcast();
+		OnDeathEvent_Multicast();
 	}
 }
 

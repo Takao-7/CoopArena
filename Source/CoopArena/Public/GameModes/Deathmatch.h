@@ -12,5 +12,14 @@ class COOPARENA_API ADeathmatch : public ACoopArenaGameMode
 {
 	GENERATED_BODY()
 
+private:
+	int32 m_CurrentTeamIndex;
 
+public:
+	ADeathmatch();
+	virtual void RegisterPlayer(APlayerController* Controller) override;	
+
+	void SetTeamName(AController* Controller);
+
+	virtual void RegisterBot(AController* Controller) override;
 };
