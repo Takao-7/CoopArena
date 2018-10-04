@@ -5,39 +5,38 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "CoopArena.h"
+#include "UnrealNetwork.h"
 
 
-// Called when the game starts or when spawned
+AMagazine::AMagazine()
+{
+	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent = _Mesh;
+
+	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
+	SetUpInteractionVolume();
+}
+
+/////////////////////////////////////////////////////
 void AMagazine::BeginPlay()
 {
 	Super::BeginPlay();	
 	_RoundsLeft = _Capacity;
 }
 
-
-AMagazine::AMagazine()
-{
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	_Mesh->SetupAttachment(RootComponent);
-
-	_InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
-	SetUpInteractionVolume();
-}
-
-
+/////////////////////////////////////////////////////
 int32 AMagazine::RoundsLeft() const
 {
 	return _RoundsLeft;
 }
 
-
+/////////////////////////////////////////////////////
 int32 AMagazine::GetCapacity() const
 {
 	return _Capacity;
 }
 
-
+/////////////////////////////////////////////////////
 bool AMagazine::RemoveRound(int32 numRounds /*= 1*/)
 {
 	if (_RoundsLeft - numRounds < 0 && _Capacity != -1)
@@ -51,14 +50,22 @@ bool AMagazine::RemoveRound(int32 numRounds /*= 1*/)
 	return true;
 }
 
-
+/////////////////////////////////////////////////////
 TSubclassOf<AProjectile> AMagazine::GetProjectileClass() const
 {
 	return _ProjectileType;
 }
 
-
+/////////////////////////////////////////////////////
 UMeshComponent* AMagazine::GetMesh() const
 {
 	return _Mesh;
+}
+
+/////////////////////////////////////////////////////
+void AMagazine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMagazine, _RoundsLeft);
 }
