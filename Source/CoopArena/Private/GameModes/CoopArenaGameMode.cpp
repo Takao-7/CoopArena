@@ -54,13 +54,20 @@ void ACoopArenaGameMode::RegisterBot(AController* Controller)
 /////////////////////////////////////////////////////
 AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {	
-	TArray<ASpawnPoint*> freeSpawnPoints;
-
-	if(Player)
+	if (Player)
 	{
 		APlayerController* playerController = Cast<APlayerController>(Player);
 		playerController ? RegisterPlayer(playerController) : RegisterBot(Player);
+	}
 
+	if (SpawnPoints.Num() == 0)
+	{
+		return Super::ChoosePlayerStart_Implementation(Player);
+	}
+
+	TArray<ASpawnPoint*> freeSpawnPoints;
+	if(Player)
+	{
 		const FString teamTag = CheckForTeamTag(*Player);
 
 		for (ASpawnPoint* point : SpawnPoints)
