@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "CoopArena.h"
 #include "MyPhysicalMaterial.h"
+#include "UnrealNetwork.h"
 
 
 // Sets default values
@@ -28,9 +29,12 @@ AProjectile::AProjectile()
 	RootComponent = Mesh;
 
 	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 float AProjectile::GetDamageWithFallOff() const
 {
 	float flightTime = 0.0f;
@@ -50,49 +54,38 @@ float AProjectile::GetDamageWithFallOff() const
 	return damage;
 }
 
-
-FHitResult AProjectile::HitDetectionLineTrace(float DeltaTime)
-{
-	FVector traceStart = GetActorLocation();
-	FVector traceEnd = traceStart + (GetActorForwardVector() * GetVelocity().Size() * DeltaTime);
-
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetOwner());
-	params.bReturnPhysicalMaterial = true;
-	FHitResult hitResult;
-	GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, ECC_ProjectilePenetration, params);
-
-	return hitResult;
-}
-
-
+//////////////////////////////////////////////////////////////////////////////////////
 FVector AProjectile::GetImpulse() const
 {
 	return GetActorForwardVector() * (GetVelocity().Size() * _ProjectileValues.Mass);
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == nullptr)
+	if (!HasAuthority() || OtherActor == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s fired by %s overlapped but did not hit an actor!"), *GetName(), *GetOwner()->GetName());
 		return;
 	}
-	if (OtherComp == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s fired by %s overlapped with an actor but component was hit!"), *GetName(), *GetOwner()->GetName());
-	}
 
-	float damage = GetDamageWithFallOff();	
-	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());
+	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());	
+	float damage = GetDamageWithFallOff();
 	if (material)
 	{
 		damage *= material->GetDamageMod();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("No MyPhysicalMaterial on: %s"), *OtherActor->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("No MyPhysicalMaterial on: %s"), *OtherActor->GetName());
+	}
+
+	if (OtherActor->GetInstigator())
+	{
+		UGameplayStatics::ApplyPointDamage(OtherActor, damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
+	}
+	else  // We hit the environment.
+	{
+		ApplyDamage_Multicast(OtherActor, damage, SweepResult);
 	}
 
 	UParticleSystem* hitEffect = nullptr;
@@ -101,30 +94,12 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject(true));
 		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("DamageType on %s is not set!"), *OtherActor->GetName());
-	}
 
-	if (hitEffect == nullptr && _DefaultHitEffect)
-	{
-		hitEffect = _DefaultHitEffect;
-	}
-	if (hitEffect)
-	{	
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, SweepResult.Location, SweepResult.Normal.Rotation(), true, EPSCPoolMethod::None);		
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No particle system found for %s, fired by %s. Hit actor: %s"), *GetName(), *GetInstigator()->GetName(), *OtherActor->GetName());
-	}
-
-	UGameplayStatics::ApplyPointDamage(OtherActor, damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
-
+	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
 	Destroy();
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();	
@@ -133,13 +108,20 @@ void AProjectile::BeginPlay()
 	SetLifeSpan(_ProjectileValues.lifeTime);
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
 
-	if (_TrailEffect)
-	{
-		UGameplayStatics::SpawnEmitterAttached(_TrailEffect, Mesh, "", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-	}
+//////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::ApplyDamage_Multicast_Implementation(AActor* OtherActor, float Damage, const FHitResult& SweepResult)
+{
+	UGameplayStatics::ApplyPointDamage(OtherActor, Damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::SpawnHitEffect_Multicast_Implementation(UParticleSystem* Effect, FVector Location, FRotator Rotation)
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, Location, Rotation, true, EPSCPoolMethod::None);
 }

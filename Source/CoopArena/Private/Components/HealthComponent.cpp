@@ -11,13 +11,13 @@
 #include "UnrealNetwork.h"
 
 
-// Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
 	_MaxHealth = 100.0f;
 	_CurrentHealth = _MaxHealth;
 	
 	bReplicates = true;
+	bAutoActivate = true;
 }
 
 /////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 
 	DeactivateCollisionCapsuleComponent();
 	SetPhysicsOnMesh();
-	_compOwner->Set_ComponentIsBlockingFiring(true, this);
+	_compOwner->SetComponentIsBlockingFiring(true, this);
 
 	if (_compOwner->IsLocallyControlled())
 	{
