@@ -55,6 +55,8 @@ AGun::AGun()
 	m_VerticalSpreadToApply = 0.0f;
 	m_HorizontalSpreadToApply = 0.0f;
 	m_GunStats.KickbackSpeed = 10.0f;
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 /////////////////////////////////////////////////////
