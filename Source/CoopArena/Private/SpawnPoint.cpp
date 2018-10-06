@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SpawnPoint.h"
-#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Humanoid.h"
 #include "GameModes/Deathmatch.h"
 #include "Engine/World.h"
@@ -12,9 +13,11 @@
 /////////////////////////////////////////////////////
 ASpawnPoint::ASpawnPoint(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	SafeZone = CreateDefaultSubobject<UBoxComponent>(TEXT("SafeZone"));
+	m_SafeZoneRadius = 1000.0f;
+
+	SafeZone = CreateDefaultSubobject<USphereComponent>(TEXT("SafeZone"));
 	SafeZone->SetupAttachment(RootComponent);
-	SafeZone->SetBoxExtent(FVector(1000.0f, 1000.0f, 300.0f));
+	SafeZone->SetSphereRadius(m_SafeZoneRadius, false);
 
 	SafeZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SafeZone->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -52,7 +55,33 @@ bool ASpawnPoint::IsSafeToSpawn(const FString& TagToCompare) const
 }
 
 /////////////////////////////////////////////////////
-UBoxComponent* ASpawnPoint::GetSafeZone() const
+void ASpawnPoint::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	return SafeZone;
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	
+	if (SafeZone == nullptr)
+	{
+		SafeZone = Cast<USphereComponent>(GetComponentByClass(USphereComponent::StaticClass()));
+	}
+	else
+	{
+		SafeZone->SetSphereRadius(m_SafeZoneRadius, false);
+	}
+}
+
+/////////////////////////////////////////////////////
+void ASpawnPoint::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	FHitResult hitResult;
+	const FVector start = GetActorLocation();
+	const FVector end = start + FVector(0.0f, 0.0f, -(m_SafeZoneRadius + 1));
+
+	const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECC_Visibility);
+	if (bHitSomething)
+	{
+		const FVector newLocation = hitResult.Location + FVector(0.0f, 0.0f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		SetActorLocation(newLocation);
+	}
 }

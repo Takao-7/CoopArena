@@ -7,7 +7,7 @@
 #include "SpawnPoint.generated.h"
 
 
-class UBoxComponent;
+class USphereComponent;
 
 
 UCLASS()
@@ -27,10 +27,21 @@ public:
 	bool IsSafeToSpawn(const FString& TagToCompare) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spawn point")
-	UBoxComponent* GetSafeZone() const;
+	USphereComponent* GetSafeZone() const { return SafeZone; };
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+	/**
+	 * Called when an instance of this class is placed (in editor) or spawned.
+	 * @param	Transform			The transform the actor was constructed at.
+	 */
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	/* Area around the spawn point that needs to be enemy-free in order to spawn a player. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spawn point")
-	UBoxComponent* SafeZone;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Spawn point")
+	USphereComponent* SafeZone;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn point", meta = (DisplayName = "Safe zone radius"))
+	float m_SafeZoneRadius;
 };
