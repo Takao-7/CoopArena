@@ -11,10 +11,12 @@
 #include "Components/HealthComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
 #include "Components/InventoryComponent.h"
+#include "Components/RespawnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
 #include "GameFramework/Controller.h"
 #include "UnrealNetwork.h"
+#include "GameModes/CoopArenaGameMode.h"
 
 
 // Sets default values
@@ -51,9 +53,23 @@ AHumanoid::AHumanoid()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("Respawn"));
 	AddOwnedComponent(HealthComponent);
 	AddOwnedComponent(BASComponent);
 	AddOwnedComponent(Inventory);
+	AddOwnedComponent(RespawnComponent);
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	ACoopArenaGameMode* gameMode =  Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
+	if (gameMode)
+	{
+		m_TeamName = gameMode->CheckForTeamTag(*NewController);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -85,7 +101,7 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 	{
 		m_BlockingComponent = nullptr;
 	}
-
+	
 	return true;
 }
 

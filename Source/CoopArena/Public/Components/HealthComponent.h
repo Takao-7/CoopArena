@@ -10,6 +10,9 @@
 class AHumanoid;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath_Signature);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UHealthComponent : public UActorComponent
 {
@@ -29,6 +32,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Health)
 	void Kill();
 
+	/* This event will be called, when this component's owner dies. */
+	FOnDeath_Signature OnDeathEvent;
+
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void OnDeathEvent_Multicast();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Health, meta = (DisplayName = "Max health"))
 	float _MaxHealth;
@@ -36,10 +46,7 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Health, meta = (DisplayName = "Current health"))
 	float _CurrentHealth;
 
-	UPROPERTY()
 	bool bAlreadyDied;
-
-	UPROPERTY()
 	AHumanoid* _compOwner;
 
 	virtual void BeginPlay() override;
@@ -58,10 +65,10 @@ protected:
 	* @param direction The direction from which the last shot came.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Health)
-	void OnDeath();
+	void HandleDeath();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_OnDeath();
+	void Multicast_HandleDeath();
 
 	void SetPhysicsOnMesh();
 

@@ -197,6 +197,9 @@ private:
 	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
 	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
+	UFUNCTION()
+	void DisableComponent();
+
 
 	/////////////////////////////////////////////////////
 						/* Networking */

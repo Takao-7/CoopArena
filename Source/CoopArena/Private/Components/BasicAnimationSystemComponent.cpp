@@ -5,13 +5,13 @@
 #include "Engine/World.h"
 #include "Animation/AnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/HealthComponent.h"
 #include "UnrealNetwork.h"
 
 
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PostPhysics;
 
 	m_TurnSpeed = 10.0f;
 
@@ -42,6 +42,12 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	
 	FindAnimInstance();
 	FindCharacterMovementComponent();
+
+	UHealthComponent* healthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
+	if (healthComp)
+	{
+		healthComp->OnDeathEvent.AddDynamic(this, &UBasicAnimationSystemComponent::DisableComponent);
+	}
 	
 	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;
 	m_CapsuleHalfHeight = m_Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
@@ -214,6 +220,13 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 
 	m_bTurnCurveIsPlaying = false;
 	m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, playRate, EMontagePlayReturnType::MontageLength, 0.0f, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::DisableComponent()
+{
+	PrimaryComponentTick.SetTickFunctionEnable(false);
+	m_bIsLocallyControlled = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

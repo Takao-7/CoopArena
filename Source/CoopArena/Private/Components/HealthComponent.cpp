@@ -29,7 +29,17 @@ FORCEINLINE bool UHealthComponent::IsAlive() const
 /////////////////////////////////////////////////////
 void UHealthComponent::Kill()
 {
-	OnDeath();
+	if (GetOwner()->HasAuthority() && !bAlreadyDied)
+	{
+		_CurrentHealth = 0.0f;
+		OnDeathEvent_Multicast();
+	}	
+}
+
+/////////////////////////////////////////////////////
+void UHealthComponent::OnDeathEvent_Multicast_Implementation()
+{
+	OnDeathEvent.Broadcast();
 }
 
 /////////////////////////////////////////////////////
@@ -39,20 +49,22 @@ void UHealthComponent::BeginPlay()
 
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
 	_compOwner = GetOwnerAsHumanoid();
+
+	OnDeathEvent.AddDynamic(this, &UHealthComponent::HandleDeath);
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::OnDeath()
+void UHealthComponent::HandleDeath()
 {
 	if (!bAlreadyDied && GetOwner()->HasAuthority())
 	{
 		bAlreadyDied = true;
-		Multicast_OnDeath();
+		Multicast_HandleDeath();
 	}
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::Multicast_OnDeath_Implementation()
+void UHealthComponent::Multicast_HandleDeath_Implementation()
 {
 	bAlreadyDied = true;
 
@@ -66,7 +78,7 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 	}
 
 	_compOwner->GetEquippedGun()->SetActorEnableCollision(true);
-	
+
 	FTimerDelegate delegate;
 	delegate.BindLambda([this]
 	{
@@ -76,8 +88,7 @@ void UHealthComponent::Multicast_OnDeath_Implementation()
 		}
 	});
 	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);
-
+	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);	
 }
 
 /////////////////////////////////////////////////////
@@ -91,10 +102,8 @@ void UHealthComponent::SetPhysicsOnMesh()
 AHumanoid* UHealthComponent::GetOwnerAsHumanoid()
 {
 	AHumanoid* compOwner = Cast<AHumanoid>(GetOwner());
-	if (compOwner == nullptr)
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("%s, owner of %s is not a humanoid!"), *GetOwner()->GetName(), *GetName());
-	}
+	ensure(compOwner);
+
 	return compOwner;
 }
 
@@ -114,7 +123,7 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 	_CurrentHealth -= Damage;
 	if (_CurrentHealth <= 0.0f)
 	{
-		OnDeath();
+		OnDeathEvent_Multicast();
 	}
 }
 
