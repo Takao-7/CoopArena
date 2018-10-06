@@ -77,13 +77,14 @@ void UHealthComponent::Multicast_HandleDeath_Implementation()
 		_compOwner->DisableInput(nullptr);
 	}
 
-	_compOwner->GetEquippedGun()->SetActorEnableCollision(true);
+	
 
 	FTimerDelegate delegate;
 	delegate.BindLambda([this]
 	{
 		if (_compOwner->GetEquippedGun())
 		{
+			_compOwner->GetEquippedGun()->SetActorEnableCollision(true);
 			_compOwner->GetEquippedGun()->OnUnequip(true);
 		}
 	});
