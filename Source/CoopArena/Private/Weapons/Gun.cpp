@@ -666,6 +666,12 @@ float AGun::GetCooldownTime() const
 }
 
 /////////////////////////////////////////////////////
+void AGun::SetFireMode(EFireMode NewFireMode)
+{
+	m_GunStats.FireModes.Find(NewFireMode);
+}
+
+/////////////////////////////////////////////////////
 float AGun::GetRoundsPerMinute() const
 {
 	return 60.0f / GetCooldownTime();

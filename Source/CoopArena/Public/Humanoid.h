@@ -206,6 +206,9 @@ protected:
 						/* Weapon */
 	/////////////////////////////////////////////////////
 public:
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetEquippedWeaponFireMode(EFireMode NewFireMode);
+
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	FName GetEquippedWeaponAttachPoint() const;
 

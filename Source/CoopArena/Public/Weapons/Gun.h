@@ -254,6 +254,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ToggleFireMode();
 
+	/* Sets the fire mode to the given value. */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void SetFireMode(EFireMode NewFireMode);
+
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
 

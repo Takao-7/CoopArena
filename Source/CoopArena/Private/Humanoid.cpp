@@ -224,6 +224,15 @@ bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 }
 
 /////////////////////////////////////////////////////
+void AHumanoid::SetEquippedWeaponFireMode(EFireMode NewFireMode)
+{
+	if (m_EquippedWeapon)
+	{
+		m_EquippedWeapon->SetFireMode(NewFireMode);
+	}
+}
+
+/////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
 	if (Controller && Value != 0.0f)
