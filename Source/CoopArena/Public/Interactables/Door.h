@@ -10,6 +10,7 @@
 
 class UStaticMeshComponent;
 class UArrowComponent;
+class UBoxComponent;
 
 
 UCLASS()
@@ -32,13 +33,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Door)
 	UStaticMeshComponent* Door;
 
+	UPROPERTY(VisibleAnywhere, Category = Door)
+	UBoxComponent* InteractionBox;
+
 private:
 	/* How fast the door will open */
 	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
 	float m_OpeningSpeed;
 	
 	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
-	UPROPERTY(EditAnywhere, Category = Door)
 	float m_TargetAngle;
 
 	bool m_bIsOpen;

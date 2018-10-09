@@ -37,10 +37,6 @@ public:
 	UCameraComponent* GetFirstPersonCamera() { return _FirstPersonCamera; };
 
 protected:
-	virtual void ToggleAiming() override;
-
-	virtual void OnEquipWeapon() override;
-
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = PlayerCharacter)
 	UCameraComponent* _FirstPersonCamera;
 
@@ -53,6 +49,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = PlayerCharacter)
 	UCameraComponent* _LastCamera;
 
+	virtual void ToggleAiming() override;
+
+	virtual void OnEquipWeapon() override;
+
 
 	/////////////////////////////////////////////////////
 						/* Interaction */
@@ -62,10 +62,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = PlayerCharacter, meta = (DisplayName = "Increment velocity amount"))
 	float m_IncrementVelocityAmount;
 
-	/////////////////////////////////////////////////////
-						/* Interaction */
-	/////////////////////////////////////////////////////
-protected:
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void OnBeginInteracting();
 
@@ -135,6 +131,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnDecreaseVelocity();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnChangeCameraPressed();
 
 
 	/////////////////////////////////////////////////////
