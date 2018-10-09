@@ -4,7 +4,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
 #include "UnrealNetwork.h"
+#include "CoopArena.h"
 
 
 ADoor::ADoor()
@@ -20,6 +22,11 @@ ADoor::ADoor()
 	Front = CreateDefaultSubobject <UArrowComponent>(TEXT("Front"));
 	Front->SetupAttachment(RootComponent);
 	Front->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
+
+	InteractionBox = CreateDefaultSubobject<UBoxComponent>("InteractionBox");
+	InteractionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	InteractionBox->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	InteractionBox->SetupAttachment(RootComponent);
 
 	OpeningAngle = 90.0f;
 	m_OpeningSpeed = 5.0f;
