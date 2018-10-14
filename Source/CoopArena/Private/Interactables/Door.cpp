@@ -40,7 +40,6 @@ ADoor::ADoor()
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-
 	PrimaryActorTick.SetTickFunctionEnable(false);
 }
 
