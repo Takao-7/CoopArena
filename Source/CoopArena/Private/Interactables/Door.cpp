@@ -40,7 +40,6 @@ ADoor::ADoor()
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-
 	PrimaryActorTick.SetTickFunctionEnable(false);
 }
 
@@ -101,17 +100,10 @@ void ADoor::HandleInteract_Server_Implementation(APawn* InteractingPawn, UPrimit
 		m_bIsOpen = true;
 		if (bTwoSidedOpening)
 		{
-			FVector pawnLocation = InteractingPawn->GetActorLocation();
-			FVector relativePawnPosition = GetActorTransform().InverseTransformPosition(pawnLocation);
+			const FVector pawnLocation = InteractingPawn->GetActorLocation();
+			const FVector relativePawnPosition = GetActorTransform().InverseTransformPosition(pawnLocation);
 
-			if (relativePawnPosition.X > 0.0f)
-			{
-				m_TargetAngle = -OpeningAngle;
-			}
-			else
-			{
-				m_TargetAngle = OpeningAngle;
-			}
+			m_TargetAngle = relativePawnPosition.X > 0.0f ? -OpeningAngle : OpeningAngle;
 		}
 		else
 		{
