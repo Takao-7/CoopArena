@@ -827,27 +827,27 @@ void AGun::Multicast_SpawnEjectedShell_Implementation()
 		return;
 	}
 
-	AProjectile* projectile = m_LoadedMagazine->GetProjectileClass().GetDefaultObject();
+	const AProjectile* projectile = m_LoadedMagazine->GetProjectileClass().GetDefaultObject();
 	if (projectile == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No default projectile object found."));
 		return;
 	}
 
-	const TSubclassOf<AActor> shellClass = projectile->GetProjectileCase();
-	if (shellClass)
+	const TSubclassOf<AActor> caseClass = projectile->GetProjectileCase();
+	if (caseClass)
 	{
 		const FTransform spawnTransform = GetMesh()->GetSocketTransform(m_ShellEjectionPoint);
 		FActorSpawnParameters spawnParams = FActorSpawnParameters();
 		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		const AActor* shell = GetWorld()->SpawnActor<AActor>(shellClass, spawnTransform, spawnParams);		
-		UMeshComponent* shellMesh = Cast<UMeshComponent>(shell->GetComponentByClass(UMeshComponent::StaticClass()));
-		if (shellMesh)
+		const AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);		
+		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
+		if (caseMesh)
 		{
-			const FTransform shellTransform = shell->GetActorTransform();
-			const FVector impulse = shellTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
-			shellMesh->AddImpulse(impulse);
+			const FTransform caseTransform = cartridgeCase->GetActorTransform();
+			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
+			caseMesh->AddImpulse(impulse);
 		}
 	}
 }
