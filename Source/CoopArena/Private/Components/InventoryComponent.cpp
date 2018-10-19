@@ -10,7 +10,6 @@
 #include "ItemBase.h"
 
 
-// Called when the game starts
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -18,55 +17,61 @@ void UInventoryComponent::BeginPlay()
 	m_Owner = Cast<AHumanoid>(GetOwner());
 	check(m_Owner);
 
-	m_Owner->HolsterWeapon_Event.AddDynamic(this, &UInventoryComponent::OnOwnerWeaponHolster);
+	m_Owner->HolsterWeapon_Event.AddDynamic(this, &UInventoryComponent::OnOwnerHolsterWeapon);
 
 	bReplicates = true;
 	bAutoActivate = true;
 }
 
 
-void UInventoryComponent::OnOwnerWeaponHolster(AGun* Gun)
+void UInventoryComponent::OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
 {
-	if (m_WeaponAttachPoint.socket == "none")
+	bool bCanAttach = AttachPointIndex > -1 ? m_WeaponAttachPoints[AttachPointIndex].CanAttachWeapon(GunToHolster) : false;
+	if(AttachPointIndex < 0 && !bCanAttach && GunToHolster)
+	{
+		for (int32 i = 0; i < m_WeaponAttachPoints.Num(); ++i)
+		{
+			bCanAttach = m_WeaponAttachPoints[i].CanAttachWeapon(GunToHolster);
+			if (bCanAttach)
+			{
+				AttachPointIndex = i;
+				break;
+			}
+		}
+	}
+
+	const int32 index = m_WeaponAttachPoints.Num() == 1 ? 0 : AttachPointIndex;
+	
+	if ((bCanAttach == false && GunToHolster) || m_WeaponAttachPoints.IsValidIndex(index) == false)
 	{
 		return;
 	}
 
-	if (Gun)
-	{
-		// We want to holster our currently equipped weapon		
-		bool bCanAttach = m_WeaponAttachPoint.CanAttachWeapon(Gun);
-		if (bCanAttach)
-		{
-			UAnimInstance* animInstance = m_Owner->GetMesh()->GetAnimInstance();
-			if (animInstance && m_WeaponAttachPoint.holsterAnimation)
-			{
-				animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-			}
-			else
-			{
-				Gun->OnUnequip(false);
-				m_WeaponAttachPoint.AttachWeapon(Gun, m_Owner->GetMesh());
-			}
-		}		
-	}
-	else
-	{
-		// We want to equip our holstered weapon
-		if (m_WeaponAttachPoint.GetAttachedWeapon() == nullptr)
-		{
-			return;
-		}
+	FWeaponAttachPoint& attachPoint = m_WeaponAttachPoints[index];
+	UAnimInstance* animInstance = m_Owner->GetMesh()->GetAnimInstance();
 
-		UAnimInstance* animInstance = m_Owner->GetMesh()->GetAnimInstance();
-		if (animInstance && m_WeaponAttachPoint.holsterAnimation)
+	if (GunToHolster)
+	{
+		if (animInstance && attachPoint.holsterAnimation)
 		{
-			animInstance->Montage_Play(m_WeaponAttachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+			animInstance->Montage_Play(attachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 		}
 		else
 		{
-			AGun* gun = m_WeaponAttachPoint.DetachWeapon();
-			gun->OnEquip(m_Owner);
+			GunToHolster->OnUnequip(false); // We un-equip the gun in case we are currently holding it.
+			attachPoint.AttachWeapon(GunToHolster, m_Owner->GetMesh());
+		}
+	}
+	else
+	{
+		if (animInstance && attachPoint.holsterAnimation)
+		{
+			animInstance->Montage_Play(attachPoint.holsterAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+		}
+		else
+		{
+			AGun* gun = attachPoint.DetachWeapon();
+			m_Owner->EquipWeapon(gun);
 		}
 	}
 }
@@ -74,18 +79,16 @@ void UInventoryComponent::OnOwnerWeaponHolster(AGun* Gun)
 
 void UInventoryComponent::OnWeaponHolstering()
 {
-	bool bAttachToHolster;
-	m_Owner->GetEquippedGun() ? bAttachToHolster = true : bAttachToHolster = false;
+	const bool bAttachToHolster = m_Owner->GetEquippedGun() ? true : false;
 	if (bAttachToHolster)
 	{
 		AGun* gun = m_Owner->GetEquippedGun();
-
-		gun->OnUnequip(false);
-		m_WeaponAttachPoint.AttachWeapon(gun, m_Owner->GetMesh());
+		m_Owner->UnequipWeapon(false);
+		m_WeaponAttachPoints[m_AttachPointIndex].AttachWeapon(gun, m_Owner->GetMesh());
 	}
 	else
 	{
-		AGun* gun = m_WeaponAttachPoint.DetachWeapon();
-		gun->OnEquip(m_Owner);
+		AGun* gun = m_WeaponAttachPoints[m_AttachPointIndex].DetachWeapon();
+		m_Owner->EquipWeapon(gun);
 	}
 }

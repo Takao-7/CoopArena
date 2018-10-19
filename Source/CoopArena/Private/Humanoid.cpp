@@ -106,9 +106,9 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnEquipWeapon()
+void AHumanoid::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon);	
+	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);	
 }
 
 /////////////////////////////////////////////////////
@@ -221,6 +221,17 @@ void AHumanoid::IncrementVelocity_Server_Implementation(float Increment)
 bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 {
 	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::EquipWeapon(AGun* GunToEquip)
+{
+	SetWeaponToEquip_Server(GunToEquip);
+}
+
+void AHumanoid::UnequipWeapon(bool bDropGun)
+{
+	HandleWeaponUnEquip_Multicast(bDropGun);
 }
 
 /////////////////////////////////////////////////////
@@ -403,7 +414,7 @@ void AHumanoid::SetUpDefaultEquipment()
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
 	}
-	if (!GetEquippedWeaponAttachPoint().IsValid())
+	if (GetEquippedWeaponAttachPoint().IsValid() == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;
@@ -412,7 +423,7 @@ void AHumanoid::SetUpDefaultEquipment()
 	if(HasAuthority())
 	{
 		m_WeaponToEquip = SpawnWeapon(m_DefaultGun);
-		OnWeaponEquip();
+		HandleWeaponEquip();
 	}
 }
 
@@ -485,17 +496,19 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::SetWeaponToEquip(AGun* Weapon)
+void AHumanoid::SetWeaponToEquip_Server_Implementation(AGun* Weapon)
 {
-	if (HasAuthority())
-	{
-		m_WeaponToEquip = Weapon;
-		OnWeaponEquip();
-	}
+	m_WeaponToEquip = Weapon;
+	HandleWeaponEquip();
+}
+
+bool AHumanoid::SetWeaponToEquip_Server_Validate(AGun* Weapon)
+{
+	return true;
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnWeaponEquip()
+void AHumanoid::HandleWeaponEquip()
 {
 	if(m_WeaponToEquip)
 	{
@@ -503,6 +516,14 @@ void AHumanoid::OnWeaponEquip()
 		m_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
 	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
+{
+	m_EquippedWeapon->OnUnequip(bDropGun);
+	m_EquippedWeapon = nullptr;
+	BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 }
 
 /////////////////////////////////////////////////////

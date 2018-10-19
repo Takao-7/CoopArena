@@ -109,12 +109,6 @@ void AProjectile::BeginPlay()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void AProjectile::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::ApplyDamage_Multicast_Implementation(AActor* OtherActor, float Damage, const FHitResult& SweepResult)
 {
 	UGameplayStatics::ApplyPointDamage(OtherActor, Damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);

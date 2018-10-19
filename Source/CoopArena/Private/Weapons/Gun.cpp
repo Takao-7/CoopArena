@@ -97,13 +97,13 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 			FTimerHandle timerHandle;
 			timerDelegate.BindLambda([this, character]
 			{
-				character->SetWeaponToEquip(this);
+				character->EquipWeapon(this);
 			});
 			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
 		}
 		else
 		{
-			character->SetWeaponToEquip(this);
+			character->EquipWeapon(this);
 		}
 	}
 }
@@ -183,7 +183,7 @@ void AGun::OnFire()
 		}
 		else
 		{
-			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetCameraLocation();
+			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
 			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection);
 		}
@@ -763,6 +763,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 		Multicast_PlayFireSound();
 		Multicast_PlayFireAnimation();
 		Multicast_HandleMuzzleFlash(true);
+		Multicast_SpawnEjectedShell();
 	}
 	else
 	{
@@ -817,3 +818,37 @@ void AGun::Multicast_PlayFireSound_Implementation()
 		UGameplayStatics::PlaySoundAtLocation(this, m_FireSound, GetActorLocation());
 	}
 }
+
+/////////////////////////////////////////////////////
+void AGun::Multicast_SpawnEjectedShell_Implementation()
+{
+	if (m_ShellEjectionPoint.IsValid() == false)
+	{
+		return;
+	}
+
+	AProjectile* projectile = m_LoadedMagazine->GetProjectileClass().GetDefaultObject();
+	if (projectile == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No default projectile object found."));
+		return;
+	}
+
+	const TSubclassOf<AActor> shellClass = projectile->GetProjectileCase();
+	if (shellClass)
+	{
+		const FTransform spawnTransform = GetMesh()->GetSocketTransform(m_ShellEjectionPoint);
+		FActorSpawnParameters spawnParams = FActorSpawnParameters();
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const AActor* shell = GetWorld()->SpawnActor<AActor>(shellClass, spawnTransform, spawnParams);		
+		UMeshComponent* shellMesh = Cast<UMeshComponent>(shell->GetComponentByClass(UMeshComponent::StaticClass()));
+		if (shellMesh)
+		{
+			const FTransform shellTransform = shell->GetActorTransform();
+			const FVector impulse = shellTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
+			shellMesh->AddImpulse(impulse);
+		}
+	}
+}
+
