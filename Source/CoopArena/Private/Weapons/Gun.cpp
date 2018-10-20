@@ -183,7 +183,7 @@ void AGun::OnFire()
 		}
 		else
 		{
-			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetCameraLocation();
+			const FVector lineTraceStartLocation = m_MyOwner->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
 			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection);
 		}
@@ -247,12 +247,14 @@ void AGun::AddWeaponSpread()
 {
 	m_HorizontalSpreadToApply += FMath::RandRange(-m_GunStats.SpreadHorizontal, m_GunStats.SpreadHorizontal);
 	m_VerticalSpreadToApply += m_GunStats.SpreadVertical;
+	PrimaryActorTick.SetTickFunctionEnable(true);
 }
 
 void AGun::ApplyWeaponSpread(float DeltaSeconds)
 {
-	if (m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f)
+	if ((m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f) || m_MyOwner == nullptr)
 	{
+		PrimaryActorTick.SetTickFunctionEnable(false);
 		return;
 	}
 	
