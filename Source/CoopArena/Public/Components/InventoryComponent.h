@@ -47,14 +47,7 @@ struct FWeaponAttachPoint
 
 	bool CanAttachWeapon(AGun* Weapon)
 	{
-		if (Weapon == nullptr || m_currentlyHeldWeapon || !allowedWeaponTypes.Find(Weapon->GetWeaponType()))
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		return (Weapon == nullptr || m_currentlyHeldWeapon || allowedWeaponTypes.Find(Weapon->GetWeaponType()) == false) ? false : true;
 	}
 
 	/**
@@ -109,21 +102,22 @@ private:
 class AHumanoid;
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class COOPARENA_API UInventoryComponent : public UStorageComponent
 {
 	GENERATED_BODY()
-	
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Inventory)
-	FWeaponAttachPoint _WeaponAttachPoint;
 
-	UPROPERTY(BlueprintReadOnly, Category = Inventory)
-	AHumanoid* _Owner;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Weapon attach point"))
+	FWeaponAttachPoint m_WeaponAttachPoint;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Owner"))
+	AHumanoid* m_Owner;
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, Category = Inventory)
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnOwnerWeaponHolster(AGun* Gun);
 
 public:
@@ -132,6 +126,6 @@ public:
 	 * @param bAttachToHolster True when the gun should be attached to the holster.
 	 * False if the gun should be attached to the owner's hand.
 	 */
-	UFUNCTION(BlueprintCallable, Category = Inventory)
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnWeaponHolstering();
 };

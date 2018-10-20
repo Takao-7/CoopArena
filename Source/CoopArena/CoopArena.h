@@ -1,18 +1,22 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
-#include "CoreMinimal.h"
 
-/* Line trace channels */
-
+/////////////////////////////////////////////////////
+			/* Line trace channels */
+/////////////////////////////////////////////////////
+/* Channel for projectiles. Set to overlap, not block, so that bullets can penetrate the object. */
 #define ECC_Projectile				ECC_GameTraceChannel1
-/* Used to find intractable actors. Actors that are interactables have*/
+
+/* Used to find intractable actors. */
 #define ECC_Interactable			ECC_GameTraceChannel2
+
 /* Used to find actors or meshes that can be damaged or passed through by projectiles. */
 #define ECC_ProjectilePenetration	ECC_GameTraceChannel3
 
-/* Surface types */
+
+/////////////////////////////////////////////////////
+				/* Surface types */
+/////////////////////////////////////////////////////
 
 #define SurfaceType_Flesh			SurfaceType1
 #define SurfaceType_Steel			SurfaceType2

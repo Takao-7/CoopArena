@@ -18,7 +18,6 @@ class COOPARENA_API APlayerCharacter : public AHumanoid
 {
 	GENERATED_BODY()
 
-
 public:
 	APlayerCharacter();
 
@@ -38,10 +37,6 @@ public:
 	UCameraComponent* GetFirstPersonCamera() { return _FirstPersonCamera; };
 
 protected:
-	virtual void ToggleAiming() override;
-
-	virtual void OnEquipWeapon() override;
-
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = PlayerCharacter)
 	UCameraComponent* _FirstPersonCamera;
 
@@ -54,11 +49,19 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = PlayerCharacter)
 	UCameraComponent* _LastCamera;
 
+	virtual void ToggleAiming() override;
+
+	virtual void OnEquipWeapon() override;
+
 
 	/////////////////////////////////////////////////////
 						/* Interaction */
 	/////////////////////////////////////////////////////
 protected:
+	/* How much the velocity will change each time increase/decrease velocity is called. */
+	UPROPERTY(EditDefaultsOnly, Category = PlayerCharacter, meta = (DisplayName = "Increment velocity amount"))
+	float m_IncrementVelocityAmount;
+
 	UFUNCTION(BlueprintCallable, Category = PlayerCharacter)
 	void OnBeginInteracting();
 
@@ -122,6 +125,15 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnCrouchReleased();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnIncreaseVelocity();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnDecreaseVelocity();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnChangeCameraPressed();
 
 
 	/////////////////////////////////////////////////////

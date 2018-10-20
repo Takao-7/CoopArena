@@ -16,11 +16,12 @@ AItemBase::AItemBase()
 	bNetUseOwnerRelevancy = true;
 
 
-	_collisionChannels.Visibility = ECR_Block;
-	_collisionChannels.Camera = ECR_Block;
-	_collisionChannels.GameTraceChannel1 = ECR_Ignore;	// Projectile
-	_collisionChannels.GameTraceChannel2 = ECR_Block;	// Interactable
-	_collisionChannels.GameTraceChannel3 = ECR_Ignore;	// Projectile penetration
+	_collisionChannels.Visibility =			ECR_Block;
+	_collisionChannels.Camera =				ECR_Block;
+	_collisionChannels.GameTraceChannel2 =	ECR_Block;	// Interactable
+	_collisionChannels.GameTraceChannel1 =	ECR_Ignore;	// Projectile
+	_collisionChannels.GameTraceChannel3 =	ECR_Ignore;	// Projectile penetration
+	_collisionChannels.Pawn =				ECR_Ignore;
 }
 
 /////////////////////////////////////////////////////
