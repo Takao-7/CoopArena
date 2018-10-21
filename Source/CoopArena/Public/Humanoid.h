@@ -229,9 +229,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool CanFire() const;
 
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetEquippedWeapon(AGun* Weapon);
-
 	/* 
 	 * Use this function, when a component has to prevent this actor from firing his weapon.
 	 * If the gun is blocked, then only the component that blocked it can unblock it.
@@ -311,7 +308,7 @@ private:
 	/////////////////////////////////////////////////////
 protected:
 	/* Sets m_WeaponToEquip and will trigger the replication function OnWeaponEquip. */
-	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable, Category = AHumanoid)
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable, Category = Humanoid)
 	void SetWeaponToEquip_Server(AGun* Weapon);
 
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
@@ -321,9 +318,12 @@ protected:
 	void RepMaxWalkSpeed(float NewMaxWalkSpeed);
 
 private:
-	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
+	/* The weapon that should be equipped. */
 	UPROPERTY(ReplicatedUsing = HandleWeaponEquip)
 	AGun* m_WeaponToEquip;
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void EquipWeapon_Server(AGun* Gun);
 
 	/* Handles the actual weapon equipping. */
 	UFUNCTION()
@@ -335,4 +335,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_bIsSprining();
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void UnequipWeapon_Server(bool bDropGun);
 };

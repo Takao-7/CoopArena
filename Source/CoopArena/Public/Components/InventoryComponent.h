@@ -57,8 +57,11 @@ struct FWeaponAttachPoint
 	AGun* DetachWeapon()
 	{
 		AGun* gunTemp = m_currentlyHeldWeapon;
-		m_currentlyHeldWeapon = nullptr;
-		gunTemp->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		if(gunTemp)
+		{
+			m_currentlyHeldWeapon = nullptr;
+			gunTemp->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		}
 
 		return gunTemp;
 	}
@@ -135,4 +138,21 @@ private:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
+
+
+	/////////////////////////////////////////////////////
+						/* Networking */
+	/////////////////////////////////////////////////////
+private:
+	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
+	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
+	void PlayHolsteringAnimation_Multicast(UAnimMontage* HolsterAnimationToPlay);
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
+	void UnequipAndAttachWeapon_Multicast(int32 AttachPointIndex, AGun* Gun);
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
+	void DetachAndEquipWeapon_Multicast(int32 AttachPointIndex);
 };

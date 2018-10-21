@@ -144,9 +144,7 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 
 /////////////////////////////////////////////////////
 void AGun::OnUnequip(bool DropGun /*= false*/)
-{
-	m_MyOwner->SetEquippedWeapon(nullptr);
-	
+{	
 	if (DropGun)
 	{
 		DetachMeshFromPawn();

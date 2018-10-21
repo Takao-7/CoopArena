@@ -78,11 +78,6 @@ AGun* AHumanoid::GetEquippedGun() const
 	return m_EquippedWeapon;
 }
 
-void AHumanoid::SetEquippedWeapon(AGun* Weapon)
-{
-	m_EquippedWeapon = Weapon;
-}
-
 /////////////////////////////////////////////////////
 bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component)
 {
@@ -108,7 +103,7 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 /////////////////////////////////////////////////////
 void AHumanoid::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);	
+	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -226,12 +221,27 @@ bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 /////////////////////////////////////////////////////
 void AHumanoid::EquipWeapon(AGun* GunToEquip)
 {
-	SetWeaponToEquip_Server(GunToEquip);
+	if (HasAuthority() == false)
+	{
+		SetWeaponToEquip_Server(GunToEquip);
+	}
+	else
+	{
+		m_WeaponToEquip = GunToEquip;
+		HandleWeaponEquip();
+	}
 }
 
 void AHumanoid::UnequipWeapon(bool bDropGun)
 {
-	HandleWeaponUnEquip_Multicast(bDropGun);
+	if (HasAuthority() == false)
+	{
+		UnequipWeapon_Server(bDropGun);
+	}
+	else
+	{
+		HandleWeaponUnEquip_Multicast(bDropGun);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -422,8 +432,8 @@ void AHumanoid::SetUpDefaultEquipment()
 
 	if(HasAuthority())
 	{
-		m_WeaponToEquip = SpawnWeapon(m_DefaultGun);
-		HandleWeaponEquip();
+		AGun* newWeapon = SpawnWeapon(m_DefaultGun);
+		EquipWeapon(newWeapon);
 	}
 }
 
@@ -496,8 +506,23 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 }
 
 /////////////////////////////////////////////////////
+void AHumanoid::EquipWeapon_Server_Implementation(AGun* Gun)
+{
+	SetWeaponToEquip_Server(Gun);
+}
+
+bool AHumanoid::EquipWeapon_Server_Validate(AGun* Gun)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
 void AHumanoid::SetWeaponToEquip_Server_Implementation(AGun* Weapon)
 {
+	if (m_WeaponToEquip == Weapon)
+	{
+		m_WeaponToEquip = nullptr;
+	}
 	m_WeaponToEquip = Weapon;
 	HandleWeaponEquip();
 }
@@ -512,7 +537,7 @@ void AHumanoid::HandleWeaponEquip()
 {
 	if(m_WeaponToEquip)
 	{
-		SetEquippedWeapon(m_WeaponToEquip);
+		m_EquippedWeapon = m_WeaponToEquip;
 		m_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
 	}
@@ -521,15 +546,29 @@ void AHumanoid::HandleWeaponEquip()
 /////////////////////////////////////////////////////
 void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
 {
-	m_EquippedWeapon->OnUnequip(bDropGun);
-	m_EquippedWeapon = nullptr;
-	BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
+	if(m_EquippedWeapon)
+	{
+		m_EquippedWeapon->OnUnequip(bDropGun);
+		m_EquippedWeapon = nullptr;
+		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
+	}
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::OnRep_bIsSprining()
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::UnequipWeapon_Server_Implementation(bool bDropGun)
+{
+	UnequipWeapon(bDropGun);
+}
+
+bool AHumanoid::UnequipWeapon_Server_Validate(bool bDropGun)
+{
+	return true;
 }
 
 /////////////////////////////////////////////////////
