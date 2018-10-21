@@ -219,29 +219,46 @@ bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::EquipWeapon(AGun* GunToEquip)
+void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= true*/)
 {
-	if (HasAuthority() == false)
+	verifyf(WeaponToEquip, TEXT("Do not call this function if 'WeaponToEquip' is nullptr!"));
+	if (bRequestNetMulticast)
 	{
-		SetWeaponToEquip_Server(GunToEquip);
+		if (HasAuthority() == false)
+		{
+			SetWeaponToEquip_Server(WeaponToEquip);
+		}
+		else
+		{
+			m_WeaponToEquip = WeaponToEquip;
+			HandleWeaponEquip();
+		}
 	}
 	else
 	{
-		m_WeaponToEquip = GunToEquip;
-		HandleWeaponEquip();
-	}
+		m_EquippedWeapon = WeaponToEquip;
+		m_EquippedWeapon->OnEquip(this);
+		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
+	}	
 }
 
-void AHumanoid::UnequipWeapon(bool bDropGun)
+void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*/)
 {
-	if (HasAuthority() == false)
+	if (bRequestNetMulticast)
 	{
-		UnequipWeapon_Server(bDropGun);
+		if (HasAuthority() == false)
+		{
+			UnequipWeapon_Server(bDropGun);
+		}
+		else
+		{
+			HandleWeaponUnEquip_Multicast(bDropGun);
+		}
 	}
 	else
 	{
-		HandleWeaponUnEquip_Multicast(bDropGun);
-	}
+		HandleWeaponUnEquip(bDropGun);
+	}	
 }
 
 /////////////////////////////////////////////////////
@@ -391,11 +408,8 @@ FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 /////////////////////////////////////////////////////
 AItemBase* AHumanoid::DropItem()
 {
-	if (m_ItemInHand == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
-		return nullptr;
-	}
+	verifyf(m_ItemInHand, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
+
 	AItemBase* itemToDrop = m_ItemInHand;	
 	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	itemToDrop->ShouldSimulatePhysics(true);
@@ -419,6 +433,8 @@ FName AHumanoid::GetEquippedWeaponAttachPoint() const
 /////////////////////////////////////////////////////
 void AHumanoid::SetUpDefaultEquipment()
 {
+	verifyf(HasAuthority(), TEXT("Only the server is allowed to setup the default equippment."));
+
 	if (m_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
@@ -430,11 +446,8 @@ void AHumanoid::SetUpDefaultEquipment()
 		return;
 	}
 
-	if(HasAuthority())
-	{
-		AGun* newWeapon = SpawnWeapon(m_DefaultGun);
-		EquipWeapon(newWeapon);
-	}
+	AGun* newWeapon = SpawnWeapon(m_DefaultGun);
+	EquipWeapon(newWeapon);
 }
 
 /////////////////////////////////////////////////////
@@ -543,15 +556,20 @@ void AHumanoid::HandleWeaponEquip()
 	}
 }
 
-/////////////////////////////////////////////////////
-void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
+void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
 {
-	if(m_EquippedWeapon)
+	if (m_EquippedWeapon)
 	{
 		m_EquippedWeapon->OnUnequip(bDropGun);
 		m_EquippedWeapon = nullptr;
 		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
+{
+	HandleWeaponUnEquip(bDropGun);
 }
 
 /////////////////////////////////////////////////////

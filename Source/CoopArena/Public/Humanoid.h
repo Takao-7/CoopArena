@@ -206,8 +206,13 @@ protected:
 						/* Weapon */
 	/////////////////////////////////////////////////////
 public:
+	/**
+	 * Equips the given weapon.
+	 * @param WeaponToEquip The weapon to equip.
+	 * @param bRequestNetMulticast If true, then the weapon will be equipped on all clients. If false, only on the client that calls this function.
+	 */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void EquipWeapon(AGun* GunToEquip);
+	void EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast = true);
 
 	/**
 	 * Un-equips the currently held weapon.
@@ -215,7 +220,7 @@ public:
 	 * Set to false if the weapon goes to a holster.
 	 */ 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void UnequipWeapon(bool bDropGun);
+	void UnequipWeapon(bool bDropGun, bool bRequestNetMulticast = true);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetEquippedWeaponFireMode(EFireMode NewFireMode);
@@ -302,6 +307,13 @@ private:
 	UPROPERTY()
 	UActorComponent* m_BlockingComponent;
 
+	/* Handles the actual weapon un-equipping. */
+	void HandleWeaponUnEquip(bool bDropGun);
+
+	/* Handles the actual weapon equipping. */
+	UFUNCTION()
+	void HandleWeaponEquip();
+
 
 	/////////////////////////////////////////////////////
 						/* Networking */
@@ -324,10 +336,6 @@ private:
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void EquipWeapon_Server(AGun* Gun);
-
-	/* Handles the actual weapon equipping. */
-	UFUNCTION()
-	void HandleWeaponEquip();
 
 	/* Handles the actual weapon un-equipping. */
 	UFUNCTION(NetMulticast, Reliable)

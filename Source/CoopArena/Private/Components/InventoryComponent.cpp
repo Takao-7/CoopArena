@@ -95,13 +95,13 @@ void UInventoryComponent::OnWeaponHolstering()
 	if (bAttachToHolster)
 	{
 		AGun* gun = m_Owner->GetEquippedGun();
-		m_Owner->UnequipWeapon(false);
+		m_Owner->UnequipWeapon(false, false);
 		m_WeaponAttachPoints[m_AttachPointIndex].AttachWeapon(gun, m_Owner->GetMesh());
 	}
 	else
 	{
 		AGun* gun = m_WeaponAttachPoints[m_AttachPointIndex].DetachWeapon();
-		m_Owner->EquipWeapon(gun);
+		m_Owner->EquipWeapon(gun, false);
 	}
 }
 
@@ -116,7 +116,7 @@ void UInventoryComponent::PlayHolsteringAnimation_Multicast_Implementation(UAnim
 void UInventoryComponent::UnequipAndAttachWeapon_Multicast_Implementation(int32 AttachPointIndex, AGun* Gun)
 {
 	FWeaponAttachPoint& attachPoint = m_WeaponAttachPoints[AttachPointIndex];
-	m_Owner->UnequipWeapon(false); // We un-equip the gun in case we are currently holding it.	
+	m_Owner->UnequipWeapon(false, false); // We un-equip the gun in case we are currently holding it.	
 	attachPoint.AttachWeapon(Gun, m_Owner->GetMesh());
 }
 
@@ -125,5 +125,5 @@ void UInventoryComponent::DetachAndEquipWeapon_Multicast_Implementation(int32 At
 {
 	FWeaponAttachPoint& attachPoint = m_WeaponAttachPoints[AttachPointIndex];
 	AGun* gun = attachPoint.DetachWeapon();
-	m_Owner->EquipWeapon(gun);
+	m_Owner->EquipWeapon(gun, false);
 }
