@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRespawn_Signature, AActor*, NewSpa
  * Component for re-spawn logic.
  * Can be used for both, pawns and pickups, etc. to let them re-spawn after death (if they have a HealthComponent) or after they get destroyed.
  */
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class COOPARENA_API URespawnComponent : public UActorComponent
 {
 	GENERATED_BODY()
