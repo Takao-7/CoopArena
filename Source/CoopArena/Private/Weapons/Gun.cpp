@@ -97,13 +97,13 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 			FTimerHandle timerHandle;
 			timerDelegate.BindLambda([this, character]
 			{
-				character->SetWeaponToEquip(this);
+				character->EquipWeapon(this);
 			});
 			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
 		}
 		else
 		{
-			character->SetWeaponToEquip(this);
+			character->EquipWeapon(this);
 		}
 	}
 }
@@ -144,9 +144,7 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 
 /////////////////////////////////////////////////////
 void AGun::OnUnequip(bool DropGun /*= false*/)
-{
-	m_MyOwner->SetEquippedWeapon(nullptr);
-	
+{	
 	if (DropGun)
 	{
 		DetachMeshFromPawn();
@@ -183,7 +181,7 @@ void AGun::OnFire()
 		}
 		else
 		{
-			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetCameraLocation();
+			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(m_MyOwner)->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
 			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection);
 		}
@@ -763,6 +761,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 		Multicast_PlayFireSound();
 		Multicast_PlayFireAnimation();
 		Multicast_HandleMuzzleFlash(true);
+		Multicast_SpawnEjectedShell();
 	}
 	else
 	{
@@ -817,3 +816,37 @@ void AGun::Multicast_PlayFireSound_Implementation()
 		UGameplayStatics::PlaySoundAtLocation(this, m_FireSound, GetActorLocation());
 	}
 }
+
+/////////////////////////////////////////////////////
+void AGun::Multicast_SpawnEjectedShell_Implementation()
+{
+	if (m_ShellEjectionPoint.IsValid() == false)
+	{
+		return;
+	}
+
+	const AProjectile* projectile = m_LoadedMagazine->GetProjectileClass().GetDefaultObject();
+	if (projectile == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No default projectile object found."));
+		return;
+	}
+
+	const TSubclassOf<AActor> caseClass = projectile->GetProjectileCase();
+	if (caseClass)
+	{
+		const FTransform spawnTransform = GetMesh()->GetSocketTransform(m_ShellEjectionPoint);
+		FActorSpawnParameters spawnParams = FActorSpawnParameters();
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);		
+		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
+		if (caseMesh)
+		{
+			const FTransform caseTransform = cartridgeCase->GetActorTransform();
+			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
+			caseMesh->AddImpulse(impulse);
+		}
+	}
+}
+

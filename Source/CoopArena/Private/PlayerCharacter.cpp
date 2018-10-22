@@ -86,9 +86,9 @@ void APlayerCharacter::CheckForInteractables()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnEquipWeapon()
+void APlayerCharacter::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon);
+	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -290,7 +290,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);	
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
 
 	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
 	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);

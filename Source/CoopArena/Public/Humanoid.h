@@ -18,7 +18,7 @@ class UInventoryComponent;
 class URespawnComponent;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHolsterWeapon_Signature, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
 
 UCLASS()
@@ -206,6 +206,22 @@ protected:
 						/* Weapon */
 	/////////////////////////////////////////////////////
 public:
+	/**
+	 * Equips the given weapon.
+	 * @param WeaponToEquip The weapon to equip.
+	 * @param bRequestNetMulticast If true, then the weapon will be equipped on all clients. If false, only on the client that calls this function.
+	 */
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast = true);
+
+	/**
+	 * Un-equips the currently held weapon.
+	 * @param bDropGun If true, the gun will be dropped (Simulate physics and can be interacted with).
+	 * Set to false if the weapon goes to a holster.
+	 */ 
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void UnequipWeapon(bool bDropGun, bool bRequestNetMulticast = true);
+
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetEquippedWeaponFireMode(EFireMode NewFireMode);
 
@@ -217,9 +233,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool CanFire() const;
-
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetEquippedWeapon(AGun* Weapon);
 
 	/* 
 	 * Use this function, when a component has to prevent this actor from firing his weapon.
@@ -245,7 +258,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void OnEquipWeapon();
+	virtual void OnHolsterWeapon();
 
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -294,29 +307,43 @@ private:
 	UPROPERTY()
 	UActorComponent* m_BlockingComponent;
 
+	/* Handles the actual weapon un-equipping. */
+	void HandleWeaponUnEquip(bool bDropGun);
+
+	/* Handles the actual weapon equipping. */
+	UFUNCTION()
+	void HandleWeaponEquip();
+
 
 	/////////////////////////////////////////////////////
 						/* Networking */
 	/////////////////////////////////////////////////////
-public:
-	/* [Server] Sets m_WeaponToEquip and will trigger the replication function OnWeaponEquip. */
-	UFUNCTION(BlueprintCallable, Category = AHumanoid)
-	void SetWeaponToEquip(AGun* Weapon);
-
-	UFUNCTION()
-	void OnWeaponEquip();
-
 protected:
-	/* The weapon that should be equipped. If set to non-null that weapon will be equipped. */
-	UPROPERTY(ReplicatedUsing = OnWeaponEquip)
-	AGun* m_WeaponToEquip;
+	/* Sets m_WeaponToEquip and will trigger the replication function OnWeaponEquip. */
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable, Category = Humanoid)
+	void SetWeaponToEquip_Server(AGun* Weapon);
 
 	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
 	void SetSprinting_Server(bool bWantsToSprint);
 
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = Humanoid)
+	void RepMaxWalkSpeed(float NewMaxWalkSpeed);
+
+private:
+	/* The weapon that should be equipped. */
+	UPROPERTY(ReplicatedUsing = HandleWeaponEquip)
+	AGun* m_WeaponToEquip;
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void EquipWeapon_Server(AGun* Gun);
+
+	/* Handles the actual weapon un-equipping. */
+	UFUNCTION(NetMulticast, Reliable)
+	void HandleWeaponUnEquip_Multicast(bool bDropGun);
+
 	UFUNCTION()
 	void OnRep_bIsSprining();
 
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = Humanoid)
-	void RepMaxWalkSpeed(float NewMaxWalkSpeed);
+	UFUNCTION(Server, WithValidation, Reliable)
+	void UnequipWeapon_Server(bool bDropGun);
 };

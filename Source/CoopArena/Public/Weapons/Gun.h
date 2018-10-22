@@ -133,8 +133,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnEquip(AHumanoid* NewOwner);
 
-	/* Unequip the gun. 
-	 * @param DropGun Set to false if the weapon should go to the inventory (hide mesh, no collision and can't fire),
+	/* Un-equip the gun. 
+	 * @param DropGun Set to false if the weapon should go to a holster (no collision and can't fire),
 	 * otherwise it will be dropped.
 	 */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
@@ -163,6 +163,10 @@ protected:
 	/** Name of the bone or socket for the muzzle */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle attach point"))
 	FName m_MuzzleAttachPoint;
+
+	/* Name of the bone / socket where shells are ejected, when firing a bullet. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Shell ejection point"))
+	FName m_ShellEjectionPoint;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire sound"))
@@ -378,6 +382,9 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayFireSound();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpawnEjectedShell();
 
 public:
 	UFUNCTION(NetMulticast, Reliable)

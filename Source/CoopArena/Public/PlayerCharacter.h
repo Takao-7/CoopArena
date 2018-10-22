@@ -51,7 +51,7 @@ protected:
 
 	virtual void ToggleAiming() override;
 
-	virtual void OnEquipWeapon() override;
+	virtual void OnHolsterWeapon() override;
 
 
 	/////////////////////////////////////////////////////
