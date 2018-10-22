@@ -1,4 +1,5 @@
 #include "BasicAnimationSystemComponent.h"
+#include "Interfaces/BAS_Interface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
@@ -21,7 +22,7 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	bReplicates = true;
 	bAutoActivate = true;
 
-	m_180TurnThreshold = 120.0f;
+	m_180TurnThreshold = 135.0f;
 	m_AngleClampThreshold = 180.0f;
 	m_180TurnPredictionTime = 0.2f;
 }
@@ -204,7 +205,7 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 	const float aimYawDelta = NewAimYaw - m_AimYawLastFrame;
 	const float predictedYaw = (aimYawDelta * (m_180TurnPredictionTime / DeltaTime)) + NewAimYaw;
 	// Play the turn animation faster to avoid over bending the upper body.
-	const float playRate = FMath::Abs(predictedYaw) > (m_180TurnThreshold * 1.5f) ? 1.5f : 1.0f;
+	const float playRate = FMath::Abs(predictedYaw) > (m_180TurnThreshold * 1.5f) ? 1.75f : 1.0f;
 
 	if (NewAimYaw <= -90.0f) // Turn right
 	{

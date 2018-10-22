@@ -47,7 +47,14 @@ struct FWeaponAttachPoint
 
 	bool CanAttachWeapon(AGun* Weapon)
 	{
-		return (Weapon == nullptr || m_currentlyHeldWeapon || allowedWeaponTypes.Find(Weapon->GetWeaponType()) == false) ? false : true;
+		if (Weapon == nullptr || m_currentlyHeldWeapon || !allowedWeaponTypes.Find(Weapon->GetWeaponType()))
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	/**
@@ -102,11 +109,10 @@ private:
 class AHumanoid;
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UInventoryComponent : public UStorageComponent
 {
 	GENERATED_BODY()
-
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Weapon attach point"))

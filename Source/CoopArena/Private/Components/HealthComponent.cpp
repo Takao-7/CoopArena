@@ -77,6 +77,8 @@ void UHealthComponent::Multicast_HandleDeath_Implementation()
 		_compOwner->DisableInput(nullptr);
 	}
 
+	
+
 	FTimerDelegate delegate;
 	delegate.BindLambda([this]
 	{
@@ -87,7 +89,7 @@ void UHealthComponent::Multicast_HandleDeath_Implementation()
 		}
 	});
 	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);	
 }
 
 /////////////////////////////////////////////////////

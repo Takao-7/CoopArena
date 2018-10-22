@@ -10,7 +10,6 @@
 
 class UStaticMeshComponent;
 class UArrowComponent;
-class UBoxComponent;
 
 
 UCLASS()
@@ -33,20 +32,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Door)
 	UStaticMeshComponent* Door;
 
-	UPROPERTY(VisibleAnywhere, Category = Door)
-	UBoxComponent* InteractionBox;
-
 private:
 	/* How fast the door will open */
-	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
-	float m_OpeningSpeed;
+	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0))
+	float OpeningSpeed;
 	
 	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
-	float m_TargetAngle;
+	UPROPERTY(EditAnywhere, Category = Door)
+	float _TargetAngle;	
 
-	bool m_bIsOpen;
+	UPROPERTY()
+	bool bIsOpen;
 
 protected:
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
@@ -54,24 +53,11 @@ public:
 
 	void Tick(float DeltaSeconds) override;
 
+	/* IInteractable interface */
 
-	/////////////////////////////////////////////////////
-			/* IInteractable interface */
-	/////////////////////////////////////////////////////
-public:
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 
-
-	/////////////////////////////////////////////////////
-				/* Networking */
-	/////////////////////////////////////////////////////
-private:
-	UFUNCTION(Server, WithValidation, Reliable)
-	void HandleInteract_Server(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
-
-	/* Function to enable the tick function, in order to open or close the door. The opening angle is being replicated and set in 'HandleInteract_Server'. */
-	UFUNCTION(NetMulticast, Reliable)
-	void EnableTickFunction_Multicast(float TargetAngle, bool bIsOpen);
+	/* IInteractable interface end */	
 };

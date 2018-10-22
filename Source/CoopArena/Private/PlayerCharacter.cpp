@@ -203,22 +203,6 @@ void APlayerCharacter::OnDecreaseVelocity()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnChangeCameraPressed()
-{
-	_FirstPersonCamera->ToggleActive();
-	_ThirdPersonCamera->ToggleActive();
-
-	if (_ThirdPersonCamera->IsActive())
-	{
-		_InteractionRange += _SpringArm->TargetArmLength;
-	}
-	else
-	{
-		_InteractionRange -= _SpringArm->TargetArmLength;
-	}
-}
-
-/////////////////////////////////////////////////////
 void APlayerCharacter::ToggleAiming()
 {
 	if (m_bIsAiming)
@@ -294,15 +278,21 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
 	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
-
-	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
 }
 
 
 /////////////////////////////////////////////////////
 FVector APlayerCharacter::GetCameraLocation() const
 {
-	return GetActiveCamera()->GetComponentLocation();
+	UCameraComponent* camera = Cast<UCameraComponent>(GetComponentByClass(UCameraComponent::StaticClass()));
+	if (camera)
+	{
+		return camera->GetComponentLocation();
+	}
+	else
+	{
+		return FVector::ZeroVector;
+	}
 }
 
 /////////////////////////////////////////////////////

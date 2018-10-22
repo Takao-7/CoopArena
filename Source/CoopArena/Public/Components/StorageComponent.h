@@ -14,14 +14,14 @@ struct FItemStack
 	GENERATED_BODY()
 
 public:
-	FItemStack() {};
+	FItemStack() {}
 
 	/* Creates a new stack based on a given item and a stack size. */
 	FItemStack(FItemStats& Item, uint32 StackSize)
 	{
 		this->item = Item;
 		this->m_stackSize = StackSize;
-	};
+	}
 
 	UPROPERTY(BlueprintReadWrite)
 	FItemStats item;
@@ -57,7 +57,7 @@ private:
 };
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UStorageComponent : public UActorComponent
 {
 	GENERATED_BODY()

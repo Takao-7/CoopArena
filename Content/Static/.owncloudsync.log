@@ -1,0 +1,1565 @@
+# timestamp | duration | file | instruction | dir | modtime | etag | size | fileId | status | errorString | http result code | other size | other modtime | other etag | other fileId | other instruction
+#=#=#=# Syncrun started 2018-05-16T16:46:41Z
+#=#=#=#=# Propagation starts 2018-05-16T16:46:44Z (last step: 2988 msec, total: 2988 msec)
+||StarterContent|INST_IGNORE|Up|1526477417||4096||6|Aufgrund der »Zu synchronisierende Elemente auswählen«-Sperrliste ignoriert|0|0|0||||
+#=#=#=# Syncrun finished 2018-05-16T16:46:44Z (last step: 151 msec, total: 3139 msec)
+#=#=#=# Syncrun started 2018-05-16T16:47:23Z
+#=#=#=#=# Propagation starts 2018-05-16T16:47:29Z (last step: 5817 msec, total: 5817 msec)
+16:47:37||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_NEW|Down|1525596126|5b48d72e06fd03ddf636bcbb9124ff82|2853149|101579412occ8b83b46bc|4||0|0|0||||
+16:47:48||StarterContent/Particles/P_SparksShort.uasset|INST_NEW|Down|1526029389|1c27a52e1f4ba843e22b4aa059cadec7|191347|102068085occ8b83b46bc|4||0|0|0||||
+#=#=#=# Syncrun finished 2018-05-16T16:48:33Z (last step: 64455 msec, total: 70272 msec)
+#=#=#=# Syncrun started 2018-05-16T17:17:39Z
+#=#=#=#=# Propagation starts 2018-05-16T17:17:39Z (last step: 537 msec, total: 537 msec)
+#=#=#=# Syncrun finished 2018-05-16T17:17:39Z (last step: 16 msec, total: 553 msec)
+#=#=#=# Syncrun started 2018-05-21T10:22:46Z
+#=#=#=#=# Propagation starts 2018-05-21T10:22:46Z (last step: 472 msec, total: 472 msec)
+10:22:50||Effects|INST_NEW|Up|1526753267||0|102471608occ8b83b46bc|4||201|0|0||||
+10:22:50||Materials|INST_NEW|Up|1526834299||0|102471612occ8b83b46bc|4||201|0|0||||
+10:22:50||AnimStarterPack/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_SYNC|Up|1526838575|3079f8a9ba48c4782001961a7337a6d9|19881|101926827occ8b83b46bc|4||204|11980|1526033760||||
+10:22:51||Effects/Materials|INST_NEW|Up|1526753267||0|102471628occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Meshes|INST_NEW|Up|1526753267||0|102471632occ8b83b46bc|4||201|0|0||||
+10:22:50||AnimStarterPack/Equip_Rifle_Standing.uasset|INST_SYNC|Up|1526834890|b029b78e5326e05f9ec0f0e7828c02e8|155697|101926914occ8b83b46bc|4||204|147983|1526033760||||
+10:22:51||Effects/Materials/LensFlare|INST_NEW|Up|1526753267||0|102471636occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Materials/Weapon|INST_NEW|Up|1526753277||0|102471640occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Materials/Ramp|INST_NEW|Up|1526753269||0|102471644occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Materials/Smoke|INST_NEW|Up|1526753272||0|102471648occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Ramp/M_SoftGradient_Muzzle.uasset|INST_NEW|Up|1526753269|7988f81e5c21220710ab08fe9ce3f203|69671|102471652occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Materials/LensFlare/M_LensFlare_02.uasset|INST_NEW|Up|1526753267|f72a9860e18d422522572aa6706acde4|77936|102471656occ8b83b46bc|4||201|0|0||||
+10:22:51||Effects/Materials/LensFlare/M_Lensflare_01.uasset|INST_NEW|Up|1526753267|806a0d73343216fba33e2a033dbb5a81|67717|102471660occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Ramp/M_radial_ramp_soft.uasset|INST_NEW|Up|1526753267|3fc64892856adb5a357c37d6ed791546|68622|102471664occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Smoke/M_ImpactSmoke.uasset|INST_NEW|Up|1526753269|c4da0f6edf80e63a29b98c451ad3b053|91977|102471668occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Smoke/M_MuzzleSmokeDetail_GPU.uasset|INST_NEW|Up|1526753269|77457994116c89aa560d26e9feebb763|78743|102471672occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Smoke/M_SmokeBall.uasset|INST_NEW|Up|1526753272|c9b12f1e997beb5d2cb27d8d05d797c3|83226|102471676occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Weapon/M_MuzzleGlow.uasset|INST_NEW|Up|1526753274|284ae5617f8ce903065da13acad06bbc|82733|102471680occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Weapon/M_WP_Linkgun_Connection.uasset|INST_NEW|Up|1526753277|5e134e004c7932f26e6fe5516d66b038|90723|102471684occ8b83b46bc|4||201|0|0||||
+10:22:52||Effects/Materials/Weapon/M_WP_ShockRifle_Panning_Beam.uasset|INST_NEW|Up|1526753277|65184061d2c0f1cd5a067ee6accc8a73|94306|102471688occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Materials/Weapon/M_muzzle_flash_subUV.uasset|INST_NEW|Up|1526753275|3dd704619265a332919ca3dbbafc4055|68575|102471692occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Meshes/Weapon|INST_NEW|Up|1526753277||0|102471696occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Materials/spark|INST_NEW|Up|1526753272||0|102471700occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/ParticleSystems|INST_NEW|Up|1526753267||0|102471704occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Textures|INST_NEW|Up|1526753267||4096|102471708occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Meshes/Weapon/SM_MuzzleCone.uasset|INST_NEW|Up|1526753277|f7ea7c743303f63cfecf791e45aaf16e|105643|102471712occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Materials/spark/M_spark_subUV.uasset|INST_NEW|Up|1526753272|aaf9c8990436e7069a5f982a2bd4a9ad|71431|102471716occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/ParticleSystems/Weapons|INST_NEW|Up|1526753267||0|102471720occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Textures/Energy|INST_NEW|Up|1526753277||0|102471724occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Textures/LensFlare|INST_NEW|Up|1526753278||0|102471728occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Textures/Mask|INST_NEW|Up|1526753278||0|102471732occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/ParticleSystems/Weapons/AssaultRifle|INST_NEW|Up|1526753267||0|102471736occ8b83b46bc|4||201|0|0||||
+10:22:53||Effects/Textures/Energy/T_EFX_Beam_Electricity_02.uasset|INST_NEW|Up|1526753277|f6e1e851be4aabfec390970d2a83a48b|20491|102471740occ8b83b46bc|4||201|0|0||||
+10:22:54||Effects/Textures/LensFlare/T_Lensflare_01.uasset|INST_NEW|Up|1526753278|2a87dcfc9b13979760c05850562e9157|110742|102471744occ8b83b46bc|4||201|0|0||||
+10:22:54||Effects/Textures/LensFlare/Flare_02.uasset|INST_NEW|Up|1526753278|44a22a2581d0b81223d42ab8fa0da826|515590|102471748occ8b83b46bc|4||201|0|0||||
+10:22:55||Effects/ParticleSystems/Weapons/AssaultRifle/Impacts|INST_NEW|Up|1526753277||0|102471752occ8b83b46bc|4||201|0|0||||
+10:22:55||Effects/ParticleSystems/Weapons/AssaultRifle/Muzzle|INST_NEW|Up|1526753277||0|102471756occ8b83b46bc|4||201|0|0||||
+10:22:55||Effects/Textures/Noise|INST_NEW|Up|1526753278||0|102471760occ8b83b46bc|4||201|0|0||||
+10:22:55||Effects/Textures/Mask/T_SquareMaskTightEdge.uasset|INST_NEW|Up|1526753278|c3aeb256b4a14983a69ece095b60974a|75358|102471764occ8b83b46bc|4||201|0|0||||
+10:22:56||Effects/ParticleSystems/Weapons/AssaultRifle/Muzzle/P_AssaultRifle_MF.uasset|INST_NEW|Up|1526753277|0bd2f8db51c7832b729dda10f93f4566|307411|102471768occ8b83b46bc|4||201|0|0||||
+10:22:56||Effects/ParticleSystems/Weapons/AssaultRifle/Muzzle/P_AssaultRifle_Trail.uasset|INST_NEW|Up|1526753277|27bd998791d0573d76074aaf234b4679|92271|102471772occ8b83b46bc|4||201|0|0||||
+10:22:55||Effects/ParticleSystems/Weapons/AssaultRifle/Impacts/P_AssaultRifle_IH.uasset|INST_NEW|Up|1526753277|1ce77757ab15d929208627adbba4633f|223377|102471776occ8b83b46bc|4||201|0|0||||
+10:22:58||Effects/Textures/Ramp|INST_NEW|Up|1526753278||0|102471780occ8b83b46bc|4||201|0|0||||
+10:22:58||Effects/Textures/Smoke|INST_NEW|Up|1526753278||0|102471784occ8b83b46bc|4||201|0|0||||
+10:22:58||Effects/Textures/Ramp/T_FX_CameraDistort.uasset|INST_NEW|Up|1526753278|47a98962dc5381a4d4d81c2adeb0da72|6379|102471788occ8b83b46bc|4||201|0|0||||
+10:22:59||Effects/Textures/Ramp/T_FX_ColorDistort.uasset|INST_NEW|Up|1526753278|6e4f72e9fb0b0ee6dcb5ce5656db5f57|5824|102471792occ8b83b46bc|4||201|0|0||||
+10:22:59||Effects/Textures/Smoke/T_Clouds_01.uasset|INST_NEW|Up|1526753278|11e61593e8bc83bc5b6e0d27a9c0bb70|509792|102471796occ8b83b46bc|4||201|0|0||||
+10:23:00||Effects/Textures/Smoke/T_SmokeBall_01_8_8.uasset|INST_NEW|Up|1526753278|85edbf2e1d790dcdc18cf233bddc44e2|660409|102471800occ8b83b46bc|4||201|0|0||||
+10:22:56||Effects/Textures/Noise/T_TileNoise.uasset|INST_NEW|Up|1526753278|34822c2d8b7161426c9c0b95984d631b|1395404|102471804occ8b83b46bc|4||201|0|0||||
+10:23:01||Effects/Textures/Water|INST_NEW|Up|1526753278||0|102471808occ8b83b46bc|4||201|0|0||||
+10:23:01||Effects/Textures/Weapon|INST_NEW|Up|1526753278||0|102471812occ8b83b46bc|4||201|0|0||||
+10:23:01||Effects/Textures/Spark|INST_NEW|Up|1526753278||0|102471816occ8b83b46bc|4||201|0|0||||
+10:23:01||Materials/PPI_OutlineColored.uasset|INST_NEW|Up|1526834299|e63fccddeb5b36ae46867d2124b56842|82479|102471820occ8b83b46bc|4||201|0|0||||
+10:23:01||Effects/Textures/Water/T_Caustics_2.uasset|INST_NEW|Up|1526753278|a3c1399f7f6585a9cbeeb33d7300859a|139677|102471824occ8b83b46bc|4||201|0|0||||
+10:23:01||Effects/Textures/Water/T_Steam_02_Packed.uasset|INST_NEW|Up|1526753278|f5ea79a78f6a1900973f529663aef7c5|2376578|102471828occ8b83b46bc|4||201|0|0||||
+10:23:07||Effects/Textures/Weapon/T_muzzle_flashes.uasset|INST_NEW|Up|1526753278|6c56b6e4b26acdafbda2a4e792b6c677|68326|102471832occ8b83b46bc|4||201|0|0||||
+10:23:07||Materials/PP_OutlineColored.uasset|INST_NEW|Up|1526834299|d5061ebab91013f55b4919a712ccfd9d|134143|102471836occ8b83b46bc|4||201|0|0||||
+10:23:02||Effects/Textures/Spark/T_SparkCore_2X2.uasset|INST_NEW|Up|1526753278|89d50195490fbade02977b28426826f8|1329705|102471844occ8b83b46bc|4||201|0|0||||
+10:23:07||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1526843770|35a1510b375942ccc1d15e430faa638a|649982|101436028occ8b83b46bc|4||204|3498275|1526033760||||
+10:23:09||Weapons|INST_NEW|Up|1526676818||4096|102471848occ8b83b46bc|4||201|0|0||||
+10:23:09||Weapons/Materials|INST_NEW|Up|1526665527||4096|102471852occ8b83b46bc|4||201|0|0||||
+10:23:09||Weapons/MaterialLayers|INST_NEW|Up|1526665294||4096|102471856occ8b83b46bc|4||201|0|0||||
+10:23:09||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_SYNC|Up|1526842819|0de1b1b2bcf746f7fb8e250c0a0869fe|133265|101579412occ8b83b46bc|4||204|2853149|1525596126||||
+10:23:10||Weapons/MaterialLayers/ML_BoltMetal.uasset|INST_NEW|Up|1526658672|48c3f9b58696fdcc70aba8e0fc71de54|86274|102471864occ8b83b46bc|4||201|0|0||||
+10:23:10||Weapons/MaterialLayers/ML_Metal_Copper.uasset|INST_NEW|Up|1526665294|46a6102a7e8a2369a2538d51b986cf12|118794|102471868occ8b83b46bc|4||201|0|0||||
+10:23:10||Weapons/Materials/Launcher_MatA.uasset|INST_NEW|Up|1526658672|c2350f0e80f1fa85ab4eaf2abd4e1334|170267|102471872occ8b83b46bc|4||201|0|0||||
+10:23:11||Weapons/MaterialLayers/ML_Paint.uasset|INST_NEW|Up|1526658673|8ebb6ee2d937be9212e10b55ad6482d8|93035|102471876occ8b83b46bc|4||201|0|0||||
+10:23:11||Weapons/MaterialLayers/ML_Rubber.uasset|INST_NEW|Up|1526658673|834a008db746914e377aca0cd4f84aa4|88644|102471880occ8b83b46bc|4||201|0|0||||
+10:23:11||Weapons/MaterialLayers/ML_Metal_Gray.uasset|INST_NEW|Up|1526658672|ab7772942334841060c457dced706282|91815|102471888occ8b83b46bc|4||201|0|0||||
+10:23:11||Weapons/MaterialLayers/T_ExampleLayers_Metal02_N.uasset|INST_NEW|Up|1526658672|9f7e9a1d292b86552cf3b93214d24c1c|2907538|102471892occ8b83b46bc|4||201|0|0||||
+10:23:20||Weapons/MaterialLayers/T_PaintedMetal01_N.uasset|INST_NEW|Up|1526658673|bb875fd5244bcf01b2fd165e9644b9d5|1703705|102471896occ8b83b46bc|4||201|0|0||||
+10:23:29||Weapons/MaterialLayers/T_PaintedMetal02.uasset|INST_NEW|Up|1526658673|8478fcbf2c0cb0d2e0568750976094d7|1947396|102471900occ8b83b46bc|4||201|0|0||||
+10:23:45||AnimStarterPack/UE4_Mannequin/Textures/Chr_FPS_Metal_02.uasset|INST_NEW|Up|1526665294|b0676e5eb42822f77a5d10f96b556d9c|10563500|102471912occ8b83b46bc|4||201|0|0||||
+10:23:46||Weapons/Materials/Launcher_MatA_Inst.uasset|INST_NEW|Up|1526658672|ab6bcf74694562a3db9a17b0c742ac59|132008|102471916occ8b83b46bc|4||201|0|0||||
+10:23:47||Weapons/Materials/Launcher_MatB.uasset|INST_NEW|Up|1526665526|f12f53c8136dfd3cc769362b9350891b|191199|102471920occ8b83b46bc|4||201|0|0||||
+10:23:48||Weapons/Materials/Launcher_MatB_Inst.uasset|INST_NEW|Up|1526658672|98efbaf2f42eec402c2b6b9e546c1117|125511|102471924occ8b83b46bc|4||201|0|0||||
+10:23:49||Weapons/Materials/MagGun_MatA.uasset|INST_NEW|Up|1526665240|7aaade9425f646b8c45ab42540052b98|184482|102471928occ8b83b46bc|4||201|0|0||||
+10:23:50||Weapons/Materials/MagGun_MatA_Inst3.uasset|INST_NEW|Up|1526665526|8a28b14f630d7333303aab6826cb0487|148219|102471932occ8b83b46bc|4||201|0|0||||
+10:23:51||Weapons/Materials/MagGun_MatB.uasset|INST_NEW|Up|1526665527|89410d986986c38a41953a60793380a7|191457|102471936occ8b83b46bc|4||201|0|0||||
+10:23:52||Weapons/Materials/MagGun_MatB_Inst2.uasset|INST_NEW|Up|1526658672|8cdaea52475615f9e5518710e3ca3e7a|129942|102471940occ8b83b46bc|4||201|0|0||||
+10:23:52||Weapons/Materials/MagGun_SightLens_Mat.uasset|INST_NEW|Up|1526658657|68a6ab68d95dcb84b0b0bbf357f48770|97211|102471944occ8b83b46bc|4||201|0|0||||
+10:23:52||Weapons/Materials/MagGun_SightLens_Mat_Inst.uasset|INST_NEW|Up|1526658672|b0e8de36e636344b9d6896c01a3dcdfe|84124|102471948occ8b83b46bc|4||201|0|0||||
+10:23:53||Weapons/Textures|INST_NEW|Up|1526665115||4096|102471952occ8b83b46bc|4||201|0|0||||
+10:23:53||Weapons/PhysicalMaterials|INST_NEW|Up|1526665124||0|102471956occ8b83b46bc|4||201|0|0||||
+10:23:58||Weapons/MaterialLayers/T_Metal_Metal02_D.uasset|INST_NEW|Up|1526658672|9181d1e789d1711bfcaa0c05d3a3e6a9|10649094|102471968occ8b83b46bc|4||201|0|0||||
+10:23:58||Weapons/PhysicalMaterials/M_BodyDamage.uasset|INST_NEW|Up|1526665124|74265ec86c1b3ef56faf86da12836e71|1211|102471976occ8b83b46bc|4||201|0|0||||
+10:23:54||Weapons/Textures/LauncherT1_section.uasset|INST_NEW|Up|1526658674|ffd1999bcd007fb8085b3560ce8aad3a|4658996|102471980occ8b83b46bc|4||201|0|0||||
+10:23:35||Weapons/MaterialLayers/T_Rubber.uasset|INST_NEW|Up|1526658673|fc0ee1cbd9174130f5648672f286fbc7|9008059|102471984occ8b83b46bc|4||201|0|0||||
+10:24:05||Weapons/Textures/LauncherT2_section.uasset|INST_NEW|Up|1526658674|24a3597a683ad3106e07b9d4d39c571f|5343813|102471988occ8b83b46bc|4||201|0|0||||
+10:24:22||Weapons/Textures/Launcher_01_N.uasset|INST_NEW|Up|1526658674|f7ccef52e085da860d48ba3e15d73032|2144055|102471992occ8b83b46bc|4||201|0|0||||
+10:24:09||Weapons/Textures/LauncherT2_shade.uasset|INST_NEW|Up|1526658674|b753539d2b0d6213334c46befc6b0e5c|8485104|102472000occ8b83b46bc|4||201|0|0||||
+10:24:30||Weapons/Textures/Launcher_02_N.uasset|INST_NEW|Up|1526658674|1f295e7e77ea27625b81f7887545ccb9|2972014|102472004occ8b83b46bc|4||201|0|0||||
+10:24:42||Weapons/Textures/MagGunT1_section.uasset|INST_NEW|Up|1526658673|8430f40d2ade2d86d207ccdd0da34c36|4926269|102472016occ8b83b46bc|4||201|0|0||||
+10:24:55||Weapons/Textures/LauncherT1_shade.uasset|INST_NEW|Up|1526658674|85370d829906f4d34d4112b609b00e15|10309005|102472020occ8b83b46bc|4||201|0|0||||
+10:24:55||Weapons/Textures/MagGunT2_section.uasset|INST_NEW|Up|1526658674|ea7f4afdfdd91cbbc1ba7190d05e067e|4814845|102472028occ8b83b46bc|4||201|0|0||||
+10:25:14||Weapons/Textures/MagGun_01_N.uasset|INST_NEW|Up|1526658673|0ef9e3cee73c69a9938cf75f264fea73|5810649|102472032occ8b83b46bc|4||201|0|0||||
+10:25:58||Weapons/Textures/MagGunT2_shade.uasset|INST_NEW|Up|1526658674|3a1483ff4812e23b5286f27ead0ba599|13022294|102472052occ8b83b46bc|4||201|0|0||||
+10:25:59||Weapons/Textures/MagGun_Decals.uasset|INST_NEW|Up|1526658673|9e75520fefc740e7365bc08b37225ac0|115092|102472056occ8b83b46bc|4||201|0|0||||
+10:25:59||Weapons/Textures/MagGunT1_shade.uasset|INST_NEW|Up|1526658673|0c8ed21c7db29c575f8458cde2083faa|19904854|102472064occ8b83b46bc|4||201|0|0||||
+10:26:00||Weapons/Textures/SightLens_maskA.uasset|INST_NEW|Up|1526658657|40a6099cbf0b567460fa406404a40749|460775|102472072occ8b83b46bc|4||201|0|0||||
+10:25:59||Weapons/Textures/MagGun_Display_EM.uasset|INST_NEW|Up|1526658673|52563f08aaf2b8eb38eb63c81caa877c|1426574|102472076occ8b83b46bc|4||201|0|0||||
+10:26:02||Weapons/Textures/SightLens_maskB.uasset|INST_NEW|Up|1526658657|6f3e5a72d982a819b86d1c32365a5473|927852|102472080occ8b83b46bc|4||201|0|0||||
+10:26:05||Weapons/Textures/holo_layer_1_5.uasset|INST_NEW|Up|1526658657|bc25515235459c4c886eac27fac3dcc3|109322|102472084occ8b83b46bc|4||201|0|0||||
+10:26:05||Weapons/AssaultRifle_Skeleton.uasset|INST_NEW|Up|1526676099|f25a54caf6811d9f3c940916886232de|1879|102472092occ8b83b46bc|4||201|0|0||||
+10:26:05||Weapons/AssaultRifle_Physics.uasset|INST_NEW|Up|1526665572|f408a4555d238a83bd4e38dfa9e27727|89372|102472088occ8b83b46bc|4||201|0|0||||
+10:26:06||Weapons/Launcher_Skeleton.uasset|INST_NEW|Up|1526665553|36aa8d7a50bbb460b85f17d07adce02b|1960|102472096occ8b83b46bc|4||201|0|0||||
+10:26:06||Weapons/Launcher_Physics.uasset|INST_NEW|Up|1526665553|087f4110c81b24905ebfe604f11599fa|90444|102472100occ8b83b46bc|4||201|0|0||||
+10:26:06||Weapons/SM_AssaultRifle.uasset|INST_NEW|Up|1526676818|97e3ec270e499a29b0d64ff0730a0f77|1460795|102472104occ8b83b46bc|4||201|0|0||||
+10:25:32||Weapons/Textures/MagGun_02_N.uasset|INST_NEW|Up|1526658673|e72a340b9692903945f56cc573e15f09|7108670|102472108occ8b83b46bc|4||201|0|0||||
+10:26:11||Weapons/SM_Launcher.uasset|INST_NEW|Up|1526665553|de0b9e25ff2617ac0946eaea91819466|1981427|102472112occ8b83b46bc|4||201|0|0||||
+10:26:04||Weapons/Textures/T_Vista_Grass_N.uasset|INST_NEW|Up|1526665115|09dfa17f8d2ef011a20c4f2492570dd2|3299697|102472116occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-21T10:26:12Z (last step: 205434 msec, total: 205907 msec)
+#=#=#=# Syncrun started 2018-05-22T07:02:57Z
+#=#=#=#=# Propagation starts 2018-05-22T07:03:06Z (last step: 9867 msec, total: 9867 msec)
+07:03:06||AnimStarterPack/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_SYNC|Up|1526899032|f47afbc430a5a307abc5fbbc8f1e6276|19907|101926827occ8b83b46bc|4||204|19881|1526838575||||
+07:03:06||AnimStarterPack/Aim_Space_Hip.uasset|INST_REMOVE|Up|1526033760|da082eb0d60b5db321d71aaac9c86304|144775|101926779occ8b83b46bc|4||204|0|0||||
+07:03:06||AnimStarterPack/Crouch_Idle_Rifle_Ironsights.uasset|INST_SYNC|Up|1526913001|1e652ddba0ef2944415e944938e590ea|1431|101926863occ8b83b46bc|4||204|193250|1526033760||||
+07:03:06||AnimStarterPack/BS_CrouchWalk.uasset|INST_SYNC|Up|1526913005|80e6be762987798540a3c397bcea3cb5|95814|101926854occ8b83b46bc|4||204|95819|1526033760||||
+07:03:06||AnimStarterPack/Aim_Space_Ironsights.uasset|INST_REMOVE|Up|1526033760|94ab9e322cda4f90f0442d11ed04300e|144512|101926833occ8b83b46bc|4||204|0|0||||
+07:03:06||AnimStarterPack/BS_Jog.uasset|INST_SYNC|Up|1526913006|15b850fb5128326b18ed2d116324356b|96029|101926851occ8b83b46bc|4||204|95870|1526033760||||
+07:03:07||AnimStarterPack/Crouch_Walk_Bwd_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|e1f4e8980ae1d7d5c036b9455a7d42a7|130344|101926869occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Crouch_to_Stand_Rifle_Hip.uasset|INST_REMOVE|Up|1526033760|f37c005fc6560997e463e455ade4d991|108657|101926890occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Crouch_Walk_Fwd_Rifle_Ironsights.uasset|INST_SYNC|Up|1526913001|38af6d6e0f735184e127ac191d18eaa1|1459|101926878occ8b83b46bc|4||204|129947|1526033760||||
+07:03:07||AnimStarterPack/Crouch_to_Stand_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|56931da1f4d3b4c9ac5d5b3b647a9a21|108641|101926893occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Crouch_Walk_Lt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|33300cfa26baf0140200aadac27ce885|129891|101926881occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Death_3.uasset|INST_REMOVE|Up|1526033760|8db4b909fa83c5de05d87fd22f41c7d0|153991|101926902occ8b83b46bc|4||204|0|0||||
+07:03:08||AnimStarterPack/Death_Ironsights_2.uasset|INST_REMOVE|Up|1526033760|d422e9e1d0c4f1a3e509db60314ec70d|141401|101926905occ8b83b46bc|4||204|0|0||||
+07:03:08||AnimStarterPack/Death_Ironsights_1.uasset|INST_REMOVE|Up|1526033760|cbcafe460e667c615ead8ecc41cf0c2f|152207|101926908occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Death_2.uasset|INST_REMOVE|Up|1526033760|e0b8f7b9fac9e87e127d592bb34d8f97|141931|101926899occ8b83b46bc|4||204|0|0||||
+07:03:07||AnimStarterPack/Crouch_Walk_Rt_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|9f087b0e385cfc6d47994b19d5fbc36b|129851|101926887occ8b83b46bc|4||204|0|0||||
+07:03:08||AnimStarterPack/Fire_Rifle_Ironsights.uasset|INST_SYNC|Up|1526913001|068867f182586519bdf038a872c1bc0e|1382|101926920occ8b83b46bc|4||204|101474|1526033760||||
+07:03:08||AnimStarterPack/Equip_Rifle_Standing.uasset|INST_REMOVE|Up|1526834890|b029b78e5326e05f9ec0f0e7828c02e8|155697|101926914occ8b83b46bc|4||204|0|0||||
+07:03:08||AnimStarterPack/Fire_Rifle_Hip.uasset|INST_REMOVE|Up|1526033760|fc28f8b3381e2289a04d5755c0eb58da|101371|101926917occ8b83b46bc|4||204|0|0||||
+07:03:08||AnimStarterPack/Equip_Pistol_Standing.uasset|INST_SYNC|Up|1526913001|c48955ffbc98a467c272894e47827d89|1382|101926911occ8b83b46bc|4||204|148590|1526033760||||
+07:03:09||AnimStarterPack/Fire_Shotgun_Hip.uasset|INST_REMOVE|Up|1526033760|301382af3fd33592bb3b1913ae7d060b|119644|101926923occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Fire_Shotgun_Ironsights.uasset|INST_REMOVE|Up|1526033760|8a97c0adf5b2a67f70be48ec411fa295|119045|101926926occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Hit_React_1.uasset|INST_SYNC|Up|1526913002|1ee42334dc45fcdcc7c1103f272bcbd5|1306|101926932occ8b83b46bc|4||204|113208|1526033760||||
+07:03:09||AnimStarterPack/Hit_React_3.uasset|INST_SYNC|Up|1526913002|e37d729977b6a22cae534561f8abec8a|1306|101926947occ8b83b46bc|4||204|113226|1526033760||||
+07:03:09||AnimStarterPack/Hit_React_4.uasset|INST_REMOVE|Up|1526033760|f5614805941c0e90cfd68f382369f914|112992|101926935occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Idle_Pistol.uasset|INST_REMOVE|Up|1526033760|a2a37486fbfa9c57c18c1a065c40df4f|194423|101926938occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Jump_From_Stand_Ironsights.uasset|INST_REMOVE|Up|1526033760|41b1a35c6947fa59186a361c95263877|118705|101926971occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Prone_Death_2.uasset|INST_REMOVE|Up|1526033760|fe3c09413ffce1e3c1978b916131ddd2|154627|101926983occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Hit_React_2.uasset|INST_SYNC|Up|1526913002|97a499b88ccf5a6c83ea9c9320fcee89|1306|101926929occ8b83b46bc|4||204|113346|1526033760||||
+07:03:09||AnimStarterPack/Prone_Fire_2.uasset|INST_REMOVE|Up|1526033760|accc2cf098ded971f15f1a6c650a25ac|99465|101926995occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Prone_Death_1.uasset|INST_REMOVE|Up|1526033760|7457ec82542cf86373d917146779687c|112611|101926977occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Prone_Idle.uasset|INST_REMOVE|Up|1526033760|042e99fa3bb4bd38a83ae60fb66ce49e|231902|101926998occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Prone_Reload_Rifle.uasset|INST_REMOVE|Up|1526033760|7e39ab8693ea32b5c6c1cca7f0be82c0|178290|101926986occ8b83b46bc|4||204|0|0||||
+07:03:09||AnimStarterPack/Prone_Fire_1.uasset|INST_REMOVE|Up|1526033760|462657aa4d9c31b315f377aa2d968e5f|99638|101926980occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Prone_To_Stand.uasset|INST_REMOVE|Up|1526033760|7650f4b7ad15de6985eaf2db11ac968d|132026|101926992occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Reload_Pistol.uasset|INST_REMOVE|Up|1526033760|c2fb8e3c4c74635ac16c7a2eb6defc73|139446|101927001occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Reload_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|033acd80e33f37e7e772b4db45989d03|152411|101927010occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Reload_Rifle_Hip.uasset|INST_SYNC|Up|1526913002|36b7370238faebd5cbb4df7a40ff7e31|1347|101927007occ8b83b46bc|4||204|152502|1526033760||||
+07:03:11||AnimStarterPack/Sprint_Fwd_Rifle.uasset|INST_REMOVE|Up|1526033760|5a4dc21195f190db882c86d989d43a0d|122886|101927025occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Prone_Reload_Shotgun.uasset|INST_REMOVE|Up|1526033760|9ae6ea260e8ad724c72846312e133eb2|202160|101926989occ8b83b46bc|4||204|0|0||||
+07:03:11||AnimStarterPack/Stand_To_Prone.uasset|INST_REMOVE|Up|1526033760|ead1d7b6b5e35ac0145efe3a7074a192|135973|101927022occ8b83b46bc|4||204|0|0||||
+07:03:10||AnimStarterPack/Reload_Shotgun_Hip.uasset|INST_REMOVE|Up|1526033760|a55ce610c8270160256cd3d964c1f1f9|203519|101927019occ8b83b46bc|4||204|0|0||||
+07:03:11||AnimStarterPack/Stand_to_Crouch_Rifle_Ironsights.uasset|INST_REMOVE|Up|1526033760|7104a3ba73a4c74a85606a11e89a0719|111229|101927031occ8b83b46bc|4||204|0|0||||
+07:03:11||AnimStarterPack/Stand_to_Crouch_Rifle_Hip.uasset|INST_REMOVE|Up|1526033760|0bca12fc6bbf3c2e84ffb262dacef2a9|110492|101927028occ8b83b46bc|4||204|0|0||||
+07:03:11||Sounds|INST_NEW|Up|1526922559||0|102509356occ8b83b46bc|4||201|0|0||||
+07:03:11||AnimStarterPack/Reload_Shotgun_Ironsights.uasset|INST_REMOVE|Up|1526033760|f082c44a37e424935385578308d10162|203405|101927013occ8b83b46bc|4||204|0|0||||
+07:03:11||Effects/ParticleSystems/Weapons/AssaultRifle/Muzzle/P_AssaultRifle_MF.uasset|INST_SYNC|Up|1526916595|8cb6ec07b1d19ad912e43a83ddd63986|316696|102471768occ8b83b46bc|4||204|307411|1526753277||||
+07:03:12||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_SYNC|Up|1526913485|5240fc5beefb7eaa7ad7aab67909f9ed|133265|101579412occ8b83b46bc|4||204|133265|1526842819||||
+07:03:12||Sounds/Weapon_AssaultRifle|INST_NEW|Up|1526922558||0|102509388occ8b83b46bc|4||201|0|0||||
+07:03:12||Sounds/Weapon_AssaultRifle/Mono|INST_NEW|Up|1526922560||12288|102509392occ8b83b46bc|4||201|0|0||||
+07:03:12||Sounds/SoundClassesAndMixes|INST_NEW|Up|1526922560||4096|102509396occ8b83b46bc|4||201|0|0||||
+07:03:13||Weapons/AssaultRifle_Skeleton.uasset|INST_SYNC|Up|1526916011|d975d235ebb763b54b182679105d806b|1879|102472092occ8b83b46bc|4||204|1879|1526676099||||
+07:03:13||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_AmmoPickup_Cue.uasset|INST_NEW|Up|1526922559|05174a0abf3614ae295d0a62ebf006de|16877|102509408occ8b83b46bc|4||201|0|0||||
+07:03:13||Sounds/SoundClassesAndMixes/Characters.uasset|INST_NEW|Up|1526922560|7c0199fde61b73a78063c77b50759d4e|1508|102509412occ8b83b46bc|4||201|0|0||||
+07:03:13||Sounds/SoundClassesAndMixes/Ambient.uasset|INST_NEW|Up|1526922560|7e9b9f49d8d46dbb990a8f1dab3c3aa2|1496|102509416occ8b83b46bc|4||201|0|0||||
+07:03:13||Sounds/SoundClassesAndMixes/Master.uasset|INST_NEW|Up|1526922560|f3e732d37850983e7a89e347e0d8fb6e|1535|102509420occ8b83b46bc|4||201|0|0||||
+07:03:14||Sounds/SoundClassesAndMixes/PSM_DuckEnvironment.uasset|INST_NEW|Up|1526922560|772a0f015c128e26cbe33f4677217f86|1897|102509424occ8b83b46bc|4||201|0|0||||
+07:03:14||Sounds/SoundClassesAndMixes/Music.uasset|INST_NEW|Up|1526922560|d0f1d05556a6943b7f5014cd532757a3|1544|102509428occ8b83b46bc|4||201|0|0||||
+07:03:14||Sounds/SoundClassesAndMixes/SFX.uasset|INST_NEW|Up|1526922560|cf4fcaa13981dda3f52f67f5193076f3|1983|102509432occ8b83b46bc|4||201|0|0||||
+07:03:14||Sounds/SoundClassesAndMixes/UI.uasset|INST_NEW|Up|1526922560|3cb92099ce3b67d0c6e74b7482543bf4|1705|102509440occ8b83b46bc|4||201|0|0||||
+07:03:11||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1526922075|2e33fe578519bb48160b07cd30a1e246|649982|101436028occ8b83b46bc|4||204|649982|1526843770||||
+07:03:14||Sounds/SoundClassesAndMixes/UIControllerSounds.uasset|INST_NEW|Up|1526922560|25dab58af17cb370a9b92827695e0014|1688|102509444occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Cue.uasset|INST_NEW|Up|1526922559|1d4e36bed788a5e075c3c4423d008fc7|24230|102509448occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Equip_Cue.uasset|INST_NEW|Up|1526922559|8782351707dc63e0581673bb2d5f12ec|10960|102509452occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Empty_Cue.uasset|INST_NEW|Up|1526922559|77b1e6f995a852d84b72a0561fb4b21d|16665|102509456occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/SoundClassesAndMixes/Weapons.uasset|INST_NEW|Up|1526922560|bf1e1d7e9615422ce3a9772d7bd6cde2|2014|102509460occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Reload_Cue.uasset|INST_NEW|Up|1526922559|be8d6c858b9a58f42e2aaa5b94ace3e7|11141|102509464occ8b83b46bc|4||201|0|0||||
+07:03:12||Weapons/SM_AssaultRifle.uasset|INST_SYNC|Up|1526916170|f60868283ef083bfa9ce0821bc084869|1458031|102472104occ8b83b46bc|4||204|1460795|1526676818||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ImpactConcrete_Cue.uasset|INST_NEW|Up|1526922559|4503ddcae9948d4fc303cb9083fa1489|16928|102509472occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot01.uasset|INST_NEW|Up|1526922559|f4de1691c1f51c4c4ba0b3858708eff6|143495|102509476occ8b83b46bc|4||201|0|0||||
+07:03:16||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot04.uasset|INST_NEW|Up|1526922559|e78750b27eb32dbe47b90ac8c803db5b|172079|102509480occ8b83b46bc|4||201|0|0||||
+07:03:16||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot05.uasset|INST_NEW|Up|1526922559|a0ba79b3d14ea9b4f843cfd3ebf0f6a4|183660|102509484occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot02.uasset|INST_NEW|Up|1526922559|cd226cd1742b73b77dda72ddd7daec8b|178216|102509488occ8b83b46bc|4||201|0|0||||
+07:03:16||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot06.uasset|INST_NEW|Up|1526922559|fd2792052de51d9fff9af586391807a0|182480|102509492occ8b83b46bc|4||201|0|0||||
+07:03:17||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd01.uasset|INST_NEW|Up|1526922559|a03ab4e9bb1965b3d91324cd77c5df72|133134|102509496occ8b83b46bc|4||201|0|0||||
+07:03:15||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Shot03.uasset|INST_NEW|Up|1526922559|ee6628d8480eb1767f1448a1413f3e25|172164|102509500occ8b83b46bc|4||201|0|0||||
+07:03:17||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd02.uasset|INST_NEW|Up|1526922559|4a4d49126b01aff2864a5be28bb1b43c|163147|102509504occ8b83b46bc|4||201|0|0||||
+07:03:17||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd03.uasset|INST_NEW|Up|1526922559|ccd4d4f011564789c7a00abfb249387e|157412|102509508occ8b83b46bc|4||201|0|0||||
+07:03:17||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd05.uasset|INST_NEW|Up|1526922559|e8ec1833d251fba01bf007f3e3ed2a2b|168972|102509512occ8b83b46bc|4||201|0|0||||
+07:03:17||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd04.uasset|INST_NEW|Up|1526922559|f16ae9a3dd5e872ecc1f9d8b99a3a16d|141150|102509516occ8b83b46bc|4||201|0|0||||
+07:03:18||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd_Cue.uasset|INST_NEW|Up|1526922559|5651a3e66ed80afebfe0dda2bfb3a64a|23518|102509520occ8b83b46bc|4||201|0|0||||
+07:03:18||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotLoop01.uasset|INST_NEW|Up|1526922559|c7c8381c11f44653021a4214e1b3a841|165001|102509524occ8b83b46bc|4||201|0|0||||
+07:03:18||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotEnd06.uasset|INST_NEW|Up|1526922559|efc371174c7785e578a08cb9e05676c4|162674|102509528occ8b83b46bc|4||201|0|0||||
+07:03:18||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotLoop02.uasset|INST_NEW|Up|1526922559|0e01a8ee533499e6ce5954070e168975|157434|102509532occ8b83b46bc|4||201|0|0||||
+07:03:18||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotLoop03.uasset|INST_NEW|Up|1526922559|6c9115dea7d6e88487e4c513e46e8e5d|165044|102509536occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotLoop_Cue.uasset|INST_NEW|Up|1526922559|191712bf6c09ad5dfa762e163b6f3a26|16671|102509540occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_AmmoPickup01.uasset|INST_NEW|Up|1526922560|9934bf0754d404d3bf8538418d585a13|87598|102509544occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_AmmoPickup02.uasset|INST_NEW|Up|1526922559|fb92d132fb4df1fc90942a95307362b3|93785|102509548occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_AmmoPickup03.uasset|INST_NEW|Up|1526922559|add3a8f00e2aba020f189856a86a37de|90177|102509552occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Empty01.uasset|INST_NEW|Up|1526922559|181f23671e8a07e1d8129df4a72b2952|49022|102509556occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Empty03.uasset|INST_NEW|Up|1526922559|39e2d016d4a68e04c1211a3212c11721|57146|102509560occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Empty02.uasset|INST_NEW|Up|1526922559|97d7aa9250afc6d0eb0df647db0b50d0|57916|102509564occ8b83b46bc|4||201|0|0||||
+07:03:19||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete01.uasset|INST_NEW|Up|1526922559|ba0656fb3ac3d47b4ea86278c0ad4940|132655|102509568occ8b83b46bc|4||201|0|0||||
+07:03:20||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete03.uasset|INST_NEW|Up|1526922559|ee6404ca1173201124517c08fb9ef21c|147735|102509572occ8b83b46bc|4||201|0|0||||
+07:03:20||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete02.uasset|INST_NEW|Up|1526922559|e7d1079ce9783f93d8fc92513047c922|133794|102509576occ8b83b46bc|4||201|0|0||||
+07:03:20||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete05.uasset|INST_NEW|Up|1526922559|0c7279ab90244e0e9b92eb56d29c4d1f|115605|102509580occ8b83b46bc|4||201|0|0||||
+07:03:20||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete04.uasset|INST_NEW|Up|1526922559|1cd514ed8c97e55813c7e7a6296fc09b|126774|102509584occ8b83b46bc|4||201|0|0||||
+||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete06.uasset|INST_NEW|Up|1526922559||126265||2|Server hat "500 Internal Server Error" auf "PUT https://hs-bochum.sciebo.de/remote.php/dav/files/p12l05983@hs-bochum.de/Softwarepraktikum/Static/Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete06.uasset" geantwortet (File entry could not be inserted with insertIfNotExist() but could also not be selected with getId() in order to perform an update. Please try again.)|500|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Reload02.uasset|INST_NEW|Up|1526922559|83bbd1746263259f7a5cffc5455432e6|85770|102509592occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Reload01.uasset|INST_NEW|Up|1526922559|c5710fe522a22ab0f04d9832aba2151c|75513|102509596occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Reload03.uasset|INST_NEW|Up|1526922559|d0f428b2be6ae5be50b88cb94b3b872a|76225|102509600occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Swap01.uasset|INST_NEW|Up|1526922559|ade099626fe3634275753040b5520837|58400|102509604occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Swap02.uasset|INST_NEW|Up|1526922559|e858cb4467b18b578ea8d28fd1ba16a7|73748|102509608occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_Swap03.uasset|INST_NEW|Up|1526922559|d253766e4a1a650432341a94f66c6952|48921|102509612occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Stereo|INST_NEW|Up|1526922560||8192|102509616occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Equip_Stereo_Cue.uasset|INST_NEW|Up|1526922560|9b2b6cce086f38f2cbb6ce09a3f31951|9092|102509620occ8b83b46bc|4||201|0|0||||
+07:03:21||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Reload_Stereo_Cue.uasset|INST_NEW|Up|1526922560|5d1c046358dd1092912dae345f93ff3f|9953|102509624occ8b83b46bc|4||201|0|0||||
+07:03:22||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot01_Stereo.uasset|INST_NEW|Up|1526922560|f1ab671f6abb3b825c8c80ba12005624|281999|102509628occ8b83b46bc|4||201|0|0||||
+07:03:22||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot03_Stereo.uasset|INST_NEW|Up|1526922560|5139da2bbc7294fadf849840c7dfc2bd|339223|102509632occ8b83b46bc|4||201|0|0||||
+07:03:22||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot02_Stereo.uasset|INST_NEW|Up|1526922560|f67517795c0379fb4c146321b37a8140|351643|102509636occ8b83b46bc|4||201|0|0||||
+07:03:23||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot05_Stereo.uasset|INST_NEW|Up|1526922560|f65e7e99d7ab7a311e2f438071892ad9|362233|102509640occ8b83b46bc|4||201|0|0||||
+07:03:23||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot06_Stereo.uasset|INST_NEW|Up|1526922560|eff1dfe63fba60b58ece5b4f156a9fec|359886|102509644occ8b83b46bc|4||201|0|0||||
+07:03:24||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd01_Stereo.uasset|INST_NEW|Up|1526922560|ce9ba85d48ac7d8ff63c4d7337470433|261689|102509648occ8b83b46bc|4||201|0|0||||
+07:03:23||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_Shot04_Stereo.uasset|INST_NEW|Up|1526922560|cc3aaf496264ad4790dde1674711be9f|338918|102509652occ8b83b46bc|4||201|0|0||||
+07:03:25||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd03_Stereo.uasset|INST_NEW|Up|1526922560|36f94add5214e4b611760e0050554081|310356|102509656occ8b83b46bc|4||201|0|0||||
+07:03:25||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd02_Stereo.uasset|INST_NEW|Up|1526922560|a16ce238109b2d8e9092d0eef278173d|322235|102509660occ8b83b46bc|4||201|0|0||||
+07:03:26||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd05_Stereo.uasset|INST_NEW|Up|1526922560|a2efa47fc9e3f4ae8874e8668b97a404|333494|102509664occ8b83b46bc|4||201|0|0||||
+07:03:25||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd04_Stereo.uasset|INST_NEW|Up|1526922560|8bffb44da5cd311b1b176eb1a0d89357|277941|102509668occ8b83b46bc|4||201|0|0||||
+07:03:27||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotLoop01_Stereo.uasset|INST_NEW|Up|1526922560|8d956ce98312ec838ba5cd304856c6b4|325195|102509672occ8b83b46bc|4||201|0|0||||
+07:03:26||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotEnd06_Stereo.uasset|INST_NEW|Up|1526922560|aee1f7c0e9c68c267fd44bd94d262bbb|321126|102509676occ8b83b46bc|4||201|0|0||||
+07:03:27||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotLoop03_Stereo.uasset|INST_NEW|Up|1526922560|37ce7a1b75df508a36d59969b01cc451|325164|102509680occ8b83b46bc|4||201|0|0||||
+07:03:27||Sounds/Weapon_AssaultRifle/Stereo/AssaultRifle_ShotLoop02_Stereo.uasset|INST_NEW|Up|1526922560|136b608ae92a45c7517062032f21dd3d|309998|102509684occ8b83b46bc|4||201|0|0||||
+07:03:28||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_AmmoPickup03_Stereo.uasset|INST_NEW|Up|1526922560|1f0618f464c9304c73495b8f461546cb|174796|102509688occ8b83b46bc|4||201|0|0||||
+07:03:28||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_AmmoPickup01_Stereo.uasset|INST_NEW|Up|1526922560|e0b18ef1467ed8e0277248ea337bdb62|170343|102509692occ8b83b46bc|4||201|0|0||||
+07:03:28||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_AmmoPickup02_Stereo.uasset|INST_NEW|Up|1526922560|87fedf6db770263a721e4dd933bd47fb|182569|102509696occ8b83b46bc|4||201|0|0||||
+07:03:29||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Empty01_Stereo.uasset|INST_NEW|Up|1526922560|be3f19dd5b05c5455d5f85ac314ee318|93102|102509700occ8b83b46bc|4||201|0|0||||
+07:03:29||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Empty02_Stereo.uasset|INST_NEW|Up|1526922560|68cba82526e90ed63d0f401e567955ca|110993|102509704occ8b83b46bc|4||201|0|0||||
+07:03:29||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Reload01_Stereo.uasset|INST_NEW|Up|1526922560|1a63864199200119c99eda2f83b03a28|146170|102509708occ8b83b46bc|4||201|0|0||||
+07:03:29||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Empty03_Stereo.uasset|INST_NEW|Up|1526922560|53e082f4abb8935f70ae4d3ac514f7be|109536|102509712occ8b83b46bc|4||201|0|0||||
+07:03:30||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Reload03_Stereo.uasset|INST_NEW|Up|1526922560|19786e0a549ccf1ffa4a1bd8993d7bf9|147508|102509716occ8b83b46bc|4||201|0|0||||
+07:03:30||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Reload02_Stereo.uasset|INST_NEW|Up|1526922560|97006a5bf90854c99ea6bed5ddfb9e5c|166927|102509720occ8b83b46bc|4||201|0|0||||
+07:03:30||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Swap01_Stereo.uasset|INST_NEW|Up|1526922560|c20dcb2ad8484641f0685c4ec8d65bfe|117123|102509724occ8b83b46bc|4||201|0|0||||
+07:03:30||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Swap02_Stereo.uasset|INST_NEW|Up|1526922560|f3d2a77d09d1dba150d75e6bfecbd83e|142828|102509728occ8b83b46bc|4||201|0|0||||
+07:03:30||Sounds/Weapon_AssaultRifle/Stereo/Weapon_AssaultRifle_Swap03_Stereo.uasset|INST_NEW|Up|1526922560|730c425112b4318e6d10fb86cadac271|107442|102509732occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-22T07:03:31Z (last step: 24361 msec, total: 34228 msec)
+#=#=#=# Syncrun started 2018-05-22T07:03:45Z
+#=#=#=#=# Propagation starts 2018-05-22T07:03:50Z (last step: 4530 msec, total: 4530 msec)
+#=#=#=# Syncrun finished 2018-05-22T07:03:50Z (last step: 371 msec, total: 4901 msec)
+#=#=#=# Syncrun started 2018-05-22T07:04:37Z
+#=#=#=#=# Propagation starts 2018-05-22T07:04:38Z (last step: 610 msec, total: 610 msec)
+#=#=#=# Syncrun finished 2018-05-22T07:04:38Z (last step: 22 msec, total: 633 msec)
+#=#=#=# Syncrun started 2018-05-22T17:34:38Z
+#=#=#=#=# Propagation starts 2018-05-22T17:34:39Z (last step: 979 msec, total: 979 msec)
+#=#=#=# Syncrun finished 2018-05-22T17:34:39Z (last step: 15 msec, total: 995 msec)
+#=#=#=# Syncrun started 2018-05-22T19:34:42Z
+#=#=#=#=# Propagation starts 2018-05-22T19:34:42Z (last step: 683 msec, total: 683 msec)
+#=#=#=# Syncrun finished 2018-05-22T19:34:42Z (last step: 11 msec, total: 695 msec)
+#=#=#=# Syncrun started 2018-05-23T07:42:34Z
+#=#=#=#=# Propagation starts 2018-05-23T07:42:35Z (last step: 1022 msec, total: 1022 msec)
+#=#=#=# Syncrun finished 2018-05-23T07:42:35Z (last step: 11 msec, total: 1034 msec)
+#=#=#=# Syncrun started 2018-05-25T08:47:22Z
+#=#=#=#=# Propagation starts 2018-05-25T08:47:22Z (last step: 563 msec, total: 563 msec)
+08:47:23||AnimStarterPack/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_SYNC|Up|1527195670|e923cbc86a5050504d54b2a98d0c8915|19782|101926827occ8b83b46bc|4||204|19907|1526899032||||
+08:47:23||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_Cue.uasset|INST_SYNC|Up|1527237559|284bc9b6063ca9c16470dbc79572cf94|24379|102509448occ8b83b46bc|4||204|24230|1526922559||||
+08:47:23||Sounds/Weapon_AssaultRifle/Mono/AssaultRifle_ShotLoop_Cue.uasset|INST_SYNC|Up|1527237641|4fca9ff7d4925cde881940741bcf5521|16671|102509540occ8b83b46bc|4||204|16671|1526922559||||
+08:47:23||Weapons/AssaultRifle_Skeleton.uasset|INST_SYNC|Up|1527195246|952c4b161868b93a0c415098740bc208|2770|102472092occ8b83b46bc|4||204|1879|1526916011||||
+08:47:23||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_SYNC|Up|1527238006|b042634cdc750b14188b03c96572d5f2|316446|101579412occ8b83b46bc|4||204|133265|1526913485||||
+08:47:23||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527238006|3b33ec0a7953a11801e46e0109b3ba70|650247|101436028occ8b83b46bc|4||204|649982|1526922075||||
+#=#=#=# Syncrun finished 2018-05-25T08:47:24Z (last step: 1729 msec, total: 2293 msec)
+#=#=#=# Syncrun started 2018-05-25T08:48:09Z
+#=#=#=#=# Propagation starts 2018-05-25T08:48:11Z (last step: 2251 msec, total: 2251 msec)
+08:48:12||Sounds/Weapon_AssaultRifle/Mono/Weapon_AssaultRifle_ImpactConcrete06.uasset|INST_SYNC|Down|1526922559|bc16a88c384ac2a334f77ccc85c0d40d|126265|102509588occ8b83b46bc|4||0|126265|1526972601||||
+#=#=#=# Syncrun finished 2018-05-25T08:48:12Z (last step: 263 msec, total: 2514 msec)
+#=#=#=# Syncrun started 2018-05-25T15:37:49Z
+#=#=#=#=# Propagation starts 2018-05-25T15:37:52Z (last step: 2539 msec, total: 2539 msec)
+#=#=#=# Syncrun finished 2018-05-25T15:37:52Z (last step: 15 msec, total: 2554 msec)
+#=#=#=# Syncrun started 2018-05-27T13:51:28Z
+#=#=#=#=# Propagation starts 2018-05-27T13:51:30Z (last step: 2270 msec, total: 2270 msec)
+||StarterContent/Maps/Advanced_Lighting.umap|INST_REMOVE|Down|1526033760||43225||4||0|0|0||||
+13:51:31||Mixamo|INST_NEW|Up|1527364209||4096|102918264occ8b83b46bc|4||201|0|0||||
+13:51:31||StarterContent/Maps/Advanced_Lighting_BuiltData.uasset|INST_SYNC|Down|1525256341|e8acfcf4add6d9d7fd006547a9555348|1148482|102916316occ8b83b46bc|4||0|1148482|1525256341||||
+13:51:31||Mixamo/Mesh|INST_NEW|Up|1527364209||4096|102918268occ8b83b46bc|4||201|0|0||||
+13:51:31||StarterContent/Maps/Minimal_Default.umap|INST_NEW|Up|1527368115|ba66b063d5577dd3de4bd49a388f4142|650247|102918272occ8b83b46bc|4||201|0|0||||
+13:51:31||Mixamo/Materials|INST_NEW|Up|1527364209||4096|102918276occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/ProRiflePack|INST_NEW|Up|1527367879||12288|102918280occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Mesh/Mixamo_Skeleton.uasset|INST_NEW|Up|1527364208|9cf54778ef2d164a736ac7059d6a4a31|19214|102918284occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Textures|INST_NEW|Up|1527364209||4096|102918288occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Mesh/Walk_Forward_Left_PhysicsAsset.uasset|INST_NEW|Up|1527364208|6c92f5a21cf890e9eee0ee92930b1e61|117762|102918292occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Materials/Beta_Joints_MAT.uasset|INST_NEW|Up|1527364208|61606290ececabd58e60eaef59bf960d|97034|102918296occ8b83b46bc|4||201|0|0||||
+13:51:33||Mixamo/Materials/Soldier_body2.uasset|INST_NEW|Up|1527364209|c32fac81c984fc679bbc720349b1eb53|129760|102918300occ8b83b46bc|4||201|0|0||||
+13:51:33||Mixamo/Materials/Soldier_body1.uasset|INST_NEW|Up|1527364209|600b6cdd2c25f4103eb134b547d6208c|129925|102918304occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Materials/Beta_HighLimbsGeoSG2.uasset|INST_NEW|Up|1527364208|376b60699b8f1b1963f0256d5e68d956|90733|102918308occ8b83b46bc|4||201|0|0||||
+13:51:33||Mixamo/Materials/Soldier_head6.uasset|INST_NEW|Up|1527364208|5711ccb6048136a78de0c162bdfa402f|135840|102918312occ8b83b46bc|4||201|0|0||||
+13:51:33||Mixamo/Materials/Soldier_head7.uasset|INST_NEW|Up|1527364208|f1d09d79efe7090b8118a02844930ca5|135840|102918316occ8b83b46bc|4||201|0|0||||
+13:51:34||Mixamo/Mesh/Walk_Forward_Right_PhysicsAsset.uasset|INST_NEW|Up|1527364208|26ce84681e68c2c313ba29ed4ee55543|117771|102918320occ8b83b46bc|4||201|0|0||||
+13:51:34||Mixamo/Mesh/Walk_Forward_Right.uasset|INST_NEW|Up|1527364209|c5ec4f85f35179266a55c0917776efb6|1472737|102918324occ8b83b46bc|4||201|0|0||||
+13:51:32||Mixamo/Mesh/Walk_Forward_Left.uasset|INST_NEW|Up|1527364209|c0d1d7c8d12b8adc68e300116318c679|1472683|102918328occ8b83b46bc|4||201|0|0||||
+13:51:40||Mixamo/Mesh/Walk_Right_PhysicsAsset.uasset|INST_NEW|Up|1527364208|69a9cff7e6e4472988011c13e8d25ff6|113933|102918332occ8b83b46bc|4||201|0|0||||
+13:51:40||Mixamo/ProRiflePack/BS_Walk.uasset|INST_NEW|Up|1527366637|6b111ee69791e7ef84fd096d61dc77df|108247|102918336occ8b83b46bc|4||201|0|0||||
+13:51:40||Mixamo/ProRiflePack/crouching_turn_90_left.uasset|INST_NEW|Up|1527364207|0a79e8f71eda6cf4cb2e1dea8ea34b9a|534377|102918340occ8b83b46bc|4||201|0|0||||
+13:51:41||Mixamo/ProRiflePack/crouching_turn_90_right.uasset|INST_NEW|Up|1527364207|e165c2a9552c2d1677ce5f1b51abf436|949648|102918344occ8b83b46bc|4||201|0|0||||
+13:51:34||Mixamo/Mesh/Walk_Right.uasset|INST_NEW|Up|1527364208|76845384bf97ce20a038824d5bb4396c|3240333|102918348occ8b83b46bc|4||201|0|0||||
+13:51:47||Mixamo/ProRiflePack/death_from_front_headshot.uasset|INST_NEW|Up|1527364207|659190659267e7d23406def79bd7d5d3|360990|102918352occ8b83b46bc|4||201|0|0||||
+13:51:46||Mixamo/ProRiflePack/death_from_back_headshot.uasset|INST_NEW|Up|1527364207|630cae4b21a82387208d38f2eb87978f|758625|102918356occ8b83b46bc|4||201|0|0||||
+13:51:42||Mixamo/ProRiflePack/death_crouching_headshot_front.uasset|INST_NEW|Up|1527364207|e5f9dc6db73e00efd310149af9b0fd39|2250381|102918360occ8b83b46bc|4||201|0|0||||
+13:51:49||Mixamo/ProRiflePack/death_from_right.uasset|INST_NEW|Up|1527364207|e3984fff8a7b2811ee51c23dfd267548|3931411|102918364occ8b83b46bc|4||201|0|0||||
+13:52:02||Mixamo/ProRiflePack/idle.uasset|INST_NEW|Up|1527364206|3ebe32fb39d377fde714db85199f9fec|126160|102918368occ8b83b46bc|4||201|0|0||||
+13:52:03||Mixamo/ProRiflePack/idle_aiming.uasset|INST_NEW|Up|1527364206|9c1f2548d38b00538a86b7f6e90231e2|124376|102918372occ8b83b46bc|4||201|0|0||||
+13:51:49||Mixamo/ProRiflePack/death_from_the_front.uasset|INST_NEW|Up|1527364206|811790d395321a40ac7a2bb148c464fb|3875003|102918376occ8b83b46bc|4||201|0|0||||
+13:52:03||Mixamo/ProRiflePack/idle_crouching.uasset|INST_NEW|Up|1527364206|3accce3ea49cc13ec1dc95f3e17e7d40|124802|102918380occ8b83b46bc|4||201|0|0||||
+13:52:04||Mixamo/ProRiflePack/idle_crouching_aiming.uasset|INST_NEW|Up|1527364206|23140c91217506cc37849f5776339f14|124607|102918384occ8b83b46bc|4||201|0|0||||
+13:52:04||Mixamo/ProRiflePack/jump_loop.uasset|INST_NEW|Up|1527364206|de34fd414d9651662724e75a5c380fa9|113110|102918388occ8b83b46bc|4||201|0|0||||
+13:52:05||Mixamo/ProRiflePack/jump_up.uasset|INST_NEW|Up|1527364206|6142d3284777c7679bdf9ed182767e5b|478278|102918392occ8b83b46bc|4||201|0|0||||
+13:52:04||Mixamo/ProRiflePack/jump_down.uasset|INST_NEW|Up|1527364206|5c128254a9d9c7f0d3f8f8a08164e447|571268|102918396occ8b83b46bc|4||201|0|0||||
+13:52:06||Mixamo/ProRiflePack/run_backward.uasset|INST_NEW|Up|1527364206|81d381d10bb7967ed67d4c401123a2b5|438936|102918400occ8b83b46bc|4||201|0|0||||
+13:52:08||Mixamo/ProRiflePack/run_backward_right.uasset|INST_NEW|Up|1527364206|2fad9309f92441c6fe846c1325c4082f|110352|102918404occ8b83b46bc|4||201|0|0||||
+13:52:06||Mixamo/ProRiflePack/run_backward_left.uasset|INST_NEW|Up|1527364206|9655dc155c787fe166d77eaf616dce09|454936|102918408occ8b83b46bc|4||201|0|0||||
+13:52:08||Mixamo/ProRiflePack/run_forward_left.uasset|INST_NEW|Up|1527364208|34ac92cf53da28121cda18ffb67adb08|111503|102918412occ8b83b46bc|4||201|0|0||||
+13:52:08||Mixamo/ProRiflePack/run_forward.uasset|INST_NEW|Up|1527364207|9b01eccce0bc80ee5cc61e9fc6d233a4|225119|102918416occ8b83b46bc|4||201|0|0||||
+13:52:09||Mixamo/ProRiflePack/run_forward_right.uasset|INST_NEW|Up|1527365000|eeb3617c9b7cbd340bed317995bbc059|455087|102918420occ8b83b46bc|4||201|0|0||||
+13:52:09||Mixamo/ProRiflePack/run_left.uasset|INST_NEW|Up|1527364207|40291f16808ff35686d6766e94b6c85a|111101|102918424occ8b83b46bc|4||201|0|0||||
+13:51:49||Mixamo/ProRiflePack/death_from_the_back.uasset|INST_NEW|Up|1527364207|1d4d3fede43c9fb8d8f8c922972cdafa|3544362|102918428occ8b83b46bc|4||201|0|0||||
+13:52:10||Mixamo/ProRiflePack/sprint_backward.uasset|INST_NEW|Up|1527367879|a319806544596bb4c47839d08e0de4f7|110451|102918432occ8b83b46bc|4||201|0|0||||
+13:52:10||Mixamo/ProRiflePack/sprint_backward_left.uasset|INST_NEW|Up|1527364207|ba4b2a11cc1c4fa24b8f5f210e7ae77c|154548|102918436occ8b83b46bc|4||201|0|0||||
+13:52:10||Mixamo/ProRiflePack/sprint_backward_right.uasset|INST_NEW|Up|1527364207|90f1c4874c71eff9ba505938b6a706a9|132023|102918440occ8b83b46bc|4||201|0|0||||
+13:52:11||Mixamo/ProRiflePack/sprint_forward.uasset|INST_NEW|Up|1527364207|a6b1b3ef921f578f3f38570319d760ad|257710|102918444occ8b83b46bc|4||201|0|0||||
+13:52:10||Mixamo/ProRiflePack/run_right.uasset|INST_NEW|Up|1527364207|bfc9cd73271e2be61cb832cd74a75f67|426483|102918452occ8b83b46bc|4||201|0|0||||
+13:52:11||Mixamo/ProRiflePack/sprint_forward_left.uasset|INST_NEW|Up|1527364207|fe705934696b26870ecdc49298d43a9a|455977|102918448occ8b83b46bc|4||201|0|0||||
+13:52:12||Mixamo/ProRiflePack/sprint_forward_right.uasset|INST_NEW|Up|1527364207|b0f8ef40c4d08b4042abc70ab1ff9a48|175702|102918456occ8b83b46bc|4||201|0|0||||
+13:52:12||Mixamo/ProRiflePack/sprint_right.uasset|INST_NEW|Up|1527364207|fad840f3fa2c79b1b498075a227ac879|109817|102918460occ8b83b46bc|4||201|0|0||||
+13:52:12||Mixamo/ProRiflePack/swat.uasset|INST_NEW|Up|1527364207|4655c222a4e91c8f2dd75e6fd8917f3a|106893|102918464occ8b83b46bc|4||201|0|0||||
+13:52:12||Mixamo/ProRiflePack/sprint_left.uasset|INST_NEW|Up|1527364207|29d7bddac18888c5f06c2eb30a947ecb|111331|102918468occ8b83b46bc|4||201|0|0||||
+13:52:13||Mixamo/ProRiflePack/turn_90_left.uasset|INST_NEW|Up|1527364207|5643f3653b97b745150870801efd2739|117052|102918472occ8b83b46bc|4||201|0|0||||
+13:52:13||Mixamo/ProRiflePack/walk_backward.uasset|INST_NEW|Up|1527364207|4f03a8658b676a2fa671a3ad62264d31|115742|102918476occ8b83b46bc|4||201|0|0||||
+13:52:13||Mixamo/ProRiflePack/walk_backward_right.uasset|INST_NEW|Up|1527364207|979096150ca77ff145bfba2bec0f6a29|115836|102918480occ8b83b46bc|4||201|0|0||||
+13:52:13||Mixamo/ProRiflePack/walk_backward_left.uasset|INST_NEW|Up|1527364207|2b7f79e77367b550e590a0e97810eb31|116493|102918484occ8b83b46bc|4||201|0|0||||
+13:52:14||Mixamo/ProRiflePack/walk_crouching_backward.uasset|INST_NEW|Up|1527364206|c0758cc7f98f7708e2c10a247a30ab70|115591|102918488occ8b83b46bc|4||201|0|0||||
+13:52:14||Mixamo/ProRiflePack/walk_crouching_backward_left.uasset|INST_NEW|Up|1527364206|19a3ff05d667047a00a6712316df9e82|116349|102918492occ8b83b46bc|4||201|0|0||||
+13:52:14||Mixamo/ProRiflePack/walk_crouching_backward_right.uasset|INST_NEW|Up|1527364206|6a926bc0749b2be8bb3cbe5928ee14ee|115580|102918496occ8b83b46bc|4||201|0|0||||
+13:52:15||Mixamo/ProRiflePack/walk_crouching_forward_left.uasset|INST_NEW|Up|1527364206|0f3cc6d61cd40ca39a1d95038dcbd70e|214705|102918500occ8b83b46bc|4||201|0|0||||
+13:52:13||Mixamo/ProRiflePack/turn_90_right.uasset|INST_NEW|Up|1527364207|b03693998174336b788095785e565494|619440|102918504occ8b83b46bc|4||201|0|0||||
+13:52:15||Mixamo/ProRiflePack/walk_crouching_forward_right.uasset|INST_NEW|Up|1527364208|5d2d659b4d846b5235e69df278935d61|115482|102918508occ8b83b46bc|4||201|0|0||||
+13:52:15||Mixamo/ProRiflePack/walk_crouching_forward.uasset|INST_NEW|Up|1527364208|79fae27432c7a7e95e15fa85bb5910cd|279792|102918512occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_crouching_right.uasset|INST_NEW|Up|1527364208|2d04cfd55a6c76f49951cb50cb43777e|115439|102918516occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_crouching_left.uasset|INST_NEW|Up|1527364208|c58d62c0b8a80c335f409037b3aff378|116964|102918520occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_forward_left.uasset|INST_NEW|Up|1527364208|4bc0c10e50c7b5e92feb4e4b1eba6863|116820|102918524occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_forward.uasset|INST_NEW|Up|1527364207|ca2c0e3c18ff3a0918095c96924ffd71|116351|102918528occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_forward_right.uasset|INST_NEW|Up|1527364208|ffed428456f33477b64c73ea62de84d4|115900|102918532occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_right.uasset|INST_NEW|Up|1527365000|f98b744739bf69d94b640e670ec743d4|279472|102918536occ8b83b46bc|4||201|0|0||||
+13:52:16||Mixamo/ProRiflePack/walk_left.uasset|INST_NEW|Up|1527364207|273965253b19c26ef821352bfb869c05|226433|102918540occ8b83b46bc|4||201|0|0||||
+13:52:18||Mixamo/Textures/Soldier_Body_specular.uasset|INST_NEW|Up|1527364208|ae26fd937dbac0ac9004d95cef719e96|1875241|102918548occ8b83b46bc|4||201|0|0||||
+13:52:17||Mixamo/Textures/Soldier_Body_diffuse.uasset|INST_NEW|Up|1527364209|68ff4b0c7fde431fa37e63e4af82b982|6947753|102918560occ8b83b46bc|4||201|0|0||||
+13:52:17||Mixamo/Textures/Soldier_Body_normal.uasset|INST_NEW|Up|1527364208|ca581c0e419e4e4b99728dad452a117e|7951334|102918564occ8b83b46bc|4||201|0|0||||
+13:52:27||Mixamo/Textures/Soldier_head_diffuse.uasset|INST_NEW|Up|1527364208|6b9e40a9fa1a1a21e6a5e10d91510162|5861976|102918568occ8b83b46bc|4||201|0|0||||
+13:52:54||Mixamo/Walk_Forward_Left_Anim.uasset|INST_NEW|Up|1527364209|8c47f90e3c38612a2c15375b32af1ad3|116740|102918572occ8b83b46bc|4||201|0|0||||
+13:52:55||Mixamo/Walk_Forward_Right_Anim.uasset|INST_NEW|Up|1527364208|86d3f744d71ba88dbd71bd797a6caed5|116395|102918576occ8b83b46bc|4||201|0|0||||
+13:52:51||Mixamo/Textures/Soldier_head_specular.uasset|INST_NEW|Up|1527364208|5d873dc3a2c22c6bc5277bafd3ea8874|1891241|102918580occ8b83b46bc|4||201|0|0||||
+||StarterContent/Maps/StarterMap.umap|INST_REMOVE|Down|1526033760||969132||4||0|0|0||||
+13:52:56||Mixamo/Walk_Right_Anim_mixamo_com.uasset|INST_NEW|Up|1527364208|cb1c10515fa523bdbfd3925c9d711d29|510891|102918584occ8b83b46bc|4||201|0|0||||
+13:52:57||UE4_Mannequin|INST_NEW|Up|1527367846||0|102918588occ8b83b46bc|4||201|0|0||||
+13:52:57||Weapons/MaterialLayers/ML_Metal_Copper.uasset|INST_SYNC|Up|1527367854|945e53841e22a282c2d37f5a2d81c7e8|93348|102471868occ8b83b46bc|4||204|118794|1526665294||||
+13:52:57||UE4_Mannequin/Materials|INST_NEW|Up|1527367847||0|102918600occ8b83b46bc|4||201|0|0||||
+13:52:57||UE4_Mannequin/Mesh|INST_NEW|Up|1527367847||0|102918604occ8b83b46bc|4||201|0|0||||
+13:52:42||Mixamo/Textures/Soldier_head_normal.uasset|INST_NEW|Up|1527364208|ff3edfa8f410cead707cbcc96a34493a|3609174|102918608occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/MaterialLayers|INST_NEW|Up|1527367847||4096|102918612occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/M_UE4Man_Body.uasset|INST_NEW|Up|1527367847|3a6e0da95b729ea9dfe99a283ae10562|154646|102918616occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/M_UE4Man_ChestLogo.uasset|INST_NEW|Up|1527367847|bccb8eafc8405c78115060a52507e6f0|101607|102918620occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Up|1527367846|e08ac600f9dbfe4a3adb680e6915df84|79832|102918624occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Up|1527367846|634a5c8b7f467080256707ddab0d38d6|76162|102918628occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Up|1527367847|42143886f473c38c07102522e2fca6bc|76950|102918632occ8b83b46bc|4||201|0|0||||
+13:52:58||UE4_Mannequin/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Up|1527367847|a61ee12e1b6b9181e49089c0ee273e42|80000|102918636occ8b83b46bc|4||201|0|0||||
+13:52:59||UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Up|1527367847|492e1355f1ddbf6d808ea7c81d3c7b17|473247|102918640occ8b83b46bc|4||201|0|0||||
+13:52:56||StarterContent/Maps/StarterMap_BuiltData.uasset|INST_SYNC|Down|1525256342|0c76f4b53f03a6163d5ec437482fdad0|22514531|102916328occ8b83b46bc|4||0|22514531|1525256342||||
+13:52:59||UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Up|1527367846|c9c5d1940a61c1f163358b7fbb62f3db|504311|102918644occ8b83b46bc|4||201|0|0||||
+13:53:00||UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Up|1527367846|99d86a5a062ac66f07398afd2a33e4ec|428900|102918648occ8b83b46bc|4||201|0|0||||
+13:52:59||UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Up|1527367847|6b8a07ea25fbe434ec35886abacf64a0|457847|102918652occ8b83b46bc|4||201|0|0||||
+13:53:03||UE4_Mannequin/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Up|1527367847|161411a7c3a2f8535c7b8dc2441e40d4|135013|102918656occ8b83b46bc|4||201|0|0||||
+||StarterContent/Textures|INST_REMOVE|Down|1527171709||24576||4||0|0|0||||
+||StarterContent/Shapes|INST_REMOVE|Down|1527171708||4096||4||0|0|0||||
+||StarterContent/Props|INST_REMOVE|Down|1527171708||4096||4||0|0|0||||
+||StarterContent/Particles|INST_REMOVE|Down|1527171708||4096||4||0|0|0||||
+||StarterContent/Materials|INST_REMOVE|Down|1527171708||8192||4||0|0|0||||
+||StarterContent/HDRI|INST_REMOVE|Down|1527171708||0||4||0|0|0||||
+13:53:03||UE4_Mannequin/Textures|INST_NEW|Up|1527367847||4096|102918660occ8b83b46bc|4||201|0|0||||
+13:53:03||UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Up|1527367846|574391989fa9869df04c1da1731fe86f|21387|102918664occ8b83b46bc|4||201|0|0||||
+13:53:04||UE4_Mannequin/Textures/UE4Man_Logo_N.uasset|INST_NEW|Up|1527367847|82820a6867a71783a0a7179055f184b4|167507|102918668occ8b83b46bc|4||201|0|0||||
+13:53:04||Weapons/AssaultRifle_Skeleton.uasset|INST_SYNC|Up|1527325160|f15ed66134d6d343467f0e5fe04581c2|2770|102472092occ8b83b46bc|4||204|2770|1527195246||||
+13:53:05||UE4_Mannequin/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Up|1527367846|5b5aa97014585c3d7fbddbaf58d410ac|87818|102918680occ8b83b46bc|4||201|0|0||||
+13:53:05||UE4_Mannequin/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Up|1527367847|fd9d5c2e92e53b985631c63b3aa0025f|230187|102918684occ8b83b46bc|4||201|0|0||||
+13:53:00||UE4_Mannequin/Mesh/SK_Mannequin.uasset|INST_NEW|Up|1527367847|d309cd3844ee48e439d6f87871faffab|2574266|102918688occ8b83b46bc|4||201|0|0||||
+13:53:08||UE4_Mannequin/Textures/UE4_Mannequin_occlusion_Mobile.uasset|INST_NEW|Up|1527367847|abd14716364339eb2a5fceefd94b53f6|375080|102918692occ8b83b46bc|4||201|0|0||||
+||StarterContent/Blueprints|INST_REMOVE|Down|1527171708||4096||4||0|0|0||||
+||StarterContent/Audio|INST_REMOVE|Down|1527171708||4096||4||0|0|0||||
+||StarterContent/Architecture|INST_REMOVE|Down|1527171707||4096||4||0|0|0||||
+13:53:10||AnimStarterPack|INST_REMOVE|Up|1527238043|5b07cd9bdf01a|0|101926770occ8b83b46bc|4||204|0|0||||
+13:53:06||UE4_Mannequin/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Up|1527367847|2f4fc6af148cb615c2022242a5b6eeaf|5532764|102918696occ8b83b46bc|4||201|0|0||||
+13:53:29||UE4_Mannequin/Textures/Chr_FPS_Metal_02.uasset|INST_NEW|Up|1527367846|a435dda229e7e105ca1935ed18eab013|10639095|102918708occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T13:53:29Z (last step: 119220 msec, total: 121491 msec)
+#=#=#=# Syncrun started 2018-05-27T13:53:47Z
+#=#=#=#=# Propagation starts 2018-05-27T13:54:12Z (last step: 25371 msec, total: 25371 msec)
+#=#=#=# Syncrun finished 2018-05-27T13:54:12Z (last step: 17 msec, total: 25388 msec)
+#=#=#=# Syncrun started 2018-05-27T14:18:13Z
+#=#=#=#=# Propagation starts 2018-05-27T14:18:14Z (last step: 730 msec, total: 730 msec)
+#=#=#=# Syncrun finished 2018-05-27T14:18:14Z (last step: 25 msec, total: 755 msec)
+#=#=#=# Syncrun started 2018-05-27T14:38:31Z
+#=#=#=#=# Propagation starts 2018-05-27T14:38:40Z (last step: 8813 msec, total: 8813 msec)
+||AnimStarterPack|INST_NEW|Down|1527429190|5b0ac2dc8f4ff|0|101926770occ8b83b46bc|4||0|0|0||||
+||AnimStarterPack/UE4_Mannequin|INST_NEW|Down|1527238043|5b07cd9bdf01a|0|101926776occ8b83b46bc|4||0|0|0||||
+||AnimStarterPack/UE4_Mannequin/Materials|INST_NEW|Down|1526301535|5af9835f794c1|0|101926782occ8b83b46bc|4||0|0|0||||
+||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers|INST_NEW|Down|1526301535|5af9835f36424|0|101926788occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Down|1526033760|f702f654dda26c8e6c1b4076e4a7c582|79758|101926797occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Down|1526033760|5b367da7adf52c84ae4599a7234f4184|79781|101926803occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Down|1526033760|48c17510c76aa2be8661bd633f3414ff|435081|101926806occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Down|1526033760|54310d9180ac0c1492b063f9e83f0514|471442|101926815occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Down|1526033760|16794b8195002ee673aae75fdfcefc4b|75911|101926794occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Down|1526033760|1dc4a99c40d4bcad8a217b02997e362c|405950|101926809occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Materials/M_UE4Man_Body.uasset|INST_NEW|Down|1526033760|8f28eb40408089a7def0b0aa05cd826e|139251|101926791occ8b83b46bc|4||0|0|0||||
+||AnimStarterPack/UE4_Mannequin/Mesh|INST_NEW|Down|1527238043|5b07cd9bdf01a|0|101926785occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Down|1526033760|6e736514dd6e24e4f372bb0dd2767184|362811|101926821occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Materials/M_UE4Man_ChestLogo.uasset|INST_NEW|Down|1526033760|142c99fa0828758c3d66b85071c79e29|100827|101926818occ8b83b46bc|4||0|0|0||||
+14:38:41||AnimStarterPack/UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Down|1526033760|b9418ecb176c22e5da46275529350852|76860|101926800occ8b83b46bc|4||0|0|0||||
+||AnimStarterPack/UE4_Mannequin/Textures|INST_NEW|Down|1526898226|5b029e322dd1e|0|101926830occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Down|1526033760|bbe3ae3a966560a02e0945756f1724e2|127951|101926824occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Down|1527195670|e923cbc86a5050504d54b2a98d0c8915|19782|101926827occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Mesh/SK_Mannequin.uasset|INST_NEW|Down|1526033760|1a79498b80a4fe0d9d12fa8bd055745e|2567535|101926860occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Textures/UE4Man_Logo_N.uasset|INST_NEW|Down|1526033760|cedf9e1c348943d736246fc768e35eaf|162459|101926836occ8b83b46bc|4||0|0|0||||
+14:38:43||AnimStarterPack/UE4_Mannequin/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Down|1526033760|094476c1b78ed9daf77b1971561b79bb|95844|101926839occ8b83b46bc|4||0|0|0||||
+14:38:42||AnimStarterPack/UE4_Mannequin/Textures/Chr_FPS_Metal_02.uasset|INST_NEW|Down|1526665294|b0676e5eb42822f77a5d10f96b556d9c|10563500|102471912occ8b83b46bc|4||0|0|0||||
+14:38:43||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Down|1526033760|89a7a7edad3fd6286cedacd2c975da22|275577|101926842occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin_occlusion_Mobile.uasset|INST_NEW|Down|1526033760|f766c5e6801e4c9d6543de6fbc29b7c0|363029|101926848occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/BS_Jog.uasset|INST_NEW|Down|1526913006|15b850fb5128326b18ed2d116324356b|96029|101926851occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/BS_CrouchWalk.uasset|INST_NEW|Down|1526913005|80e6be762987798540a3c397bcea3cb5|95814|101926854occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/Crouch_Idle_Rifle_Hip.uasset|INST_NEW|Down|1526033760|d3121cc916c7f4d1ddbc6bb3d509719f|193022|101926857occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/Crouch_Idle_Rifle_Ironsights.uasset|INST_NEW|Down|1526913001|1e652ddba0ef2944415e944938e590ea|1431|101926863occ8b83b46bc|4||0|0|0||||
+14:38:43||AnimStarterPack/UE4_Mannequin/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Down|1526033760|86e141686e5a1dbcb152744bd96c6e8e|5481767|101927004occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/Crouch_Walk_Bwd_Rifle_Hip.uasset|INST_NEW|Down|1526033760|cdc79b93effb6074afb9024fc58523ac|129620|101926866occ8b83b46bc|4||0|0|0||||
+14:38:44||AnimStarterPack/Crouch_Walk_Fwd_Rifle_Hip.uasset|INST_NEW|Down|1526033760|30d1c6897f9883d8c23fe2cc9126cc1e|129639|101926872occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Crouch_Walk_Fwd_Rifle_Ironsights.uasset|INST_NEW|Down|1526913001|38af6d6e0f735184e127ac191d18eaa1|1459|101926878occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Crouch_Walk_Lt_Rifle_Hip.uasset|INST_NEW|Down|1526033760|8bdc968a2d719cd815536d52e78fddcd|129463|101926875occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Death_1.uasset|INST_NEW|Down|1526033760|57199720277fcecef6c1f407e5f4f689|143849|101926896occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Crouch_Walk_Rt_Rifle_Hip.uasset|INST_NEW|Down|1526033760|0d187ed41d333e1ca43e5922f9d6e904|130097|101926884occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Fire_Rifle_Ironsights.uasset|INST_NEW|Down|1526913001|068867f182586519bdf038a872c1bc0e|1382|101926920occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Hit_React_1.uasset|INST_NEW|Down|1526913002|1ee42334dc45fcdcc7c1103f272bcbd5|1306|101926932occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Hit_React_2.uasset|INST_NEW|Down|1526913002|97a499b88ccf5a6c83ea9c9320fcee89|1306|101926929occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Idle_Rifle_Hip.uasset|INST_NEW|Down|1526033760|e927f742aa4488963a5a08bc7972ccbb|193900|101926941occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Hit_React_3.uasset|INST_NEW|Down|1526913002|e37d729977b6a22cae534561f8abec8a|1306|101926947occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Idle_Rifle_Hip_Break1.uasset|INST_NEW|Down|1526033760|b6e4afe851ebc95a004bf4ec15dd9a75|178523|101926944occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Idle_Rifle_Hip_Break2.uasset|INST_NEW|Down|1526033760|67ad93c17a13d9f74686f4dc24c1b607|190629|101926950occ8b83b46bc|4||0|0|0||||
+14:38:46||AnimStarterPack/Idle_Rifle_Ironsights.uasset|INST_NEW|Down|1526033760|e0f0390a800c2a090839e22206ade684|194274|101926959occ8b83b46bc|4||0|0|0||||
+14:38:45||AnimStarterPack/Equip_Pistol_Standing.uasset|INST_NEW|Down|1526913001|c48955ffbc98a467c272894e47827d89|1382|101926911occ8b83b46bc|4||0|0|0||||
+14:38:46||AnimStarterPack/Jog_Bwd_Rifle.uasset|INST_NEW|Down|1526033760|65ce4a62b514aba5d255c59bc948d375|123129|101926953occ8b83b46bc|4||0|0|0||||
+14:38:46||AnimStarterPack/Jog_Fwd_Rifle.uasset|INST_NEW|Down|1526033760|7cbf8906b8d37d7e5f9501aeb50c2f05|122271|101926956occ8b83b46bc|4||0|0|0||||
+14:38:46||AnimStarterPack/Jog_Lt_Rifle.uasset|INST_NEW|Down|1526033760|1f3d4a9ba995d67bc106f6ca8b93ae5b|118721|101926962occ8b83b46bc|4||0|0|0||||
+14:38:46||AnimStarterPack/Jog_Rt_Rifle.uasset|INST_NEW|Down|1526033760|af75161d9497405b524f3d72aed91801|123423|101926965occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Jump_From_Jog.uasset|INST_NEW|Down|1526033760|0bfe6c528e29d3d621d199f05851db7a|110549|101926968occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Jump_From_Stand.uasset|INST_NEW|Down|1526033760|4eaf78303f36525786eadca34eaa12a6|118792|101926974occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Reload_Rifle_Hip.uasset|INST_NEW|Down|1526913002|36b7370238faebd5cbb4df7a40ff7e31|1347|101927007occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Showcase.umap|INST_NEW|Down|1526033760|6779a43eb4504d73912b316d8f611925|273248|101927016occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Walk_Bwd_Rifle_Ironsights.uasset|INST_NEW|Down|1526033760|c709b8c264cae5c6871e62f73d140af0|129698|101927034occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Walk_Fwd_Rifle_Ironsights.uasset|INST_NEW|Down|1526033760|cbd86a5c4602f8bc01db3827ec187472|128085|101927040occ8b83b46bc|4||0|0|0||||
+||Humanoid|INST_NEW|Down|1527427248|5b0ac2d1bf450|0|102915756occ8b83b46bc|4||0|0|0||||
+||Humanoid/Mesh|INST_NEW|Down|1527425866|5b0aab4a107cd|0|102915764occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Walk_Lt_Rifle_Ironsights.uasset|INST_NEW|Down|1526033760|fe866b501faf84cfd153aeadbb9c8f21|129406|101927037occ8b83b46bc|4||0|0|0||||
+14:38:47||AnimStarterPack/Walk_Rt_Rifle_Ironsights.uasset|INST_NEW|Down|1526033760|8116f5695eabe40046ca11056862b582|129396|101927043occ8b83b46bc|4||0|0|0||||
+||Materials/BaseMaterials|INST_NEW|Down|1527427248|5b0ac2cb867ce|0|102915760occ8b83b46bc|4||0|0|0||||
+14:38:48||Humanoid/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_NEW|Down|1525958597|a308e8b5616e0735a5d8f484c9592243|134861|102915784occ8b83b46bc|4||0|0|0||||
+||Materials/Instances|INST_NEW|Down|1527427248|5b0ac2ce45f1d|0|102915768occ8b83b46bc|4||0|0|0||||
+14:38:48||Humanoid/Mesh/UE4_Mannequin_Skeleton.uasset|INST_NEW|Down|1525958597|e896d9419694a0ea81070429bf6b1a75|13859|102915788occ8b83b46bc|4||0|0|0||||
+14:38:48||Humanoid/Mesh/SK_Mannequin.uasset|INST_NEW|Down|1525958597|eb71b705f8a4ba52bef840d612d090ea|2574105|102915848occ8b83b46bc|4||0|0|0||||
+||Materials/MaterialLayers|INST_NEW|Down|1527427248|5b0ac2d019e59|0|102915772occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/BaseMaterials/M_UE4Man_Body.uasset|INST_NEW|Down|1525958597|726eb620acc8856604f60c2a8b86b44e|151352|102915780occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/Instances/M_UE4Man_ChestLogo.uasset|INST_NEW|Down|1525958597|5c673210a7993060da8a6efd342027b8|101355|102915792occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_NEW|Down|1525958597|6086c1f13fbca0f1a91ce53f918da725|99364|102915796occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/ML_Screen.uasset|INST_NEW|Down|1525958597|a688a4e32394e052b4a1f4d0e22b67b1|58585|102915808occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_NEW|Down|1525958597|a8859d52c7b85d406f3f82740bf76271|88865|102915800occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_NEW|Down|1525958597|0b0daca5612d3393246b6ae751a3823c|100651|102915812occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_NEW|Down|1525958597|cd5c98460b4cdba26204fdf4afc180bb|89625|102915804occ8b83b46bc|4||0|0|0||||
+14:38:49||Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_NEW|Down|1525958597|9378eed7825ebfeb3015d12880855878|5451362|102915872occ8b83b46bc|4||0|0|0||||
+14:38:49||Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_NEW|Down|1525958597|a46c6751aeb647027dddce31f6aa1be0|4396802|102915868occ8b83b46bc|4||0|0|0||||
+||Materials/Textures|INST_NEW|Down|1527427247|5b0ac2bcdbec0|0|102915776occ8b83b46bc|4||0|0|0||||
+14:38:48||Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_NEW|Down|1525958597|e6b4bd2e19dc0d6ecfde42c61f9f1a31|8701640|102915884occ8b83b46bc|4||0|0|0||||
+14:38:50||Materials/Textures/UE4Man_Logo_N.uasset|INST_NEW|Down|1525958597|9c94595e56318f46c7c5d02d321f0933|162028|102915876occ8b83b46bc|4||0|0|0||||
+14:38:51||Materials/Textures/UE4_LOGO_CARD.uasset|INST_NEW|Down|1525958597|51bad3ea0b8c4cc93c4ac055664703fe|95810|102915880occ8b83b46bc|4||0|0|0||||
+14:38:51||Materials/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_NEW|Down|1525958597|ef5fb5fc3e9d33a17bcc36b102017452|224980|102915888occ8b83b46bc|4||0|0|0||||
+||Player|INST_NEW|Down|1527427247|5b0ac2c90b273|0|102915892occ8b83b46bc|4||0|0|0||||
+14:38:50||Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_NEW|Down|1525958597|9bf22acb8d28b05a84b1135dcc327186|4852205|102915912occ8b83b46bc|4||0|0|0||||
+||Player/Audio|INST_NEW|Down|1527425879|5b0aab572fe5c|0|102915896occ8b83b46bc|4||0|0|0||||
+||Player/Character|INST_NEW|Down|1527427247|5b0ab0afd6db3|0|102915900occ8b83b46bc|4||0|0|0||||
+||Player/Character/Mesh|INST_NEW|Down|1527425883|5b0aab5b79414|0|102915908occ8b83b46bc|4||0|0|0||||
+14:38:51||Player/Audio/WeaponFire02.uasset|INST_NEW|Down|1525958597|452998f04a5bb3c1c4dfdc2193f1d880|306375|102915904occ8b83b46bc|4||0|0|0||||
+14:38:51||Player/Character/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_NEW|Down|1525958597|3843445c9647271758964ffc3bdc54a0|103322|102915916occ8b83b46bc|4||0|0|0||||
+||StarterContent/Architecture|INST_NEW|Down|1527427247|5b0ac2ca1abea|0|101435612occ8b83b46bc|4||0|0|0||||
+14:38:51||Materials/Textures/UE4_Mannequin__normals.uasset|INST_NEW|Down|1525958597|8d19005184f0ba8cd69af7e5309267f4|5532704|102915928occ8b83b46bc|4||0|0|0||||
+14:38:51||Player/Character/Mesh/SK_Mannequin_Arms.uasset|INST_NEW|Down|1525958597|e99e4ab633f1f08152fdc40783ff1749|2041323|102915924occ8b83b46bc|4||0|0|0||||
+14:38:52||Player/Character/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_NEW|Down|1525958597|b5ef9d59719f1112a634ab15495ac31f|13028|102915920occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Floor_400x400.uasset|INST_NEW|Down|1525256336|55242cdde67ac45734e53d96721ff62a|96422|101435628occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/SM_AssetPlatform.uasset|INST_NEW|Down|1525256337|ec0fc392018cf841ff96911fe6031c95|486002|101435652occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Pillar_50x500.uasset|INST_NEW|Down|1525256337|0787f2c887034fdf5a19494791fa67c6|106610|101435632occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_400x300.uasset|INST_NEW|Down|1525256338|279fcb0dd5098d6c4e6554f62ddc5303|92758|101435688occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_400x200.uasset|INST_NEW|Down|1525256337|d3d7c2e57d64520322958429341dd8e0|92688|101435664occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_400x400.uasset|INST_NEW|Down|1525256338|5345f7c35975e949db543fa57aa900fb|93969|101435656occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_Door_400x300.uasset|INST_NEW|Down|1525256338|fc03a772743d87c6e761931540e91fbf|101832|101435648occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_Door_400x400.uasset|INST_NEW|Down|1525256338|8e89cb4d33b7c4d6a6e6412ebd5a9385|102699|101435660occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Architecture/Wall_Window_400x300.uasset|INST_NEW|Down|1525256338|03029f7503cdee1e39fc373dcecec7ba|104019|101435704occ8b83b46bc|4||0|0|0||||
+||StarterContent/Audio|INST_NEW|Down|1527427246|5b0ac2b94112a|0|101435608occ8b83b46bc|4||0|0|0||||
+14:38:52||StarterContent/Architecture/Wall_500x500.uasset|INST_NEW|Down|1525256338|faf3ee00b3d3006606328c97b6274305|109618|101435644occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Architecture/Wall_Window_400x400.uasset|INST_NEW|Down|1525256338|60abf68b2895007c2844d93779c17ef6|104712|101435684occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Audio/Collapse01.uasset|INST_NEW|Down|1525256338|3a0986d397f3a05fab4823dc502c3d8c|351736|101435640occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Audio/Collapse_Cue.uasset|INST_NEW|Down|1525256338|0d8ba05ada3f601059f0607d754f639e|6487|101435692occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Audio/Collapse02.uasset|INST_NEW|Down|1525256338|ddd64dc9379afd559ab500769e61de4b|349809|101435680occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Audio/Explosion01.uasset|INST_NEW|Down|1525256338|87123d2fc1726e4dbd151f5bbba407c1|285464|101435728occ8b83b46bc|4||0|0|0||||
+14:38:53||StarterContent/Audio/Explosion02.uasset|INST_NEW|Down|1525256338|ee55d262467ac396eb4f49f16c7b5b03|292098|101435700occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Explosion_Cue.uasset|INST_NEW|Down|1525256338|ee9f66615ecab19ac3edb92e91773a81|7951|101435712occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Fire01.uasset|INST_NEW|Down|1525256338|736e986723a36f2161bb4db4501c7472|552944|101435752occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Fire01_Cue.uasset|INST_NEW|Down|1525256338|ca8e97d4b874475acdc5661d6e3e15dc|4584|101435720occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Fire_Sparks01.uasset|INST_NEW|Down|1525256338|a4ca09f3f24c6356475e3d1ced042e6c|799155|101435792occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Fire_Sparks01_Cue.uasset|INST_NEW|Down|1525256338|048d7011efdb75fad37d7147620a95f0|4611|101435740occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Light01.uasset|INST_NEW|Down|1525256338|a25cccead3fa4fa714103eff5cb4dda9|367196|101435764occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Light01_Cue.uasset|INST_NEW|Down|1525256338|4597c4b6e5395d03254655aa96fb1d34|4539|101435760occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Light02.uasset|INST_NEW|Down|1525256338|fece4f1c9cb7520e0eadc786d841c275|310817|101435788occ8b83b46bc|4||0|0|0||||
+14:38:54||StarterContent/Audio/Light02_Cue.uasset|INST_NEW|Down|1525256338|59fd6a0139b2296140052eb8f4270e6c|4539|101435780occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Smoke01_Cue.uasset|INST_NEW|Down|1525256338|4baf67e2c33eb0227e0b5a76b6433011|4563|101435796occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Smoke01.uasset|INST_NEW|Down|1525256338|02a4def19fd788dcc284138a9ff4af73|479102|101435804occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Starter_Background_Cue.uasset|INST_NEW|Down|1525256337|483ec107e55cf72999311d177af707cf|9870|101435800occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Starter_Music_Cue.uasset|INST_NEW|Down|1525256338|f0de40420616d3367bb55584b521ddf6|3962|101435812occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Starter_Birds01.uasset|INST_NEW|Down|1525256337|a8c60e5304173037057214f87d772315|2692081|101435864occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Starter_Wind05.uasset|INST_NEW|Down|1525256337|008e8f591f36b148a1c84905631f84f2|2315165|101435840occ8b83b46bc|4||0|0|0||||
+14:38:55||StarterContent/Audio/Starter_Music01.uasset|INST_NEW|Down|1525256338|fd04ca80748175f027a8db78095d6303|8448670|101436084occ8b83b46bc|4||0|0|0||||
+||StarterContent/Blueprints|INST_NEW|Down|1527427245|5b0ac2bf2e34e|0|101435620occ8b83b46bc|4||0|0|0||||
+||StarterContent/Blueprints/Assets|INST_NEW|Down|1525257027|5ae99343c2747|0|101435868occ8b83b46bc|4||0|0|0||||
+14:38:56||StarterContent/Audio/Starter_Wind06.uasset|INST_NEW|Down|1525256337|fd2bcc25abeca8ef4396a695d6246693|2198039|101435860occ8b83b46bc|4||0|0|0||||
+14:38:56||StarterContent/Audio/Steam01.uasset|INST_NEW|Down|1525256338|0bd13e7aecca21dd9fb9ac3d12a97a92|821407|101435884occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/FogBrightnessLUT.uasset|INST_NEW|Down|1525256338|1e516f22b202559cc2bf188fdfdc3920|1710|101435880occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/M_LightStage_Arrows.uasset|INST_NEW|Down|1525256339|5bf7960708919ae35c9c4abb08fa369d|75241|101435888occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/M_LightStage_Skybox_Black.uasset|INST_NEW|Down|1525256339|4abc57796be95315a50e6a0086d106d6|82998|101435892occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/M_LightStage_Skybox_HDRI.uasset|INST_NEW|Down|1525256339|3eeef1d7ed1908a39d7ad975dbff1317|128039|101435896occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/M_LightStage_Skybox_Master.uasset|INST_NEW|Down|1525256339|65217656fcb1772aecc1849aff68355a|93541|101435908occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/SM_Arrows.uasset|INST_NEW|Down|1525256339|7fbf0a3f9b403c20ec52e70f812a3c7f|547725|101435916occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/Skybox.uasset|INST_NEW|Down|1525256339|05ef0db91793faf9e9145f9b5fcd7e4f|803053|101435904occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Assets/SunlightColorLUT.uasset|INST_NEW|Down|1525256339|d5b31910b1b59c78f3263d29f2c0b62b|2339|101435912occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/Blueprint_CeilingLight.uasset|INST_NEW|Down|1525256338|a06113a033dc7255801f2bb0eba39199|121829|101435924occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Audio/Steam01_Cue.uasset|INST_NEW|Down|1525256338|98f04cafc2f39e3eae6feb662b3d9dec|4592|101435876occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_Effect_Explosion.uasset|INST_NEW|Down|1525256338|36481183e3eea201724e9990de95e769|14743|101435932occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_Effect_Fire.uasset|INST_NEW|Down|1525256338|143d225181498be74ad3fcf2d295320f|14759|101435928occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_Effect_Smoke.uasset|INST_NEW|Down|1525256338|c3ad0d27879b1d2015bc38c76d9ba6df|14776|101435936occ8b83b46bc|4||0|0|0||||
+||StarterContent/HDRI|INST_NEW|Down|1527427245|5b0ac2c099e29|0|101435616occ8b83b46bc|4||0|0|0||||
+14:38:57||StarterContent/Blueprints/BP_LightStudio.uasset|INST_NEW|Down|1525256338|ce1e0bfe97717cce10df6308089faf5f|544743|101435920occ8b83b46bc|4||0|0|0||||
+||StarterContent/Materials|INST_NEW|Down|1527427243|5b0ac2c1c138c|0|101435636occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_Effect_Sparks.uasset|INST_NEW|Down|1525256338|e3e47ab728616d63ce899af15ab78d43|14794|101435944occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_WallSconce.uasset|INST_NEW|Down|1525256338|0a6566aef52ece690d9fd40748d56a78|116909|101435952occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Blueprints/Blueprint_Effect_Steam.uasset|INST_NEW|Down|1525256338|df2004bc0a9732429f4b51a51a06f275|14792|101435948occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/Materials/M_AssetPlatform.uasset|INST_NEW|Down|1525256342|829686d928bd7aaf86d605e82b16e3ed|91216|101436100occ8b83b46bc|4||0|0|0||||
+14:38:59||StarterContent/Materials/M_Basic_Floor.uasset|INST_NEW|Down|1525256336|8d993802dcc9e75443b55d30b181f509|97042|101436112occ8b83b46bc|4||0|0|0||||
+14:38:59||StarterContent/Materials/M_Brick_Clay_Beveled.uasset|INST_NEW|Down|1525256342|5db37f13947bcb7935ef45e79c41f1fb|129193|101436120occ8b83b46bc|4||0|0|0||||
+14:38:59||StarterContent/Materials/M_Basic_Wall.uasset|INST_NEW|Down|1525256342|8a6877d51e38db8473fad6ebd1f8cd93|92349|101436116occ8b83b46bc|4||0|0|0||||
+14:38:59||StarterContent/Materials/M_Brick_Clay_New.uasset|INST_NEW|Down|1525256342|cb61a270cc4c89f37bb281e18c0fa3d4|149424|101436128occ8b83b46bc|4||0|0|0||||
+14:38:59||StarterContent/Materials/M_Brick_Clay_Old.uasset|INST_NEW|Down|1525256342|c0f7f20741e0eef398bd6b5b2a28d38d|150004|101436132occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_Brick_Cut_Stone.uasset|INST_NEW|Down|1525256342|5337c0b12a0d6a62d4696fdef42c2745|149648|101436136occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_Brick_Hewn_Stone.uasset|INST_NEW|Down|1525256342|0a869002c8df04b5136676030c932a8f|120887|101436144occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_Ceramic_Tile_Checker.uasset|INST_NEW|Down|1525256342|cbc1b9450e4871885aac71a05fb7009f|125005|101436160occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_CobbleStone_Pebble.uasset|INST_NEW|Down|1525256342|c8f2b8f4fef4c182f1920157a1da5ce7|145635|101436172occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_CobbleStone_Rough.uasset|INST_NEW|Down|1525256342|6fcdf83b8ca1bc82333e8adf2e1f62f1|219536|101436188occ8b83b46bc|4||0|0|0||||
+14:39:00||StarterContent/Materials/M_CobbleStone_Smooth.uasset|INST_NEW|Down|1525256342|0eac8e59e28e2cdb588f638e81f1dda7|236324|101436200occ8b83b46bc|4||0|0|0||||
+14:39:01||StarterContent/Materials/M_ColorGrid_LowSpec.uasset|INST_NEW|Down|1525256342|30d2e04b3c1a28ee5040644992e2690e|113391|101436216occ8b83b46bc|4||0|0|0||||
+14:39:01||StarterContent/Materials/M_Concrete_Grime.uasset|INST_NEW|Down|1525256342|cc48213f29cff2f5540b4668c3ef42a7|127305|101436224occ8b83b46bc|4||0|0|0||||
+14:39:01||StarterContent/Materials/M_Concrete_Panels.uasset|INST_NEW|Down|1525256343|a8be53941dbc938a4c46048b75d59e4f|138289|101436236occ8b83b46bc|4||0|0|0||||
+14:39:01||StarterContent/Materials/M_Concrete_Poured.uasset|INST_NEW|Down|1525256343|c4859d34dbd8f78b81cb2862c8c66ee0|137999|101436248occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Concrete_Tiles.uasset|INST_NEW|Down|1525256343|9302dced51c2acbe0009891df3d58cf9|132412|101436256occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Glass.uasset|INST_NEW|Down|1525256343|bbc6330262a9e367432c4200f1128be3|105053|101436260occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Ground_Grass.uasset|INST_NEW|Down|1525256343|ae3b91da1bc02a382eb5f5f61d7a9945|133166|101436272occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Ground_Gravel.uasset|INST_NEW|Down|1525256343|02a7032227147bb17b64f116ad0b64ad|150822|101436280occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Ground_Moss.uasset|INST_NEW|Down|1525256343|bab4a8b7518523f5c9b25f5792ea69b2|157588|101436288occ8b83b46bc|4||0|0|0||||
+14:39:02||StarterContent/Materials/M_Metal_Brushed_Nickel.uasset|INST_NEW|Down|1525256336|69597aab48c472020534f87fc09b4418|108223|101436292occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Burnished_Steel.uasset|INST_NEW|Down|1525256336|17fd79e63a49049ff08f504c8ca3a7cb|112102|101436300occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Chrome.uasset|INST_NEW|Down|1525256343|d287ce2eedb6e38da7f0f76ccd259dd8|106711|101436308occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Copper.uasset|INST_NEW|Down|1525256336|4b24b6e2faf7011a1be9564754373125|124640|101436312occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Gold.uasset|INST_NEW|Down|1525256343|ee8b5c2b21132ac3dbff2a4558377e2e|134525|101436316occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Rust.uasset|INST_NEW|Down|1525256343|cc0df5d4bb0a74538c98c676da9890ac|134754|101436324occ8b83b46bc|4||0|0|0||||
+14:39:03||StarterContent/Materials/M_Metal_Steel.uasset|INST_NEW|Down|1525256343|952d8966dfaec5104ab78d1956c84381|118070|101436332occ8b83b46bc|4||0|0|0||||
+14:38:58||StarterContent/HDRI/HDRI_Epic_Courtyard_Daylight.uasset|INST_NEW|Down|1525256341|65db9eb8f1a492e31452a3ff10d5417c|72373299|101437184occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Rock_Basalt.uasset|INST_NEW|Down|1525256343|21bd0056c7863bc352c60e4c68a523bc|147189|101436340occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Rock_Marble_Polished.uasset|INST_NEW|Down|1525256343|866a49f35f7847aedb6e0e09871fcb88|127059|101436344occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Rock_Sandstone.uasset|INST_NEW|Down|1525256343|cf8eb7927953b6610b7fb3ae4b1096ad|147301|101436348occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Rock_Slate.uasset|INST_NEW|Down|1525256343|ad429b5346de3fcfa69486d5bdf3b178|140954|101436356occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Tech_Checker_Dot.uasset|INST_NEW|Down|1525256343|d91256dab6f0646d9e545438cf88c348|123755|101436364occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Tech_Hex_Tile.uasset|INST_NEW|Down|1525256343|19b7a3527a656266aacd9b89933ac9d9|134623|101436368occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Tech_Hex_Tile_Pulse.uasset|INST_NEW|Down|1525256343|0ad2435c148380c654ea244ff66fe2b6|147819|101436376occ8b83b46bc|4||0|0|0||||
+14:39:04||StarterContent/Materials/M_Tech_Panel.uasset|INST_NEW|Down|1525256344|7b93a58771025ea09a3fec6e7a821785|127216|101436388occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Water_Lake.uasset|INST_NEW|Down|1525256344|05974951583891318a8c1726d3f53df8|126139|101436396occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Water_Ocean.uasset|INST_NEW|Down|1525256344|cc0b91d19462962a780fbb1c90ecb875|133753|101436404occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Wood_Floor_Walnut_Polished.uasset|INST_NEW|Down|1525256344|49a561a3d12b21b131f19233088902c0|120706|101436412occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Wood_Floor_Walnut_Worn.uasset|INST_NEW|Down|1525256344|21d953d27284a46e7c0c5503a0a8e48b|130598|101436416occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Wood_Oak.uasset|INST_NEW|Down|1525256344|8b2bea698b7093d0adefddf2ec4d85df|141785|101436420occ8b83b46bc|4||0|0|0||||
+||StarterContent/Particles|INST_NEW|Down|1527427242|5b0ac2c2d7151|0|101436436occ8b83b46bc|4||0|0|0||||
+||StarterContent/Particles/Materials|INST_NEW|Down|1525257074|5ae9937230e74|0|101436444occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Wood_Pine.uasset|INST_NEW|Down|1525256344|008f604b682ce54ceb8daad9509833f6|133404|101436424occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Materials/M_Wood_Walnut.uasset|INST_NEW|Down|1525256344|f23fe5279187d27c4fb690a490ffcd8a|119928|101436432occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Particles/Materials/M_Dust_Particle.uasset|INST_NEW|Down|1525256344|f7d857c62c7382de53af9849c4cb559e|72303|101436456occ8b83b46bc|4||0|0|0||||
+14:39:05||StarterContent/Particles/Materials/M_Burst.uasset|INST_NEW|Down|1525256344|f8e4d1b0f769c03de2ec45282d6c9c31|82210|101436452occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_explosion_subUV.uasset|INST_NEW|Down|1525256344|63374ccf50fc1fa5d67e3f39632f92ab|82505|101436488occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_Spark.uasset|INST_NEW|Down|1525256345|95fd6d9273de917ab59f143e9ed6d4fb|76317|101436476occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_Fire_SubUV.uasset|INST_NEW|Down|1525256344|9ec1b9afab384c1d382d77cfcea5710c|93058|101436460occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_Heat_Distortion.uasset|INST_NEW|Down|1525256344|684cd5d5eec2e93432c903b20f521b38|76944|101436464occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_Radial_Gradient.uasset|INST_NEW|Down|1525256344|3352f1bd65372e6e3dcc05294f74e646|73757|101436468occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_radial_ramp.uasset|INST_NEW|Down|1525256344|222333b5e9fae24ecf3e53be410ea61b|73770|101436492occ8b83b46bc|4||0|0|0||||
+14:39:06||StarterContent/Particles/Materials/M_smoke_subUV.uasset|INST_NEW|Down|1525256345|e15506529739a9c3cce1aacb611aa3d7|91175|101436500occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Explosion.uasset|INST_NEW|Down|1525256344|380c372397db0e7d917d5487157e0e87|313279|101436512occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Ambient_Dust.uasset|INST_NEW|Down|1525256344|7f10e5229380101f21c306609613ddda|59377|101436448occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Fire.uasset|INST_NEW|Down|1525256344|f23622e84c474d9c0c4cacda053ce750|291251|101436524occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Smoke.uasset|INST_NEW|Down|1525256344|878d3c20171ece1d19efafe552d20d45|71636|101436536occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Steam_Lit.uasset|INST_NEW|Down|1525256344|d1c8d3f6220c7743a8e0b324af86a867|129870|101436544occ8b83b46bc|4||0|0|0||||
+||StarterContent/Props|INST_NEW|Down|1527427240|5b0ac2c3b6816|0|101436440occ8b83b46bc|4||0|0|0||||
+||StarterContent/Props/Materials|INST_NEW|Down|1525257086|5ae9937eb891e|0|101436548occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_SparksShort.uasset|INST_NEW|Down|1526029389|1c27a52e1f4ba843e22b4aa059cadec7|191347|102068085occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/P_Sparks.uasset|INST_NEW|Down|1525256344|3f28eeaad08c7c1736f92fd0ef63f862|190708|101436540occ8b83b46bc|4||0|0|0||||
+14:39:07||StarterContent/Particles/Materials/m_flare_01.uasset|INST_NEW|Down|1525256344|faf067fe80cf7965b086ef3955e4c013|76892|101436504occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Bush.uasset|INST_NEW|Down|1525256345|f854eae2fc0b7a809e2c380ea4035a30|138253|101436596occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Chair.uasset|INST_NEW|Down|1525256337|fdf4da6f87b0c27b6bdc7126df58e8ef|121145|101436608occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Door.uasset|INST_NEW|Down|1525256345|903836375fabb9f4fced7b5db424e307|127582|101436624occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Frame.uasset|INST_NEW|Down|1525256345|fc3789ace3282b51ec3d6a08f2ce5dee|108735|101436628occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Lamp.uasset|INST_NEW|Down|1525256345|41b74a337966e1357e8bc424a9ef49ea|134594|101436632occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_MaterialSphere.uasset|INST_NEW|Down|1525256346|06760aed8da508525f377e84ef0f3cf7|98740|101436636occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_MaterialSphere_Plain.uasset|INST_NEW|Down|1525256346|1c3726c119693b1453b0029b4c7f61cc|90094|101436640occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Statue.uasset|INST_NEW|Down|1525256337|af6316a226e6ff0eb491f89180ba78f3|102681|101436656occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Rock.uasset|INST_NEW|Down|1525256346|0c2e9f7ca27ec99b7b7064bbe6ee68b0|134076|101436648occ8b83b46bc|4||0|0|0||||
+14:39:08||StarterContent/Props/Materials/M_Shelf.uasset|INST_NEW|Down|1525256346|e38687bcc3c59c32c0823a18d547631e|119558|101436652occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/Materials/M_StatueGlass.uasset|INST_NEW|Down|1525256337|dd2d2a144443b4c48e64af05e8dc55bf|106406|101436660occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/Materials/M_TableRound.uasset|INST_NEW|Down|1525256337|a763a46cc00ee1e607380bc8bf59bd92|126696|101436664occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/MaterialSphere.uasset|INST_NEW|Down|1525256345|febbffdca5a007eb1aa805618c3d154b|218361|101436572occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/SM_Bush.uasset|INST_NEW|Down|1525256345|3066c3331f4823a04d92cee0505bee82|217039|101436668occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/SM_Chair.uasset|INST_NEW|Down|1525256337|f47c9074cb1129ba015e878c95fdf012|259770|101436676occ8b83b46bc|4||0|0|0||||
+14:39:09||StarterContent/Props/SM_CornerFrame.uasset|INST_NEW|Down|1525256345|518f140ba9d5f2db2169b0adb014cc90|137833|101436680occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_Couch.uasset|INST_NEW|Down|1525256345|ed2f02b762a5b6193cebd0f1496f377c|299200|101436684occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_Door.uasset|INST_NEW|Down|1525256345|ca702548926a2cc5040f64c71b4fb6da|262300|101436688occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_DoorFrame.uasset|INST_NEW|Down|1525256345|e9b3977bd8f5272b9389795f348a4ff3|110860|101436692occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_GlassWindow.uasset|INST_NEW|Down|1525256345|ebb17a948f86f36eb3e1a5bbfd8b589c|145100|101436700occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_Lamp_Ceiling.uasset|INST_NEW|Down|1525256345|973a13f787c2660c14671adcdc330ab3|366203|101436704occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_Lamp_Wall.uasset|INST_NEW|Down|1525256345|e58185e3f4ee43e2b95be0ff31799a87|195149|101436708occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_PillarFrame.uasset|INST_NEW|Down|1525256345|84d7bb0c06c020c1381420b5c30f74e5|170083|101436724occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_PillarFrame300.uasset|INST_NEW|Down|1525256345|9f54072e2fe57a2bfab97a677ce65d5f|168988|101436732occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_Rock.uasset|INST_NEW|Down|1525256345|8f20c8c29a29ce623a53f1a10139d145|217938|101436736occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_Shelf.uasset|INST_NEW|Down|1525256345|4953907096d8fa048a029701b465439c|161196|101436740occ8b83b46bc|4||0|0|0||||
+14:39:10||StarterContent/Props/SM_MatPreviewMesh_02.uasset|INST_NEW|Down|1525256345|ebe897c1d89304fb89ca486e95ddce78|2433318|101436720occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_Stairs.uasset|INST_NEW|Down|1525256345|0e9e58466d4ccd7247d449569c6e5801|117613|101436748occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_Statue.uasset|INST_NEW|Down|1525256337|781c9d925c9eee0bad32ef89781e4f30|592001|101436752occ8b83b46bc|4||0|0|0||||
+||StarterContent/Shapes|INST_NEW|Down|1527427239|5b0ac2c4c62bf|0|101436772occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_WindowFrame.uasset|INST_NEW|Down|1525256345|80078c1819bddf249b22d57602f50170|113854|101436764occ8b83b46bc|4||0|0|0||||
+14:39:11||StarterContent/Props/SM_TableRound.uasset|INST_NEW|Down|1525256337|92ecabdc7f724304a7a60274a4c37466|575600|101436760occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Cone.uasset|INST_NEW|Down|1525256346|7bb103e21d3878fe305fb2db5f55b28d|137455|101436816occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Cube.uasset|INST_NEW|Down|1525256346|71abd9704fd56ab493636d66857aeb14|92608|101436820occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Cylinder.uasset|INST_NEW|Down|1525256346|a77b38058958fe93dc966c1375a2136d|145507|101436824occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_NarrowCapsule.uasset|INST_NEW|Down|1525256346|e19b26e60fe92fed6d7783a70a659a35|251083|101436828occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Pipe.uasset|INST_NEW|Down|1525256346|2844507305e54598f73ef20be2da2e5a|128013|101436832occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Pipe_180.uasset|INST_NEW|Down|1525256346|2f6addf1879753f828feb887b7ecb596|247364|101436836occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Pipe_90.uasset|INST_NEW|Down|1525256346|3319b7a15c36b856e63683256dcdf517|170074|101436840occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_Plane.uasset|INST_NEW|Down|1525256346|96b8e3acbaf847cd1db49a5660d558a6|89823|101436844occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Sphere.uasset|INST_NEW|Down|1525256346|1f4c07719ee641c4dbb6d76bd191263a|296234|101436852occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_TriPyramid.uasset|INST_NEW|Down|1525256346|b6ba7abef92661894f8a4a01adee5a85|91128|101436868occ8b83b46bc|4||0|0|0||||
+14:39:12||StarterContent/Shapes/Shape_QuadPyramid.uasset|INST_NEW|Down|1525256346|f33e310d2f0e6f59165ce9a22a0a9dec|88630|101436848occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Torus.uasset|INST_NEW|Down|1525256346|56123c5f2b543a4ff5769d3658301030|601342|101436860occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Trim.uasset|INST_NEW|Down|1525256346|74a1239ac5c1ab12558637fdc4efb9fc|100456|101436892occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Trim_90_Out.uasset|INST_NEW|Down|1525256346|2922d63e895fc7f4e48d963c79cb442e|127541|101436876occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Trim_90_In.uasset|INST_NEW|Down|1525256346|11f7f481f9dbcbcf92c4db01f1fe03d7|126208|101436872occ8b83b46bc|4||0|0|0||||
+||StarterContent/Textures|INST_NEW|Down|1527427227|5b0ac2c608cc5|0|101436768occ8b83b46bc|4||0|0|0||||
+14:39:13||StarterContent/Shapes/Shape_Tube.uasset|INST_NEW|Down|1525256346|ea51dc1b66c5291c4b567eaa26de53c6|229606|101436880occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Shapes/Shape_Wedge_B.uasset|INST_NEW|Down|1525256346|f5ba5a91fbfa6963816a77028e7e002e|79129|101436888occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Shapes/Shape_WideCapsule.uasset|INST_NEW|Down|1525256346|3c774a2e2916fc4f794d7d6a0792b32e|182633|101436896occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Shapes/Shape_Wedge_A.uasset|INST_NEW|Down|1525256346|31902e5d1953ba7da57a81cb1fafd8b9|90306|101436884occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Textures/T_Brick_Clay_Beveled_D.uasset|INST_NEW|Down|1525256347|ba4bb5204a208d9ed9341ba142d7248b|7669497|101436864occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Textures/T_Brick_Clay_Beveled_M.uasset|INST_NEW|Down|1525256347|e542539456fbff292f7e2120c0f73e7f|8342992|101436916occ8b83b46bc|4||0|0|0||||
+14:39:14||StarterContent/Textures/T_Brick_Clay_Beveled_N.uasset|INST_NEW|Down|1525256347|3171b4ae5444103b25d494d8eee3a0e4|7571727|101436924occ8b83b46bc|4||0|0|0||||
+14:39:15||StarterContent/Textures/T_Brick_Clay_New_D.uasset|INST_NEW|Down|1525256347|824d6b6cbbf0470d0054420670f0348a|6053876|101436956occ8b83b46bc|4||0|0|0||||
+14:39:16||StarterContent/Textures/T_Brick_Clay_New_N.uasset|INST_NEW|Down|1525256347|691aaa69ac2d384ec7f386249d6c591b|7888993|101437012occ8b83b46bc|4||0|0|0||||
+14:39:16||StarterContent/Textures/T_Brick_Clay_New_M.uasset|INST_NEW|Down|1525256347|c891f155a030f2eadc6ee8e1e34ff1df|9211874|101436984occ8b83b46bc|4||0|0|0||||
+14:39:17||StarterContent/Textures/T_Brick_Clay_Old_N.uasset|INST_NEW|Down|1525256347|50dc8407421f1348c0c6997afaba76b9|7815621|101437100occ8b83b46bc|4||0|0|0||||
+14:39:17||StarterContent/Textures/T_Brick_Clay_Old_D.uasset|INST_NEW|Down|1525256347|83b2cc8e1fd42679f3fb396904a45e98|11446490|101437064occ8b83b46bc|4||0|0|0||||
+14:39:18||StarterContent/Textures/T_Brick_Cut_Stone_N.uasset|INST_NEW|Down|1525256348|e72e00a10a20b73f871824eaa57b7fb5|6698836|101437148occ8b83b46bc|4||0|0|0||||
+14:39:19||StarterContent/Textures/T_Brick_Hewn_Stone_M.uasset|INST_NEW|Down|1525256348|49e4145ab2bac5d596f882c2de4a08fc|6819968|101437236occ8b83b46bc|4||0|0|0||||
+14:39:18||StarterContent/Textures/T_Brick_Cut_Stone_D.uasset|INST_NEW|Down|1525256348|d5041d19ae7e6934c11e1284daf7cd8b|13407230|101437164occ8b83b46bc|4||0|0|0||||
+14:39:21||StarterContent/Textures/T_Burst_M.uasset|INST_NEW|Down|1525256348|40f5460cc6a7ee4a5967aa5ff014d049|155398|101437220occ8b83b46bc|4||0|0|0||||
+14:39:19||StarterContent/Textures/T_Brick_Hewn_Stone_D.uasset|INST_NEW|Down|1525256348|f4efe202276b05bb6332318b162c3a4d|7466285|101437216occ8b83b46bc|4||0|0|0||||
+14:39:21||StarterContent/Textures/T_Bush_D.uasset|INST_NEW|Down|1525256348|f8ceb429ae27b561a05ca316b2ba0529|577438|101437228occ8b83b46bc|4||0|0|0||||
+14:39:21||StarterContent/Textures/T_Brick_Hewn_Stone_N.uasset|INST_NEW|Down|1525256348|ed294532b79e3e4f4704284a3b3ed85b|9015678|101437280occ8b83b46bc|4||0|0|0||||
+14:39:21||StarterContent/Textures/T_Bush_N.uasset|INST_NEW|Down|1525256348|f21118d187fba4dd3f5a565fab59b763|418591|101437232occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_Ceramic_Tile_M.uasset|INST_NEW|Down|1525256348|213076c0c0c34326b23acc73dfb18250|284819|101437240occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_Ceramic_Tile_N.uasset|INST_NEW|Down|1525256348|0fb90cbac2f69a9b4e162d394204ba0a|233048|101437248occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_Chair_M.uasset|INST_NEW|Down|1525256336|d825ef5b41ae44a9d6db26ad416708b4|590112|101437252occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_Checker_Noise_M.uasset|INST_NEW|Down|1525256348|669d4a8812f7a358ea00de01ad32b212|175481|101437256occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_Chair_N.uasset|INST_NEW|Down|1525256337|e147c6caefffa05d04ccdaa8b3e27b96|1954534|101437284occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_CobbleStone_Pebble_M.uasset|INST_NEW|Down|1525256348|e2f5db44f4c6eaa948b45bca23b256be|1334426|101437296occ8b83b46bc|4||0|0|0||||
+14:39:23||StarterContent/Textures/T_CobbleStone_Rough_D.uasset|INST_NEW|Down|1525256349|367eb48273805d97690e5d6eb0b8bd77|2956007|101437320occ8b83b46bc|4||0|0|0||||
+14:39:23||StarterContent/Textures/T_CobbleStone_Rough_N.uasset|INST_NEW|Down|1525256349|ad2305af36ca31c0182ff4b8ed98c7eb|2705398|101437336occ8b83b46bc|4||0|0|0||||
+14:39:24||StarterContent/Textures/T_CobbleStone_Smooth_D.uasset|INST_NEW|Down|1525256349|3507cc3114e89a984e196a256019dda6|6625496|101437380occ8b83b46bc|4||0|0|0||||
+14:39:23||StarterContent/Textures/T_CobbleStone_Pebble_N.uasset|INST_NEW|Down|1525256348|a4e897e043ee0fe149cc1f39b26535e7|11882898|101437392occ8b83b46bc|4||0|0|0||||
+14:39:22||StarterContent/Textures/T_CobbleStone_Pebble_D.uasset|INST_NEW|Down|1525256348|7e2da9daec7bfd7f60835ced07f1f961|11833562|101437352occ8b83b46bc|4||0|0|0||||
+14:39:25||StarterContent/Textures/T_CobbleStone_Smooth_M.uasset|INST_NEW|Down|1525256349|a36e322853b182e7d13b7bc4800d365d|5759685|101437408occ8b83b46bc|4||0|0|0||||
+14:39:25||StarterContent/Textures/T_CobbleStone_Smooth_N.uasset|INST_NEW|Down|1525256349|a6802bae718e24fb9ec098dd3714580a|8869147|101437452occ8b83b46bc|4||0|0|0||||
+14:39:26||StarterContent/Textures/T_Concrete_Panels_D.uasset|INST_NEW|Down|1525256349|6d49c1cce1acdafb09db6d2225b84f26|8533822|101437488occ8b83b46bc|4||0|0|0||||
+14:39:25||StarterContent/Textures/T_Concrete_Grime_D.uasset|INST_NEW|Down|1525256349|e4cdca3219dd1df6ba97d00b6bf045da|10712204|101437480occ8b83b46bc|4||0|0|0||||
+14:39:27||StarterContent/Textures/T_Concrete_Panels_N.uasset|INST_NEW|Down|1525256349|568c1ac6b0dddc249fc79846337e4a12|6570263|101437544occ8b83b46bc|4||0|0|0||||
+14:39:27||StarterContent/Textures/T_Concrete_Poured_D.uasset|INST_NEW|Down|1525256349|b00c46ab21b2ec43fd99de0689bffbf2|11623463|101437624occ8b83b46bc|4||0|0|0||||
+14:39:29||StarterContent/Textures/T_Concrete_Tiles_D.uasset|INST_NEW|Down|1525256350|41c40d93588c9624bd19aebf1f4a5798|4976160|101437584occ8b83b46bc|4||0|0|0||||
+14:39:29||StarterContent/Textures/T_Concrete_Tiles_M.uasset|INST_NEW|Down|1525256350|604aad6bcd2ccdf16d9b7a58daa88299|5774407|101437612occ8b83b46bc|4||0|0|0||||
+14:39:28||StarterContent/Textures/T_Concrete_Poured_N.uasset|INST_NEW|Down|1525256350|aef00a077f9ae6b59e868e4f4c4e28f0|7469725|101437568occ8b83b46bc|4||0|0|0||||
+14:39:30||StarterContent/Textures/T_Concrete_Tiles_Variation_M.uasset|INST_NEW|Down|1525256350|09c4f57d616d279b3e8e1943b337d8bc|7151|101437616occ8b83b46bc|4||0|0|0||||
+14:39:30||StarterContent/Textures/T_Door_M.uasset|INST_NEW|Down|1525256350|2e93a5ca9f56c4928af47fdc400ad138|558958|101437628occ8b83b46bc|4||0|0|0||||
+14:39:30||StarterContent/Textures/T_Detail_Rocky_N.uasset|INST_NEW|Down|1525256350|94c0868f80ca3b2e152ed6707cfb8f68|2875076|101437660occ8b83b46bc|4||0|0|0||||
+14:39:30||StarterContent/Textures/T_Concrete_Tiles_N.uasset|INST_NEW|Down|1525256350|f534a0680355a155e835bdfd903d5734|6621807|101437632occ8b83b46bc|4||0|0|0||||
+14:39:31||StarterContent/Textures/T_Door_N.uasset|INST_NEW|Down|1525256350|e142c42e61679a2b6a59ac06259c41cd|1082954|101437640occ8b83b46bc|4||0|0|0||||
+14:39:31||StarterContent/Textures/T_Dust_Particle_D.uasset|INST_NEW|Down|1525256350|b23474a8932cd4c100e4b2f37d7672b4|34649|101437636occ8b83b46bc|4||0|0|0||||
+14:39:31||StarterContent/Textures/T_Explosion_SubUV.uasset|INST_NEW|Down|1525256350|50b0d9b1fe2c37edf777eb23fc61aea6|3013663|101437672occ8b83b46bc|4||0|0|0||||
+14:39:31||StarterContent/Textures/T_Fire_SubUV.uasset|INST_NEW|Down|1525256350|7eb131b26f1f6b0a7f3c7dfe5ecc3784|532066|101437648occ8b83b46bc|4||0|0|0||||
+14:39:31||StarterContent/Textures/T_Fire_Tiled_D.uasset|INST_NEW|Down|1525256350|b724f7003ead79d78229d2884652f2ae|574944|101437652occ8b83b46bc|4||0|0|0||||
+14:39:32||StarterContent/Textures/T_Gradinet_01.uasset|INST_NEW|Down|1525256350|04492cfcfb1c46bc0c056ac687f98de6|6383|101437664occ8b83b46bc|4||0|0|0||||
+14:39:32||StarterContent/Textures/T_Frame_M.uasset|INST_NEW|Down|1525256350|f844eb2cfa634103617d4c99e5718e86|541148|101437656occ8b83b46bc|4||0|0|0||||
+14:39:32||StarterContent/Textures/T_Frame_N.uasset|INST_NEW|Down|1525256350|a87e13bf30e3bd622550b9ad5ae4ffb9|1257976|101437680occ8b83b46bc|4||0|0|0||||
+14:39:32||StarterContent/Textures/T_Ground_Grass_D.uasset|INST_NEW|Down|1525256350|a504ba4f812f5ca725f9b347dffb6691|12037735|101438112occ8b83b46bc|4||0|0|0||||
+14:39:33||StarterContent/Textures/T_Ground_Gravel_D.uasset|INST_NEW|Down|1525256351|983b09ac3ab1184402c60d672746bb74|10648998|101437740occ8b83b46bc|4||0|0|0||||
+14:39:33||StarterContent/Textures/T_Ground_Gravel_N.uasset|INST_NEW|Down|1525256351|f86d513cb7eb8b09e48fca03bfed81d8|7431449|101438124occ8b83b46bc|4||0|0|0||||
+14:39:35||StarterContent/Textures/T_Lamp_M.uasset|INST_NEW|Down|1525256351|2322d0f38e1002fad4cdaccaebde9134|794227|101438128occ8b83b46bc|4||0|0|0||||
+14:39:34||StarterContent/Textures/T_Ground_Moss_N.uasset|INST_NEW|Down|1525256351|f5ae7b16165209c2fae99007b2947eee|8414756|101438188occ8b83b46bc|4||0|0|0||||
+14:39:32||StarterContent/Textures/T_Ground_Grass_N.uasset|INST_NEW|Down|1525256350|cfb041466d5184cad7c1796a830ddb3e|11637793|101437764occ8b83b46bc|4||0|0|0||||
+14:39:35||StarterContent/Textures/T_Lamp_N.uasset|INST_NEW|Down|1525256351|615c1d401825b93ddef99cec0edec31b|2093242|101438148occ8b83b46bc|4||0|0|0||||
+14:39:36||StarterContent/Textures/T_MacroVariation.uasset|INST_NEW|Down|1525256336|f1ec2270582c901ba40b2540c1d0cfef|10876719|101438248occ8b83b46bc|4||0|0|0||||
+14:39:36||StarterContent/Textures/T_Metal_Copper_D.uasset|INST_NEW|Down|1525256336|ac0b02b57bff5dff43be83620198e682|8876545|101438296occ8b83b46bc|4||0|0|0||||
+14:39:38||StarterContent/Textures/T_Metal_Gold_N.uasset|INST_NEW|Down|1525256336|74824736be9320dfd55af36bbdb1676d|2820469|101438268occ8b83b46bc|4||0|0|0||||
+14:39:37||StarterContent/Textures/T_Metal_Gold_D.uasset|INST_NEW|Down|1525256351|d2298d2c7e54411fb10a5bb1d4c0a176|8862552|101438320occ8b83b46bc|4||0|0|0||||
+14:39:36||StarterContent/Textures/T_Metal_Aluminum_D.uasset|INST_NEW|Down|1525256336|b106b76631f72f5e687b336bd0ced6bd|9702358|101438232occ8b83b46bc|4||0|0|0||||
+14:39:39||StarterContent/Textures/T_Metal_Rust_N.uasset|INST_NEW|Down|1525256351|a1bb995089b64cd8abcb4c36c5c55a27|7527120|101438364occ8b83b46bc|4||0|0|0||||
+14:39:38||StarterContent/Textures/T_Metal_Rust_D.uasset|INST_NEW|Down|1525256351|52c57784b19d252ef22940882e5d8349|9354310|101438344occ8b83b46bc|4||0|0|0||||
+14:39:39||StarterContent/Textures/T_Metal_Steel_D.uasset|INST_NEW|Down|1525256351|279bd24260be6317c66dd582c5556006|3603569|101438372occ8b83b46bc|4||0|0|0||||
+14:39:40||StarterContent/Textures/T_Metal_Steel_N.uasset|INST_NEW|Down|1525256352|91f03fea73724bd12a83300523394a49|4933699|101438408occ8b83b46bc|4||0|0|0||||
+14:39:40||StarterContent/Textures/T_RockMesh_M.uasset|INST_NEW|Down|1525256352|3c6f05e3dd392a966714b7e13bc0fb86|2722284|101438392occ8b83b46bc|4||0|0|0||||
+14:39:41||StarterContent/Textures/T_RockMesh_N.uasset|INST_NEW|Down|1525256352|55082af0294291b19c0fa0ff308f137e|5396238|101438444occ8b83b46bc|4||0|0|0||||
+14:39:40||StarterContent/Textures/T_Perlin_Noise_M.uasset|INST_NEW|Down|1525256352|118c3273d11966838bd179aaea0b9ba5|7891194|101438436occ8b83b46bc|4||0|0|0||||
+14:39:41||StarterContent/Textures/T_Rock_Basalt_N.uasset|INST_NEW|Down|1525256352|2f28a8da2dcb27ab8e29b3e6d471b283|7871363|101438512occ8b83b46bc|4||0|0|0||||
+14:39:41||StarterContent/Textures/T_Rock_Marble_Polished_D.uasset|INST_NEW|Down|1525256352|f96c63c2ee34b6ae9412dcee69e72133|5349275|101438488occ8b83b46bc|4||0|0|0||||
+14:39:41||StarterContent/Textures/T_Rock_Basalt_D.uasset|INST_NEW|Down|1525256352|f240a6594b2e0f9754de20f370807c4b|9381712|101438504occ8b83b46bc|4||0|0|0||||
+14:39:43||StarterContent/Textures/T_Rock_Sandstone_D.uasset|INST_NEW|Down|1525256352|b006d85393b2ba7ccf64212f7b7c1abb|9256376|101438576occ8b83b46bc|4||0|0|0||||
+14:39:43||StarterContent/Textures/T_Rock_Sandstone_N.uasset|INST_NEW|Down|1525256352|de7514fc5f866c1d1cc53c9ffb8c38ee|8421659|101438596occ8b83b46bc|4||0|0|0||||
+14:39:44||StarterContent/Textures/T_Rock_Slate_N.uasset|INST_NEW|Down|1525256353|96ea1592d723bbd58f8e0892c726a424|9672795|101438704occ8b83b46bc|4||0|0|0||||
+14:39:46||StarterContent/Textures/T_Shelf_M.uasset|INST_NEW|Down|1525256353|d122326433d424b6bc67c9dfb9bcd1fc|657917|101438632occ8b83b46bc|4||0|0|0||||
+14:39:46||StarterContent/Textures/T_Shelf_N.uasset|INST_NEW|Down|1525256353|ff7f980bda371a3e5c1e6895c91eda4a|1650846|101438652occ8b83b46bc|4||0|0|0||||
+14:39:43||StarterContent/Textures/T_Rock_Slate_D.uasset|INST_NEW|Down|1525256352|86d25a65f7ab2da2841258420af9aa9b|12354493|101438620occ8b83b46bc|4||0|0|0||||
+14:39:46||StarterContent/Textures/T_Single_Tile_N.uasset|INST_NEW|Down|1525256353|89f2276422b403f2c7754b4318680dfb|9062|101438656occ8b83b46bc|4||0|0|0||||
+14:39:45||StarterContent/Textures/T_Rock_Smooth_Granite_D.uasset|INST_NEW|Down|1525256353|d5ee52c09cdbeaba67b06e6c2f242dce|8852169|101438752occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_Smoke_Tiled_D.uasset|INST_NEW|Down|1525256353|9e6f04e20b61d500ff243b6a34648919|112032|101438680occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_Spark_Core.uasset|INST_NEW|Down|1525256353|c73d70ea7ee26555726b2af07783a426|169964|101438684occ8b83b46bc|4||0|0|0||||
+14:39:46||StarterContent/Textures/T_Smoke_SubUV.uasset|INST_NEW|Down|1525256353|777fc8fb0bf86da04de3de8f9889d3e2|2646814|101438676occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_Statue_M.uasset|INST_NEW|Down|1525256337|130354f266263957f220f6ecb64c2c5d|553775|101438692occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_Statue_N.uasset|INST_NEW|Down|1525256337|259df3e9dd069bef1352a5dda839e1f6|529403|101438696occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_TableRound_M.uasset|INST_NEW|Down|1525256337|f82c5ebdf86b595e71f8965064448851|880605|101438712occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_Tech_Dot_M.uasset|INST_NEW|Down|1525256353|9179dd4abdf6777524477a5eafadf705|120913|101438716occ8b83b46bc|4||0|0|0||||
+14:39:47||StarterContent/Textures/T_TableRound_N.uasset|INST_NEW|Down|1525256337|3601c962d7360af79692bbbe6983958e|1562281|101438732occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Tech_Dot_N.uasset|INST_NEW|Down|1525256353|b08f0eebb9ee2f3b40e30a6f51405162|218046|101438720occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Tech_Hex_Tile_M.uasset|INST_NEW|Down|1525256353|0e5377c493c290affc0992650d513043|806460|101438728occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Tech_Hex_Tile_N.uasset|INST_NEW|Down|1525256353|22350298ea57144a6bc9fc7e8f7c8b43|510895|101438736occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Tech_Panel_M.uasset|INST_NEW|Down|1525256353|c17897de8006043fe8e03f3573a7c393|997009|101438748occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Tech_Panel_N.uasset|INST_NEW|Down|1525256353|7ba0a0b74d39d1ef1dbeea151d737953|1867308|101438772occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Water_M.uasset|INST_NEW|Down|1525256353|efc0ccbc96e9cde08ac1c4acdf978cf0|1715760|101438768occ8b83b46bc|4||0|0|0||||
+14:39:48||StarterContent/Textures/T_Water_N.uasset|INST_NEW|Down|1525256353|46d05a89ffe1ad372aff0cf361dd01d1|2106730|101438780occ8b83b46bc|4||0|0|0||||
+14:39:49||StarterContent/Textures/T_Wood_Floor_Walnut_D.uasset|INST_NEW|Down|1525256353|e903fc596276de325dc0c431ca011624|4606582|101438824occ8b83b46bc|4||0|0|0||||
+14:39:49||StarterContent/Textures/T_Wood_Floor_Walnut_M.uasset|INST_NEW|Down|1525256353|6bc71ab38fdf47e4af9b8319ea71699b|3959522|101438812occ8b83b46bc|4||0|0|0||||
+14:39:49||StarterContent/Textures/T_Wood_Floor_Walnut_N.uasset|INST_NEW|Down|1525256353|d79ec78b51968995ca7ef6b47165ddb3|2864153|101438820occ8b83b46bc|4||0|0|0||||
+14:39:49||StarterContent/Textures/T_Wood_Oak_D.uasset|INST_NEW|Down|1525256354|1e3ca1e7624966a1bf625726901beeb5|6727526|101438880occ8b83b46bc|4||0|0|0||||
+14:39:50||StarterContent/Textures/T_Wood_Pine_N.uasset|INST_NEW|Down|1525256354|353883cb7eaa715250f929c57ea367d5|3477592|101438940occ8b83b46bc|4||0|0|0||||
+14:39:50||StarterContent/Textures/T_Wood_Oak_N.uasset|INST_NEW|Down|1525256354|b29c13004bebb56fd4f3b2f575e0fb2d|6248262|101438876occ8b83b46bc|4||0|0|0||||
+14:39:50||StarterContent/Textures/T_Wood_Pine_D.uasset|INST_NEW|Down|1525256354|4663c2d2a48c80951509bbcb4802df07|9903207|101438944occ8b83b46bc|4||0|0|0||||
+14:39:51||StarterContent/Textures/T_Wood_Walnut_N.uasset|INST_NEW|Down|1525256354|f172e602857b2fdd149d48160d7c37fb|3840014|101438952occ8b83b46bc|4||0|0|0||||
+||Weapons/Mesh|INST_NEW|Down|1527427226|5b0ac2c79e58e|0|102915948occ8b83b46bc|4||0|0|0||||
+14:39:52||Weapons/Mesh/FirstPersonProjectileMesh.uasset|INST_NEW|Down|1525958600|ad56b9d11cf78b882ad1237bce199e4f|131143|102915952occ8b83b46bc|4||0|0|0||||
+14:39:51||StarterContent/Textures/T_Wood_Walnut_D.uasset|INST_NEW|Down|1525256354|4c1eb781fd5a2d70b6239b4934112d44|6529264|101438956occ8b83b46bc|4||0|0|0||||
+14:39:52||StarterContent/Textures/T_ground_Moss_D.uasset|INST_NEW|Down|1525256351|614717b89a2be20cd162ae1ad3be8c91|13059701|101439076occ8b83b46bc|4||0|0|0||||
+14:39:53||Weapons/Mesh/SK_FPGun.uasset|INST_NEW|Down|1525958600|98fcf86f004fbaf9f7494ac8d2790a5a|1385939|102915964occ8b83b46bc|4||0|0|0||||
+14:39:53||Weapons/Mesh/SK_FPGun_PhysicsAsset.uasset|INST_NEW|Down|1525958600|372a3d710391a38b30e5ace5115c9730|90762|102915960occ8b83b46bc|4||0|0|0||||
+14:39:53||Weapons/Mesh/SK_FPGun_Skeleton.uasset|INST_NEW|Down|1525958600|61b2d2c761d08df5ee07f1351d818acd|3921|102915956occ8b83b46bc|4||0|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:39:53Z (last step: 72641 msec, total: 81454 msec)
+#=#=#=# Syncrun started 2018-05-27T14:40:07Z
+#=#=#=#=# Propagation starts 2018-05-27T14:40:08Z (last step: 1031 msec, total: 1031 msec)
+#=#=#=# Syncrun finished 2018-05-27T14:40:08Z (last step: 39 msec, total: 1070 msec)
+#=#=#=# Syncrun started 2018-05-27T14:40:50Z
+#=#=#=#=# Propagation starts 2018-05-27T14:40:50Z (last step: 729 msec, total: 729 msec)
+14:40:51||AnimStarterPack|INST_REMOVE|Up|1527429190|5b0ac2dc8f4ff|0|101926770occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:40:51Z (last step: 541 msec, total: 1270 msec)
+#=#=#=# Syncrun started 2018-05-27T14:41:00Z
+#=#=#=#=# Propagation starts 2018-05-27T14:41:09Z (last step: 8908 msec, total: 8908 msec)
+14:41:09||Humanoid|INST_REMOVE|Up|1527427248|5b0ac2d1bf450|0|102915756occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:41:09Z (last step: 416 msec, total: 9325 msec)
+#=#=#=# Syncrun started 2018-05-27T14:41:26Z
+#=#=#=#=# Propagation starts 2018-05-27T14:41:27Z (last step: 734 msec, total: 734 msec)
+14:41:28||Player/Audio/WeaponFire02.uasset|INST_REMOVE|Up|1525958597|452998f04a5bb3c1c4dfdc2193f1d880|306375|102915904occ8b83b46bc|4||204|0|0||||
+14:41:28||Sounds/WeaponFire02.uasset|INST_NEW|Up|1527432084|124950b6fc1f252806c6abb5d5a0d4b3|306382|102919556occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:41:28Z (last step: 618 msec, total: 1353 msec)
+#=#=#=# Syncrun started 2018-05-27T14:41:30Z
+#=#=#=#=# Propagation starts 2018-05-27T14:41:31Z (last step: 1630 msec, total: 1630 msec)
+14:41:32||Player/Audio|INST_REMOVE|Up|1527432088|5b0ac3986e9ff|0|102915896occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:41:32Z (last step: 549 msec, total: 2180 msec)
+#=#=#=# Syncrun started 2018-05-27T14:41:41Z
+#=#=#=#=# Propagation starts 2018-05-27T14:41:42Z (last step: 1029 msec, total: 1029 msec)
+14:41:43||Player/Character/Mesh/SK_Mannequin_Arms.uasset|INST_REMOVE|Up|1525958597|e99e4ab633f1f08152fdc40783ff1749|2041323|102915924occ8b83b46bc|4||204|0|0||||
+14:41:43||Player/Character/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_REMOVE|Up|1525958597|b5ef9d59719f1112a634ab15495ac31f|13028|102915920occ8b83b46bc|4||204|0|0||||
+14:41:43||UE4_Mannequin/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_NEW|Up|1527432099|5582efc6cee2939c4f9cafe0b05a406f|96485|102919612occ8b83b46bc|4||201|0|0||||
+14:41:43||Player/Character/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_REMOVE|Up|1525958597|3843445c9647271758964ffc3bdc54a0|103322|102915916occ8b83b46bc|4||204|0|0||||
+14:41:43||UE4_Mannequin/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_NEW|Up|1527432099|969168847130acc04a91f127b2cd0c94|13062|102919616occ8b83b46bc|4||201|0|0||||
+14:41:43||UE4_Mannequin/Mesh/SK_Mannequin_Arms.uasset|INST_NEW|Up|1527432099|813b748eadf8d5859d5ff16c4dc0f397|1312413|102919620occ8b83b46bc|4||201|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:41:44Z (last step: 2220 msec, total: 3249 msec)
+#=#=#=# Syncrun started 2018-05-27T14:41:49Z
+#=#=#=#=# Propagation starts 2018-05-27T14:41:51Z (last step: 1994 msec, total: 1994 msec)
+14:41:51||Player|INST_REMOVE|Up|1527432104|5b0ac3a805d6d|0|102915892occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:41:51Z (last step: 365 msec, total: 2360 msec)
+#=#=#=# Syncrun started 2018-05-27T14:42:01Z
+#=#=#=#=# Propagation starts 2018-05-27T14:42:02Z (last step: 770 msec, total: 770 msec)
+14:42:03||Sounds/WeaponFire02.uasset|INST_REMOVE|Up|1527432084|124950b6fc1f252806c6abb5d5a0d4b3|306382|102919556occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-05-27T14:42:02Z (last step: 330 msec, total: 1100 msec)
+#=#=#=# Syncrun started 2018-05-27T14:42:40Z
+#=#=#=#=# Propagation starts 2018-05-27T14:42:41Z (last step: 1099 msec, total: 1099 msec)
+#=#=#=# Syncrun finished 2018-05-27T14:42:41Z (last step: 33 msec, total: 1132 msec)
+#=#=#=# Syncrun started 2018-05-27T14:43:07Z
+#=#=#=#=# Propagation starts 2018-05-27T14:43:07Z (last step: 629 msec, total: 629 msec)
+#=#=#=# Syncrun finished 2018-05-27T14:43:07Z (last step: 15 msec, total: 644 msec)
+#=#=#=# Syncrun started 2018-05-27T15:17:25Z
+#=#=#=#=# Propagation starts 2018-05-27T15:17:26Z (last step: 671 msec, total: 671 msec)
+#=#=#=# Syncrun finished 2018-05-27T15:17:26Z (last step: 14 msec, total: 686 msec)
+#=#=#=# Syncrun started 2018-05-27T17:17:30Z
+#=#=#=#=# Propagation starts 2018-05-27T17:17:31Z (last step: 701 msec, total: 701 msec)
+#=#=#=# Syncrun finished 2018-05-27T17:17:31Z (last step: 13 msec, total: 714 msec)
+#=#=#=# Syncrun started 2018-05-27T19:17:35Z
+#=#=#=#=# Propagation starts 2018-05-27T19:17:36Z (last step: 698 msec, total: 698 msec)
+#=#=#=# Syncrun finished 2018-05-27T19:17:36Z (last step: 13 msec, total: 712 msec)
+#=#=#=# Syncrun started 2018-05-27T19:54:13Z
+#=#=#=#=# Propagation starts 2018-05-27T19:54:14Z (last step: 1197 msec, total: 1197 msec)
+19:54:14||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Down|1527450820|1b16f6b195dfedb3b095805f0551f05d|650247|102918272occ8b83b46bc|4||0|650247|1527368115||||
+19:54:15||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_SYNC|Down|1527450820|2d8bf51a554374b85d2cf3580308b2a0|316446|102916296occ8b83b46bc|4||0|316446|1527238006||||
+#=#=#=# Syncrun finished 2018-05-27T19:54:14Z (last step: 743 msec, total: 1940 msec)
+#=#=#=# Syncrun started 2018-05-28T13:34:27Z
+#=#=#=#=# Propagation starts 2018-05-28T13:34:28Z (last step: 1898 msec, total: 1898 msec)
+#=#=#=# Syncrun finished 2018-05-28T13:34:28Z (last step: 16 msec, total: 1915 msec)
+#=#=#=# Syncrun started 2018-05-28T15:25:22Z
+#=#=#=#=# Propagation starts 2018-05-28T15:25:23Z (last step: 686 msec, total: 686 msec)
+#=#=#=# Syncrun finished 2018-05-28T15:25:23Z (last step: 15 msec, total: 702 msec)
+#=#=#=# Syncrun started 2018-05-28T18:36:53Z
+#=#=#=#=# Propagation starts 2018-05-28T18:36:54Z (last step: 598 msec, total: 598 msec)
+#=#=#=# Syncrun finished 2018-05-28T18:36:54Z (last step: 17 msec, total: 616 msec)
+#=#=#=# Syncrun started 2018-05-28T19:08:46Z
+#=#=#=#=# Propagation starts 2018-05-28T19:08:48Z (last step: 2280 msec, total: 2280 msec)
+#=#=#=# Syncrun finished 2018-05-28T19:08:48Z (last step: 13 msec, total: 2294 msec)
+#=#=#=# Syncrun started 2018-05-28T20:29:01Z
+#=#=#=#=# Propagation starts 2018-05-28T20:29:02Z (last step: 661 msec, total: 661 msec)
+#=#=#=# Syncrun finished 2018-05-28T20:29:02Z (last step: 13 msec, total: 674 msec)
+#=#=#=# Syncrun started 2018-05-29T14:14:49Z
+#=#=#=#=# Propagation starts 2018-05-29T14:14:50Z (last step: 1255 msec, total: 1255 msec)
+#=#=#=# Syncrun finished 2018-05-29T14:14:50Z (last step: 15 msec, total: 1270 msec)
+#=#=#=# Syncrun started 2018-05-29T16:04:41Z
+#=#=#=#=# Propagation starts 2018-05-29T16:04:42Z (last step: 744 msec, total: 744 msec)
+#=#=#=# Syncrun finished 2018-05-29T16:04:42Z (last step: 15 msec, total: 760 msec)
+#=#=#=# Syncrun started 2018-05-29T17:53:19Z
+#=#=#=#=# Propagation starts 2018-05-29T17:53:19Z (last step: 518 msec, total: 518 msec)
+#=#=#=# Syncrun finished 2018-05-29T17:53:19Z (last step: 13 msec, total: 531 msec)
+#=#=#=# Syncrun started 2018-05-30T06:20:12Z
+#=#=#=#=# Propagation starts 2018-05-30T06:20:13Z (last step: 542 msec, total: 542 msec)
+#=#=#=# Syncrun finished 2018-05-30T06:20:13Z (last step: 13 msec, total: 555 msec)
+#=#=#=# Syncrun started 2018-05-30T08:20:15Z
+#=#=#=#=# Propagation starts 2018-05-30T08:20:15Z (last step: 647 msec, total: 647 msec)
+#=#=#=# Syncrun finished 2018-05-30T08:20:15Z (last step: 38 msec, total: 685 msec)
+#=#=#=# Syncrun started 2018-05-30T10:20:20Z
+#=#=#=#=# Propagation starts 2018-05-30T10:20:20Z (last step: 605 msec, total: 605 msec)
+#=#=#=# Syncrun finished 2018-05-30T10:20:20Z (last step: 25 msec, total: 631 msec)
+#=#=#=# Syncrun started 2018-05-30T13:33:28Z
+#=#=#=# Syncrun finished 2018-05-30T13:33:30Z (last step: 1553 msec, total: 1553 msec)
+#=#=#=# Syncrun started 2018-05-30T13:34:00Z
+#=#=#=#=# Propagation starts 2018-05-30T13:34:00Z (last step: 647 msec, total: 647 msec)
+#=#=#=# Syncrun finished 2018-05-30T13:34:00Z (last step: 15 msec, total: 662 msec)
+#=#=#=# Syncrun started 2018-05-30T14:42:18Z
+#=#=#=#=# Propagation starts 2018-05-30T14:42:18Z (last step: 666 msec, total: 666 msec)
+#=#=#=# Syncrun finished 2018-05-30T14:42:18Z (last step: 16 msec, total: 683 msec)
+#=#=#=# Syncrun started 2018-05-30T14:42:48Z
+#=#=#=#=# Propagation starts 2018-05-30T14:42:49Z (last step: 674 msec, total: 674 msec)
+#=#=#=# Syncrun finished 2018-05-30T14:42:49Z (last step: 13 msec, total: 687 msec)
+#=#=#=# Syncrun started 2018-05-30T15:18:09Z
+#=#=#=#=# Propagation starts 2018-05-30T15:18:09Z (last step: 594 msec, total: 594 msec)
+15:18:10||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527693486|af6ec45f118d3870294b6b5f20856eb3|650582|102918272occ8b83b46bc|4||204|650247|1527450820||||
+#=#=#=# Syncrun finished 2018-05-30T15:18:10Z (last step: 1132 msec, total: 1726 msec)
+#=#=#=# Syncrun started 2018-05-30T15:18:24Z
+#=#=#=#=# Propagation starts 2018-05-30T15:18:25Z (last step: 797 msec, total: 797 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:18:25Z (last step: 16 msec, total: 814 msec)
+#=#=#=# Syncrun started 2018-05-30T15:18:57Z
+#=#=#=#=# Propagation starts 2018-05-30T15:18:58Z (last step: 819 msec, total: 819 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:18:58Z (last step: 14 msec, total: 833 msec)
+#=#=#=# Syncrun started 2018-05-30T15:28:13Z
+#=#=#=#=# Propagation starts 2018-05-30T15:28:13Z (last step: 607 msec, total: 607 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:28:13Z (last step: 14 msec, total: 622 msec)
+#=#=#=# Syncrun started 2018-05-30T15:38:15Z
+#=#=#=#=# Propagation starts 2018-05-30T15:38:15Z (last step: 570 msec, total: 570 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:38:15Z (last step: 14 msec, total: 585 msec)
+#=#=#=# Syncrun started 2018-05-30T15:48:17Z
+#=#=#=#=# Propagation starts 2018-05-30T15:48:18Z (last step: 596 msec, total: 596 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:48:18Z (last step: 16 msec, total: 613 msec)
+#=#=#=# Syncrun started 2018-05-30T15:55:47Z
+#=#=#=#=# Propagation starts 2018-05-30T15:55:48Z (last step: 622 msec, total: 622 msec)
+15:55:49||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527695745|de0a9c36ec575e4537ea6055c8ab7c99|650639|102918272occ8b83b46bc|4||204|650582|1527693486||||
+#=#=#=# Syncrun finished 2018-05-30T15:55:49Z (last step: 1010 msec, total: 1633 msec)
+#=#=#=# Syncrun started 2018-05-30T15:56:27Z
+#=#=#=#=# Propagation starts 2018-05-30T15:56:28Z (last step: 782 msec, total: 782 msec)
+#=#=#=# Syncrun finished 2018-05-30T15:56:28Z (last step: 15 msec, total: 797 msec)
+#=#=#=# Syncrun started 2018-05-30T16:01:15Z
+#=#=#=#=# Propagation starts 2018-05-30T16:01:16Z (last step: 650 msec, total: 650 msec)
+#=#=#=# Syncrun finished 2018-05-30T16:01:16Z (last step: 13 msec, total: 663 msec)
+#=#=#=# Syncrun started 2018-05-30T16:01:28Z
+#=#=#=#=# Propagation starts 2018-05-30T16:01:29Z (last step: 780 msec, total: 780 msec)
+16:01:30||StarterContent/Maps/Minimal_Default_BuiltData.uasset|INST_SYNC|Up|1527696087|3b85318d964356ba5ef24d1bfee93126|316446|102916296occ8b83b46bc|4||204|316446|1527450820||||
+16:01:30||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527696087|f710e9188b630ca02740fe479b8654a5|650611|102918272occ8b83b46bc|4||204|650639|1527695745||||
+#=#=#=# Syncrun finished 2018-05-30T16:01:31Z (last step: 1440 msec, total: 2221 msec)
+#=#=#=# Syncrun started 2018-05-30T16:02:27Z
+#=#=#=#=# Propagation starts 2018-05-30T16:02:28Z (last step: 1051 msec, total: 1051 msec)
+#=#=#=# Syncrun finished 2018-05-30T16:02:28Z (last step: 18 msec, total: 1069 msec)
+#=#=#=# Syncrun started 2018-05-30T17:17:58Z
+#=#=#=#=# Propagation starts 2018-05-30T17:17:58Z (last step: 647 msec, total: 647 msec)
+#=#=#=# Syncrun finished 2018-05-30T17:17:58Z (last step: 15 msec, total: 663 msec)
+#=#=#=# Syncrun started 2018-05-30T17:18:45Z
+#=#=#=#=# Propagation starts 2018-05-30T17:18:45Z (last step: 728 msec, total: 728 msec)
+#=#=#=# Syncrun finished 2018-05-30T17:18:46Z (last step: 18 msec, total: 747 msec)
+#=#=#=# Syncrun started 2018-05-30T17:55:29Z
+#=#=#=#=# Propagation starts 2018-05-30T17:55:29Z (last step: 610 msec, total: 610 msec)
+#=#=#=# Syncrun finished 2018-05-30T17:55:29Z (last step: 12 msec, total: 623 msec)
+#=#=#=# Syncrun started 2018-05-30T17:57:07Z
+#=#=#=#=# Propagation starts 2018-05-30T17:57:07Z (last step: 593 msec, total: 593 msec)
+17:57:08||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527703025|359c5f4393b70da6e3e65012d4438a12|650611|102918272occ8b83b46bc|4||204|650611|1527696087||||
+#=#=#=# Syncrun finished 2018-05-30T17:57:08Z (last step: 1043 msec, total: 1637 msec)
+#=#=#=# Syncrun started 2018-05-30T17:57:57Z
+#=#=#=#=# Propagation starts 2018-05-30T17:57:58Z (last step: 806 msec, total: 806 msec)
+#=#=#=# Syncrun finished 2018-05-30T17:57:58Z (last step: 22 msec, total: 828 msec)
+#=#=#=# Syncrun started 2018-05-30T18:09:59Z
+#=#=#=#=# Propagation starts 2018-05-30T18:10:00Z (last step: 908 msec, total: 908 msec)
+#=#=#=# Syncrun finished 2018-05-30T18:10:00Z (last step: 17 msec, total: 926 msec)
+#=#=#=# Syncrun started 2018-05-30T18:19:29Z
+#=#=#=#=# Propagation starts 2018-05-30T18:19:30Z (last step: 583 msec, total: 583 msec)
+#=#=#=# Syncrun finished 2018-05-30T18:19:30Z (last step: 18 msec, total: 602 msec)
+#=#=#=# Syncrun started 2018-05-30T19:19:57Z
+#=#=#=#=# Propagation starts 2018-05-30T19:19:58Z (last step: 600 msec, total: 600 msec)
+19:19:59||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1527707995|d6c0ce9617586cca4102e3d88df4b50b|650615|102918272occ8b83b46bc|4||204|650611|1527703025||||
+#=#=#=# Syncrun finished 2018-05-30T19:19:59Z (last step: 1038 msec, total: 1639 msec)
+#=#=#=# Syncrun started 2018-05-30T19:20:57Z
+#=#=#=#=# Propagation starts 2018-05-30T19:20:58Z (last step: 880 msec, total: 880 msec)
+#=#=#=# Syncrun finished 2018-05-30T19:20:58Z (last step: 15 msec, total: 896 msec)
+#=#=#=# Syncrun started 2018-05-30T21:05:52Z
+#=#=#=#=# Propagation starts 2018-05-30T21:05:53Z (last step: 895 msec, total: 895 msec)
+#=#=#=# Syncrun finished 2018-05-30T21:05:53Z (last step: 15 msec, total: 910 msec)
+#=#=#=# Syncrun started 2018-05-31T07:33:10Z
+#=#=#=#=# Propagation starts 2018-05-31T07:33:11Z (last step: 878 msec, total: 878 msec)
+#=#=#=# Syncrun finished 2018-05-31T07:33:11Z (last step: 18 msec, total: 896 msec)
+#=#=#=# Syncrun started 2018-05-31T09:33:14Z
+#=#=#=#=# Propagation starts 2018-05-31T09:33:15Z (last step: 705 msec, total: 705 msec)
+#=#=#=# Syncrun finished 2018-05-31T09:33:15Z (last step: 24 msec, total: 729 msec)
+#=#=#=# Syncrun started 2018-05-31T11:33:19Z
+#=#=#=#=# Propagation starts 2018-05-31T11:33:41Z (last step: 21680 msec, total: 21680 msec)
+#=#=#=# Syncrun finished 2018-05-31T11:33:41Z (last step: 31 msec, total: 21712 msec)
+#=#=#=# Syncrun started 2018-05-31T11:33:48Z
+#=#=#=#=# Propagation starts 2018-05-31T11:33:49Z (last step: 665 msec, total: 665 msec)
+#=#=#=# Syncrun finished 2018-05-31T11:33:49Z (last step: 28 msec, total: 694 msec)
+#=#=#=# Syncrun started 2018-05-31T13:33:49Z
+#=#=#=#=# Propagation starts 2018-05-31T13:33:50Z (last step: 572 msec, total: 572 msec)
+#=#=#=# Syncrun finished 2018-05-31T13:33:50Z (last step: 15 msec, total: 587 msec)
+#=#=#=# Syncrun started 2018-05-31T15:33:54Z
+#=#=#=#=# Propagation starts 2018-05-31T15:33:55Z (last step: 640 msec, total: 640 msec)
+#=#=#=# Syncrun finished 2018-05-31T15:33:55Z (last step: 14 msec, total: 655 msec)
+#=#=#=# Syncrun started 2018-05-31T17:33:59Z
+#=#=#=#=# Propagation starts 2018-05-31T17:34:00Z (last step: 629 msec, total: 629 msec)
+#=#=#=# Syncrun finished 2018-05-31T17:34:00Z (last step: 16 msec, total: 645 msec)
+#=#=#=# Syncrun started 2018-05-31T19:24:06Z
+#=#=#=#=# Propagation starts 2018-05-31T19:24:07Z (last step: 492 msec, total: 492 msec)
+#=#=#=# Syncrun finished 2018-05-31T19:24:07Z (last step: 10 msec, total: 503 msec)
+#=#=#=# Syncrun started 2018-05-31T21:24:09Z
+#=#=#=#=# Propagation starts 2018-05-31T21:24:10Z (last step: 735 msec, total: 735 msec)
+#=#=#=# Syncrun finished 2018-05-31T21:24:10Z (last step: 16 msec, total: 752 msec)
+#=#=#=# Syncrun started 2018-06-01T08:38:17Z
+#=#=#=#=# Propagation starts 2018-06-01T08:38:18Z (last step: 1057 msec, total: 1057 msec)
+#=#=#=# Syncrun finished 2018-06-01T08:38:18Z (last step: 14 msec, total: 1071 msec)
+#=#=#=# Syncrun started 2018-06-01T10:38:21Z
+#=#=#=#=# Propagation starts 2018-06-01T10:38:21Z (last step: 782 msec, total: 782 msec)
+#=#=#=# Syncrun finished 2018-06-01T10:38:21Z (last step: 14 msec, total: 797 msec)
+#=#=#=# Syncrun started 2018-06-01T11:34:34Z
+#=#=#=#=# Propagation starts 2018-06-01T11:34:35Z (last step: 734 msec, total: 734 msec)
+#=#=#=# Syncrun finished 2018-06-01T11:34:35Z (last step: 14 msec, total: 749 msec)
+#=#=#=# Syncrun started 2018-06-01T13:34:36Z
+#=#=#=#=# Propagation starts 2018-06-01T13:34:39Z (last step: 2783 msec, total: 2783 msec)
+#=#=#=# Syncrun finished 2018-06-01T13:34:39Z (last step: 16 msec, total: 2799 msec)
+#=#=#=# Syncrun started 2018-06-01T15:34:41Z
+#=#=#=#=# Propagation starts 2018-06-01T15:34:42Z (last step: 1250 msec, total: 1250 msec)
+#=#=#=# Syncrun finished 2018-06-01T15:34:42Z (last step: 19 msec, total: 1270 msec)
+#=#=#=# Syncrun started 2018-06-01T17:34:46Z
+#=#=#=#=# Propagation starts 2018-06-01T17:34:47Z (last step: 763 msec, total: 763 msec)
+#=#=#=# Syncrun finished 2018-06-01T17:34:47Z (last step: 14 msec, total: 777 msec)
+#=#=#=# Syncrun started 2018-06-01T19:34:51Z
+#=#=#=#=# Propagation starts 2018-06-01T19:34:52Z (last step: 796 msec, total: 796 msec)
+#=#=#=# Syncrun finished 2018-06-01T19:34:52Z (last step: 18 msec, total: 814 msec)
+#=#=#=# Syncrun started 2018-06-01T21:34:56Z
+#=#=#=#=# Propagation starts 2018-06-01T21:34:57Z (last step: 775 msec, total: 775 msec)
+#=#=#=# Syncrun finished 2018-06-01T21:34:57Z (last step: 15 msec, total: 791 msec)
+#=#=#=# Syncrun started 2018-06-01T22:25:55Z
+#=#=#=#=# Propagation starts 2018-06-01T22:25:56Z (last step: 709 msec, total: 709 msec)
+#=#=#=# Syncrun finished 2018-06-01T22:25:56Z (last step: 13 msec, total: 723 msec)
+#=#=#=# Syncrun started 2018-06-02T10:59:32Z
+#=#=#=#=# Propagation starts 2018-06-02T10:59:34Z (last step: 1194 msec, total: 1194 msec)
+#=#=#=# Syncrun finished 2018-06-02T10:59:34Z (last step: 21 msec, total: 1216 msec)
+#=#=#=# Syncrun started 2018-06-02T12:59:37Z
+#=#=#=#=# Propagation starts 2018-06-02T12:59:37Z (last step: 620 msec, total: 620 msec)
+#=#=#=# Syncrun finished 2018-06-02T12:59:37Z (last step: 13 msec, total: 634 msec)
+#=#=#=# Syncrun started 2018-06-02T14:59:42Z
+#=#=#=#=# Propagation starts 2018-06-02T14:59:42Z (last step: 691 msec, total: 691 msec)
+#=#=#=# Syncrun finished 2018-06-02T14:59:42Z (last step: 14 msec, total: 706 msec)
+#=#=#=# Syncrun started 2018-06-02T16:38:13Z
+#=#=#=#=# Propagation starts 2018-06-02T16:38:13Z (last step: 499 msec, total: 499 msec)
+#=#=#=# Syncrun finished 2018-06-02T16:38:13Z (last step: 15 msec, total: 514 msec)
+#=#=#=# Syncrun started 2018-06-02T18:38:15Z
+#=#=#=#=# Propagation starts 2018-06-02T18:38:16Z (last step: 563 msec, total: 563 msec)
+#=#=#=# Syncrun finished 2018-06-02T18:38:16Z (last step: 14 msec, total: 578 msec)
+#=#=#=# Syncrun started 2018-06-02T20:38:20Z
+#=#=#=#=# Propagation starts 2018-06-02T20:38:21Z (last step: 577 msec, total: 577 msec)
+#=#=#=# Syncrun finished 2018-06-02T20:38:21Z (last step: 13 msec, total: 591 msec)
+#=#=#=# Syncrun started 2018-06-02T22:38:28Z
+#=#=#=#=# Propagation starts 2018-06-02T22:38:28Z (last step: 755 msec, total: 755 msec)
+#=#=#=# Syncrun finished 2018-06-02T22:38:28Z (last step: 24 msec, total: 779 msec)
+#=#=#=# Syncrun started 2018-06-03T07:19:50Z
+#=#=#=#=# Propagation starts 2018-06-03T07:19:51Z (last step: 1095 msec, total: 1095 msec)
+#=#=#=# Syncrun finished 2018-06-03T07:19:51Z (last step: 16 msec, total: 1111 msec)
+#=#=#=# Syncrun started 2018-06-03T09:19:53Z
+#=#=#=#=# Propagation starts 2018-06-03T09:19:54Z (last step: 885 msec, total: 885 msec)
+#=#=#=# Syncrun finished 2018-06-03T09:19:54Z (last step: 13 msec, total: 899 msec)
+#=#=#=# Syncrun started 2018-06-03T11:19:58Z
+#=#=#=#=# Propagation starts 2018-06-03T11:20:09Z (last step: 11321 msec, total: 11321 msec)
+#=#=#=# Syncrun finished 2018-06-03T11:20:09Z (last step: 26 msec, total: 11347 msec)
+#=#=#=# Syncrun started 2018-06-03T11:20:15Z
+#=#=#=#=# Propagation starts 2018-06-03T11:20:16Z (last step: 882 msec, total: 882 msec)
+#=#=#=# Syncrun finished 2018-06-03T11:20:16Z (last step: 14 msec, total: 896 msec)
+#=#=#=# Syncrun started 2018-06-03T13:20:23Z
+#=#=#=#=# Propagation starts 2018-06-03T13:20:24Z (last step: 704 msec, total: 704 msec)
+#=#=#=# Syncrun finished 2018-06-03T13:20:24Z (last step: 15 msec, total: 720 msec)
+#=#=#=# Syncrun started 2018-06-03T15:20:28Z
+#=#=#=#=# Propagation starts 2018-06-03T15:20:29Z (last step: 658 msec, total: 658 msec)
+#=#=#=# Syncrun finished 2018-06-03T15:20:29Z (last step: 14 msec, total: 673 msec)
+#=#=#=# Syncrun started 2018-06-03T17:20:33Z
+#=#=#=#=# Propagation starts 2018-06-03T17:20:34Z (last step: 672 msec, total: 672 msec)
+#=#=#=# Syncrun finished 2018-06-03T17:20:34Z (last step: 20 msec, total: 692 msec)
+#=#=#=# Syncrun started 2018-06-03T19:20:38Z
+#=#=#=#=# Propagation starts 2018-06-03T19:20:39Z (last step: 733 msec, total: 733 msec)
+#=#=#=# Syncrun finished 2018-06-03T19:20:39Z (last step: 14 msec, total: 747 msec)
+#=#=#=# Syncrun started 2018-06-04T12:54:39Z
+#=#=#=#=# Propagation starts 2018-06-04T12:54:41Z (last step: 1818 msec, total: 1818 msec)
+#=#=#=# Syncrun finished 2018-06-04T12:54:41Z (last step: 12 msec, total: 1830 msec)
+#=#=#=# Syncrun started 2018-06-04T13:02:55Z
+#=#=#=#=# Propagation starts 2018-06-04T13:02:56Z (last step: 639 msec, total: 639 msec)
+#=#=#=# Syncrun finished 2018-06-04T13:02:56Z (last step: 18 msec, total: 658 msec)
+#=#=#=# Syncrun started 2018-06-04T13:02:58Z
+#=#=#=#=# Propagation starts 2018-06-04T13:02:59Z (last step: 628 msec, total: 628 msec)
+13:02:59||Effects|INST_REMOVE|Up|1526972592|5b03c0b07e4be|0|102471608occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-06-04T13:02:59Z (last step: 883 msec, total: 1511 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:06Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:06Z (last step: 666 msec, total: 666 msec)
+13:03:07||Mixamo|INST_REMOVE|Up|1527429178|5b0ab83a30f07|0|102918264occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-06-04T13:03:07Z (last step: 576 msec, total: 1243 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:11Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:12Z (last step: 779 msec, total: 779 msec)
+13:03:12||Sounds|INST_REMOVE|Up|1527432123|5b0ac3bba18f3|0|102509356occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-06-04T13:03:12Z (last step: 578 msec, total: 1357 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:14Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:15Z (last step: 682 msec, total: 682 msec)
+13:03:16||UE4_Mannequin/Materials/M_UE4Man_Body.uasset|INST_REMOVE|Up|1527367847|3a6e0da95b729ea9dfe99a283ae10562|154646|102918616occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/M_UE4Man_ChestLogo.uasset|INST_REMOVE|Up|1527367847|bccb8eafc8405c78115060a52507e6f0|101607|102918620occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/ML_GlossyBlack_Latex_UE4.uasset|INST_REMOVE|Up|1527367846|e08ac600f9dbfe4a3adb680e6915df84|79832|102918624occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/ML_SoftMetal_UE4.uasset|INST_REMOVE|Up|1527367847|a61ee12e1b6b9181e49089c0ee273e42|80000|102918636occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige.uasset|INST_REMOVE|Up|1527367846|634a5c8b7f467080256707ddab0d38d6|76162|102918628occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01.uasset|INST_REMOVE|Up|1527367847|6b8a07ea25fbe434ec35886abacf64a0|457847|102918652occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/ML_Plastic_Shiny_Beige_LOGO.uasset|INST_REMOVE|Up|1527367847|42143886f473c38c07102522e2fca6bc|76950|102918632occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_D.uasset|INST_REMOVE|Up|1527367846|c9c5d1940a61c1f163358b7fbb62f3db|504311|102918644occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/T_ML_Aluminum01_N.uasset|INST_REMOVE|Up|1527367847|492e1355f1ddbf6d808ea7c81d3c7b17|473247|102918640occ8b83b46bc|4||204|0|0||||
+13:03:16||UE4_Mannequin/Materials/MaterialLayers/T_ML_Rubber_Blue_01_N.uasset|INST_REMOVE|Up|1527367846|99d86a5a062ac66f07398afd2a33e4ec|428900|102918648occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/SK_Mannequin.uasset|INST_REMOVE|Up|1527367847|d309cd3844ee48e439d6f87871faffab|2574266|102918688occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/SK_Mannequin_Arms_PhysicsAsset.uasset|INST_REMOVE|Up|1527432099|5582efc6cee2939c4f9cafe0b05a406f|96485|102919612occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/SK_Mannequin_Arms_Skeleton.uasset|INST_REMOVE|Up|1527432099|969168847130acc04a91f127b2cd0c94|13062|102919616occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/UE4_Mannequin_Skeleton.uasset|INST_REMOVE|Up|1527367846|574391989fa9869df04c1da1731fe86f|21387|102918664occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/SK_Mannequin_Arms.uasset|INST_REMOVE|Up|1527432099|813b748eadf8d5859d5ff16c4dc0f397|1312413|102919620occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Mesh/SK_Mannequin_PhysicsAsset.uasset|INST_REMOVE|Up|1527367847|161411a7c3a2f8535c7b8dc2441e40d4|135013|102918656occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Textures/Chr_FPS_Metal_02.uasset|INST_REMOVE|Up|1527367846|a435dda229e7e105ca1935ed18eab013|10639095|102918708occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Textures/UE4Man_Logo_N.uasset|INST_REMOVE|Up|1527367847|82820a6867a71783a0a7179055f184b4|167507|102918668occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Textures/UE4_LOGO_CARD.uasset|INST_REMOVE|Up|1527367846|5b5aa97014585c3d7fbddbaf58d410ac|87818|102918680occ8b83b46bc|4||204|0|0||||
+13:03:17||UE4_Mannequin/Textures/UE4_Mannequin_MAT_MASKA.uasset|INST_REMOVE|Up|1527367847|fd9d5c2e92e53b985631c63b3aa0025f|230187|102918684occ8b83b46bc|4||204|0|0||||
+13:03:18||UE4_Mannequin/Textures/UE4_Mannequin_occlusion_Mobile.uasset|INST_REMOVE|Up|1527367847|abd14716364339eb2a5fceefd94b53f6|375080|102918692occ8b83b46bc|4||204|0|0||||
+13:03:18||UE4_Mannequin/Textures/UE4_Mannequin__normals.uasset|INST_REMOVE|Up|1527367847|2f4fc6af148cb615c2022242a5b6eeaf|5532764|102918696occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-06-04T13:03:18Z (last step: 2818 msec, total: 3501 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:21Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:23Z (last step: 1743 msec, total: 1743 msec)
+13:03:23||UE4_Mannequin|INST_REMOVE|Up|1528117398|5b153896bc477|0|102918588occ8b83b46bc|4||204|0|0||||
+13:03:23||Weapons/MaterialLayers/ML_Metal_Copper.uasset|INST_SYNC|Up|1528117399|30063d91eaecd88165c0872ebdcf8326|93756|102471868occ8b83b46bc|4||204|93348|1527367854||||
+#=#=#=# Syncrun finished 2018-06-04T13:03:23Z (last step: 569 msec, total: 2313 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:26Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:27Z (last step: 1280 msec, total: 1280 msec)
+#=#=#=# Syncrun finished 2018-06-04T13:03:27Z (last step: 12 msec, total: 1293 msec)
+#=#=#=# Syncrun started 2018-06-04T13:03:38Z
+#=#=#=#=# Propagation starts 2018-06-04T13:03:38Z (last step: 474 msec, total: 474 msec)
+13:03:39||Weapons|INST_REMOVE|Up|1528117404|5b15389c56975|0|102471848occ8b83b46bc|4||204|0|0||||
+#=#=#=# Syncrun finished 2018-06-04T13:03:39Z (last step: 522 msec, total: 996 msec)
+#=#=#=# Syncrun started 2018-06-04T13:04:38Z
+#=#=#=#=# Propagation starts 2018-06-04T13:04:38Z (last step: 489 msec, total: 489 msec)
+#=#=#=# Syncrun finished 2018-06-04T13:04:38Z (last step: 12 msec, total: 501 msec)
+#=#=#=# Syncrun started 2018-06-04T13:19:50Z
+#=#=#=#=# Propagation starts 2018-06-04T13:19:51Z (last step: 647 msec, total: 647 msec)
+#=#=#=# Syncrun finished 2018-06-04T13:19:51Z (last step: 14 msec, total: 661 msec)
+#=#=#=# Syncrun started 2018-06-04T13:21:28Z
+#=#=#=#=# Propagation starts 2018-06-04T13:21:28Z (last step: 535 msec, total: 535 msec)
+13:21:29||StarterContent/Maps/Minimal_Default.umap|INST_SYNC|Up|1528118486|ab9695ff849c147e06b2dd3291300f97|652569|102918272occ8b83b46bc|4||204|650615|1527707995||||
+#=#=#=# Syncrun finished 2018-06-04T13:21:30Z (last step: 1452 msec, total: 1987 msec)
+#=#=#=# Syncrun started 2018-06-04T13:22:07Z
+#=#=#=#=# Propagation starts 2018-06-04T13:22:08Z (last step: 955 msec, total: 955 msec)
+#=#=#=# Syncrun finished 2018-06-04T13:22:08Z (last step: 18 msec, total: 973 msec)
+#=#=#=# Syncrun started 2018-06-04T14:05:24Z
+#=#=#=#=# Propagation starts 2018-06-04T14:05:24Z (last step: 496 msec, total: 496 msec)
+#=#=#=# Syncrun finished 2018-06-04T14:05:24Z (last step: 13 msec, total: 509 msec)
+#=#=#=# Syncrun started 2018-06-04T14:15:43Z
+#=#=#=#=# Propagation starts 2018-06-04T14:15:43Z (last step: 535 msec, total: 535 msec)
+#=#=#=# Syncrun finished 2018-06-04T14:15:43Z (last step: 23 msec, total: 559 msec)
+#=#=#=# Syncrun started 2018-06-04T16:15:47Z
+#=#=#=#=# Propagation starts 2018-06-04T16:15:48Z (last step: 552 msec, total: 552 msec)
+#=#=#=# Syncrun finished 2018-06-04T16:15:48Z (last step: 22 msec, total: 575 msec)
+#=#=#=# Syncrun started 2018-06-04T17:10:03Z
+#=#=#=#=# Propagation starts 2018-06-04T17:10:04Z (last step: 430 msec, total: 430 msec)
+#=#=#=# Syncrun finished 2018-06-04T17:10:04Z (last step: 12 msec, total: 442 msec)
+#=#=#=# Syncrun started 2018-06-04T17:55:09Z
+#=#=#=#=# Propagation starts 2018-06-04T17:55:10Z (last step: 533 msec, total: 533 msec)
+#=#=#=# Syncrun finished 2018-06-04T17:55:10Z (last step: 13 msec, total: 546 msec)
+#=#=#=# Syncrun started 2018-06-04T19:55:11Z
+#=#=#=#=# Propagation starts 2018-06-04T19:55:11Z (last step: 476 msec, total: 476 msec)
+#=#=#=# Syncrun finished 2018-06-04T19:55:12Z (last step: 15 msec, total: 491 msec)
+#=#=#=# Syncrun started 2018-06-04T21:55:16Z
+#=#=#=#=# Propagation starts 2018-06-04T21:55:17Z (last step: 587 msec, total: 587 msec)
+#=#=#=# Syncrun finished 2018-06-04T21:55:17Z (last step: 13 msec, total: 601 msec)
+#=#=#=# Syncrun started 2018-06-05T14:08:14Z
+#=#=#=#=# Propagation starts 2018-06-05T14:08:14Z (last step: 707 msec, total: 707 msec)
+#=#=#=# Syncrun finished 2018-06-05T14:08:15Z (last step: 12 msec, total: 720 msec)
+#=#=#=# Syncrun started 2018-06-05T16:38:55Z
+#=#=#=#=# Propagation starts 2018-06-05T16:38:56Z (last step: 491 msec, total: 491 msec)
+#=#=#=# Syncrun finished 2018-06-05T16:38:56Z (last step: 17 msec, total: 509 msec)
+#=#=#=# Syncrun started 2018-06-05T18:38:57Z
+#=#=#=#=# Propagation starts 2018-06-05T18:38:58Z (last step: 489 msec, total: 489 msec)
+#=#=#=# Syncrun finished 2018-06-05T18:38:58Z (last step: 14 msec, total: 504 msec)
+#=#=#=# Syncrun started 2018-06-05T20:39:02Z
+#=#=#=#=# Propagation starts 2018-06-05T20:39:03Z (last step: 761 msec, total: 761 msec)
+#=#=#=# Syncrun finished 2018-06-05T20:39:03Z (last step: 19 msec, total: 780 msec)
+#=#=#=# Syncrun started 2018-06-06T09:31:40Z
+#=#=#=#=# Propagation starts 2018-06-06T09:31:40Z (last step: 448 msec, total: 448 msec)
+#=#=#=# Syncrun finished 2018-06-06T09:31:40Z (last step: 13 msec, total: 461 msec)
+#=#=#=# Syncrun started 2018-06-06T16:59:31Z
+#=#=#=#=# Propagation starts 2018-06-06T16:59:33Z (last step: 1193 msec, total: 1193 msec)
+#=#=#=# Syncrun finished 2018-06-06T16:59:33Z (last step: 95 msec, total: 1288 msec)
+#=#=#=# Syncrun started 2018-06-06T18:59:35Z
+#=#=#=#=# Propagation starts 2018-06-06T18:59:35Z (last step: 375 msec, total: 375 msec)
+#=#=#=# Syncrun finished 2018-06-06T18:59:35Z (last step: 13 msec, total: 389 msec)
+#=#=#=# Syncrun started 2018-06-07T12:19:09Z
+#=#=#=#=# Propagation starts 2018-06-07T12:19:10Z (last step: 532 msec, total: 532 msec)
+#=#=#=# Syncrun finished 2018-06-07T12:19:10Z (last step: 12 msec, total: 544 msec)
+#=#=#=# Syncrun started 2018-06-07T14:19:15Z
+#=#=#=#=# Propagation starts 2018-06-07T14:19:15Z (last step: 484 msec, total: 484 msec)
+#=#=#=# Syncrun finished 2018-06-07T14:19:15Z (last step: 18 msec, total: 503 msec)
+#=#=#=# Syncrun started 2018-06-07T18:04:32Z
+#=#=#=#=# Propagation starts 2018-06-07T18:04:33Z (last step: 441 msec, total: 441 msec)
+#=#=#=# Syncrun finished 2018-06-07T18:04:33Z (last step: 14 msec, total: 456 msec)
+#=#=#=# Syncrun started 2018-06-07T20:04:34Z
+#=#=#=#=# Propagation starts 2018-06-07T20:04:35Z (last step: 539 msec, total: 539 msec)
+#=#=#=# Syncrun finished 2018-06-07T20:04:35Z (last step: 22 msec, total: 561 msec)
+#=#=#=# Syncrun started 2018-06-08T13:54:05Z
+#=#=#=#=# Propagation starts 2018-06-08T13:54:06Z (last step: 1081 msec, total: 1081 msec)
+#=#=#=# Syncrun finished 2018-06-08T13:54:06Z (last step: 13 msec, total: 1094 msec)
+#=#=#=# Syncrun started 2018-06-08T15:54:08Z
+#=#=#=#=# Propagation starts 2018-06-08T15:54:09Z (last step: 444 msec, total: 444 msec)
+#=#=#=# Syncrun finished 2018-06-08T15:54:09Z (last step: 13 msec, total: 458 msec)
+#=#=#=# Syncrun started 2018-06-08T17:54:13Z
+#=#=#=#=# Propagation starts 2018-06-08T17:54:14Z (last step: 565 msec, total: 565 msec)
+#=#=#=# Syncrun finished 2018-06-08T17:54:14Z (last step: 14 msec, total: 579 msec)
+#=#=#=# Syncrun started 2018-06-08T19:54:18Z
+#=#=#=#=# Propagation starts 2018-06-08T19:54:19Z (last step: 532 msec, total: 532 msec)
+#=#=#=# Syncrun finished 2018-06-08T19:54:19Z (last step: 17 msec, total: 550 msec)
+#=#=#=# Syncrun started 2018-06-09T08:22:24Z
+#=#=#=#=# Propagation starts 2018-06-09T08:22:25Z (last step: 1417 msec, total: 1417 msec)
+#=#=#=# Syncrun finished 2018-06-09T08:22:25Z (last step: 12 msec, total: 1429 msec)
+#=#=#=# Syncrun started 2018-06-09T10:31:09Z
+#=#=#=#=# Propagation starts 2018-06-09T10:31:10Z (last step: 530 msec, total: 530 msec)
+#=#=#=# Syncrun finished 2018-06-09T10:31:10Z (last step: 12 msec, total: 543 msec)
+#=#=#=# Syncrun started 2018-06-09T12:31:11Z
+#=#=#=#=# Propagation starts 2018-06-09T12:31:11Z (last step: 469 msec, total: 469 msec)
+#=#=#=# Syncrun finished 2018-06-09T12:31:11Z (last step: 14 msec, total: 484 msec)
+#=#=#=# Syncrun started 2018-06-09T14:31:16Z
+#=#=#=#=# Propagation starts 2018-06-09T14:31:17Z (last step: 494 msec, total: 494 msec)
+#=#=#=# Syncrun finished 2018-06-09T14:31:17Z (last step: 17 msec, total: 511 msec)
+#=#=#=# Syncrun started 2018-06-09T16:31:21Z
+#=#=#=#=# Propagation starts 2018-06-09T16:31:22Z (last step: 533 msec, total: 533 msec)
+#=#=#=# Syncrun finished 2018-06-09T16:31:22Z (last step: 21 msec, total: 555 msec)
+#=#=#=# Syncrun started 2018-06-09T18:31:26Z
+#=#=#=#=# Propagation starts 2018-06-09T18:31:27Z (last step: 504 msec, total: 504 msec)
+#=#=#=# Syncrun finished 2018-06-09T18:31:27Z (last step: 15 msec, total: 520 msec)
+#=#=#=# Syncrun started 2018-06-09T20:31:31Z
+#=#=#=#=# Propagation starts 2018-06-09T20:31:32Z (last step: 512 msec, total: 512 msec)
+#=#=#=# Syncrun finished 2018-06-09T20:31:32Z (last step: 25 msec, total: 537 msec)
+#=#=#=# Syncrun started 2018-06-10T07:18:01Z
+#=#=#=#=# Propagation starts 2018-06-10T07:18:02Z (last step: 906 msec, total: 906 msec)
+#=#=#=# Syncrun finished 2018-06-10T07:18:02Z (last step: 12 msec, total: 919 msec)
+#=#=#=# Syncrun started 2018-06-10T09:18:04Z
+#=#=#=#=# Propagation starts 2018-06-10T09:18:04Z (last step: 438 msec, total: 438 msec)
+#=#=#=# Syncrun finished 2018-06-10T09:18:04Z (last step: 12 msec, total: 450 msec)
+#=#=#=# Syncrun started 2018-06-10T10:23:39Z
+#=#=#=#=# Propagation starts 2018-06-10T10:23:40Z (last step: 446 msec, total: 446 msec)
+#=#=#=# Syncrun finished 2018-06-10T10:23:40Z (last step: 15 msec, total: 461 msec)
+#=#=#=# Syncrun started 2018-06-10T12:23:41Z
+#=#=#=#=# Propagation starts 2018-06-10T12:23:42Z (last step: 516 msec, total: 516 msec)
+#=#=#=# Syncrun finished 2018-06-10T12:23:42Z (last step: 14 msec, total: 531 msec)
+#=#=#=# Syncrun started 2018-06-10T14:23:46Z
+#=#=#=#=# Propagation starts 2018-06-10T14:23:47Z (last step: 501 msec, total: 501 msec)
+#=#=#=# Syncrun finished 2018-06-10T14:23:47Z (last step: 14 msec, total: 515 msec)
+#=#=#=# Syncrun started 2018-06-10T16:23:51Z
+#=#=#=#=# Propagation starts 2018-06-10T16:23:52Z (last step: 560 msec, total: 560 msec)
+#=#=#=# Syncrun finished 2018-06-10T16:23:52Z (last step: 32 msec, total: 592 msec)
+#=#=#=# Syncrun started 2018-06-10T18:23:56Z
+#=#=#=#=# Propagation starts 2018-06-10T18:23:57Z (last step: 806 msec, total: 806 msec)
+#=#=#=# Syncrun finished 2018-06-10T18:23:57Z (last step: 15 msec, total: 822 msec)
+#=#=#=# Syncrun started 2018-06-10T20:24:01Z
+#=#=#=#=# Propagation starts 2018-06-10T20:24:02Z (last step: 516 msec, total: 516 msec)
+#=#=#=# Syncrun finished 2018-06-10T20:24:02Z (last step: 14 msec, total: 530 msec)
+#=#=#=# Syncrun started 2018-06-11T11:06:09Z
+#=#=#=#=# Propagation starts 2018-06-11T11:06:10Z (last step: 1006 msec, total: 1006 msec)
+#=#=#=# Syncrun finished 2018-06-11T11:06:10Z (last step: 12 msec, total: 1019 msec)
+#=#=#=# Syncrun started 2018-06-11T13:06:13Z
+#=#=#=#=# Propagation starts 2018-06-11T13:06:14Z (last step: 904 msec, total: 904 msec)
+#=#=#=# Syncrun finished 2018-06-11T13:06:14Z (last step: 47 msec, total: 951 msec)
+#=#=#=# Syncrun started 2018-06-11T15:06:18Z
+#=#=#=#=# Propagation starts 2018-06-11T15:06:18Z (last step: 530 msec, total: 530 msec)
+#=#=#=# Syncrun finished 2018-06-11T15:06:18Z (last step: 13 msec, total: 544 msec)
+#=#=#=# Syncrun started 2018-06-11T17:35:55Z
+#=#=#=#=# Propagation starts 2018-06-11T17:35:57Z (last step: 1710 msec, total: 1710 msec)
+#=#=#=# Syncrun finished 2018-06-11T17:35:57Z (last step: 12 msec, total: 1722 msec)
+#=#=#=# Syncrun started 2018-06-11T19:35:57Z
+#=#=#=#=# Propagation starts 2018-06-11T19:35:57Z (last step: 484 msec, total: 484 msec)
+#=#=#=# Syncrun finished 2018-06-11T19:35:57Z (last step: 15 msec, total: 499 msec)
+#=#=#=# Syncrun started 2018-06-12T11:00:37Z
+#=#=#=#=# Propagation starts 2018-06-12T11:00:38Z (last step: 936 msec, total: 936 msec)
+#=#=#=# Syncrun finished 2018-06-12T11:00:38Z (last step: 14 msec, total: 950 msec)
+#=#=#=# Syncrun started 2018-06-12T11:09:28Z
+#=#=#=#=# Propagation starts 2018-06-12T11:09:29Z (last step: 831 msec, total: 831 msec)
+#=#=#=# Syncrun finished 2018-06-12T11:09:29Z (last step: 22 msec, total: 854 msec)
+#=#=#=# Syncrun started 2018-06-12T13:09:30Z
+#=#=#=#=# Propagation starts 2018-06-12T13:09:31Z (last step: 527 msec, total: 527 msec)
+#=#=#=# Syncrun finished 2018-06-12T13:09:31Z (last step: 15 msec, total: 542 msec)
+#=#=#=# Syncrun started 2018-06-12T14:33:21Z
+#=#=#=#=# Propagation starts 2018-06-12T14:33:22Z (last step: 493 msec, total: 493 msec)
+#=#=#=# Syncrun finished 2018-06-12T14:33:22Z (last step: 15 msec, total: 509 msec)
+#=#=#=# Syncrun started 2018-06-12T16:33:23Z
+#=#=#=#=# Propagation starts 2018-06-12T16:33:23Z (last step: 481 msec, total: 481 msec)
+#=#=#=# Syncrun finished 2018-06-12T16:33:23Z (last step: 20 msec, total: 502 msec)
+#=#=#=# Syncrun started 2018-06-12T18:33:28Z
+#=#=#=#=# Propagation starts 2018-06-12T18:33:29Z (last step: 525 msec, total: 525 msec)
+#=#=#=# Syncrun finished 2018-06-12T18:33:29Z (last step: 16 msec, total: 541 msec)
+#=#=#=# Syncrun started 2018-06-12T20:33:33Z
+#=#=#=#=# Propagation starts 2018-06-12T20:33:34Z (last step: 816 msec, total: 816 msec)
+#=#=#=# Syncrun finished 2018-06-12T20:33:34Z (last step: 13 msec, total: 829 msec)
+#=#=#=# Syncrun started 2018-06-13T12:28:16Z
+#=#=#=#=# Propagation starts 2018-06-13T12:28:18Z (last step: 1376 msec, total: 1376 msec)
+#=#=#=# Syncrun finished 2018-06-13T12:28:18Z (last step: 15 msec, total: 1391 msec)
+#=#=#=# Syncrun started 2018-06-13T17:15:35Z
+#=#=#=#=# Propagation starts 2018-06-13T17:15:39Z (last step: 4060 msec, total: 4060 msec)
+#=#=#=# Syncrun finished 2018-06-13T17:15:39Z (last step: 12 msec, total: 4073 msec)
+#=#=#=# Syncrun started 2018-06-13T19:15:42Z
+#=#=#=#=# Propagation starts 2018-06-13T19:15:43Z (last step: 627 msec, total: 627 msec)
+#=#=#=# Syncrun finished 2018-06-13T19:15:43Z (last step: 15 msec, total: 643 msec)
+#=#=#=# Syncrun started 2018-06-14T13:22:31Z
+#=#=#=#=# Propagation starts 2018-06-14T13:22:32Z (last step: 1181 msec, total: 1181 msec)
+#=#=#=# Syncrun finished 2018-06-14T13:22:32Z (last step: 13 msec, total: 1194 msec)
+#=#=#=# Syncrun started 2018-06-14T15:22:34Z
+#=#=#=#=# Propagation starts 2018-06-14T15:22:34Z (last step: 477 msec, total: 477 msec)
+#=#=#=# Syncrun finished 2018-06-14T15:22:34Z (last step: 11 msec, total: 489 msec)
+#=#=#=# Syncrun started 2018-06-14T17:22:39Z
+#=#=#=#=# Propagation starts 2018-06-14T17:22:40Z (last step: 573 msec, total: 573 msec)
+#=#=#=# Syncrun finished 2018-06-14T17:22:40Z (last step: 17 msec, total: 590 msec)
+#=#=#=# Syncrun started 2018-06-14T19:22:44Z
+#=#=#=#=# Propagation starts 2018-06-14T19:22:45Z (last step: 652 msec, total: 652 msec)
+#=#=#=# Syncrun finished 2018-06-14T19:22:45Z (last step: 14 msec, total: 667 msec)
+#=#=#=# Syncrun started 2018-06-15T07:55:22Z
+#=#=#=#=# Propagation starts 2018-06-15T07:55:23Z (last step: 889 msec, total: 889 msec)
+#=#=#=# Syncrun finished 2018-06-15T07:55:23Z (last step: 27 msec, total: 917 msec)
+#=#=#=# Syncrun started 2018-06-15T14:39:06Z
+#=#=#=#=# Propagation starts 2018-06-15T14:39:08Z (last step: 1367 msec, total: 1367 msec)
+#=#=#=# Syncrun finished 2018-06-15T14:39:08Z (last step: 13 msec, total: 1381 msec)
+#=#=#=# Syncrun started 2018-06-15T16:39:10Z
+#=#=#=#=# Propagation starts 2018-06-15T16:39:10Z (last step: 470 msec, total: 470 msec)
+#=#=#=# Syncrun finished 2018-06-15T16:39:10Z (last step: 13 msec, total: 483 msec)
+#=#=#=# Syncrun started 2018-06-15T18:39:15Z
+#=#=#=#=# Propagation starts 2018-06-15T18:39:15Z (last step: 624 msec, total: 624 msec)
+#=#=#=# Syncrun finished 2018-06-15T18:39:15Z (last step: 13 msec, total: 638 msec)
+#=#=#=# Syncrun started 2018-06-15T20:39:20Z
+#=#=#=#=# Propagation starts 2018-06-15T20:39:20Z (last step: 563 msec, total: 563 msec)
+#=#=#=# Syncrun finished 2018-06-15T20:39:20Z (last step: 13 msec, total: 577 msec)
+#=#=#=# Syncrun started 2018-06-16T07:22:01Z
+#=#=#=#=# Propagation starts 2018-06-16T07:22:02Z (last step: 1010 msec, total: 1010 msec)
+#=#=#=# Syncrun finished 2018-06-16T07:22:02Z (last step: 46 msec, total: 1056 msec)
+#=#=#=# Syncrun started 2018-06-16T09:22:04Z
+#=#=#=#=# Propagation starts 2018-06-16T09:22:05Z (last step: 351 msec, total: 351 msec)
+#=#=#=# Syncrun finished 2018-06-16T09:22:05Z (last step: 13 msec, total: 365 msec)
+#=#=#=# Syncrun started 2018-06-16T10:25:04Z
+#=#=#=#=# Propagation starts 2018-06-16T10:25:04Z (last step: 357 msec, total: 357 msec)
+#=#=#=# Syncrun finished 2018-06-16T10:25:04Z (last step: 12 msec, total: 369 msec)
+#=#=#=# Syncrun started 2018-06-16T12:25:06Z
+#=#=#=#=# Propagation starts 2018-06-16T12:25:06Z (last step: 373 msec, total: 373 msec)
+#=#=#=# Syncrun finished 2018-06-16T12:25:06Z (last step: 22 msec, total: 396 msec)
+#=#=#=# Syncrun started 2018-06-16T14:25:11Z
+#=#=#=#=# Propagation starts 2018-06-16T14:25:11Z (last step: 348 msec, total: 348 msec)
+#=#=#=# Syncrun finished 2018-06-16T14:25:11Z (last step: 17 msec, total: 366 msec)
+#=#=#=# Syncrun started 2018-06-16T16:25:16Z
+#=#=#=#=# Propagation starts 2018-06-16T16:25:17Z (last step: 348 msec, total: 348 msec)
+#=#=#=# Syncrun finished 2018-06-16T16:25:17Z (last step: 14 msec, total: 363 msec)
+#=#=#=# Syncrun started 2018-06-16T18:35:41Z
+#=#=#=#=# Propagation starts 2018-06-16T18:35:42Z (last step: 692 msec, total: 692 msec)
+#=#=#=# Syncrun finished 2018-06-16T18:35:42Z (last step: 257 msec, total: 950 msec)
+#=#=#=# Syncrun started 2018-06-16T20:35:43Z
+#=#=#=#=# Propagation starts 2018-06-16T20:35:43Z (last step: 425 msec, total: 425 msec)
+#=#=#=# Syncrun finished 2018-06-16T20:35:43Z (last step: 12 msec, total: 437 msec)
+#=#=#=# Syncrun started 2018-06-17T07:03:25Z
+#=#=#=#=# Propagation starts 2018-06-17T07:03:25Z (last step: 334 msec, total: 334 msec)
+#=#=#=# Syncrun finished 2018-06-17T07:03:25Z (last step: 12 msec, total: 346 msec)
+#=#=#=# Syncrun started 2018-06-17T08:30:50Z
+#=#=#=#=# Propagation starts 2018-06-17T08:30:51Z (last step: 548 msec, total: 548 msec)
+#=#=#=# Syncrun finished 2018-06-17T08:30:51Z (last step: 14 msec, total: 562 msec)
+#=#=#=# Syncrun started 2018-06-17T10:30:52Z
+#=#=#=#=# Propagation starts 2018-06-17T10:30:52Z (last step: 452 msec, total: 452 msec)
+#=#=#=# Syncrun finished 2018-06-17T10:30:52Z (last step: 28 msec, total: 480 msec)
+#=#=#=# Syncrun started 2018-06-17T12:30:57Z
+#=#=#=#=# Propagation starts 2018-06-17T12:30:59Z (last step: 2563 msec, total: 2563 msec)
+#=#=#=# Syncrun finished 2018-06-17T12:30:59Z (last step: 15 msec, total: 2579 msec)
+#=#=#=# Syncrun started 2018-06-17T14:31:02Z
+#=#=#=#=# Propagation starts 2018-06-17T14:31:02Z (last step: 619 msec, total: 619 msec)
+#=#=#=# Syncrun finished 2018-06-17T14:31:02Z (last step: 12 msec, total: 632 msec)
+#=#=#=# Syncrun started 2018-06-17T16:31:07Z
+#=#=#=#=# Propagation starts 2018-06-17T16:31:07Z (last step: 465 msec, total: 465 msec)
+#=#=#=# Syncrun finished 2018-06-17T16:31:07Z (last step: 16 msec, total: 481 msec)
+#=#=#=# Syncrun started 2018-06-17T18:31:12Z
+#=#=#=#=# Propagation starts 2018-06-17T18:31:12Z (last step: 530 msec, total: 530 msec)
+#=#=#=# Syncrun finished 2018-06-17T18:31:13Z (last step: 33 msec, total: 563 msec)
+#=#=#=# Syncrun started 2018-06-17T20:31:22Z
+#=#=#=#=# Propagation starts 2018-06-17T20:31:22Z (last step: 539 msec, total: 539 msec)
+#=#=#=# Syncrun finished 2018-06-17T20:31:23Z (last step: 13 msec, total: 552 msec)
+#=#=#=# Syncrun started 2018-06-18T11:50:46Z
+#=#=#=#=# Propagation starts 2018-06-18T11:50:47Z (last step: 936 msec, total: 936 msec)
+#=#=#=# Syncrun finished 2018-06-18T11:50:47Z (last step: 16 msec, total: 952 msec)
+#=#=#=# Syncrun started 2018-06-18T14:21:55Z
+#=#=#=#=# Propagation starts 2018-06-18T14:21:55Z (last step: 368 msec, total: 368 msec)
+#=#=#=# Syncrun finished 2018-06-18T14:21:55Z (last step: 15 msec, total: 383 msec)
+#=#=#=# Syncrun started 2018-06-18T16:21:57Z
+#=#=#=#=# Propagation starts 2018-06-18T16:21:57Z (last step: 413 msec, total: 413 msec)
+#=#=#=# Syncrun finished 2018-06-18T16:21:57Z (last step: 13 msec, total: 426 msec)
+#=#=#=# Syncrun started 2018-06-18T17:55:36Z
+#=#=#=#=# Propagation starts 2018-06-18T17:55:36Z (last step: 389 msec, total: 389 msec)
+#=#=#=# Syncrun finished 2018-06-18T17:55:36Z (last step: 13 msec, total: 402 msec)
+#=#=#=# Syncrun started 2018-06-18T19:55:38Z
+#=#=#=#=# Propagation starts 2018-06-18T19:55:38Z (last step: 406 msec, total: 406 msec)
+#=#=#=# Syncrun finished 2018-06-18T19:55:38Z (last step: 11 msec, total: 418 msec)
+#=#=#=# Syncrun started 2018-06-19T14:05:12Z
+#=#=#=#=# Propagation starts 2018-06-19T14:05:13Z (last step: 781 msec, total: 781 msec)
+#=#=#=# Syncrun finished 2018-06-19T14:05:13Z (last step: 30 msec, total: 811 msec)
+#=#=#=# Syncrun started 2018-06-19T16:05:16Z
+#=#=#=#=# Propagation starts 2018-06-19T16:05:16Z (last step: 520 msec, total: 520 msec)
+#=#=#=# Syncrun finished 2018-06-19T16:05:16Z (last step: 11 msec, total: 532 msec)
+#=#=#=# Syncrun started 2018-06-19T19:03:26Z
+#=#=#=#=# Propagation starts 2018-06-19T19:03:27Z (last step: 499 msec, total: 499 msec)
+#=#=#=# Syncrun finished 2018-06-19T19:03:27Z (last step: 14 msec, total: 513 msec)
+#=#=#=# Syncrun started 2018-06-19T21:03:28Z
+#=#=#=#=# Propagation starts 2018-06-19T21:03:28Z (last step: 475 msec, total: 475 msec)
+#=#=#=# Syncrun finished 2018-06-19T21:03:29Z (last step: 14 msec, total: 490 msec)
+#=#=#=# Syncrun started 2018-06-20T04:20:14Z
+#=#=#=#=# Propagation starts 2018-06-20T04:20:14Z (last step: 366 msec, total: 366 msec)
+#=#=#=# Syncrun finished 2018-06-20T04:20:14Z (last step: 30 msec, total: 397 msec)
+#=#=#=# Syncrun started 2018-06-20T06:20:18Z
+#=#=#=#=# Propagation starts 2018-06-20T06:20:18Z (last step: 360 msec, total: 360 msec)
+#=#=#=# Syncrun finished 2018-06-20T06:20:18Z (last step: 12 msec, total: 373 msec)
+#=#=#=# Syncrun started 2018-06-20T08:20:28Z
+#=#=#=#=# Propagation starts 2018-06-20T08:20:28Z (last step: 370 msec, total: 370 msec)
+#=#=#=# Syncrun finished 2018-06-20T08:20:28Z (last step: 15 msec, total: 386 msec)
+#=#=#=# Syncrun started 2018-06-20T10:20:33Z
+#=#=#=#=# Propagation starts 2018-06-20T10:20:33Z (last step: 339 msec, total: 339 msec)
+#=#=#=# Syncrun finished 2018-06-20T10:20:34Z (last step: 26 msec, total: 366 msec)
+#=#=#=# Syncrun started 2018-06-20T12:20:38Z
+#=#=#=#=# Propagation starts 2018-06-20T12:20:39Z (last step: 374 msec, total: 374 msec)
+#=#=#=# Syncrun finished 2018-06-20T12:20:39Z (last step: 58 msec, total: 433 msec)
+#=#=#=# Syncrun started 2018-06-20T16:31:11Z
+#=#=#=#=# Propagation starts 2018-06-20T16:31:13Z (last step: 1158 msec, total: 1158 msec)
+#=#=#=# Syncrun finished 2018-06-20T16:31:13Z (last step: 36 msec, total: 1194 msec)
+#=#=#=# Syncrun started 2018-06-20T18:31:15Z
+#=#=#=#=# Propagation starts 2018-06-20T18:31:15Z (last step: 487 msec, total: 487 msec)
+#=#=#=# Syncrun finished 2018-06-20T18:31:15Z (last step: 15 msec, total: 502 msec)
+#=#=#=# Syncrun started 2018-06-20T20:31:20Z
+#=#=#=#=# Propagation starts 2018-06-20T20:31:20Z (last step: 637 msec, total: 637 msec)
+#=#=#=# Syncrun finished 2018-06-20T20:31:20Z (last step: 26 msec, total: 664 msec)
+#=#=#=# Syncrun started 2018-06-21T10:15:23Z
+#=#=#=#=# Propagation starts 2018-06-21T10:15:23Z (last step: 548 msec, total: 548 msec)
+#=#=#=# Syncrun finished 2018-06-21T10:15:23Z (last step: 14 msec, total: 562 msec)
+#=#=#=# Syncrun started 2018-06-21T12:15:26Z
+#=#=#=#=# Propagation starts 2018-06-21T12:15:26Z (last step: 530 msec, total: 530 msec)
+#=#=#=# Syncrun finished 2018-06-21T12:15:26Z (last step: 34 msec, total: 564 msec)
+#=#=#=# Syncrun started 2018-06-21T14:15:31Z
+#=#=#=#=# Propagation starts 2018-06-21T14:15:31Z (last step: 658 msec, total: 658 msec)
+#=#=#=# Syncrun finished 2018-06-21T14:15:31Z (last step: 25 msec, total: 683 msec)
+#=#=#=# Syncrun started 2018-06-21T16:15:36Z
+#=#=#=#=# Propagation starts 2018-06-21T16:15:36Z (last step: 578 msec, total: 578 msec)
+#=#=#=# Syncrun finished 2018-06-21T16:15:36Z (last step: 19 msec, total: 598 msec)
+#=#=#=# Syncrun started 2018-06-21T18:15:41Z
+#=#=#=#=# Propagation starts 2018-06-21T18:15:41Z (last step: 536 msec, total: 536 msec)
+#=#=#=# Syncrun finished 2018-06-21T18:15:41Z (last step: 29 msec, total: 565 msec)
+#=#=#=# Syncrun started 2018-06-21T20:15:46Z
+#=#=#=#=# Propagation starts 2018-06-21T20:15:46Z (last step: 536 msec, total: 536 msec)
+#=#=#=# Syncrun finished 2018-06-21T20:15:46Z (last step: 12 msec, total: 549 msec)
+#=#=#=# Syncrun started 2018-06-22T14:55:32Z
+#=#=#=#=# Propagation starts 2018-06-22T14:55:32Z (last step: 404 msec, total: 404 msec)
+#=#=#=# Syncrun finished 2018-06-22T14:55:32Z (last step: 14 msec, total: 418 msec)
+#=#=#=# Syncrun started 2018-06-22T16:55:36Z
+#=#=#=#=# Propagation starts 2018-06-22T16:55:36Z (last step: 373 msec, total: 373 msec)
+#=#=#=# Syncrun finished 2018-06-22T16:55:36Z (last step: 40 msec, total: 414 msec)
+#=#=#=# Syncrun started 2018-06-22T18:55:41Z
+#=#=#=#=# Propagation starts 2018-06-22T18:55:41Z (last step: 460 msec, total: 460 msec)
+#=#=#=# Syncrun finished 2018-06-22T18:55:41Z (last step: 13 msec, total: 474 msec)
+#=#=#=# Syncrun started 2018-06-22T20:55:46Z
+#=#=#=#=# Propagation starts 2018-06-22T20:55:46Z (last step: 525 msec, total: 525 msec)
+#=#=#=# Syncrun finished 2018-06-22T20:55:46Z (last step: 34 msec, total: 560 msec)
+#=#=#=# Syncrun started 2018-06-23T09:11:11Z
+#=#=#=#=# Propagation starts 2018-06-23T09:11:12Z (last step: 844 msec, total: 844 msec)
+#=#=#=# Syncrun finished 2018-06-23T09:11:12Z (last step: 11 msec, total: 856 msec)
+#=#=#=# Syncrun started 2018-06-23T11:11:14Z
+#=#=#=#=# Propagation starts 2018-06-23T11:11:15Z (last step: 601 msec, total: 601 msec)
+#=#=#=# Syncrun finished 2018-06-23T11:11:15Z (last step: 28 msec, total: 629 msec)
+#=#=#=# Syncrun started 2018-06-23T12:29:36Z
+#=#=#=#=# Propagation starts 2018-06-23T12:29:36Z (last step: 382 msec, total: 382 msec)
+#=#=#=# Syncrun finished 2018-06-23T12:29:36Z (last step: 10 msec, total: 392 msec)
+#=#=#=# Syncrun started 2018-06-23T12:45:32Z
+#=#=#=#=# Propagation starts 2018-06-23T12:45:33Z (last step: 487 msec, total: 487 msec)
+#=#=#=# Syncrun finished 2018-06-23T12:45:33Z (last step: 20 msec, total: 508 msec)
+#=#=#=# Syncrun started 2018-06-23T14:45:36Z
+#=#=#=#=# Propagation starts 2018-06-23T14:45:36Z (last step: 396 msec, total: 396 msec)
+#=#=#=# Syncrun finished 2018-06-23T14:45:36Z (last step: 13 msec, total: 409 msec)
+#=#=#=# Syncrun started 2018-06-23T16:45:41Z
+#=#=#=#=# Propagation starts 2018-06-23T16:45:42Z (last step: 474 msec, total: 474 msec)
+#=#=#=# Syncrun finished 2018-06-23T16:45:42Z (last step: 26 msec, total: 501 msec)
+#=#=#=# Syncrun started 2018-06-23T18:45:46Z
+#=#=#=#=# Propagation starts 2018-06-23T18:45:47Z (last step: 470 msec, total: 470 msec)
+#=#=#=# Syncrun finished 2018-06-23T18:45:47Z (last step: 12 msec, total: 482 msec)
+#=#=#=# Syncrun started 2018-06-23T20:45:51Z
+#=#=#=#=# Propagation starts 2018-06-23T20:45:52Z (last step: 443 msec, total: 443 msec)
+#=#=#=# Syncrun finished 2018-06-23T20:45:52Z (last step: 20 msec, total: 463 msec)
+#=#=#=# Syncrun started 2018-06-24T09:19:45Z
+#=#=#=#=# Propagation starts 2018-06-24T09:19:46Z (last step: 578 msec, total: 578 msec)
+#=#=#=# Syncrun finished 2018-06-24T09:19:46Z (last step: 12 msec, total: 591 msec)
+#=#=#=# Syncrun started 2018-06-24T11:19:49Z
+#=#=#=#=# Propagation starts 2018-06-24T11:19:49Z (last step: 349 msec, total: 349 msec)
+#=#=#=# Syncrun finished 2018-06-24T11:19:49Z (last step: 12 msec, total: 362 msec)
+#=#=#=# Syncrun started 2018-06-24T13:19:54Z
+#=#=#=#=# Propagation starts 2018-06-24T13:19:54Z (last step: 423 msec, total: 423 msec)
+#=#=#=# Syncrun finished 2018-06-24T13:19:54Z (last step: 24 msec, total: 447 msec)
+#=#=#=# Syncrun started 2018-06-24T15:19:59Z
+#=#=#=#=# Propagation starts 2018-06-24T15:19:59Z (last step: 446 msec, total: 446 msec)
+#=#=#=# Syncrun finished 2018-06-24T15:19:59Z (last step: 30 msec, total: 476 msec)
+#=#=#=# Syncrun started 2018-06-24T17:20:04Z
+#=#=#=#=# Propagation starts 2018-06-24T17:20:04Z (last step: 338 msec, total: 338 msec)
+#=#=#=# Syncrun finished 2018-06-24T17:20:04Z (last step: 15 msec, total: 353 msec)
+#=#=#=# Syncrun started 2018-06-24T19:20:09Z
+#=#=#=#=# Propagation starts 2018-06-24T19:20:10Z (last step: 577 msec, total: 577 msec)
+#=#=#=# Syncrun finished 2018-06-24T19:20:10Z (last step: 19 msec, total: 596 msec)
+#=#=#=# Syncrun started 2018-06-25T14:40:02Z
+#=#=#=#=# Propagation starts 2018-06-25T14:40:02Z (last step: 545 msec, total: 545 msec)
+#=#=#=# Syncrun finished 2018-06-25T14:40:02Z (last step: 55 msec, total: 601 msec)
+#=#=#=# Syncrun started 2018-06-25T16:40:05Z
+#=#=#=#=# Propagation starts 2018-06-25T16:40:06Z (last step: 346 msec, total: 346 msec)
+#=#=#=# Syncrun finished 2018-06-25T16:40:06Z (last step: 16 msec, total: 362 msec)
+#=#=#=# Syncrun started 2018-06-25T18:40:10Z
+#=#=#=#=# Propagation starts 2018-06-25T18:40:11Z (last step: 496 msec, total: 496 msec)
+#=#=#=# Syncrun finished 2018-06-25T18:40:11Z (last step: 30 msec, total: 527 msec)
+#=#=#=# Syncrun started 2018-06-25T20:40:15Z
+#=#=#=#=# Propagation starts 2018-06-25T20:40:16Z (last step: 493 msec, total: 493 msec)
+#=#=#=# Syncrun finished 2018-06-25T20:40:16Z (last step: 24 msec, total: 518 msec)
+#=#=#=# Syncrun started 2018-06-26T09:05:39Z
+#=#=#=#=# Propagation starts 2018-06-26T09:05:40Z (last step: 658 msec, total: 658 msec)
+#=#=#=# Syncrun finished 2018-06-26T09:05:40Z (last step: 11 msec, total: 670 msec)
+#=#=#=# Syncrun started 2018-06-26T11:05:42Z
+#=#=#=#=# Propagation starts 2018-06-26T11:05:43Z (last step: 457 msec, total: 457 msec)
+#=#=#=# Syncrun finished 2018-06-26T11:05:43Z (last step: 14 msec, total: 472 msec)
+#=#=#=# Syncrun started 2018-06-26T13:05:47Z
+#=#=#=#=# Propagation starts 2018-06-26T13:05:48Z (last step: 612 msec, total: 612 msec)
+#=#=#=# Syncrun finished 2018-06-26T13:05:48Z (last step: 12 msec, total: 625 msec)
+#=#=#=# Syncrun started 2018-06-26T15:05:52Z
+#=#=#=#=# Propagation starts 2018-06-26T15:05:53Z (last step: 597 msec, total: 597 msec)
+#=#=#=# Syncrun finished 2018-06-26T15:05:53Z (last step: 19 msec, total: 616 msec)
+#=#=#=# Syncrun started 2018-06-26T17:05:57Z
+#=#=#=#=# Propagation starts 2018-06-26T17:05:58Z (last step: 523 msec, total: 523 msec)
+#=#=#=# Syncrun finished 2018-06-26T17:05:58Z (last step: 11 msec, total: 535 msec)
+#=#=#=# Syncrun started 2018-06-26T19:06:02Z
+#=#=#=#=# Propagation starts 2018-06-26T19:06:03Z (last step: 520 msec, total: 520 msec)
+#=#=#=# Syncrun finished 2018-06-26T19:06:03Z (last step: 13 msec, total: 534 msec)
+#=#=#=# Syncrun started 2018-06-26T21:06:12Z
+#=#=#=#=# Propagation starts 2018-06-26T21:06:13Z (last step: 793 msec, total: 793 msec)
+#=#=#=# Syncrun finished 2018-06-26T21:06:13Z (last step: 14 msec, total: 807 msec)
+#=#=#=# Syncrun started 2018-06-27T07:32:25Z
+#=#=#=#=# Propagation starts 2018-06-27T07:32:26Z (last step: 1150 msec, total: 1150 msec)
+#=#=#=# Syncrun finished 2018-06-27T07:32:26Z (last step: 14 msec, total: 1164 msec)
+#=#=#=# Syncrun started 2018-06-27T09:32:28Z
+#=#=#=#=# Propagation starts 2018-06-27T09:32:28Z (last step: 484 msec, total: 484 msec)
+#=#=#=# Syncrun finished 2018-06-27T09:32:28Z (last step: 29 msec, total: 513 msec)
+#=#=#=# Syncrun started 2018-06-27T11:32:33Z
+#=#=#=#=# Propagation starts 2018-06-27T11:32:33Z (last step: 579 msec, total: 579 msec)
+#=#=#=# Syncrun finished 2018-06-27T11:32:33Z (last step: 13 msec, total: 593 msec)
+#=#=#=# Syncrun started 2018-06-27T11:57:04Z
+#=#=#=#=# Propagation starts 2018-06-27T11:57:05Z (last step: 496 msec, total: 496 msec)
+#=#=#=# Syncrun finished 2018-06-27T11:57:05Z (last step: 30 msec, total: 527 msec)
+#=#=#=# Syncrun started 2018-06-27T13:57:08Z
+#=#=#=#=# Propagation starts 2018-06-27T13:57:08Z (last step: 557 msec, total: 557 msec)
+#=#=#=# Syncrun finished 2018-06-27T13:57:08Z (last step: 18 msec, total: 575 msec)
+#=#=#=# Syncrun started 2018-06-27T15:57:13Z
+#=#=#=#=# Propagation starts 2018-06-27T15:57:13Z (last step: 526 msec, total: 526 msec)
+#=#=#=# Syncrun finished 2018-06-27T15:57:13Z (last step: 15 msec, total: 542 msec)
+#=#=#=# Syncrun started 2018-06-27T17:57:18Z
+#=#=#=#=# Propagation starts 2018-06-27T17:57:18Z (last step: 513 msec, total: 513 msec)
+#=#=#=# Syncrun finished 2018-06-27T17:57:18Z (last step: 16 msec, total: 529 msec)
+#=#=#=# Syncrun started 2018-06-27T19:57:28Z
+#=#=#=#=# Propagation starts 2018-06-27T19:57:28Z (last step: 494 msec, total: 494 msec)
+#=#=#=# Syncrun finished 2018-06-27T19:57:28Z (last step: 15 msec, total: 510 msec)
+#=#=#=# Syncrun started 2018-06-28T12:46:55Z
+#=#=#=#=# Propagation starts 2018-06-28T12:46:57Z (last step: 2114 msec, total: 2114 msec)
+#=#=#=# Syncrun finished 2018-06-28T12:46:57Z (last step: 13 msec, total: 2127 msec)
+#=#=#=# Syncrun started 2018-06-28T14:46:58Z
+#=#=#=#=# Propagation starts 2018-06-28T14:46:58Z (last step: 498 msec, total: 498 msec)
+#=#=#=# Syncrun finished 2018-06-28T14:46:59Z (last step: 12 msec, total: 510 msec)
+#=#=#=# Syncrun started 2018-06-28T14:47:59Z
+#=#=#=#=# Propagation starts 2018-06-28T14:47:59Z (last step: 466 msec, total: 466 msec)
+#=#=#=# Syncrun finished 2018-06-28T14:47:59Z (last step: 11 msec, total: 478 msec)
+#=#=#=# Syncrun started 2018-06-28T16:48:03Z
+#=#=#=#=# Propagation starts 2018-06-28T16:48:04Z (last step: 583 msec, total: 583 msec)
+#=#=#=# Syncrun finished 2018-06-28T16:48:04Z (last step: 27 msec, total: 610 msec)
+#=#=#=# Syncrun started 2018-06-28T18:48:08Z
+#=#=#=#=# Propagation starts 2018-06-28T18:48:09Z (last step: 547 msec, total: 547 msec)
+#=#=#=# Syncrun finished 2018-06-28T18:48:09Z (last step: 12 msec, total: 559 msec)
+#=#=#=# Syncrun started 2018-06-28T20:48:13Z
+#=#=#=#=# Propagation starts 2018-06-28T20:48:14Z (last step: 558 msec, total: 558 msec)
+#=#=#=# Syncrun finished 2018-06-28T20:48:14Z (last step: 14 msec, total: 572 msec)
+#=#=#=# Syncrun started 2018-06-29T16:47:55Z
+#=#=#=#=# Propagation starts 2018-06-29T16:47:56Z (last step: 789 msec, total: 789 msec)
+#=#=#=# Syncrun finished 2018-06-29T16:47:56Z (last step: 16 msec, total: 805 msec)
