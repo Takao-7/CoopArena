@@ -13,7 +13,7 @@ class AHumanoid;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath_Signature);
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/BAS_Interface.h"
 #include "GameplayTagContainer.h"
 #include "Humanoid.generated.h"
 
@@ -60,7 +61,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Respawn"))
 	URespawnComponent* RespawnComponent;
-
 
 	/////////////////////////////////////////////////////
 					/* Movement */

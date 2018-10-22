@@ -4,15 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Enums/BAS_Enums.h"
-#include "Enums/WeaponEnums.h"
+#include "Interfaces/BAS_Interface.h"
 #include "BasicAnimationSystemComponent.generated.h"
 
 
 class UCharacterMovementComponent;
 class IBAS_Interface;
-class UAnimMontage;
-class UAnimInstance;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJump_Signature);
@@ -59,7 +56,7 @@ struct FBASVariables
 };
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
 {
 	GENERATED_BODY()
