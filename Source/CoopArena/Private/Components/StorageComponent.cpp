@@ -9,6 +9,9 @@
 
 UStorageComponent::UStorageComponent()
 {
+	bReplicates = true;
+	bAutoActivate = true;
+
 	_WeightLimit = -1;
 	_Capacity = -1;
 }
@@ -198,16 +201,6 @@ void UStorageComponent::BeginPlay()
 	{
 		CheckWeightLimitAndCapacity();
 		AddStartingItems();
-
-		//if (GetOwner()->GetInstigator() == nullptr)
-		//{
-		//	// We are not attached to a pawn, so we are a container and will replicate our stored items to everyone.
-		//	UNetDriver* netDriver = GetOwner()->GetNetDriver();
-		//	if (netDriver)
-		//	{
-		//		netDriver->FindOrCreateRepChangedPropertyTracker(this).Get()->SetCustomIsActiveOverride(COND_Max, true);
-		//	}
-		//}
 	}
 }
 
