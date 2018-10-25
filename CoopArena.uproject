@@ -19,5 +19,11 @@
 			"Name": "ApexDestruction",
 			"Enabled": true
 		}
+<<<<<<< HEAD
+=======
+	],
+	"TargetPlatforms": [
+		"AllDesktop"
+>>>>>>> master
 	]
 }

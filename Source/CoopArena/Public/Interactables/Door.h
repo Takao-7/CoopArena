@@ -10,6 +10,7 @@
 
 class UStaticMeshComponent;
 class UArrowComponent;
+class UBoxComponent;
 
 
 UCLASS()
@@ -17,50 +18,60 @@ class COOPARENA_API ADoor : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
-
 protected:
-	/*UPROPERTY(VisibleDefaultsOnly, Category = Door)
-	UStaticMeshComponent* DoorFrame;*/
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Door)
-	UStaticMeshComponent* Door;
-
 	/* If true, the door will open to both sides (away from the interacting pawn). Otherwise only to the front. */
-	UPROPERTY(EditAnywhere, Category = Door)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Door)
 	bool bTwoSidedOpening;
 
 	/* The angle that the opened door will have. A negative values mean that the door will open to the back. */
-	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 135.0, ClampMin = -135.0f))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Door, meta = (ClampMax = 135.0, ClampMin = -135.0f))
 	float OpeningAngle;
 
-	/* How fast the door will open */
-	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0))
-	float OpeningSpeed;
-	
-	UPROPERTY(BlueprintReadOnly, Category = Door)
+	UPROPERTY(VisibleAnywhere, Category = Door)
 	UArrowComponent* Front;
 
-	UPROPERTY(BlueprintReadOnly, Category = Door)
-	bool bIsOpen;
+	UPROPERTY(VisibleAnywhere, Category = Door)
+	UStaticMeshComponent* Door;
 
-	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
-	UPROPERTY(BlueprintReadOnly, Category = Door)
-	float _TargetAngle;
+	UPROPERTY(VisibleAnywhere, Category = Door)
+	UBoxComponent* InteractionBox;
+
+private:
+	/* How fast the door will open */
+	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
+	float m_OpeningSpeed;
 	
-public:	
-	// Sets default values for this actor's properties
-	ADoor();
+	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
+	float m_TargetAngle;
+
+	bool m_bIsOpen;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
+	ADoor();
+
 	void Tick(float DeltaSeconds) override;
 
-	/* IInteractable interface */
+
+	/////////////////////////////////////////////////////
+			/* IInteractable interface */
+	/////////////////////////////////////////////////////
+public:
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
-	/* IInteractable interface end */	
+
+
+	/////////////////////////////////////////////////////
+				/* Networking */
+	/////////////////////////////////////////////////////
+private:
+	UFUNCTION(Server, WithValidation, Reliable)
+	void HandleInteract_Server(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+
+	/* Function to enable the tick function, in order to open or close the door. The opening angle is being replicated and set in 'HandleInteract_Server'. */
+	UFUNCTION(NetMulticast, Reliable)
+	void EnableTickFunction_Multicast(float TargetAngle, bool bIsOpen);
 };

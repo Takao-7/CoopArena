@@ -71,20 +71,17 @@ class COOPARENA_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:
 	AProjectile();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
 	float GetDamageWithFallOff() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	FORCEINLINE TSubclassOf<AActor> GetProjectileCase() const { return m_ProjectileCase; };
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-
-	/* Function to check if the bullet will hit something in the next frame. Called at begin play and on every frame. */
-	UFUNCTION(BlueprintCallable, Category = Projectile)
-	FHitResult HitDetectionLineTrace(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	FORCEINLINE FVector GetImpulse() const;
@@ -94,12 +91,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	UProjectileMovementComponent* _ProjectileMovementComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UStaticMeshComponent* Mesh;
+
+	/* The case that is spawned after this projectile is fired. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile, meta = (DisplayName = "Projectile case"))
+	TSubclassOf<AActor> m_ProjectileCase;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	FProjectileValues _ProjectileValues;
@@ -116,4 +116,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UParticleSystem* _TrailEffect;
+
+
+	/////////////////////////////////////////////////////
+					/* Networking */
+	/////////////////////////////////////////////////////
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void ApplyDamage_Multicast(AActor* OtherActor, float Damage, const FHitResult& SweepResult);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SpawnHitEffect_Multicast(UParticleSystem* Effect, FVector Location, FRotator Rotation);
 };
