@@ -45,7 +45,7 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	UHealthComponent* healthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
 	if (healthComp)
 	{
-		healthComp->OnDeathEvent.AddDynamic(this, &UBasicAnimationSystemComponent::DisableComponent);
+		healthComp->OnDeath.AddDynamic(this, &UBasicAnimationSystemComponent::DisableComponent);
 	}
 	
 	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;

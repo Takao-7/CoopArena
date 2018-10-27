@@ -39,7 +39,7 @@ void UHealthComponent::Kill()
 /////////////////////////////////////////////////////
 void UHealthComponent::OnDeathEvent_Multicast_Implementation()
 {
-	OnDeathEvent.Broadcast();
+	OnDeath.Broadcast();
 }
 
 /////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ void UHealthComponent::BeginPlay()
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
 	_compOwner = GetOwnerAsHumanoid();
 
-	OnDeathEvent.AddDynamic(this, &UHealthComponent::HandleDeath);
+	OnDeath.AddDynamic(this, &UHealthComponent::HandleDeath);
 }
 
 /////////////////////////////////////////////////////

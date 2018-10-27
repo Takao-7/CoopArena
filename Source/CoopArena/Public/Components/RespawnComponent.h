@@ -36,7 +36,8 @@ public:
 	void SetEnableRespawn(bool bShouldRespawn) { m_bEnableRespawn = bShouldRespawn; };
 
 	/* Event will be called when we re-spawned. Controller can be null, if our owner isn't a pawn. */
-	FRespawn_Signature OnRespawn_Event;
+	UPROPERTY(BlueprintReadWrite, Category = "Respawn")
+	FRespawn_Signature OnRespawn;
 
 	UFUNCTION(BlueprintPure, Category = "Respawn")
 	float GetRespawnDelay() const { return m_RespawnDelay; };

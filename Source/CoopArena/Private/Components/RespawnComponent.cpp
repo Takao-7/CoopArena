@@ -53,7 +53,7 @@ void URespawnComponent::HandleRespawn()
 		m_HealthComp->Kill();
 	}
 
-	OnRespawn_Event.Broadcast(newActor, controller);
+	OnRespawn.Broadcast(newActor, controller);
 
 	if (m_bDestroyOldActorOnRespawn)
 	{
@@ -78,7 +78,7 @@ void URespawnComponent::BeginPlay()
 	m_HealthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));	
 	if (m_HealthComp)
 	{
-		m_HealthComp->OnDeathEvent.AddDynamic(this, &URespawnComponent::HandleOnDeath);
+		m_HealthComp->OnDeath.AddDynamic(this, &URespawnComponent::HandleOnDeath);
 	}	
 
 	const APawn* pawnOwner = Cast<APawn>(GetOwner());

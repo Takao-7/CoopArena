@@ -34,7 +34,7 @@ public:
 
 	/* This event will be called, when this component's owner dies. */
 	UPROPERTY(BlueprintReadWrite, Category = Health)
-	FOnDeath_Signature OnDeathEvent;
+	FOnDeath_Signature OnDeath;
 
 private:
 	UFUNCTION(NetMulticast, Reliable)
