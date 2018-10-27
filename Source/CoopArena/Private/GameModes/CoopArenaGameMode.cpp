@@ -56,11 +56,7 @@ void ACoopArenaGameMode::RegisterBot(AController* Controller)
 /////////////////////////////////////////////////////
 AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {	
-	if (Player)
-	{
-		APlayerController* playerController = Cast<APlayerController>(Player);
-		playerController ? RegisterPlayer(playerController) : RegisterBot(Player);
-	}
+	RegisterPlayer(Cast<APlayerController>(Player));
 
 	if (SpawnPoints.Num() == 0)
 	{
