@@ -22,6 +22,9 @@ ASpawnPoint::ASpawnPoint(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	SafeZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SafeZone->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SafeZone->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	m_bAllowBotSpawn = true;
+	m_bAllowPlayerSpawn = true;
 }
 
 /////////////////////////////////////////////////////
@@ -84,4 +87,18 @@ void ASpawnPoint::OnConstruction(const FTransform& Transform)
 		const FVector newLocation = hitResult.Location + FVector(0.0f, 0.0f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 		SetActorLocation(newLocation);
 	}
+}
+
+/////////////////////////////////////////////////////
+bool ASpawnPoint::IsAllowedToSpawn(AController* Controller)
+{
+	bool bIsPlayer = Controller->IsPlayerController();
+	if (bIsPlayer)
+	{
+		return m_bAllowPlayerSpawn;
+	}
+	else
+	{
+		return m_bAllowBotSpawn;
+	}	
 }

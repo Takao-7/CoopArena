@@ -71,6 +71,9 @@ protected:
 private:
 	UHealthComponent* m_HealthComp;
 
+	/* Are we already respawning? */
+	bool m_IsAlreadyRespawning;
+
 	AActor* FindRespawnPoint();
 	AActor* SpawnNewActor();
 

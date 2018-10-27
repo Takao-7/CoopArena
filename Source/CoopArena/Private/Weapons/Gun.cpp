@@ -245,12 +245,14 @@ void AGun::AddWeaponSpread()
 {
 	m_HorizontalSpreadToApply += FMath::RandRange(-m_GunStats.SpreadHorizontal, m_GunStats.SpreadHorizontal);
 	m_VerticalSpreadToApply += m_GunStats.SpreadVertical;
+	PrimaryActorTick.SetTickFunctionEnable(true);
 }
 
 void AGun::ApplyWeaponSpread(float DeltaSeconds)
 {
-	if (m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f)
+	if ((m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f) || m_MyOwner == nullptr)
 	{
+		PrimaryActorTick.SetTickFunctionEnable(false);
 		return;
 	}
 	
@@ -314,19 +316,17 @@ bool AGun::CanShoot() const
 /////////////////////////////////////////////////////
 void AGun::AttachMeshToPawn()
 {
-	if (m_MyOwner)
+	if (m_MyOwner && m_Mesh)
 	{
 		FName AttachPoint = m_MyOwner->GetEquippedWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = m_MyOwner->GetMesh();
 
-		if (m_Mesh)
-		{
-			m_Mesh->SetSimulatePhysics(false);
-			m_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			m_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
-			m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-			m_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
-		}
+		m_Mesh->SetSimulatePhysics(false);
+		m_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		m_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
+		m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		m_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
+		
 	}
 }
 
