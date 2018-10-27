@@ -211,12 +211,14 @@ void UStorageComponent::AddStartingItems()
 	{
 		for (auto& item : _ItemsToSpawnWith)
 		{
+			ensureMsgf(item.Key, TEXT("'%s' has an item in the 'Items to spawn with' arra without a set class."), *GetOwner()->GetName());
+			
 			AItemBase* itemBase = Cast<AItemBase>(item.Key->GetDefaultObject(true));
 
 			uint32 amount = item.Value;
 			FItemStats stats = itemBase->GetItemStats();
 
-			AddItem(stats, amount);
+			AddItem(stats, amount);			
 		}
 	}
 }

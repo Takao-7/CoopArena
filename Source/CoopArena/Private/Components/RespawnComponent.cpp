@@ -18,13 +18,15 @@ URespawnComponent::URespawnComponent()
 
 	m_bEnableRespawn = true;
 	m_RespawnDelay = 2.0f;
+	m_IsAlreadyRespawning = false;
 }
 
 /////////////////////////////////////////////////////
 void URespawnComponent::Respawn()
 {
-	if (m_bEnableRespawn && GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority() && m_bEnableRespawn && !m_IsAlreadyRespawning)
 	{
+		m_IsAlreadyRespawning = true;
 		if (m_RespawnDelay > 0.0f)
 		{
 			FTimerHandle timerhandle;

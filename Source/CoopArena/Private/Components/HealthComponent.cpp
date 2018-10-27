@@ -59,6 +59,7 @@ void UHealthComponent::HandleDeath()
 	if (!bAlreadyDied && GetOwner()->HasAuthority())
 	{
 		bAlreadyDied = true;
+
 		Multicast_HandleDeath();
 	}
 }

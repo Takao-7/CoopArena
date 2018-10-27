@@ -17,15 +17,17 @@ void ACoopArenaGameMode::FindSpawnPoints()
 	TArray<AActor*> spawnPoint_actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnPoint::StaticClass(), spawnPoint_actors);
 
+	if (spawnPoint_actors.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No spawn points on the map!"));
+		return;
+	}
+
 	for (AActor* spawnPoint : spawnPoint_actors)
 	{
 		SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
 	}
 
-	if (SpawnPoints.Num() == 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No spawn points on the map!"));
-	}
 }
 
 /////////////////////////////////////////////////////
@@ -72,7 +74,7 @@ AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player
 
 		for (ASpawnPoint* point : SpawnPoints)
 		{
-			const bool bIsSafe = point->IsSafeToSpawn(teamTag);
+			const bool bIsSafe = point->IsSafeToSpawn(teamTag) && point->IsAllowedToSpawn(Player);
 			if (bIsSafe)
 			{
 				freeSpawnPoints.AddUnique(point);

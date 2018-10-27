@@ -37,6 +37,9 @@ public:
 	 */
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	/* Is the given controller allowed to spawn here? */
+	bool IsAllowedToSpawn(AController* Controller);
+
 protected:
 	/* Area around the spawn point that needs to be enemy-free in order to spawn a player. */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Spawn point")
@@ -44,4 +47,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn point", meta = (DisplayName = "Safe zone radius"))
 	float m_SafeZoneRadius;
+
+	/* Are players allowed to spawn here? */
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn point", meta = (DisplayName = "Allow player spawn"))
+	bool m_bAllowPlayerSpawn;
+
+	/* Are bots allowed to spawn here? */
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn point", meta = (DisplayName = "Allow bot spawn"))
+	bool m_bAllowBotSpawn;
 };
