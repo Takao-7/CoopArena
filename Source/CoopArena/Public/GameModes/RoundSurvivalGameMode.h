@@ -6,9 +6,7 @@
 #include "GameModes/CoopArenaGameMode.h"
 #include "RoundSurvivalGameMode.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
 {
@@ -16,7 +14,5 @@ class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
 	
 	
 public:
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
-	
-	
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;	
 };

@@ -16,6 +16,9 @@ AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Mesh->SetGenerateOverlapEvents(true);
@@ -29,9 +32,6 @@ AProjectile::AProjectile()
 	RootComponent = Mesh;
 
 	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
-
-	SetReplicates(true);
-	SetReplicateMovement(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +94,8 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject(true));
 		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
 	}
-
 	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
+	//SpawnHitEffect_Multicast(_DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
 	Destroy();
 }
 
