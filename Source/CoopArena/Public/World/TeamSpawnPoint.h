@@ -10,5 +10,15 @@ UCLASS()
 class COOPARENA_API ATeamSpawnPoint : public ASpawnPoint
 {
 	GENERATED_BODY()
-	
+
+
+public:
+	ATeamSpawnPoint(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	int32 m_NumSpawnPoints;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FVector> m_SpawnPoints;	
 };

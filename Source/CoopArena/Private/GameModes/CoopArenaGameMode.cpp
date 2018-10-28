@@ -2,6 +2,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpawnPoint.h"
+#include "GameFramework/PlayerStart.h"
 #include "Humanoid.h"
 
 
@@ -57,39 +58,7 @@ void ACoopArenaGameMode::RegisterBot(AController* Controller)
 AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {	
 	RegisterPlayer(Cast<APlayerController>(Player));
-
-	if (SpawnPoints.Num() == 0)
-	{
-		return Super::ChoosePlayerStart_Implementation(Player);
-	}
-
-	TArray<ASpawnPoint*> freeSpawnPoints;
-	if(Player)
-	{
-		const FString teamTag = CheckForTeamTag(*Player);
-
-		for (ASpawnPoint* point : SpawnPoints)
-		{
-			const bool bIsSafe = point->IsSafeToSpawn(teamTag) && point->IsAllowedToSpawn(Player);
-			if (bIsSafe)
-			{
-				freeSpawnPoints.AddUnique(point);
-			}
-		}
-	}
-
-	if (freeSpawnPoints.Num() > 0)
-	{
-		const int32 index = FMath::RandRange(0, freeSpawnPoints.Num() - 1);
-		return freeSpawnPoints[index];
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No free spawn points found!"));
-
-		const int32 index = FMath::RandRange(0, SpawnPoints.Num() - 1);
-		return SpawnPoints[index];
-	}
+	return Super::ChoosePlayerStart_Implementation(Player);
 }
 
 /////////////////////////////////////////////////////

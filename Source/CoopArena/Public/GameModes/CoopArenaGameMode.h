@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "CoopArenaGameMode.generated.h"
 
 
@@ -13,7 +13,7 @@ class AController;
 
 
 UCLASS()
-class COOPARENA_API ACoopArenaGameMode : public AGameModeBase
+class COOPARENA_API ACoopArenaGameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
