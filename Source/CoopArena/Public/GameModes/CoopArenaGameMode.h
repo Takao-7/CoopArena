@@ -12,6 +12,10 @@ class APlayerController;
 class AController;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerDeath_Signature, APlayerController*, PlayerThatDied, AController*, Killer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBotDeath_Signature, AController*, BotThatDied, AController*, Killer);
+
+
 UCLASS()
 class COOPARENA_API ACoopArenaGameMode : public AGameMode
 {
@@ -38,6 +42,12 @@ protected:
 	FName m_DefaultBotTeam;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
+	FOnPlayerDeath_Signature OnPlayerDeath_Event;
+
+	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
+	FOnBotDeath_Signature OnBotDeath_Event;
+
 	ACoopArenaGameMode();
 
 	/**

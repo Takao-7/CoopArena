@@ -23,9 +23,18 @@ struct FBASVariables
 {
 	GENERATED_BODY()
 
-	/* The yaw angle between the control rotation and the velocity direction. */
+	/* The angle between the control rotation and the velocity direction. */
 	UPROPERTY(BlueprintReadOnly)
 	float AimYaw;
+
+	/**
+	 * The angle between the actor's rotation and the movement direction.
+	 * 0°: The actor is moving straight forward.
+	 * 90° / -90°: The actor is moving to the right / left.
+	 * +/- 180°: The actor is moving straight backwards.
+	 */
+	UPROPERTY(BlueprintReadOnly)
+	float MovementDirection;
 
 	/* The pitch angle between the control rotation and the actor's pitch.  */
 	UPROPERTY(BlueprintReadOnly)
@@ -35,7 +44,7 @@ struct FBASVariables
 	UPROPERTY(BlueprintReadOnly)
 	float HorizontalVelocity;
 
-	/* The actor's velocity. */
+	/* The actor's velocity in world space. */
 	UPROPERTY(BlueprintReadOnly)
 	FVector Velocity;
 
@@ -50,6 +59,10 @@ struct FBASVariables
 	/* The actor's current movement type. */
 	UPROPERTY(BlueprintReadOnly)
 	EMovementType MovementType;
+
+	/* The actor's movement type in the last frame. */
+	UPROPERTY(BlueprintReadOnly)
+	EMovementType MovementType_LastFrame;
 
 	UPROPERTY(BlueprintReadOnly)
 	EMovementAdditive MovementAdditive;

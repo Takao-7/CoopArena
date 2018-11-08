@@ -33,7 +33,7 @@ public:
 	void Kill();
 
 	/* This event will be called, when this component's owner dies. */
-	UPROPERTY(BlueprintReadWrite, Category = Health)
+	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeath_Signature OnDeath;
 
 private:
