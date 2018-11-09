@@ -44,7 +44,6 @@ void UCoopArenaGameInstance::Join(const FString& IpAdress)
 {
 	const FString adressToTravel = (IpAdress == "" || IpAdress.IsEmpty()) ? "127.0.0.1" : IpAdress;
 	GetFirstLocalPlayerController()->ClientTravel(adressToTravel, ETravelType::TRAVEL_Absolute);
-	//UGameplayStatics::OpenLevel(GetWorld(), *adressToTravel);
 }
 
 /////////////////////////////////////////////////////
@@ -99,7 +98,6 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 	{
 		const FString mapToLoad = m_MapToHost.IsEmpty() ? "Lobby" : m_MapToHost;
 		UE_LOG(LogTemp, Warning, TEXT("Session successfully created. Loading level: %s"), *mapToLoad);
-		//GetWorld()->ServerTravel(*("/Game/Maps/" + mapToLoad + "?listen"));
 		UGameplayStatics::OpenLevel(GetWorld(), *("/Game/Maps/" + mapToLoad), true, "listen");
 	}
 }
