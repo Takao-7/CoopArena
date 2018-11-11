@@ -19,7 +19,6 @@
 #include "GameModes/CoopArenaGameMode.h"
 
 
-// Sets default values
 AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
