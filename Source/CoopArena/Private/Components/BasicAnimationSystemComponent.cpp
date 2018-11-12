@@ -11,15 +11,14 @@
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	bReplicates = true;
+	bAutoActivate = true;
 
 	m_TurnSpeed = 10.0f;
 
 	m_Variables.MovementType = EMovementType::Idle;
 	m_Variables.MovementAdditive = EMovementAdditive::None;
 	m_Variables.EquippedWeaponType = EWEaponType::None;
-
-	bReplicates = true;
-	bAutoActivate = true;
 
 	m_180TurnThreshold = 120.0f;
 	m_AngleClampThreshold = 180.0f;

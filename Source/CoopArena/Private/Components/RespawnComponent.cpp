@@ -12,6 +12,7 @@
 URespawnComponent::URespawnComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bAutoActivate = true;
 
 	m_bRespawnAtDeathLocation = false;
 	m_bRespawnOnDestroy = false;

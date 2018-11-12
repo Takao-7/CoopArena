@@ -14,7 +14,7 @@ class UDamageType;
 class AItemBase;
 class UHealthComponent;
 class UBasicAnimationSystemComponent;
-class UInventoryComponent;
+class USimpleInventory;
 class URespawnComponent;
 
 
@@ -56,7 +56,7 @@ protected:
 	UBasicAnimationSystemComponent* BASComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Inventory"))
-	UInventoryComponent* Inventory;
+	USimpleInventory* Inventory;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Respawn"))
 	URespawnComponent* RespawnComponent;

@@ -10,7 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/SimpleInventory.h"
 #include "Components/RespawnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
@@ -50,13 +50,25 @@ AHumanoid::AHumanoid()
 	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
 	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
-	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("Respawn"));
-	AddOwnedComponent(HealthComponent);
-	AddOwnedComponent(BASComponent);
+
 	AddOwnedComponent(Inventory);
+	AddOwnedComponent(BASComponent);
+	AddOwnedComponent(HealthComponent);
 	AddOwnedComponent(RespawnComponent);
+
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	moveComp->JumpZVelocity = 300.0f;
+	moveComp->AirControl = 0.0f;
+	moveComp->MaxAcceleration = 600.0f;
+	moveComp->CrouchedHalfHeight = 65.0f;
+	moveComp->MaxWalkSpeed = 200.0f;
+	moveComp->MaxWalkSpeedCrouched = 200.0f;
+	moveComp->BrakingDecelerationWalking = 400.0f;
+	moveComp->bCanWalkOffLedgesWhenCrouching = true;
+	moveComp->MaxCustomMovementSpeed = 650.0f;
 }
 
 /////////////////////////////////////////////////////

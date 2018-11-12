@@ -14,7 +14,7 @@
 #include "Magazine.h"
 #include "Projectile.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/SimpleInventory.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
@@ -346,48 +346,28 @@ void AGun::DetachMeshFromPawn()
 /////////////////////////////////////////////////////
 bool AGun::GetAmmoFromInventory()
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(m_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));
+	USimpleInventory* inventory = Cast<USimpleInventory>(m_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory == nullptr || !HasAuthority())
 	{
 		return false;
 	}
 	
-	bool bHasMag = false;
-	if (m_LoadedMagazine)
-	{
-		bHasMag = inventory->RemoveItem(m_LoadedMagazine->GetItemStats(), 1.0f);
-	}
-	else
-	{
-		AMagazine* magObject = Cast<AMagazine>(m_GunStats.UsableMagazineClass->GetDefaultObject(true));
-		bHasMag = inventory->RemoveItem(magObject->GetItemStats(), 1.0f);
-	}
-
+	const bool bHasMag = inventory->GetMagazineFromInventory(m_LoadedMagazine ? m_LoadedMagazine->GetClass() : m_GunStats.UsableMagazineClass);
 	return bHasMag;
 }
 
 /////////////////////////////////////////////////////
 bool AGun::CheckIfOwnerHasMagazine() const
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(m_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
+	USimpleInventory* inventory = Cast<USimpleInventory>(m_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));	
 	if (inventory == nullptr)
 	{
 		return false;
 	}
 
-	if (m_LoadedMagazine)
-	{
-		FItemStats& magStats = m_LoadedMagazine->GetItemStats();
-		return inventory->HasItem(magStats);
-	}
-	else
-	{
-		AMagazine* magObject = Cast<AMagazine>(m_GunStats.UsableMagazineClass->GetDefaultObject(true));
-		FItemStats& magStats = magObject->GetItemStats();
-		return inventory->HasItem(magStats);
-	}	
+	const TSubclassOf<AMagazine> magClass = m_LoadedMagazine ? m_LoadedMagazine->GetClass() : m_GunStats.UsableMagazineClass;
+	return inventory->HasMagazines(magClass);
 }
-
 
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
@@ -449,7 +429,7 @@ void AGun::OnAnimNotify_FinishReloading()
 /////////////////////////////////////////////////////
 void AGun::Reload()
 {
-	if (m_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
+	if (m_CurrentGunState == EWeaponState::Reloading || CheckIfOwnerHasMagazine() == false || (m_LoadedMagazine && m_LoadedMagazine->IsFull()))
 	{
 		return;
 	}
@@ -598,7 +578,6 @@ UCameraComponent* AGun::GetZoomCamera() const
 {
 	return _ZoomCamera;
 }
-
 
 /////////////////////////////////////////////////////
 void AGun::BeginPlay()
