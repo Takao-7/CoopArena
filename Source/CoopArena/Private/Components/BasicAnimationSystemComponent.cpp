@@ -221,7 +221,7 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::DisableComponent()
+void UBasicAnimationSystemComponent::DisableComponent(AActor* Actor, AController* Killer)
 {
 	PrimaryComponentTick.SetTickFunctionEnable(false);
 	m_bIsLocallyControlled = false;

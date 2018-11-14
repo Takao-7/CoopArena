@@ -69,6 +69,7 @@ AHumanoid::AHumanoid()
 	moveComp->BrakingDecelerationWalking = 400.0f;
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
 	moveComp->MaxCustomMovementSpeed = 650.0f;
+	moveComp->MovementState.bCanCrouch = true;	
 }
 
 /////////////////////////////////////////////////////

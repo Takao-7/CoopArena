@@ -40,6 +40,8 @@ APlayerCharacter::APlayerCharacter()
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
 
 	m_IncrementVelocityAmount = 50.0f;
+
+	m_TeamName = "Player Team";
 }
 
 /////////////////////////////////////////////////////

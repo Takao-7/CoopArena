@@ -61,11 +61,11 @@ void UCoopArenaGameInstance::Init()
 	m_SessionSearch = MakeShareable(new FOnlineSessionSearch());
 	m_SessionSearch->bIsLanQuery = true;
 
-	if (IsDedicatedServerInstance())
+	/*if (IsDedicatedServerInstance())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("We are a dedicated server, hosting the lobby map."));
 		Host("Lobby");
-	}
+	}*/
 }
 
 /////////////////////////////////////////////////////

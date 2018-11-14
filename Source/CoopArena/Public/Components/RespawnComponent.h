@@ -86,5 +86,5 @@ private:
 	void HandleOnDestroy(AActor* DestroyedActor);
 
 	UFUNCTION()
-	void HandleOnDeath();
+	void HandleOnDeath(AActor* Actor, AController* Killer);
 };

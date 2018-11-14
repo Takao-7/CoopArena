@@ -10,7 +10,7 @@
 class AHumanoid;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath_Signature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeath_Signature, AActor*, DeadActor, AController*, Killer);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -30,7 +30,7 @@ public:
 
 	/* Kills the attached actor */
 	UFUNCTION(BlueprintCallable, Category = Health)
-	void Kill();
+	void Kill(AController* Killer);
 
 	/* This event will be called, when this component's owner dies. */
 	UPROPERTY(BlueprintAssignable, Category = "Health")
@@ -38,7 +38,7 @@ public:
 
 private:
 	UFUNCTION(NetMulticast, Reliable)
-	void OnDeathEvent_Multicast();
+	void OnDeathEvent_Multicast(AActor* DeadActor, AController* Killer);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Health, meta = (DisplayName = "Max health"))
@@ -59,17 +59,12 @@ protected:
 	* - Activates physics on the mesh.
 	* - Deactivates the capsule component's collision
 	* - Dispossesses the controller.
-	* - Adds an impulse on the last hit's location in the opposite direction of the last hit.
-	* So the actor is pushed away from the last hit.
-	* @param applyImpulseOnDeath If set to true an impulse will be applied at the hit's location.
-	* @param hitInfo The FHitResult struct of the shot that killed the pawn.
-	* @param direction The direction from which the last shot came.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Health)
-	void HandleDeath();
+	void HandleDeath(AActor* Owner, AController* Killer);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_HandleDeath();
+	void HandleDeath_Multicast();
 
 	void SetPhysicsOnMesh();
 

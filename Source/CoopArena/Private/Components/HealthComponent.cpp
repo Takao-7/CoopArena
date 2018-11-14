@@ -9,6 +9,8 @@
 #include "TimerManager.h"
 #include "Gun.h"
 #include "UnrealNetwork.h"
+#include "GameModes/CoopArenaGameMode.h"
+#include "PlayerCharacter.h"
 
 
 UHealthComponent::UHealthComponent()
@@ -27,19 +29,19 @@ FORCEINLINE bool UHealthComponent::IsAlive() const
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::Kill()
+void UHealthComponent::Kill(AController* Killer)
 {
 	if (GetOwner()->HasAuthority() && !bAlreadyDied)
 	{
 		_CurrentHealth = 0.0f;
-		OnDeathEvent_Multicast();
+		OnDeathEvent_Multicast(GetOwner(), Killer);
 	}	
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::OnDeathEvent_Multicast_Implementation()
+void UHealthComponent::OnDeathEvent_Multicast_Implementation(AActor* DeadActor, AController* Killer)
 {
-	OnDeath.Broadcast();
+	OnDeath.Broadcast(GetOwner(), Killer);
 }
 
 /////////////////////////////////////////////////////
@@ -54,18 +56,24 @@ void UHealthComponent::BeginPlay()
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::HandleDeath()
+void UHealthComponent::HandleDeath(AActor* Owner, AController* Killer)
 {
 	if (!bAlreadyDied && GetOwner()->HasAuthority())
 	{
 		bAlreadyDied = true;
 
-		Multicast_HandleDeath();
+		ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+		ensureMsgf(gameMode, TEXT("The game mode is not a subclass of ACoopArenaGameMode"));
+		
+		const bool bIsPlayer = GetOwner()->GetInstigatorController()->IsPlayerController();
+		bIsPlayer ? gameMode->OnPlayerDeath_Event.Broadcast(Cast<APlayerCharacter>(Owner), Killer) : gameMode->OnBotDeath_Event.Broadcast(Owner, Killer);
+
+		HandleDeath_Multicast();
 	}
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::Multicast_HandleDeath_Implementation()
+void UHealthComponent::HandleDeath_Multicast_Implementation()
 {
 	bAlreadyDied = true;
 
@@ -123,7 +131,7 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 	_CurrentHealth -= Damage;
 	if (_CurrentHealth <= 0.0f)
 	{
-		OnDeathEvent_Multicast();
+		OnDeathEvent_Multicast(GetOwner(), InstigatedBy);
 	}
 }
 

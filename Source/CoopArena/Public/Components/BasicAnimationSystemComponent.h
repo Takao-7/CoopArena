@@ -214,7 +214,7 @@ private:
 	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
 	UFUNCTION()
-	void DisableComponent();
+	void DisableComponent(AActor* Actor, AController* Killer);
 
 
 	/////////////////////////////////////////////////////

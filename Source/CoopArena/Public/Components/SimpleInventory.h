@@ -3,11 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Magazine.h"
 #include "Components/ActorComponent.h"
 #include "SimpleInventory.generated.h"
 
 
-class AMagazine;
+USTRUCT(BlueprintType)
+struct FMagazineStack
+{
+	GENERATED_BODY()
+
+public:
+	FMagazineStack() {};
+	FMagazineStack(TSubclassOf<AMagazine> MagClass, int32 StackSize)
+	{
+		this->magClass = MagClass;
+		this->stackSize = StackSize;
+	};
+
+	FORCEINLINE bool operator==(const TSubclassOf<AMagazine>& OtherMagClass) const
+	{
+		return this->magClass == OtherMagClass;
+	};
+
+	UPROPERTY()
+	TSubclassOf<AMagazine> magClass;
+
+	UPROPERTY()
+	int32 stackSize;
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -36,7 +60,7 @@ protected:
 
 	/* Magazines and their count that are currently in this inventory */
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Inventory", meta = (DisplayName = "Stored magazines"))
-	TMap<TSubclassOf<AMagazine>, int32> m_StoredMagazines;
+	TArray<FMagazineStack> m_StoredMagazines;
 
 
 	/////////////////////////////////////////////////////
@@ -49,7 +73,7 @@ public:
 
 	/* Returns the number of magazines, from the given type, that are currently in this inventory */
 	UFUNCTION(BlueprintPure, Category = "Inventory")
-	int32 GetNumberOfMagazinesForType(TSubclassOf<AMagazine> MagazineType) const;
+	int32 GetNumberOfMagazinesForType(TSubclassOf<AMagazine>& MagazineType) const;
 
 
 	/////////////////////////////////////////////////////
@@ -121,4 +145,7 @@ protected:
 private:
 	/* [Server] Adds the magazines to this inventory that are specified in @m_MazainesToSpawnWith */
 	void SetupDefaultMagazines();
+
+	FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType);
+	const FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType) const;
 };

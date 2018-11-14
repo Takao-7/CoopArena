@@ -51,7 +51,7 @@ void URespawnComponent::HandleRespawn()
 
 	if (m_HealthComp)
 	{
-		m_HealthComp->Kill();
+		m_HealthComp->Kill(controller);
 	}
 
 	OnRespawn.Broadcast(newActor, controller);
@@ -115,7 +115,7 @@ void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 }
 
 /////////////////////////////////////////////////////
-void URespawnComponent::HandleOnDeath()
+void URespawnComponent::HandleOnDeath(AActor* Actor, AController* Killer)
 {
 	Respawn();
 }

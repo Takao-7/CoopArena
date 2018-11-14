@@ -37,8 +37,19 @@ void USimpleInventory::SetupDefaultMagazines()
 		const int32 maxMagazineCount = GetMaxMagazineCountForType(key);
 		const int32 value = maxMagazineCount < magazine.Value ? maxMagazineCount : magazine.Value;
 
-		int32& newValue = m_StoredMagazines.Add(key, value);
+		m_StoredMagazines.Add(FMagazineStack(key, value));
 	}
+}
+
+/////////////////////////////////////////////////////
+FMagazineStack* USimpleInventory::FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType)
+{
+	return m_StoredMagazines.FindByPredicate([&](FMagazineStack Stack) {return Stack == MagazineType; });
+}
+
+const FMagazineStack* USimpleInventory::FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType) const
+{
+	return m_StoredMagazines.FindByPredicate([&](FMagazineStack Stack) {return Stack == MagazineType; });
 }
 
 /////////////////////////////////////////////////////
@@ -49,10 +60,10 @@ int32 USimpleInventory::GetMaxMagazineCountForType(TSubclassOf<AMagazine> Magazi
 }
 
 /////////////////////////////////////////////////////
-int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine> MagazineType) const
+int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine>& MagazineType) const
 {
-	const int32* pointer = m_StoredMagazines.Find(MagazineType);
-	return pointer ? *pointer : 0;
+	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
+	return magStack ? magStack->stackSize : 0;
 }
 
 /////////////////////////////////////////////////////
@@ -60,8 +71,8 @@ bool USimpleInventory::HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, 
 {
 	ensureMsgf(NumMagazinesToStore > 0, TEXT("The number of magazines to store in this inventory must be greater than 0"));
 
-	const int32* numMags_Pointer = m_StoredMagazines.Find(MagazineType);
-	const int32 numberOfMagsInInventory = numMags_Pointer ? *numMags_Pointer : 0;
+	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
+	const int32 numberOfMagsInInventory = magStack ? magStack->stackSize : 0;
 
 	const int32* maxNumMags_Pointer = m_MaxNumberOfMagazines.Find(MagazineType);
 	const int32 maxNumberOfMagsInInventory = maxNumMags_Pointer ? *maxNumMags_Pointer : m_DefaultMaxNumberOfMagazines;
@@ -83,19 +94,34 @@ bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineTyp
 		return false;
 	}
 
-	AddMagazineToInventory_Server(MagazineType, NumMagazinesToStore);
+	if (GetOwner()->HasAuthority())
+	{
+		FMagazineStack* magStack = FindMagazineStack(MagazineType);
+		if (magStack)
+		{
+			magStack->stackSize += NumMagazinesToStore;
+		}
+		else
+		{
+			m_StoredMagazines.Add(FMagazineStack(MagazineType, NumMagazinesToStore));
+		}
+	}
+	else
+	{
+		AddMagazineToInventory_Server(MagazineType, NumMagazinesToStore);
+	}
+	
 	return true;
 }
 
 void USimpleInventory::AddMagazineToInventory_Server_Implementation(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToStore /*= 1*/)
 {
-	int32* pointer = m_StoredMagazines.Find(MagazineType);
-	pointer ? *pointer += NumMagazinesToStore : m_StoredMagazines.Add(MagazineType, NumMagazinesToStore);
+	AddMagazineToInventory(MagazineType, NumMagazinesToStore);
 }
 
 bool USimpleInventory::AddMagazineToInventory_Server_Validate(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToStore /*= 1*/)
 {
-	return HasSpaceForMagazine(MagazineType, NumMagazinesToStore);
+	return true;
 }
 
 /////////////////////////////////////////////////////
@@ -107,19 +133,27 @@ bool USimpleInventory::GetMagazineFromInventory(TSubclassOf<AMagazine> MagazineT
 		return false;
 	}
 
-	GetMagazineFromInventory_Server(MagazineType, NumMagazinesToRemove);
+	if (GetOwner()->HasAuthority())
+	{
+		FMagazineStack* stack = FindMagazineStack(MagazineType);
+		stack->stackSize -= NumMagazinesToRemove;
+	}
+	else
+	{
+		GetMagazineFromInventory_Server(MagazineType, NumMagazinesToRemove);
+	}
+
 	return true;
 }
 
 void USimpleInventory::GetMagazineFromInventory_Server_Implementation(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToRemove /*= 1*/)
 {
-	int32* pointer = m_StoredMagazines.Find(MagazineType);
-	*pointer -= NumMagazinesToRemove;
+	GetMagazineFromInventory(MagazineType);
 }
 
 bool USimpleInventory::GetMagazineFromInventory_Server_Validate(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToRemove /*= 1*/)
 {
-	return HasMagazines(MagazineType, NumMagazinesToRemove);
+	return true;
 }
 
 /////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 #include "CoopArenaGameMode.h"
 #include "Engine/World.h"
+#include "Engine/PlayerStartPIE.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpawnPoint.h"
 #include "GameFramework/PlayerStart.h"
@@ -8,8 +9,8 @@
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
-	m_DefaultPlayerTeam = "Team1";
-	m_DefaultBotTeam = "TeamBots";
+	m_DefaultPlayerTeam = "Player Team";
+	m_DefaultBotTeam = "Bot Team";
 }
 
 /////////////////////////////////////////////////////
@@ -26,46 +27,8 @@ void ACoopArenaGameMode::FindSpawnPoints()
 
 	for (AActor* spawnPoint : spawnPoint_actors)
 	{
-		SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
+		m_SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
 	}
-
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::RegisterPlayer(APlayerController* Controller)
-{
-	if (Players.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Players.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultPlayerTeam);
-}
-
-void ACoopArenaGameMode::RegisterBot(AController* Controller)
-{
-	if (Bots.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Bots.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultBotTeam);
-}
-
-/////////////////////////////////////////////////////
-AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{	
-	RegisterPlayer(Cast<APlayerController>(Player));
-	return Super::ChoosePlayerStart_Implementation(Player);
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	RegisterPlayer(NewPlayer);
 }
 
 /////////////////////////////////////////////////////
@@ -73,6 +36,29 @@ void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	FindSpawnPoints();
+}
+
+/////////////////////////////////////////////////////
+AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
+{
+	if (m_SpawnPoints.Num() == 0)
+	{
+		return Super::FindPlayerStart(Player, IncomingName);
+	}
+
+	for (ASpawnPoint* spawnPoint : m_SpawnPoints)
+	{
+		if (IncomingName.IsEmpty() && spawnPoint->PlayerStartTag != m_DefaultBotTeam)
+		{
+			return spawnPoint;
+		}
+		else if (spawnPoint->PlayerStartTag == *IncomingName)
+		{
+			return spawnPoint;
+		}
+	}	
+
+	return m_SpawnPoints[FMath::RandRange(0, m_SpawnPoints.Num() - 1)];
 }
 
 /////////////////////////////////////////////////////
