@@ -85,25 +85,23 @@ void AGun::SetUpMesh()
 /////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
-	if (character)
+	AHumanoid* humanoid = Cast<AHumanoid>(InteractingPawn);
+	if (humanoid)
 	{
-		AGun* equippedGun = character->GetEquippedGun();
+		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			equippedGun->Multicast_OnUnequip(true);
+			equippedGun->Unequip_Multicast(true);
 
-			FTimerDelegate timerDelegate;
 			FTimerHandle timerHandle;
-			timerDelegate.BindLambda([this, character]
+			GetWorld()->GetTimerManager().SetTimer(timerHandle, ([this, humanoid]
 			{
-				character->EquipWeapon(this);
-			});
-			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
+				humanoid->EquipWeapon(this);
+			}), 0.5f, false);
 		}
 		else
 		{
-			character->EquipWeapon(this);
+			humanoid->EquipWeapon(this);
 		}
 	}
 }
@@ -143,29 +141,57 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 }
 
 /////////////////////////////////////////////////////
-void AGun::OnUnequip(bool DropGun /*= false*/)
+void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 {	
-	if (DropGun)
+	if (bRequestMulticast)
 	{
-		DetachMeshFromPawn();
-		SetOwningPawn(nullptr);
-		SetCanBeInteractedWith_Implementation(true);
 		if (HasAuthority())
 		{
-			SetReplicateMovement(true);
+			Unequip_Multicast(bDropGun);
+		}
+		else
+		{
+			Unequip_Server(bDropGun);
 		}
 	}
 	else
 	{
-		m_Mesh->SetSimulatePhysics(false);
-		m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		if (HasAuthority())
+		if (bDropGun)
 		{
-			SetReplicateMovement(false);
+			DetachMeshFromPawn();
+			SetOwningPawn(nullptr);
+			SetCanBeInteractedWith_Implementation(true);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(true);
+			}
+		}
+		else
+		{
+			m_Mesh->SetSimulatePhysics(false);
+			m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(false);
+			}
 		}
 	}
 }
 
+void AGun::Unequip_Server_Implementation(bool bDropGun)
+{
+	Unequip_Multicast(bDropGun);
+}
+
+bool AGun::Unequip_Server_Validate(bool bDropGun)
+{
+	return true;
+}
+
+void AGun::Unequip_Multicast_Implementation(bool bDropGun)
+{
+	Unequip(bDropGun, false);
+}
 
 /////////////////////////////////////////////////////
 void AGun::OnFire()
@@ -454,12 +480,6 @@ void AGun::OnMagAttached()
 	{
 		AttachMagazine(m_MagToAttach);
 	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_OnUnequip_Implementation(bool bDropGun)
-{
-	OnUnequip(true);
 }
 
 /////////////////////////////////////////////////////

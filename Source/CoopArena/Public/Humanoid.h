@@ -38,6 +38,10 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	bool IsAlive() const;
+
+	void Revive();
+
 protected:
 	virtual void BeginPlay() override;
 

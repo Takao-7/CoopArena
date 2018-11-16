@@ -10,7 +10,7 @@
 class AHumanoid;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeath_Signature, AActor*, DeadActor, AController*, Killer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeath_Signature, AActor*, DeadActor, AController*, Controller, AController*, Killer);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -38,7 +38,7 @@ public:
 
 private:
 	UFUNCTION(NetMulticast, Reliable)
-	void OnDeathEvent_Multicast(AActor* DeadActor, AController* Killer);
+	void OnDeathEvent_Multicast(AActor* DeadActor, AController* Controller, AController* Killer);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Health, meta = (DisplayName = "Max health"))
@@ -48,7 +48,6 @@ protected:
 	float _CurrentHealth;
 
 	bool bAlreadyDied;
-	AHumanoid* _compOwner;
 
 	virtual void BeginPlay() override;
 
@@ -61,7 +60,7 @@ protected:
 	* - Dispossesses the controller.
 	*/
 	UFUNCTION(BlueprintCallable, Category = Health)
-	void HandleDeath(AActor* Owner, AController* Killer);
+	void HandleDeath(AActor* Owner, AController* Controller, AController* Killer);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void HandleDeath_Multicast();

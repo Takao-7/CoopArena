@@ -41,7 +41,7 @@ public:
 
 
 	/////////////////////////////////////////////////////
-			/* Interactable interface */
+				/* Interactable interface */
 	/////////////////////////////////////////////////////
 public:
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;

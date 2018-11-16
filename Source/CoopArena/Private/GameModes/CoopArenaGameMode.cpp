@@ -5,12 +5,21 @@
 #include "SpawnPoint.h"
 #include "GameFramework/PlayerStart.h"
 #include "Humanoid.h"
+#include "PlayerCharacter.h"
+#include "MyGameState.h"
+#include "MyPlayerState.h"
+#include "MyPlayerController.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
 	m_DefaultPlayerTeam = "Player Team";
 	m_DefaultBotTeam = "Bot Team";
+
+	DefaultPawnClass = APlayerCharacter::StaticClass();
+	GameStateClass = AMyGameState::StaticClass();
+	PlayerStateClass = AMyPlayerState::StaticClass();
+	PlayerControllerClass = AMyPlayerController::StaticClass();
 }
 
 /////////////////////////////////////////////////////
@@ -39,11 +48,30 @@ void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options
 }
 
 /////////////////////////////////////////////////////
+void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	m_PlayerCharacters.AddUnique(PlayerCharacter);
+}
+
+void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	m_PlayerCharacters.RemoveSwap(PlayerCharacter);
+}
+
+/////////////////////////////////////////////////////
 AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
 {
+	AActor* playerStart = Super::ChoosePlayerStart_Implementation(Player);
+	if (playerStart && playerStart->IsA(APlayerStartPIE::StaticClass()))
+	{
+		return playerStart;
+	}
+
 	if (m_SpawnPoints.Num() == 0)
 	{
-		return Super::FindPlayerStart(Player, IncomingName);
+		return Super::FindPlayerStart_Implementation(Player, IncomingName);
 	}
 
 	for (ASpawnPoint* spawnPoint : m_SpawnPoints)
@@ -59,6 +87,19 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 	}	
 
 	return m_SpawnPoints[FMath::RandRange(0, m_SpawnPoints.Num() - 1)];
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	m_PlayerControllers.AddUnique(NewPlayer);
+	Super::PostLogin(NewPlayer);
+}
+
+/////////////////////////////////////////////////////
+bool ACoopArenaGameMode::CanRespawn(APlayerController* PlayerController)
+{
+	return false;
 }
 
 /////////////////////////////////////////////////////

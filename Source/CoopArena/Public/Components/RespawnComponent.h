@@ -75,6 +75,8 @@ private:
 	/* Are we already re-spawning? */
 	bool m_IsAlreadyRespawning;
 
+	APlayerController* m_MyPlayerController;
+
 	AActor* FindRespawnPoint();
 
 	AActor* SpawnNewActor();
@@ -86,5 +88,8 @@ private:
 	void HandleOnDestroy(AActor* DestroyedActor);
 
 	UFUNCTION()
-	void HandleOnDeath(AActor* Actor, AController* Killer);
+	void HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer);
+
+	bool CanRespawn();
+
 };

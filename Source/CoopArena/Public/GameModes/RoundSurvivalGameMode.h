@@ -9,6 +9,7 @@
 
 class AHumanoid;
 class APlayerCharacter;
+class AMyPlayerController;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaveStart_Event);
@@ -49,7 +50,18 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
 	int32 m_CurrentWave;
-	
+
+	/////////////////////////////////////////////////////
+					/* Match flow */
+	/////////////////////////////////////////////////////
+protected:
+	/** @return True if ready to Start Match. Games should override this */
+	bool ReadyToStartMatch_Implementation() override;
+
+	/** @return true if ready to End Match. Games should override this */
+	bool ReadyToEndMatch_Implementation() override;
+
+
 public:
 	ARoundSurvivalGameMode();
 
@@ -76,9 +88,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
 	FOnWaveEnd_Event OnWaveEnd_Event;
-
-	/** Called after a successful login.  This is the first place it is safe to call replicated functions on the PlayerController. */
-	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	/**
 	 * Return the specific player start actor that should be used for the next spawn
@@ -108,7 +117,7 @@ private:
 	UFUNCTION()
 	void HandlePlayerDeath(APlayerCharacter* DeadPlayer, AController* Killer);
 
-	void StartSpectating(APlayerController* PlayerController);
+	void StartSpectating(AMyPlayerController* PlayerController);
 
 	TArray<ASpawnPoint*> m_BotSpawnPoints;
 

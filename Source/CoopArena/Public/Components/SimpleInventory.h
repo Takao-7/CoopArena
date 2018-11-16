@@ -39,6 +39,7 @@ class COOPARENA_API USimpleInventory : public UActorComponent
 {
 	GENERATED_BODY()
 
+
 	/////////////////////////////////////////////////////
 				/* Parameters & variables */
 	/////////////////////////////////////////////////////
@@ -72,8 +73,8 @@ public:
 	int32 GetMaxMagazineCountForType(TSubclassOf<AMagazine> MagazineType) const;
 
 	/* Returns the number of magazines, from the given type, that are currently in this inventory */
-	UFUNCTION(BlueprintPure, Category = "Inventory")
-	int32 GetNumberOfMagazinesForType(TSubclassOf<AMagazine>& MagazineType) const;
+	UFUNCTION(BlueprintCallable, Category = "Invetory")
+	int32 GetNumberOfMagazinesForType(TSubclassOf<AMagazine> MagazineType) const;
 
 
 	/////////////////////////////////////////////////////

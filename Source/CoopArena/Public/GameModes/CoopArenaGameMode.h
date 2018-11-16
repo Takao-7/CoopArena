@@ -37,6 +37,10 @@ protected:
 
 	uint32 m_NumPlayersAlive;
 
+	TArray<APlayerCharacter*> m_PlayerCharacters;
+
+	TArray<APlayerController*> m_PlayerControllers;
+
 public:
 	ACoopArenaGameMode();
 
@@ -54,6 +58,10 @@ public:
 
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
+	void RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
+
+	void UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
+
 	/**
 	 * Return the specific player start actor that should be used for the next spawn
 	 * This will either use a previously saved startactor, or calls ChoosePlayerStart
@@ -63,4 +71,9 @@ public:
 	 * @returns Actor chosen as player start (usually a PlayerStart)
 	 */
 	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName = TEXT("")) override;
+
+	/** Called after a successful login.  This is the first place it is safe to call replicated functions on the PlayerController. */
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	bool CanRespawn(APlayerController* PlayerController);
 };

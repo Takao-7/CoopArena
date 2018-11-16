@@ -11,6 +11,7 @@
 #include "World/MyPlayerState.h"
 #include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
+#include "MyPlayerController.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -21,6 +22,17 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	m_PointsPerBotKill = 10;
 	m_WaveLength = 60.0f;
 	m_PointPenaltyForTeamKill = 50;
+}
+
+/////////////////////////////////////////////////////
+bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
+{
+	return Super::ReadyToStartMatch_Implementation();
+}
+
+bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
+{
+	return Super::ReadyToEndMatch_Implementation();
 }
 
 /////////////////////////////////////////////////////
@@ -59,14 +71,22 @@ void ARoundSurvivalGameMode::EndWave()
 	}
 	m_BotsDead.Empty(m_BotsDead.Num() * 2);
 
+	for (APlayerController* pc : m_PlayerControllers)
+	{
+		if (pc->PlayerState->bIsSpectator)
+		{
+			pc->PlayerState->bIsSpectator = false;
+			pc->PlayerState->bOnlySpectator = false;
+			pc->bPlayerIsWaiting = false;
+
+			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
+			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
+			playerCharacter->Revive();
+		}
+	}
+
 	OnWaveEnd_Event.Broadcast();
 	StartWave();
-}
-
-/////////////////////////////////////////////////////
-void ARoundSurvivalGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
 }
 
 /////////////////////////////////////////////////////
@@ -126,19 +146,14 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 
 void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, AController* Killer)
 {
-	APlayerController* playerController = Cast<APlayerController>(DeadPlayer->GetController());
-	StartSpectating(playerController);
+	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
+	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
 
-	if (DeadPlayer->PlayerState)
-	{
-		AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
-		ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
-		playerState->AddDeath();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("'%s' does not have a player state."), *DeadPlayer->GetName());
-	}
+	AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
+	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
+	playerState->AddDeath();
+
+	StartSpectating(playerController);
 
 	m_NumPlayersAlive--;
 	if (m_NumPlayersAlive == 0)
@@ -154,14 +169,16 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 }
 
 /////////////////////////////////////////////////////
-void ARoundSurvivalGameMode::StartSpectating(APlayerController* PlayerController)
+void ARoundSurvivalGameMode::StartSpectating(AMyPlayerController* PlayerController)
 {
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(PlayerController->PlayerState);
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	
-	playerState->bIsSpectator = true;
-	PlayerController->bPlayerIsWaiting = true;
-	PlayerController->ChangeState(NAME_Spectating);
-	PlayerController->ClientGotoState(NAME_Spectating);
-	PlayerController->ViewAPlayer(1);
+	for (APlayerCharacter* player : m_PlayerCharacters)
+	{
+		if (player->IsAlive())
+		{
+			PlayerController->StartSpectating(player);
+		}
+	}
 }

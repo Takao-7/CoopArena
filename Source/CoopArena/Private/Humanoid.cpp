@@ -47,7 +47,10 @@ AHumanoid::AHumanoid()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	USkeletalMeshComponent* mesh = GetMesh();
+	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	mesh->SetGenerateOverlapEvents(true);
+	mesh->SetCollisionObjectType(ECC_PhysicsBody);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
@@ -82,6 +85,18 @@ void AHumanoid::PossessedBy(AController* NewController)
 	{
 		m_TeamName = gameMode->CheckForTeamTag(*NewController);
 	}
+}
+
+/////////////////////////////////////////////////////
+bool AHumanoid::IsAlive() const
+{
+	return HealthComponent->IsAlive();
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::Revive()
+{
+	RespawnComponent->Respawn();
 }
 
 /////////////////////////////////////////////////////
@@ -572,7 +587,7 @@ void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
 {
 	if (m_EquippedWeapon)
 	{
-		m_EquippedWeapon->OnUnequip(bDropGun);
+		m_EquippedWeapon->Unequip(bDropGun);
 		m_EquippedWeapon = nullptr;
 		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 	}

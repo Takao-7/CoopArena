@@ -60,7 +60,7 @@ int32 USimpleInventory::GetMaxMagazineCountForType(TSubclassOf<AMagazine> Magazi
 }
 
 /////////////////////////////////////////////////////
-int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine>& MagazineType) const
+int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine> MagazineType) const
 {
 	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
 	return magStack ? magStack->stackSize : 0;
