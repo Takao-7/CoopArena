@@ -41,6 +41,8 @@ protected:
 
 	TArray<APlayerController*> m_PlayerControllers;
 
+	virtual void Logout(AController* Exiting) override;
+
 public:
 	ACoopArenaGameMode();
 
@@ -75,5 +77,12 @@ public:
 	/** Called after a successful login.  This is the first place it is safe to call replicated functions on the PlayerController. */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
-	bool CanRespawn(APlayerController* PlayerController);
+	/**
+	 * Checks if the given controller or actor is allowed to re-spawn.
+	 * At least one of the two parameters must be not null.
+	 * @param PlayerController The player controller that wants to re-spawn
+	 * @param Actor The actor that wants to re-spawn.
+	 * @return If the given controller or actor is allowed to re-spawn.
+	 */
+	bool CanRespawn(APlayerController* PlayerController, AActor* Actor) const;
 };

@@ -52,12 +52,14 @@ void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharact
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
 	m_PlayerCharacters.AddUnique(PlayerCharacter);
+	m_NumPlayersAlive++;
 }
 
 void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
 	m_PlayerCharacters.RemoveSwap(PlayerCharacter);
+	m_NumPlayersAlive--;
 }
 
 /////////////////////////////////////////////////////
@@ -96,10 +98,19 @@ void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 }
 
-/////////////////////////////////////////////////////
-bool ACoopArenaGameMode::CanRespawn(APlayerController* PlayerController)
+void ACoopArenaGameMode::Logout(AController* Exiting)
 {
-	return false;
+	m_PlayerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
+	m_NumPlayersAlive--;
+	Super::Logout(Exiting);
+}
+
+/////////////////////////////////////////////////////
+bool ACoopArenaGameMode::CanRespawn(APlayerController* PlayerController, AActor* Actor) const
+{
+	ensureMsgf(PlayerController || Actor, TEXT("Both parameters are null. At least one of them must be not-null. "));
+	const bool bIsNotAPawn = Actor && Actor->IsA(APawn::StaticClass()) == false;
+	return bIsNotAPawn;
 }
 
 /////////////////////////////////////////////////////

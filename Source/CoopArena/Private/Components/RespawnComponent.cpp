@@ -25,7 +25,7 @@ URespawnComponent::URespawnComponent()
 /////////////////////////////////////////////////////
 void URespawnComponent::Respawn()
 {
-	if (GetOwner()->HasAuthority() && m_bEnableRespawn && !m_IsAlreadyRespawning)
+	if (GetOwner()->HasAuthority() && !m_IsAlreadyRespawning)
 	{
 		m_IsAlreadyRespawning = true;
 		if (m_RespawnDelay > 0.0f)
@@ -137,5 +137,6 @@ bool URespawnComponent::CanRespawn()
 {
 	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
 	APlayerController* playerController = GetOwner()->GetInstigator<APlayerController>();
-	return gameMode->CanRespawn(playerController);
+	const bool bGameModeAllowsRespawn = gameMode->CanRespawn(playerController, GetOwner());
+	return bGameModeAllowsRespawn && m_bEnableRespawn;
 }

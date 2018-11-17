@@ -40,7 +40,12 @@ public:
 
 	bool IsAlive() const;
 
-	void Revive();
+	/**
+	 * Revives this character at it's death location.
+	 * @param bSpawnDefaultEquippment Should the revived character revive with the default equipment or
+	 * keep his old inventory?
+	 */
+	void Revive(bool bSpawnDefaultEquipment = false);
 
 protected:
 	virtual void BeginPlay() override;

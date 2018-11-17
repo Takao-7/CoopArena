@@ -32,7 +32,7 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 {
-	return Super::ReadyToEndMatch_Implementation();
+	return m_NumPlayersAlive > 0;
 }
 
 /////////////////////////////////////////////////////
@@ -55,22 +55,34 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::StartWave()
 {
-	SpawnBots();
 	m_CurrentWave++;
-	OnWaveStart_Event.Broadcast();
+	SpawnBots();
 	GetWorld()->GetTimerManager().SetTimer(m_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, m_WaveLength);
+	OnWaveStart_Event.Broadcast();
 }
 
 void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(m_RoundTimerHandle);
+	DestroyDeadBotBodies();
+	ReviveDeadPlayers();
+	OnWaveEnd_Event.Broadcast();
+	StartWave();
+}
 
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::DestroyDeadBotBodies()
+{
 	for (AHumanoid* bot : m_BotsDead)
 	{
 		bot->Destroy();
 	}
 	m_BotsDead.Empty(m_BotsDead.Num() * 2);
+}
 
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::ReviveDeadPlayers()
+{
 	for (APlayerController* pc : m_PlayerControllers)
 	{
 		if (pc->PlayerState->bIsSpectator)
@@ -82,11 +94,9 @@ void ARoundSurvivalGameMode::EndWave()
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
 			playerCharacter->Revive();
+			m_NumPlayersAlive++;
 		}
 	}
-
-	OnWaveEnd_Event.Broadcast();
-	StartWave();
 }
 
 /////////////////////////////////////////////////////
@@ -153,13 +163,14 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	playerState->AddDeath();
 
-	StartSpectating(playerController);
-
 	m_NumPlayersAlive--;
 	if (m_NumPlayersAlive == 0)
 	{
 		// #todo Game over
+		EndMatch();
 	}
+
+	StartSpectating(playerController);
 
 	if (Killer && Killer->IsPlayerController())
 	{
@@ -174,11 +185,12 @@ void ARoundSurvivalGameMode::StartSpectating(AMyPlayerController* PlayerControll
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(PlayerController->PlayerState);
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	
-	for (APlayerCharacter* player : m_PlayerCharacters)
+	/* Find alive player to watch. */
+	for (APlayerCharacter* pc : m_PlayerCharacters)
 	{
-		if (player->IsAlive())
+		if (pc->IsAlive())
 		{
-			PlayerController->StartSpectating(player);
+			PlayerController->StartSpectating(pc);
 		}
 	}
 }

@@ -94,7 +94,7 @@ bool AHumanoid::IsAlive() const
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::Revive()
+void AHumanoid::Revive(bool bSpawnDefaultEquipment /*= false*/)
 {
 	RespawnComponent->Respawn();
 }

@@ -90,6 +90,6 @@ private:
 	UFUNCTION()
 	void HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer);
 
+	/* Checks if the game mode allows re-spawning of this component's owner */
 	bool CanRespawn();
-
 };

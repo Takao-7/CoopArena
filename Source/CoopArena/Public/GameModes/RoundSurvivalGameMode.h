@@ -61,6 +61,21 @@ protected:
 	/** @return true if ready to End Match. Games should override this */
 	bool ReadyToEndMatch_Implementation() override;
 
+public:
+	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
+	void StartWave();
+
+	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
+	void EndWave();
+
+	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
+	FORCEINLINE int32 GetCurrentWaveNumber() const { return m_CurrentWave; };
+	
+	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
+	FOnWaveStart_Event OnWaveStart_Event;
+
+	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
+	FOnWaveEnd_Event OnWaveEnd_Event;
 
 public:
 	ARoundSurvivalGameMode();
@@ -68,26 +83,11 @@ public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
-	void StartWave();
-
-	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void SpawnBots();
-
-	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
-	void EndWave();
-
-	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
-	FORCEINLINE int32 GetCurrentWaveNumber() const { return m_CurrentWave; };
 
 	/* Returns the number of bots that are currently alive */
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
 	FORCEINLINE int32 GetNumberOfAliveBots() const { return m_BotsAlive.Num(); }
-
-	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveStart_Event OnWaveStart_Event;
-
-	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveEnd_Event OnWaveEnd_Event;
 
 	/**
 	 * Return the specific player start actor that should be used for the next spawn
@@ -109,6 +109,10 @@ public:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
 private:
+	void DestroyDeadBotBodies();
+
+	void ReviveDeadPlayers();
+
 	/* Is called when the OnBotDeath_Event is fired */
 	UFUNCTION()
 	void HandleBotDeath(AActor* DeadBot, AController* Killer);
