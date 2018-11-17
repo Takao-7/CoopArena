@@ -12,7 +12,9 @@ class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
 {
 	GENERATED_BODY()
 	
-	
 public:
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;	
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
+	void StartWave();
+	void EndWave();
 };

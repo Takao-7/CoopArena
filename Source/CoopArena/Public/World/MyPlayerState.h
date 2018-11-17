@@ -21,22 +21,22 @@ public:
 
 	void SetTeamNumber(int32 NewTeamNumber);
 
-	UFUNCTION(BlueprintCallable, Category = "Player state")
+	UFUNCTION(BlueprintPure, Category = "Player state")
 	int32 GetTeamNumber() const;
 
 	void AddKill();
 
-	UFUNCTION(BlueprintCallable, Category = "Player state")
+	UFUNCTION(BlueprintPure, Category = "Player state")
 	int32 GetKills() const;
 
 	void AddDeath();
 
-	UFUNCTION(BlueprintCallable, Category = "Player state")
+	UFUNCTION(BlueprintPure, Category = "Player state")
 	int32 GetDeaths() const;
 
 	void ScorePoints(int32 Points);
 
-	UFUNCTION(BlueprintCallable, Category = "Player state")
+	UFUNCTION(BlueprintPure, Category = "Player state")
 	float GetScore() const;
 
 private:
