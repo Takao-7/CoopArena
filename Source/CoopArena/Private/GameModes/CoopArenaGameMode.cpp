@@ -1,15 +1,25 @@
 #include "CoopArenaGameMode.h"
 #include "Engine/World.h"
+#include "Engine/PlayerStartPIE.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpawnPoint.h"
 #include "GameFramework/PlayerStart.h"
 #include "Humanoid.h"
+#include "PlayerCharacter.h"
+#include "MyGameState.h"
+#include "MyPlayerState.h"
+#include "MyPlayerController.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
-	m_DefaultPlayerTeam = "Team1";
-	m_DefaultBotTeam = "TeamBots";
+	m_DefaultPlayerTeam = "Player Team";
+	m_DefaultBotTeam = "Bot Team";
+
+	DefaultPawnClass = APlayerCharacter::StaticClass();
+	GameStateClass = AMyGameState::StaticClass();
+	PlayerStateClass = AMyPlayerState::StaticClass();
+	PlayerControllerClass = AMyPlayerController::StaticClass();
 }
 
 /////////////////////////////////////////////////////
@@ -26,46 +36,8 @@ void ACoopArenaGameMode::FindSpawnPoints()
 
 	for (AActor* spawnPoint : spawnPoint_actors)
 	{
-		SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
+		m_SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
 	}
-
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::RegisterPlayer(APlayerController* Controller)
-{
-	if (Players.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Players.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultPlayerTeam);
-}
-
-void ACoopArenaGameMode::RegisterBot(AController* Controller)
-{
-	if (Bots.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Bots.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultBotTeam);
-}
-
-/////////////////////////////////////////////////////
-AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{	
-	RegisterPlayer(Cast<APlayerController>(Player));
-	return Super::ChoosePlayerStart_Implementation(Player);
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	RegisterPlayer(NewPlayer);
 }
 
 /////////////////////////////////////////////////////
@@ -73,6 +45,72 @@ void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	FindSpawnPoints();
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	m_PlayerCharacters.AddUnique(PlayerCharacter);
+	m_NumPlayersAlive++;
+}
+
+void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	m_PlayerCharacters.RemoveSwap(PlayerCharacter);
+	m_NumPlayersAlive--;
+}
+
+/////////////////////////////////////////////////////
+AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
+{
+	AActor* playerStart = Super::ChoosePlayerStart_Implementation(Player);
+	if (playerStart && playerStart->IsA(APlayerStartPIE::StaticClass()))
+	{
+		return playerStart;
+	}
+
+	if (m_SpawnPoints.Num() == 0)
+	{
+		return Super::FindPlayerStart_Implementation(Player, IncomingName);
+	}
+
+	for (ASpawnPoint* spawnPoint : m_SpawnPoints)
+	{
+		if (IncomingName.IsEmpty() && spawnPoint->PlayerStartTag != m_DefaultBotTeam)
+		{
+			return spawnPoint;
+		}
+		else if (spawnPoint->PlayerStartTag == *IncomingName)
+		{
+			return spawnPoint;
+		}
+	}	
+
+	return m_SpawnPoints[FMath::RandRange(0, m_SpawnPoints.Num() - 1)];
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	m_PlayerControllers.AddUnique(NewPlayer);
+	Super::PostLogin(NewPlayer);
+}
+
+void ACoopArenaGameMode::Logout(AController* Exiting)
+{
+	m_PlayerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
+	m_NumPlayersAlive--;
+	Super::Logout(Exiting);
+}
+
+/////////////////////////////////////////////////////
+bool ACoopArenaGameMode::CanRespawn(APlayerController* PlayerController, AActor* Actor) const
+{
+	ensureMsgf(PlayerController || Actor, TEXT("Both parameters are null. At least one of them must be not-null. "));
+	const bool bIsNotAPawn = Actor && Actor->IsA(APawn::StaticClass()) == false;
+	return bIsNotAPawn;
 }
 
 /////////////////////////////////////////////////////

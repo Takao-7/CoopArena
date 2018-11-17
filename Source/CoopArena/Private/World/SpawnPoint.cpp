@@ -61,15 +61,7 @@ bool ASpawnPoint::IsSafeToSpawn(const FString& TagToCompare) const
 void ASpawnPoint::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	
-	if (SafeZone == nullptr)
-	{
-		SafeZone = Cast<USphereComponent>(GetComponentByClass(USphereComponent::StaticClass()));
-	}
-	else
-	{
-		SafeZone->SetSphereRadius(m_SafeZoneRadius, false);
-	}
+	SafeZone ? SafeZone->SetSphereRadius(m_SafeZoneRadius, false) : SafeZone = Cast<USphereComponent>(GetComponentByClass(USphereComponent::StaticClass()));
 }
 
 /////////////////////////////////////////////////////
@@ -92,13 +84,6 @@ void ASpawnPoint::OnConstruction(const FTransform& Transform)
 /////////////////////////////////////////////////////
 bool ASpawnPoint::IsAllowedToSpawn(AController* Controller)
 {
-	bool bIsPlayer = Controller->IsPlayerController();
-	if (bIsPlayer)
-	{
-		return m_bAllowPlayerSpawn;
-	}
-	else
-	{
-		return m_bAllowBotSpawn;
-	}	
+	const bool bIsPlayer = Controller->IsPlayerController();
+	return bIsPlayer ? m_bAllowPlayerSpawn : m_bAllowBotSpawn;
 }

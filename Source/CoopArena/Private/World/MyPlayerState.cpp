@@ -23,14 +23,18 @@ void AMyPlayerState::Reset()
 }
 
 /////////////////////////////////////////////////////
-void AMyPlayerState::ScorePoints(int32 Points)
+void AMyPlayerState::ScorePoints(int32 Points, bool bAddKill /*= true*/)
 {
 	Score += Points;
 
 	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
 	ensureMsgf(gameState, TEXT("Game state is not from class 'AMyGameState'"));
-
 	gameState->AddScore(Points);
+
+	if (bAddKill)
+	{
+		AddKill();
+	}
 }
 
 /////////////////////////////////////////////////////

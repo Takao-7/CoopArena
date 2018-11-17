@@ -63,6 +63,12 @@ UMeshComponent* AMagazine::GetMesh() const
 }
 
 /////////////////////////////////////////////////////
+bool AMagazine::IsFull() const
+{
+	return GetCapacity() == RoundsLeft();
+}
+
+/////////////////////////////////////////////////////
 void AMagazine::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

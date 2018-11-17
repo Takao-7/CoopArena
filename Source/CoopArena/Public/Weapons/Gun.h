@@ -134,12 +134,21 @@ public:
 	void OnEquip(AHumanoid* NewOwner);
 
 	/* Un-equip the gun. 
-	 * @param DropGun Set to false if the weapon should go to a holster (no collision and can't fire),
+	 * @param bDropGun Set to false if the weapon should go to a holster (no collision and can't fire),
 	 * otherwise it will be dropped.
+	 * @param bRequestMulticast If true, then the weapon will be un-equipped on the server and all clients
 	 */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void OnUnequip(bool DropGun = false);
+	void Unequip(bool bDropGun = false, bool bRequestMulticast = true);
 
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void Unequip_Multicast(bool bDropGun);
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void Unequip_Server(bool bDropGun);
+
+public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	EWEaponType GetWeaponType() { return m_GunStats.WeaponType; }
 	
@@ -385,8 +394,4 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpawnEjectedShell();
-
-public:
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_OnUnequip(bool bDropGun);
 };
