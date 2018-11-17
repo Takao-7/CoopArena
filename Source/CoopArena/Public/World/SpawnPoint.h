@@ -33,7 +33,7 @@ public:
 
 	/**
 	 * Called when an instance of this class is placed (in editor) or spawned.
-	 * @param	Transform			The transform the actor was constructed at.
+	 * @param Transform The transform the actor was constructed at.
 	 */
 	virtual void OnConstruction(const FTransform& Transform) override;
 

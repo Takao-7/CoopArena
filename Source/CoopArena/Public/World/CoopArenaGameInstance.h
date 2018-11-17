@@ -6,7 +6,18 @@
 #include "Engine/GameInstance.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "OnlineSessionInterface.h"
 #include "CoopArenaGameInstance.generated.h"
+
+
+//USTRUCT(BlueprintType)
+//struct FSessionSettingKeys
+//{
+//	GENERATED_BODY()
+//
+//public:
+//	static const FName SessionName;
+//};
 
 
 UCLASS()
@@ -17,10 +28,12 @@ class COOPARENA_API UCoopArenaGameInstance : public UGameInstance
 public:
 	UCoopArenaGameInstance();
 
-	/* Hosts a server at the given map or, when no map given, at the 'Lobby' map. */
+	/* Hosts a server at the given map or, when no map given, at the 'Lobby' map. Creates also a new sesssion. */
 	UFUNCTION(Exec)
 	void Host(FString Map);
 
+	/* Create a new session on the current map. Will destroy the current session if it exists. */
+	UFUNCTION(Exec)
 	void CreateSession();
 
 	/* Loads the given map or joins the given IP-Address. */
@@ -44,9 +57,11 @@ private:
 	FName m_SessionName;
 	TSharedPtr<class FOnlineSessionSearch> m_SessionSearch;
 	bool m_bWantsToSearchForGames;
-	FOnlineSessionSettings m_SessionSettings;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
 	void OnFindSessionComplete(bool bSuccess);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	void JoinServer(int32 SearchResultIndex);
 };

@@ -44,10 +44,15 @@ struct FWeaponAttachPoint
 		}		
 	}
 
-
+	/**
+	 * Can the given weapon be attached to this holster?
+	 * @return True if the given weapon is valid,
+	 * no weapon is currently held in this holster and 
+	 * if the given weapon's type is allowed in this holster.
+	 */
 	bool CanAttachWeapon(AGun* Weapon) const
 	{
-		return (Weapon == nullptr || m_currentlyHeldWeapon || allowedWeaponTypes.Find(Weapon->GetWeaponType()) == false) ? false : true;
+		return Weapon && m_currentlyHeldWeapon == nullptr && (allowedWeaponTypes.Find(Weapon->GetWeaponType()) != INDEX_NONE);
 	}
 
 	/**

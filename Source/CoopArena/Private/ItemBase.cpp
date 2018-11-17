@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ItemBase.h"
-#include "Components/InventoryComponent.h"
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
+#include "Components/InventoryComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ShapeComponent.h"
+#include "Components/SimpleInventory.h"
+#include "Magazine.h"
 #include "CoopArena.h"
 
 
@@ -66,16 +68,34 @@ UMeshComponent* AItemBase::GetMesh() const
 /////////////////////////////////////////////////////
 void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
-	if (inventory == nullptr)
+	if (_itemStats.itemClass->IsChildOf(AMagazine::StaticClass()))
 	{
-		return;
-	}
+		USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
+		if (inventory == nullptr)
+		{
+			return;
+		}
 
-	bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
-	if (bItemSuccessfullyAdded)
+		TSubclassOf<AMagazine> magClass = _itemStats.itemClass;
+		const bool bItemSuccessfullyAdded = inventory->AddMagazineToInventory(magClass);
+		if (bItemSuccessfullyAdded)
+		{
+			Destroy();
+		}
+	}
+	else
 	{
-		Destroy();
+		UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
+		if (inventory == nullptr)
+		{
+			return;
+		}
+
+		const bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
+		if (bItemSuccessfullyAdded)
+		{
+			Destroy();
+		}
 	}
 }
 

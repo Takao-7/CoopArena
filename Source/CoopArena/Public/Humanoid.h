@@ -14,14 +14,14 @@ class UDamageType;
 class AItemBase;
 class UHealthComponent;
 class UBasicAnimationSystemComponent;
-class UInventoryComponent;
+class USimpleInventory;
 class URespawnComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
 
-UCLASS()
+UCLASS(abstract)
 class COOPARENA_API AHumanoid : public ACharacter
 {
 	GENERATED_BODY()
@@ -37,6 +37,15 @@ public:
 	void SetTeamName(FString NewTeamName) { m_TeamName = NewTeamName; };
 
 	virtual void PossessedBy(AController* NewController) override;
+
+	bool IsAlive() const;
+
+	/**
+	 * Revives this character at it's death location.
+	 * @param bSpawnDefaultEquippment Should the revived character revive with the default equipment or
+	 * keep his old inventory?
+	 */
+	void Revive(bool bSpawnDefaultEquipment = false);
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,7 +65,7 @@ protected:
 	UBasicAnimationSystemComponent* BASComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Inventory"))
-	UInventoryComponent* Inventory;
+	USimpleInventory* Inventory;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (DisplayName = "Respawn"))
 	URespawnComponent* RespawnComponent;

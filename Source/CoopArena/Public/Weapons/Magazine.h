@@ -44,6 +44,9 @@ public:
 
 	virtual UMeshComponent* GetMesh() const override;
 
+	/* Is this magazine full? */
+	bool IsFull() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

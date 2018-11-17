@@ -10,7 +10,6 @@
 UStorageComponent::UStorageComponent()
 {
 	bReplicates = true;
-	bAutoActivate = true;
 
 	_WeightLimit = -1;
 	_Capacity = -1;

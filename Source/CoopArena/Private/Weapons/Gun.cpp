@@ -14,7 +14,7 @@
 #include "Magazine.h"
 #include "Projectile.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/SimpleInventory.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
@@ -85,25 +85,23 @@ void AGun::SetUpMesh()
 /////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
-	AHumanoid* character = Cast<AHumanoid>(InteractingPawn);
-	if (character)
+	AHumanoid* humanoid = Cast<AHumanoid>(InteractingPawn);
+	if (humanoid)
 	{
-		AGun* equippedGun = character->GetEquippedGun();
+		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			equippedGun->Multicast_OnUnequip(true);
+			equippedGun->Unequip_Multicast(true);
 
-			FTimerDelegate timerDelegate;
 			FTimerHandle timerHandle;
-			timerDelegate.BindLambda([this, character]
+			GetWorld()->GetTimerManager().SetTimer(timerHandle, ([this, humanoid]
 			{
-				character->EquipWeapon(this);
-			});
-			GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.5f, false);
+				humanoid->EquipWeapon(this);
+			}), 0.5f, false);
 		}
 		else
 		{
-			character->EquipWeapon(this);
+			humanoid->EquipWeapon(this);
 		}
 	}
 }
@@ -143,29 +141,57 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 }
 
 /////////////////////////////////////////////////////
-void AGun::OnUnequip(bool DropGun /*= false*/)
+void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 {	
-	if (DropGun)
+	if (bRequestMulticast)
 	{
-		DetachMeshFromPawn();
-		SetOwningPawn(nullptr);
-		SetCanBeInteractedWith_Implementation(true);
 		if (HasAuthority())
 		{
-			SetReplicateMovement(true);
+			Unequip_Multicast(bDropGun);
+		}
+		else
+		{
+			Unequip_Server(bDropGun);
 		}
 	}
 	else
 	{
-		m_Mesh->SetSimulatePhysics(false);
-		m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		if (HasAuthority())
+		if (bDropGun)
 		{
-			SetReplicateMovement(false);
+			DetachMeshFromPawn();
+			SetOwningPawn(nullptr);
+			SetCanBeInteractedWith_Implementation(true);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(true);
+			}
+		}
+		else
+		{
+			m_Mesh->SetSimulatePhysics(false);
+			m_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			if (HasAuthority())
+			{
+				SetReplicateMovement(false);
+			}
 		}
 	}
 }
 
+void AGun::Unequip_Server_Implementation(bool bDropGun)
+{
+	Unequip_Multicast(bDropGun);
+}
+
+bool AGun::Unequip_Server_Validate(bool bDropGun)
+{
+	return true;
+}
+
+void AGun::Unequip_Multicast_Implementation(bool bDropGun)
+{
+	Unequip(bDropGun, false);
+}
 
 /////////////////////////////////////////////////////
 void AGun::OnFire()
@@ -346,48 +372,28 @@ void AGun::DetachMeshFromPawn()
 /////////////////////////////////////////////////////
 bool AGun::GetAmmoFromInventory()
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(m_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));
+	USimpleInventory* inventory = Cast<USimpleInventory>(m_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory == nullptr || !HasAuthority())
 	{
 		return false;
 	}
 	
-	bool bHasMag = false;
-	if (m_LoadedMagazine)
-	{
-		bHasMag = inventory->RemoveItem(m_LoadedMagazine->GetItemStats(), 1.0f);
-	}
-	else
-	{
-		AMagazine* magObject = Cast<AMagazine>(m_GunStats.UsableMagazineClass->GetDefaultObject(true));
-		bHasMag = inventory->RemoveItem(magObject->GetItemStats(), 1.0f);
-	}
-
+	const bool bHasMag = inventory->GetMagazineFromInventory(m_LoadedMagazine ? m_LoadedMagazine->GetClass() : m_GunStats.UsableMagazineClass);
 	return bHasMag;
 }
 
 /////////////////////////////////////////////////////
 bool AGun::CheckIfOwnerHasMagazine() const
 {
-	UInventoryComponent* inventory = Cast<UInventoryComponent>(m_MyOwner->GetComponentByClass(UInventoryComponent::StaticClass()));	
+	USimpleInventory* inventory = Cast<USimpleInventory>(m_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));	
 	if (inventory == nullptr)
 	{
 		return false;
 	}
 
-	if (m_LoadedMagazine)
-	{
-		FItemStats& magStats = m_LoadedMagazine->GetItemStats();
-		return inventory->HasItem(magStats);
-	}
-	else
-	{
-		AMagazine* magObject = Cast<AMagazine>(m_GunStats.UsableMagazineClass->GetDefaultObject(true));
-		FItemStats& magStats = magObject->GetItemStats();
-		return inventory->HasItem(magStats);
-	}	
+	const TSubclassOf<AMagazine> magClass = m_LoadedMagazine ? m_LoadedMagazine->GetClass() : m_GunStats.UsableMagazineClass;
+	return inventory->HasMagazines(magClass);
 }
-
 
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
@@ -449,7 +455,7 @@ void AGun::OnAnimNotify_FinishReloading()
 /////////////////////////////////////////////////////
 void AGun::Reload()
 {
-	if (m_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
+	if (m_CurrentGunState == EWeaponState::Reloading || CheckIfOwnerHasMagazine() == false || (m_LoadedMagazine && m_LoadedMagazine->IsFull()))
 	{
 		return;
 	}
@@ -474,12 +480,6 @@ void AGun::OnMagAttached()
 	{
 		AttachMagazine(m_MagToAttach);
 	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_OnUnequip_Implementation(bool bDropGun)
-{
-	OnUnequip(true);
 }
 
 /////////////////////////////////////////////////////
@@ -598,7 +598,6 @@ UCameraComponent* AGun::GetZoomCamera() const
 {
 	return _ZoomCamera;
 }
-
 
 /////////////////////////////////////////////////////
 void AGun::BeginPlay()

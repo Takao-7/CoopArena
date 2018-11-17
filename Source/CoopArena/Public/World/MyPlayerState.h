@@ -34,7 +34,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player state")
 	int32 GetDeaths() const;
 
-	void ScorePoints(int32 Points);
+	void ScorePoints(int32 Points, bool bAddKill = true);
 
 	UFUNCTION(BlueprintPure, Category = "Player state")
 	float GetScore() const;

@@ -10,7 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/SimpleInventory.h"
 #include "Components/RespawnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
@@ -19,7 +19,6 @@
 #include "GameModes/CoopArenaGameMode.h"
 
 
-// Sets default values
 AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -48,16 +47,32 @@ AHumanoid::AHumanoid()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	USkeletalMeshComponent* mesh = GetMesh();
+	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	mesh->SetGenerateOverlapEvents(true);
+	mesh->SetCollisionObjectType(ECC_PhysicsBody);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
 	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
-	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("Respawn"));
-	AddOwnedComponent(HealthComponent);
-	AddOwnedComponent(BASComponent);
+
 	AddOwnedComponent(Inventory);
+	AddOwnedComponent(BASComponent);
+	AddOwnedComponent(HealthComponent);
 	AddOwnedComponent(RespawnComponent);
+
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	moveComp->JumpZVelocity = 300.0f;
+	moveComp->AirControl = 0.0f;
+	moveComp->MaxAcceleration = 600.0f;
+	moveComp->CrouchedHalfHeight = 65.0f;
+	moveComp->MaxWalkSpeed = 200.0f;
+	moveComp->MaxWalkSpeedCrouched = 200.0f;
+	moveComp->BrakingDecelerationWalking = 400.0f;
+	moveComp->bCanWalkOffLedgesWhenCrouching = true;
+	moveComp->MaxCustomMovementSpeed = 650.0f;
+	moveComp->MovementState.bCanCrouch = true;	
 }
 
 /////////////////////////////////////////////////////
@@ -70,6 +85,18 @@ void AHumanoid::PossessedBy(AController* NewController)
 	{
 		m_TeamName = gameMode->CheckForTeamTag(*NewController);
 	}
+}
+
+/////////////////////////////////////////////////////
+bool AHumanoid::IsAlive() const
+{
+	return HealthComponent->IsAlive();
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::Revive(bool bSpawnDefaultEquipment /*= false*/)
+{
+	RespawnComponent->Respawn();
 }
 
 /////////////////////////////////////////////////////
@@ -560,7 +587,7 @@ void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
 {
 	if (m_EquippedWeapon)
 	{
-		m_EquippedWeapon->OnUnequip(bDropGun);
+		m_EquippedWeapon->Unequip(bDropGun);
 		m_EquippedWeapon = nullptr;
 		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 	}

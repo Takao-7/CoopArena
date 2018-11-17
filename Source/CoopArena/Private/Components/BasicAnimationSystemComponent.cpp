@@ -11,15 +11,14 @@
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	bReplicates = true;
+	bAutoActivate = true;
 
 	m_TurnSpeed = 10.0f;
 
 	m_Variables.MovementType = EMovementType::Idle;
 	m_Variables.MovementAdditive = EMovementAdditive::None;
 	m_Variables.EquippedWeaponType = EWEaponType::None;
-
-	bReplicates = true;
-	bAutoActivate = true;
 
 	m_180TurnThreshold = 120.0f;
 	m_AngleClampThreshold = 180.0f;
@@ -122,15 +121,8 @@ void UBasicAnimationSystemComponent::SetMovementAdditive()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
-	FRotator actorRotation = GetOwner()->GetActorRotation();
-
 	if (!m_bIsLocallyControlled)
 	{
-		/*if (m_Variables.MovementType != EMovementType::Idle)
-		{
-			m_Variables.MovementDirection = m_AnimInstance->CalculateDirection(m_Variables.Velocity, actorRotation);
-		}*/
-
 		m_AimYawLastFrame = m_Variables.AimYaw;
 		m_Variables.AimYaw = m_AimYaw;
 		CheckWhetherToPlayTurnAnimation(DeltaTime, m_Variables.AimYaw);
@@ -138,42 +130,21 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 		return;
 	}
 
+	const FRotator actorRotation = GetOwner()->GetActorRotation();
 	float yawDelta = 0.0f;
 	if (m_Variables.MovementType == EMovementType::Idle)
 	{
-		if (m_Variables.MovementType_LastFrame != EMovementType::Idle)
-		{
-			/*float newAimYaw = m_Variables.MovementDirection;
-			if (m_Variables.MovementDirection >= 100.0f)
-			{
-				newAimYaw -= 180.0f;
-			}
-			else if (m_Variables.MovementDirection <= -100.0f)
-			{
-				newAimYaw += 180.0f;
-			}
-			m_Variables.AimYaw = newAimYaw;
-			m_Variables.MovementDirection = 0.0f;*/
-		}
-		else
-		{
-			yawDelta = m_ActorYawLastFrame - actorRotation.Yaw;
-			yawDelta = MapAngleTo180_Forced(yawDelta);
-			float newAimYaw = m_Variables.AimYaw + yawDelta;
+		yawDelta = m_ActorYawLastFrame - actorRotation.Yaw;
+		yawDelta = MapAngleTo180_Forced(yawDelta);
+		float newAimYaw = m_Variables.AimYaw + yawDelta;
 
-			CheckWhetherToPlayTurnAnimation(DeltaTime, newAimYaw);
-			AddCurveValueToYawWhenTurning(newAimYaw);
-		
-			m_Variables.AimYaw = MapAngleTo180(newAimYaw);
-		}
+		CheckWhetherToPlayTurnAnimation(DeltaTime, newAimYaw);
+		AddCurveValueToYawWhenTurning(newAimYaw);
+
+		m_Variables.AimYaw = MapAngleTo180(newAimYaw);
 	}
 	else
 	{
-		/*m_Variables.MovementDirection = m_AnimInstance->CalculateDirection(GetOwner()->GetVelocity(), actorRotation);
-
-		const float newAimYaw = FMath::FInterpTo(m_Variables.AimYaw, 0.0f, DeltaTime, m_TurnSpeed);
-		m_Variables.AimYaw = MapAngleTo180(newAimYaw);*/
-
 		FVector velocity = m_Variables.Velocity;
 		velocity.Z = 0.0f;
 		velocity *= m_Variables.bIsMovingForward ? 1.0f : -1.0f;
@@ -250,7 +221,7 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::DisableComponent()
+void UBasicAnimationSystemComponent::DisableComponent(AActor* Actor, AController* Controller, AController* Killer)
 {
 	PrimaryComponentTick.SetTickFunctionEnable(false);
 	m_bIsLocallyControlled = false;
