@@ -41,12 +41,12 @@ public:
 
 private:
 	UPROPERTY(Transient, Replicated)
-	int32 m_NumKills;
+	int32 _NumKills;
 
 	UPROPERTY(Transient, Replicated)
-	int32 m_NumDeaths;
+	int32 _NumDeaths;
 
 	/* Team number assigned to player */
 	UPROPERTY(Transient, Replicated)
-	int32 m_TeamNumber;
+	int32 _TeamNumber;
 };

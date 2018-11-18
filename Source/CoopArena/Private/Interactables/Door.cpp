@@ -17,6 +17,7 @@ ADoor::ADoor()
 	Door->SetCollisionResponseToAllChannels(ECR_Block);
 	Door->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	Door->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	Door->SetCanEverAffectNavigation(false);
 	RootComponent = Door;
 
 	Front = CreateDefaultSubobject <UArrowComponent>(TEXT("Front"));

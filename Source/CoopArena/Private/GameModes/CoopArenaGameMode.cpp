@@ -13,8 +13,8 @@
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
-	m_DefaultPlayerTeam = "Player Team";
-	m_DefaultBotTeam = "Bot Team";
+	defaultPlayerTeam = "Player Team";
+	defaultBotTeam = "Bot Team";
 
 	DefaultPawnClass = APlayerCharacter::StaticClass();
 	GameStateClass = AMyGameState::StaticClass();
@@ -36,7 +36,7 @@ void ACoopArenaGameMode::FindSpawnPoints()
 
 	for (AActor* spawnPoint : spawnPoint_actors)
 	{
-		m_SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
+		spawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
 	}
 }
 
@@ -51,15 +51,15 @@ void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options
 void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
-	m_PlayerCharacters.AddUnique(PlayerCharacter);
-	m_NumPlayersAlive++;
+	playerCharacters.AddUnique(PlayerCharacter);
+	numPlayersAlive++;
 }
 
 void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
-	m_PlayerCharacters.RemoveSwap(PlayerCharacter);
-	m_NumPlayersAlive--;
+	playerCharacters.RemoveSwap(PlayerCharacter);
+	numPlayersAlive--;
 }
 
 /////////////////////////////////////////////////////
@@ -71,14 +71,14 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 		return playerStart;
 	}
 
-	if (m_SpawnPoints.Num() == 0)
+	if (spawnPoints.Num() == 0)
 	{
 		return Super::FindPlayerStart_Implementation(Player, IncomingName);
 	}
 
-	for (ASpawnPoint* spawnPoint : m_SpawnPoints)
+	for (ASpawnPoint* spawnPoint : spawnPoints)
 	{
-		if (IncomingName.IsEmpty() && spawnPoint->PlayerStartTag != m_DefaultBotTeam)
+		if (IncomingName.IsEmpty() && spawnPoint->PlayerStartTag != defaultBotTeam)
 		{
 			return spawnPoint;
 		}
@@ -88,20 +88,19 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 		}
 	}	
 
-	return m_SpawnPoints[FMath::RandRange(0, m_SpawnPoints.Num() - 1)];
+	return spawnPoints[FMath::RandRange(0, spawnPoints.Num() - 1)];
 }
 
 /////////////////////////////////////////////////////
 void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	m_PlayerControllers.AddUnique(NewPlayer);
+	playerControllers.AddUnique(NewPlayer);
 	Super::PostLogin(NewPlayer);
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
 {
-	m_PlayerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
-	m_NumPlayersAlive--;
+	playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
 	Super::Logout(Exiting);
 }
 

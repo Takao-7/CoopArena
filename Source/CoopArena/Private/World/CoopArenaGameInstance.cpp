@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 
 
-#define SETTING_MatchName FName(TEXT("MatchName"))
+#define SETTING_MatchName FName("MatchName")
 
 
 UCoopArenaGameInstance::UCoopArenaGameInstance()
@@ -33,7 +33,7 @@ void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/)
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::Join(const FString& Address)
 {
-	const FString adressToTravel = (Address == "" || Address.IsEmpty()) ? "127.0.0.1" : Address;
+	const FString adressToTravel = Address.IsEmpty() ? "127.0.0.1" : Address;
 	GetFirstLocalPlayerController()->ClientTravel(adressToTravel, ETravelType::TRAVEL_Absolute);
 }
 
