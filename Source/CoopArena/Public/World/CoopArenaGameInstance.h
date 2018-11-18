@@ -17,7 +17,7 @@ struct FSessionData
 
 public:
 	FSessionData() {};
-	FSessionData(FName MatchName, FString PlayerName, FString SessionId, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
+	FSessionData(FString MatchName, FString PlayerName, FString SessionId, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
 	{
 		this->matchName = MatchName;
 		this->playerName = PlayerName;
@@ -28,7 +28,7 @@ public:
 	};
 
 	UPROPERTY(BlueprintReadWrite)
-	FName matchName;
+	FString matchName;
 
 	UPROPERTY(BlueprintReadWrite)
 	FString playerName;
@@ -81,6 +81,9 @@ public:
 	/* Stops searching for games */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
 	void StopSearchForGames();
+
+	UFUNCTION(BlueprintCallable, Category = "Game Mode")
+	void StartMatch(FName MapName = "Level4");
 
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;

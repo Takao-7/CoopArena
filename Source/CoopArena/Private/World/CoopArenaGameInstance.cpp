@@ -3,6 +3,7 @@
 #include "World/CoopArenaGameInstance.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "CoopArenaGameMode.h"
 
 
 #define SETTING_MatchName FName("MatchName")
@@ -76,6 +77,15 @@ void UCoopArenaGameInstance::StopSearchForGames()
 }
 
 /////////////////////////////////////////////////////
+void UCoopArenaGameInstance::StartMatch(FName MapName /*= "Level4"*/)
+{
+	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+	ensureMsgf(gameMode, TEXT("Game mode doesn't inherents from ACoopArenaGameMode. "));
+	gameMode->bUseSeamlessTravel = true;
+	UGameplayStatics::OpenLevel(GetWorld(), MapName, true);
+}
+
+/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
 	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
@@ -105,7 +115,7 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 			const int32 Ping = result.PingInMs;
 			const int32 MaxPlayers = result.Session.SessionSettings.NumPublicConnections;
 			const int32 ConnectedPlayer = MaxPlayers - result.Session.NumOpenPublicConnections;
-			searchResult.Add(FSessionData(NAME_GameSession, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
+			searchResult.Add(FSessionData(matchName, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
 		}
 		OnSessionFound.Broadcast(searchResult);
 	}
