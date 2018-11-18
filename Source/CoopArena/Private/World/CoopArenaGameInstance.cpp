@@ -5,24 +5,12 @@
 #include "Kismet/GameplayStatics.h"
 
 
-const static FName SESSION_NAME = "CoopArena Session";
-
 #define SETTING_MatchName FName(TEXT("MatchName"))
 
 
 UCoopArenaGameInstance::UCoopArenaGameInstance()
 {
-	m_MapToHost = "Lobby";
-	m_bWantsToSearchForGames = false;
-}
-
-/////////////////////////////////////////////////////
-void UCoopArenaGameInstance::Host(FString Map)
-{
-	m_MapToHost = Map;
-
-	auto existingSession = m_SessionInterface->GetNamedSession(SESSION_NAME);
-	existingSession ? m_SessionInterface->DestroySession(SESSION_NAME) : CreateSession();
+	_bWantsToSearchForGames = false;
 }
 
 /////////////////////////////////////////////////////
@@ -34,18 +22,18 @@ void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/)
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.Set(SETTING_MatchName, MatchName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	if (m_SessionInterface->GetNamedSession(SESSION_NAME))
+	if (_SessionInterface->GetNamedSession(NAME_GameSession))
 	{
-		m_SessionInterface->DestroySession(SESSION_NAME);
+		_SessionInterface->DestroySession(NAME_GameSession);
 	}
 
-	m_SessionInterface->CreateSession(0, SESSION_NAME, sessionSettings);
+	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::Join(const FString& IpAdress)
+void UCoopArenaGameInstance::Join(const FString& Address)
 {
-	const FString adressToTravel = (IpAdress == "" || IpAdress.IsEmpty()) ? "127.0.0.1" : IpAdress;
+	const FString adressToTravel = (Address == "" || Address.IsEmpty()) ? "127.0.0.1" : Address;
 	GetFirstLocalPlayerController()->ClientTravel(adressToTravel, ETravelType::TRAVEL_Absolute);
 }
 
@@ -55,42 +43,43 @@ void UCoopArenaGameInstance::Init()
 	auto onlineSubsystem = IOnlineSubsystem::Get();
 	ensureMsgf(onlineSubsystem, TEXT("No subsystem found!"));
 
-	m_SessionInterface = onlineSubsystem->GetSessionInterface();
-	ensureMsgf(m_SessionInterface.IsValid(), TEXT("No session interface."));
-	m_SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnCreateSessionComplete);
-	m_SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnDestroySessionComplete);
-	m_SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnFindSessionComplete);
-	m_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
+	_SessionInterface = onlineSubsystem->GetSessionInterface();
+	ensureMsgf(_SessionInterface.IsValid(), TEXT("No session interface."));
+	_SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnCreateSessionComplete);
+	_SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnDestroySessionComplete);
+	_SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnFindSessionComplete);
+	_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
 
-	m_SessionSearch = MakeShareable(new FOnlineSessionSearch());
-	m_SessionSearch->bIsLanQuery = true;
+	_SessionSearch = MakeShareable(new FOnlineSessionSearch());
+	_SessionSearch->bIsLanQuery = true;
 }
 
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SearchForGames()
 {
-	m_bWantsToSearchForGames = true;	
+	_bWantsToSearchForGames = true;	
 
-	if (m_SessionSearch.IsValid() == false)
+	if (_SessionSearch.IsValid() == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Session search is not valid. Creating new one. "));
-		m_SessionSearch = MakeShareable(new FOnlineSessionSearch());
-		m_SessionSearch->bIsLanQuery = true;
+		_SessionSearch = MakeShareable(new FOnlineSessionSearch());
+		_SessionSearch->bIsLanQuery = true;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Start searching for other sessions."));
-	m_SessionInterface->FindSessions(0, m_SessionSearch.ToSharedRef());
+	_SessionInterface->FindSessions(0, _SessionSearch.ToSharedRef());
 }
 
-void UCoopArenaGameInstance::StopSearchingForGames()
+void UCoopArenaGameInstance::StopSearchForGames()
 {
-	m_bWantsToSearchForGames = false;
+	_bWantsToSearchForGames = false;
 }
 
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
-	m_SessionInterface->GetNamedSession(SESSION_NAME)->OwningUserName = m_PlayerName;
+	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
+	session->OwningUserName = _PlayerName;
 }
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)
@@ -104,24 +93,24 @@ void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bS
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 {
-	if (bSuccess && m_SessionSearch->SearchResults.Num() > 0)
+	if (bSuccess && _SessionSearch->SearchResults.Num() > 0)
 	{
 		TArray<FSessionData> searchResult;
-		for (const FOnlineSessionSearchResult& result : m_SessionSearch->SearchResults)
+		for (const FOnlineSessionSearchResult& result : _SessionSearch->SearchResults)
 		{
 			FString matchName = "No name";
 			result.Session.SessionSettings.Get(SETTING_MatchName, matchName);
 			const FString playerName = result.Session.OwningUserName;
 			const FString SessionId = result.GetSessionIdStr();
 			const int32 Ping = result.PingInMs;
-			const int32 MaxPlayers = result.Session.NumOpenPublicConnections;
-			const int32 ConnectedPlayer = 1;
-			searchResult.Add(FSessionData(SESSION_NAME, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
+			const int32 MaxPlayers = result.Session.SessionSettings.NumPublicConnections;
+			const int32 ConnectedPlayer = MaxPlayers - result.Session.NumOpenPublicConnections;
+			searchResult.Add(FSessionData(NAME_GameSession, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
 		}
 		OnSessionFound.Broadcast(searchResult);
 	}
 
-	if (m_bWantsToSearchForGames)
+	if (_bWantsToSearchForGames)
 	{
 		SearchForGames();
 	}
@@ -131,7 +120,7 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	FString adress;
-	const bool bFoundString = m_SessionInterface->GetResolvedConnectString(SessionName, adress);
+	const bool bFoundString = _SessionInterface->GetResolvedConnectString(SessionName, adress);
 	if (!bFoundString)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No resolved connect string found."));
@@ -144,5 +133,6 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex)
 {
-	m_SessionInterface->JoinSession(0, SESSION_NAME, m_SessionSearch->SearchResults[SearchResultIndex]);
+	ensureMsgf(_SessionSearch->SearchResults.IsValidIndex(SearchResultIndex), TEXT("The given index is not valid."));
+	_SessionInterface->JoinSession(0, NAME_GameSession, _SessionSearch->SearchResults[SearchResultIndex]);
 }

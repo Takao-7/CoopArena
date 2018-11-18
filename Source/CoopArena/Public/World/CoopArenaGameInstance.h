@@ -58,17 +58,18 @@ class COOPARENA_API UCoopArenaGameInstance : public UGameInstance
 public:
 	UCoopArenaGameInstance();
 
-	/* Hosts a server at the given map or, when no map given, at the 'Lobby' map. Creates also a new sesssion. */
-	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void Host(FString Map);
-
-	/* Create a new session on the current map. Will destroy the current session if it exists. */
+	/* Create a new session on the current map. Will destroy the current session and create a new one if it exists. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
 	void CreateSession(FString MatchName = "My Match");
 
-	/* Loads the given map or joins the given IP-Address. */
+	/**
+	 * Joins the game on a IP-Address or travel to a map.
+	 * @param Address	Can be an IP-Address or a map name.
+	 * If it's an IP-Address, then we will try to join the game on this IP-address.
+	 * If it's a map name, then we will (client) travel to that map.
+	 */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void Join(const FString& IpAdress);
+	void Join(const FString& Address);
 
 	/** virtual function to allow custom GameInstances an opportunity to set up what it needs */
 	virtual void Init() override;
@@ -79,18 +80,17 @@ public:
 
 	/* Stops searching for games */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void StopSearchingForGames();
+	void StopSearchForGames();
 
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;
 
 private:
-	IOnlineSessionPtr m_SessionInterface;
-	FString m_MapToHost;
-	FString m_PlayerName;
+	IOnlineSessionPtr _SessionInterface;
+	FString _PlayerName;
 
-	TSharedPtr<class FOnlineSessionSearch> m_SessionSearch;
-	bool m_bWantsToSearchForGames;
+	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
+	bool _bWantsToSearchForGames;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
