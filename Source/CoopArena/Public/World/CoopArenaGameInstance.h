@@ -11,27 +11,43 @@
 
 
 USTRUCT(BlueprintType)
-struct FSearchResult
+struct FSessionData
 {
 	GENERATED_BODY()
 
 public:
-	FSearchResult() {};
-	FSearchResult(FName SessionName, FString PlayerName)
+	FSessionData() {};
+	FSessionData(FName MatchName, FString PlayerName, FString SessionId, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
 	{
-		this->SessionName = SessionName;
-		this->PlayerName = PlayerName;
+		this->matchName = MatchName;
+		this->playerName = PlayerName;
+		this->sessionId = SessionId;
+		this->ping = Ping;
+		this->maxPlayers = MaxPlayers;
+		this->connectedPlayers = ConnectedPlayer;
 	};
 
 	UPROPERTY(BlueprintReadWrite)
-	FName SessionName;
+	FName matchName;
 
 	UPROPERTY(BlueprintReadWrite)
-	FString PlayerName;
+	FString playerName;
+
+	UPROPERTY(BlueprintReadWrite)
+	FString sessionId;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 ping;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 maxPlayers;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 connectedPlayers;
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFound_Event, const TArray<FSearchResult>&, FoundSessions);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFound_Event, const TArray<FSessionData>&, FoundSessions);
 
 
 UCLASS()
@@ -48,7 +64,7 @@ public:
 
 	/* Create a new session on the current map. Will destroy the current session if it exists. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void CreateSession(FName SessionName);
+	void CreateSession(FString MatchName = "My Match");
 
 	/* Loads the given map or joins the given IP-Address. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
@@ -71,7 +87,6 @@ public:
 private:
 	IOnlineSessionPtr m_SessionInterface;
 	FString m_MapToHost;
-	FName m_SessionName;
 	FString m_PlayerName;
 
 	TSharedPtr<class FOnlineSessionSearch> m_SessionSearch;
@@ -83,5 +98,5 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	UFUNCTION(BlueprintCallable, Category = "Game Mode")
-	void JoinServer(int32 SearchResultIndex, FName SessionName = "");
+	void JoinServer(int32 SearchResultIndex);
 };

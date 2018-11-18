@@ -7,12 +7,12 @@
 
 const static FName SESSION_NAME = "CoopArena Session";
 
+#define SETTING_MatchName FName(TEXT("MatchName"))
+
 
 UCoopArenaGameInstance::UCoopArenaGameInstance()
 {
 	m_MapToHost = "Lobby";
-	m_SessionName = SESSION_NAME;
-
 	m_bWantsToSearchForGames = false;
 }
 
@@ -21,25 +21,25 @@ void UCoopArenaGameInstance::Host(FString Map)
 {
 	m_MapToHost = Map;
 
-	auto existingSession = m_SessionInterface->GetNamedSession(m_SessionName);
-	existingSession ? m_SessionInterface->DestroySession(m_SessionName) : CreateSession(m_SessionName);
+	auto existingSession = m_SessionInterface->GetNamedSession(SESSION_NAME);
+	existingSession ? m_SessionInterface->DestroySession(SESSION_NAME) : CreateSession();
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::CreateSession(FName SessionName)
+void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/)
 {
 	FOnlineSessionSettings sessionSettings;
 	sessionSettings.bIsLANMatch = true;
 	sessionSettings.NumPublicConnections = 6;
 	sessionSettings.bShouldAdvertise = true;
+	sessionSettings.Set(SETTING_MatchName, MatchName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	if (m_SessionInterface->GetNamedSession(m_SessionName))
+	if (m_SessionInterface->GetNamedSession(SESSION_NAME))
 	{
-		m_SessionInterface->DestroySession(m_SessionName);
+		m_SessionInterface->DestroySession(SESSION_NAME);
 	}
 
-	m_SessionName = SessionName.IsValid() ? SessionName : SESSION_NAME;
-	m_SessionInterface->CreateSession(0, m_SessionName, sessionSettings);
+	m_SessionInterface->CreateSession(0, SESSION_NAME, sessionSettings);
 }
 
 /////////////////////////////////////////////////////
@@ -90,14 +90,14 @@ void UCoopArenaGameInstance::StopSearchingForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
-	m_SessionInterface->GetNamedSession(m_SessionName)->OwningUserName = m_PlayerName;
+	m_SessionInterface->GetNamedSession(SESSION_NAME)->OwningUserName = m_PlayerName;
 }
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)
 {
 	if (bSuccess)
 	{
-		CreateSession(m_SessionName);
+		CreateSession();
 	}
 }
 
@@ -106,19 +106,19 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 {
 	if (bSuccess && m_SessionSearch->SearchResults.Num() > 0)
 	{
-		//GetEngine()->AddOnScreenDebugMessage(0, 5.0f, FColor::Green, "Found session", true);
-		TArray<FSearchResult> searchResult;
+		TArray<FSessionData> searchResult;
 		for (const FOnlineSessionSearchResult& result : m_SessionSearch->SearchResults)
 		{
-			FString name = result.Session.OwningUserName;
-			searchResult.Add(FSearchResult(SESSION_NAME, name));
-			//UE_LOG(LogTemp, Warning, TEXT("Found session id: %s"), *result.GetSessionIdStr());
+			FString matchName = "No name";
+			result.Session.SessionSettings.Get(SETTING_MatchName, matchName);
+			const FString playerName = result.Session.OwningUserName;
+			const FString SessionId = result.GetSessionIdStr();
+			const int32 Ping = result.PingInMs;
+			const int32 MaxPlayers = result.Session.NumOpenPublicConnections;
+			const int32 ConnectedPlayer = 1;
+			searchResult.Add(FSessionData(SESSION_NAME, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
 		}
 		OnSessionFound.Broadcast(searchResult);
-	}
-	else
-	{
-		GetEngine()->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, "No sessions found", true);
 	}
 
 	if (m_bWantsToSearchForGames)
@@ -142,7 +142,7 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex, FName SessionName /*= ""*/)
+void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex)
 {
-	m_SessionInterface->JoinSession(0, SessionName.IsValid() ? SessionName : m_SessionName, m_SessionSearch->SearchResults[SearchResultIndex]);
+	m_SessionInterface->JoinSession(0, SESSION_NAME, m_SessionSearch->SearchResults[SearchResultIndex]);
 }
