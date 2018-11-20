@@ -19,31 +19,35 @@ public:
 	FSessionData() {};
 	FSessionData(FString MatchName, FString PlayerName, FString SessionId, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
 	{
-		this->matchName = MatchName;
-		this->playerName = PlayerName;
-		this->sessionId = SessionId;
-		this->ping = Ping;
-		this->maxPlayers = MaxPlayers;
-		this->connectedPlayers = ConnectedPlayer;
+		this->MatchName = MatchName;
+		this->PlayerName = PlayerName;
+		this->SessionId = SessionId;
+		this->Ping = Ping;
+		this->MaxPlayers = MaxPlayers;
+		this->ConnectedPlayers = ConnectedPlayer;
 	};
 
+	/* The match name that this session's creator has chosen. This is NOT the session name. */
 	UPROPERTY(BlueprintReadWrite)
-	FString matchName;
+	FString MatchName;
+
+	/* The in game name of this session's creator. */
+	UPROPERTY(BlueprintReadWrite)
+	FString PlayerName;
 
 	UPROPERTY(BlueprintReadWrite)
-	FString playerName;
+	FString SessionId;
 
 	UPROPERTY(BlueprintReadWrite)
-	FString sessionId;
+	int32 Ping;
 
+	/* The maximum number of players that can connect to this session. */
 	UPROPERTY(BlueprintReadWrite)
-	int32 ping;
+	int32 MaxPlayers;
 
+	/* Number of players that are currently connected to this session. */
 	UPROPERTY(BlueprintReadWrite)
-	int32 maxPlayers;
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 connectedPlayers;
+	int32 ConnectedPlayers;
 };
 
 
