@@ -16,8 +16,8 @@ class COOPARENA_API AMyGameState : public AGameState
 	
 private:
 	/* Total accumulated score from all players  */
-	UPROPERTY(Replicated)
-	int32 m_TotalScore;
+	UPROPERTY(Transient, Replicated)
+	int32 _TeamScore;
 	
 public:
 	AMyGameState(const class FObjectInitializer& ObjectInitializer);
@@ -25,5 +25,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game state")
 	int32 GetTotalScore() const;
 
+	/* [Server] Add score to the team score. */
 	void AddScore(int32 Score);
 };

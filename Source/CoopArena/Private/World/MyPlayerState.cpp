@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////
 AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	m_TeamNumber = 0;
+	_TeamNumber = 0;
 }
 
 /////////////////////////////////////////////////////
@@ -17,8 +17,8 @@ void AMyPlayerState::Reset()
 {
 	Super::Reset();
 
-	m_NumKills = 0;
-	m_NumDeaths = 0;
+	_NumKills = 0;
+	_NumDeaths = 0;
 	Score = 0;
 }
 
@@ -40,34 +40,34 @@ void AMyPlayerState::ScorePoints(int32 Points, bool bAddKill /*= true*/)
 /////////////////////////////////////////////////////
 void AMyPlayerState::SetTeamNumber(int32 NewTeamNumber)
 {
-	m_TeamNumber = NewTeamNumber;
+	_TeamNumber = NewTeamNumber;
 }
 
 int32 AMyPlayerState::GetTeamNumber() const
 {
-	return m_TeamNumber;
+	return _TeamNumber;
 }
 
 /////////////////////////////////////////////////////
 void AMyPlayerState::AddKill()
 {
-	m_NumKills++;
+	_NumKills++;
 }
 
 int32 AMyPlayerState::GetKills() const
 {
-	return m_NumKills;
+	return _NumKills;
 }
 
 /////////////////////////////////////////////////////
 void AMyPlayerState::AddDeath()
 {
-	m_NumDeaths++;
+	_NumDeaths++;
 }
 
 int32 AMyPlayerState::GetDeaths() const
 {
-	return m_NumDeaths;
+	return _NumDeaths;
 }
 
 /////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AMyPlayerState, m_NumKills);
-	DOREPLIFETIME(AMyPlayerState, m_NumDeaths);
-	DOREPLIFETIME(AMyPlayerState, m_TeamNumber);
+	DOREPLIFETIME(AMyPlayerState, _NumKills);
+	DOREPLIFETIME(AMyPlayerState, _NumDeaths);
+	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 }

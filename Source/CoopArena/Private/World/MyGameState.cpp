@@ -5,20 +5,18 @@
 
 
 /////////////////////////////////////////////////////
-AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-{
-
-}
+AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) { }
 
 /////////////////////////////////////////////////////
 int32 AMyGameState::GetTotalScore() const
 {
-	return m_TotalScore;
+	return _TeamScore;
 }
 
 void AMyGameState::AddScore(int32 Score)
 {
-	m_TotalScore += Score;
+	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
+	_TeamScore += Score;
 }
 
 /////////////////////////////////////////////////////
@@ -26,5 +24,5 @@ void AMyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AMyGameState, m_TotalScore);
+	DOREPLIFETIME(AMyGameState, _TeamScore);
 }

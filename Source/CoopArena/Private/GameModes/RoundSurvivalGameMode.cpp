@@ -32,7 +32,7 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 {
-	return m_NumPlayersAlive > 0;
+	return numPlayersAlive > 0;
 }
 
 /////////////////////////////////////////////////////
@@ -40,9 +40,9 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
-	for (ASpawnPoint* spawnPoint : m_SpawnPoints)
+	for (ASpawnPoint* spawnPoint : spawnPoints)
 	{
-		if (spawnPoint->PlayerStartTag == m_DefaultBotTeam)
+		if (spawnPoint->PlayerStartTag == defaultBotTeam)
 		{
 			m_BotSpawnPoints.AddUnique(spawnPoint);
 		}
@@ -83,7 +83,7 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	for (APlayerController* pc : m_PlayerControllers)
+	for (APlayerController* pc : playerControllers)
 	{
 		if (pc->PlayerState->bIsSpectator)
 		{
@@ -94,7 +94,7 @@ void ARoundSurvivalGameMode::ReviveDeadPlayers()
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
 			playerCharacter->Revive();
-			m_NumPlayersAlive++;
+			numPlayersAlive++;
 		}
 	}
 }
@@ -163,8 +163,8 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	playerState->AddDeath();
 
-	m_NumPlayersAlive--;
-	if (m_NumPlayersAlive == 0)
+	numPlayersAlive--;
+	if (numPlayersAlive == 0)
 	{
 		// #todo Game over
 		EndMatch();
@@ -186,7 +186,7 @@ void ARoundSurvivalGameMode::StartSpectating(AMyPlayerController* PlayerControll
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	
 	/* Find alive player to watch. */
-	for (APlayerCharacter* pc : m_PlayerCharacters)
+	for (APlayerCharacter* pc : playerCharacters)
 	{
 		if (pc->IsAlive())
 		{
