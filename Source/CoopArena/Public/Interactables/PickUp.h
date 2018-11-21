@@ -24,8 +24,6 @@ private:
 	/* The magazine stack that this pickup represents */
 	FMagazineStack _MagazineStack;
 
-	FRotator _TargetRotation;
-
 protected:
 	/* The widget that will be displayed if a player looks at us */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
@@ -41,9 +39,6 @@ protected:
 	/* This pickup's collision */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
 	UBoxComponent* _Collision;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
-	float _RotationSpeed;
 
 	virtual void BeginPlay() override;
 	

@@ -13,7 +13,6 @@ APickUp::APickUp()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	_bCanBeInteractedWith = true;
-	_RotationSpeed = 10.0f;
 	const float edgeLength = 75.0f;
 
 	_Collision = CreateDefaultSubobject<UBoxComponent>("Collision");
@@ -54,7 +53,6 @@ void APickUp::BeginPlay()
 			_Mesh->SetCustomDepthStencilValue(253);
 		}
 	}
-	_TargetRotation = FRotator(FMath::RandRange(0.0f, 360.0f), FMath::RandRange(0.0f, 360.0f), FMath::RandRange(0.0f, 360.0f));
 }
 
 /////////////////////////////////////////////////////
@@ -62,21 +60,9 @@ void APickUp::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	/*const FRotator meshRotation = _Mesh->GetComponentRotation();
-	if (meshRotation.Equals(_TargetRotation, 1.0f))
-	{
-		_TargetRotation.Yaw = FMath::RandRange(0.0f, 360.0f);
-		_TargetRotation.Pitch = FMath::RandRange(0.0f, 360.0f);
-		_TargetRotation.Roll = FMath::RandRange(0.0f, 360.0f);
-	}
-
-	const FRotator newRotation = FMath::RInterpTo(meshRotation, _TargetRotation, DeltaSeconds, _RotationSpeed);
-	_Mesh->SetWorldRotation(newRotation);*/
-
 	const float minRotation = 0.1f;
 	const float maxRotation = 0.25f;
 	const FRotator randRotation(FMath::RandRange(minRotation, maxRotation), FMath::RandRange(minRotation, maxRotation), FMath::RandRange(minRotation, maxRotation));
-
 	_Mesh->AddWorldRotation(randRotation);
 }
 
