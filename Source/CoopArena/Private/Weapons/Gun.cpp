@@ -276,7 +276,7 @@ void AGun::AddWeaponSpread()
 
 void AGun::ApplyWeaponSpread(float DeltaSeconds)
 {
-	if ((m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f) || m_MyOwner == nullptr)
+	if ((m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f) || m_MyOwner == nullptr || (m_MyOwner && m_MyOwner->GetController() == nullptr))
 	{
 		PrimaryActorTick.SetTickFunctionEnable(false);
 		return;

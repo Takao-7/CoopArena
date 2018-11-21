@@ -16,7 +16,7 @@
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 {
-	m_CurrentWave = 1;
+	m_CurrentWave = 0;
 	m_WaveStrengthIncrease = 2.0f;
 	m_BotsToSpawnPerPlayer = 2;
 	m_PointsPerBotKill = 10;
@@ -127,16 +127,28 @@ void ARoundSurvivalGameMode::SpawnBots()
 		AActor* spawnPoint = m_BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
 		TSubclassOf<AHumanoid> botClassToSpawn = m_BotsToSpawn[FMath::RandRange(0, m_BotsToSpawn.Num() - 1)];
 		AHumanoid* newBot = GetWorld()->SpawnActor<AHumanoid>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation());
-		m_BotsAlive.Add(newBot);
+		if(newBot)
+		{
+			m_BotsAlive.Add(newBot);
 
-		URespawnComponent* respawnComp = Cast<URespawnComponent>(newBot->GetComponentByClass(URespawnComponent::StaticClass()));
-		respawnComp->SetEnableRespawn(false);
+			URespawnComponent* respawnComp = Cast<URespawnComponent>(newBot->GetComponentByClass(URespawnComponent::StaticClass()));
+			respawnComp->SetEnableRespawn(false);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Bot couldn't be spawned."));
+		}
 	}
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer)
 {
+	if (HasMatchStarted() == false || m_CurrentWave == 0)
+	{
+		return;
+	}
+
 	AHumanoid* bot = Cast<AHumanoid>(DeadBot);
 
 	m_BotsAlive.RemoveSingleSwap(bot);
@@ -156,6 +168,11 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 
 void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, AController* Killer)
 {
+	if (HasMatchStarted() == false || m_CurrentWave == 0)
+	{
+		return;
+	}
+	
 	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
 	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
 

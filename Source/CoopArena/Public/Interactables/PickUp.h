@@ -1,0 +1,70 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "Interfaces/Interactable.h"
+#include "Structs/ItemStructs.h"
+#include "PickUp.generated.h"
+
+
+class UStaticMeshComponent;
+class UBoxComponent;
+
+
+UCLASS()
+class COOPARENA_API APickUp : public AActor, public IInteractable
+{
+	GENERATED_BODY()
+
+private:
+	bool _bCanBeInteractedWith;
+
+	/* The magazine stack that this pickup represents */
+	FMagazineStack _MagazineStack;
+
+	FRotator _TargetRotation;
+
+protected:
+	/* The widget that will be displayed if a player looks at us */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
+	UUserWidget* _Widget;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
+	UStaticMeshComponent* _Mesh;
+
+	/* This pickup's volume where players can interact with it */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
+	UBoxComponent* _InteractionBox;
+
+	/* This pickup's collision */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
+	UBoxComponent* _Collision;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	float _RotationSpeed;
+
+	virtual void BeginPlay() override;
+	
+public:
+	APickUp();
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	void SetMagazineStack(const FMagazineStack& Stack);
+	void SetMagazineStack(TSubclassOf<AMagazine> MagClass, int32 NumMags);
+
+
+	/////////////////////////////////////////////////////
+			/* Interactable interface */
+	/////////////////////////////////////////////////////
+public:
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
+	//virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
+	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
+	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
+	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
+	
+	
+};

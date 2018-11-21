@@ -15,8 +15,6 @@ AItemBase::AItemBase()
 {
 	SetReplicates(true);
 	SetReplicateMovement(false);
-	bNetUseOwnerRelevancy = true;
-
 
 	_collisionChannels.Visibility =			ECR_Block;
 	_collisionChannels.Camera =				ECR_Block;
@@ -48,7 +46,7 @@ void AItemBase::ShouldSimulatePhysics(bool bSimulatePhysics)
 }
 
 /////////////////////////////////////////////////////
-FItemStats& AItemBase::GetItemStats()
+const FItemStats& AItemBase::GetItemStats() const
 {
 	return _itemStats;
 }
