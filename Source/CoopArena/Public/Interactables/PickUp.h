@@ -20,11 +20,19 @@ class COOPARENA_API APickUp : public AActor, public IInteractable
 
 private:
 	bool _bCanBeInteractedWith;
+	float _Yaw;
+	float _Roll;
+	float _Pitch;
+	FRotator _RotationDelta;
 
 	/* The magazine stack that this pickup represents */
 	FMagazineStack _MagazineStack;
 
 protected:
+	/* How fast the mesh is rotating */
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	float _RotationSpeed;
+
 	/* The widget that will be displayed if a player looks at us */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
 	UUserWidget* _Widget;
