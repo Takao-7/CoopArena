@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
+#include "Interfaces/Interactable.h"
 #include "Humanoid.generated.h"
 
 
@@ -19,10 +20,13 @@ class URespawnComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
 
 
 UCLASS(abstract)
-class COOPARENA_API AHumanoid : public ACharacter
+class COOPARENA_API AHumanoid : public ACharacter, public IInteractable
 {
 	GENERATED_BODY()
 
@@ -52,6 +56,34 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
 	FString m_TeamName;
+
+
+	/////////////////////////////////////////////////////
+				/* Interactable interface */
+	/////////////////////////////////////////////////////
+public:
+	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
+	//virtual void OnEndInteract_Implementation(APawn* InteractingPawn) override;
+	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
+	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
+	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Humanoid|Interactable", meta = (DisplayName = "Can be interacted with"))
+	bool _bCanBeInteractedWith;
+
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Humanoid|Interactable")
+	UUserWidget* _LineTraceOverUserWidget;
+
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
+	FBeginInteract_Signature OnBeginInteract_Event;
+
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
+	FBeginLineTraceOver_Signature OnBeginLineTraceOver_Event;
+
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
+	FEndLineTraceOver_Signature OnEndLineTraceOver_Event;
 
 
 	/////////////////////////////////////////////////////

@@ -15,6 +15,10 @@ class AMagazine;
 class AItemBase;
 class UBoxComponent;
 class UArrowComponent;
+class UCameraComponent;
+class UAnimMontage;
+class UParticleSystem;
+class UAnimInstance;
 
 
 USTRUCT(BlueprintType)
@@ -84,30 +88,69 @@ class COOPARENA_API AGun : public AItemBase
 {
 	GENERATED_BODY()
 	
+	/////////////////////////////////////////////////////
+					/* Parameters */
+	/////////////////////////////////////////////////////
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Gun Stats"))
-	FGunStats m_GunStats;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Gun Stats"))
+	FGunStats _GunStats;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Zoom Camera"))
+	UCameraComponent* _ZoomCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Mesh"))
+	USkeletalMeshComponent* _Mesh;
+
+	/** Name of the bone or socket for the muzzle */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle attach point"))
+	FName _MuzzleAttachPoint;
+
+	/* Name of the bone / socket where shells are ejected, when firing a bullet. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Shell ejection point"))
+	FName _ShellEjectionPoint;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire sound"))
+	USoundBase* _FireSound;
+
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire animation"))
+	UAnimMontage* _FireAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle flash"))
+	UParticleSystem* _MuzzleFlash;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Reload animation"))
+	UAnimMontage* _ReloadAnimation;
+
+	/* This gun's forward direction. Will be used for projectile spawning. */
+	UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (DisplayName = "Forward direction"))
+	UArrowComponent* _ForwardDirection;
+
+	/**
+	 * The offset to properly equip this weapon. After attaching this weapon to the carrier,
+	 * we will be moved and rotated by this.
+	 * The offset has to be placed at the grip handle's center.
+	 * The X-Axis faces along the barrel, the Y-Axis to the right.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* _EquipOffset;
+
+
+	/////////////////////////////////////////////////////
+					/* Misc */
+	/////////////////////////////////////////////////////
+protected:
 	/* The owner's animation instance */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	class UAnimInstance* _AnimInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (DisplayName = "Zoom Camera"))
-	class UCameraComponent* _ZoomCamera;
+	UAnimInstance* _AnimInstance;
 
 	UPROPERTY(BlueprintReadOnly, Category = Weapon)
 	bool _bCanShoot;	
 
 	/* The pawn that currently owns and carries this weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AHumanoid* m_MyOwner;
-
-	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Mesh"))
-	USkeletalMeshComponent* m_Mesh;
-
-	/* This gun's forward direction. Will be used for projectile spawning. */
-	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (DisplayName = "Forward direction"))
-	UArrowComponent* m_ForwardDirection;
+	AHumanoid* _MyOwner;
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	FVector GetForwardCameraVector() const;
@@ -150,7 +193,7 @@ private:
 
 public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
-	EWEaponType GetWeaponType() { return m_GunStats.WeaponType; }
+	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 	
 	virtual UMeshComponent* GetMesh() const override;
 
@@ -159,52 +202,33 @@ public:
 
 
 	/////////////////////////////////////////////////////
-					/* Interactable interface */
+				/* Interactable interface */
 	/////////////////////////////////////////////////////
 public:
 	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;
 
 
 	/////////////////////////////////////////////////////
-					/* Firing */
+						/* Firing */
 	/////////////////////////////////////////////////////
 protected:
-	/** Name of the bone or socket for the muzzle */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle attach point"))
-	FName m_MuzzleAttachPoint;
-
-	/* Name of the bone / socket where shells are ejected, when firing a bullet. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Shell ejection point"))
-	FName m_ShellEjectionPoint;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire sound"))
-	USoundBase* m_FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Fire animation"))
-	class UAnimMontage* m_FireAnimation;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Muzzle flash"))
-	class UParticleSystem* m_MuzzleFlash;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
-	EFireMode m_CurrentFireMode;
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	EFireMode _CurrentFireMode;
 
 	/* How many shots are fired already in the current salvo. Used for the increased spread during firing. */
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
-	int32 m_SalvoCount;
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	int32 _SalvoCount;
 
 	/* How many shots are fired already in the current burst (see: burst mode). */
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
-	int32 m_BurstCount;
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	int32 _BurstCount;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	EWeaponState m_CurrentGunState;
+	EWeaponState _CurrentGunState;
 
 	/* The spawned muzzle flash particle system */
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
-	class UParticleSystemComponent* m_SpawnedMuzzleFlashComponent;
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
 
 private:
 	FTimerHandle m_WeaponCooldownTH;
@@ -279,12 +303,9 @@ public:
 					/* Reloading */
 	/////////////////////////////////////////////////////
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon, meta = (DisplayName = "Reload animation"))
-	UAnimMontage* m_ReloadAnimation;
-
 	/* The currently loaded magazine. */
 	UPROPERTY(BlueprintReadWrite, Category = Weapon)
-	AMagazine* m_LoadedMagazine;
+	AMagazine* _LoadedMagazine;
 
 	/* Stops the reloading process by stop playing the reload animation. */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
