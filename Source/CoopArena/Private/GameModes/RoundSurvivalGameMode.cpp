@@ -22,6 +22,7 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	m_PointsPerBotKill = 10;
 	m_WaveLength = 60.0f;
 	m_PointPenaltyForTeamKill = 50;
+	_DelayBetweenWaves = 3.0f;
 }
 
 /////////////////////////////////////////////////////
@@ -56,18 +57,26 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 void ARoundSurvivalGameMode::StartWave()
 {
 	m_CurrentWave++;
+	DestroyDeadBotBodies();
 	SpawnBots();
 	GetWorld()->GetTimerManager().SetTimer(m_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, m_WaveLength);
 	OnWaveStart_Event.Broadcast();
+
+	FString text("Wave " + FString::FromInt(m_CurrentWave) + " has started.");
+	Broadcast(nullptr, text, NAME_Global);
 }
 
 void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(m_RoundTimerHandle);
-	DestroyDeadBotBodies();
 	ReviveDeadPlayers();
 	OnWaveEnd_Event.Broadcast();
-	StartWave();
+
+	FString text("Wave " + FString::FromInt(m_CurrentWave) + " has ended.");
+	Broadcast(nullptr, text, NAME_Global);
+
+	FTimerHandle timerHandle;
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ARoundSurvivalGameMode::StartWave, _DelayBetweenWaves);
 }
 
 /////////////////////////////////////////////////////
@@ -126,7 +135,9 @@ void ARoundSurvivalGameMode::SpawnBots()
 	{
 		AActor* spawnPoint = m_BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
 		TSubclassOf<AHumanoid> botClassToSpawn = m_BotsToSpawn[FMath::RandRange(0, m_BotsToSpawn.Num() - 1)];
-		AHumanoid* newBot = GetWorld()->SpawnActor<AHumanoid>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation());
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		AHumanoid* newBot = GetWorld()->SpawnActor<AHumanoid>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
 		if(newBot)
 		{
 			m_BotsAlive.Add(newBot);

@@ -45,7 +45,8 @@ void USimpleInventory::BeginPlay()
 		{
 			UHealthComponent* healthComp =  Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
 			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death. "));
-			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::MakeOwnerInteractable);			
+			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::MakeOwnerInteractable);
+			_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::TransfereInventoryContent);
 		}
 		else if (_bDropInventoryOnDestroy)
 		{
@@ -129,7 +130,6 @@ void USimpleInventory::MakeOwnerInteractable(AActor* DeadActor, AController* Con
 {
 	IInteractable::Execute_SetCanBeInteractedWith(_Owner, true);
 	_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::TransfereInventoryContent);
 }
 
 /////////////////////////////////////////////////////

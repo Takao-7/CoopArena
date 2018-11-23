@@ -4,6 +4,10 @@
 #include "GameFramework/Controller.h"
 #include "MyPlayerState.h"
 #include "PlayerCharacter.h"
+#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 
 
 /////////////////////////////////////////////////////
@@ -60,6 +64,13 @@ const FVector& AMyPlayerController::GetDeathLocation() const
 APlayerCharacter* AMyPlayerController::GetLastPossessedCharacter()
 {
 	return m_MyCharacter;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime /*= 0*/)
+{
+	Super::ClientTeamMessage_Implementation(SenderPlayerState, S, Type, MsgLifeTime);
+	UGameplayStatics::GetGameInstance(GetWorld())->GetEngine()->AddOnScreenDebugMessage(0, 3.0f, FColor::Green, S);
 }
 
 /////////////////////////////////////////////////////

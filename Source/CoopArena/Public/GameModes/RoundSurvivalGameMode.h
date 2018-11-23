@@ -47,6 +47,10 @@ protected:
 	/* The time, in seconds, after which a new wave starts. */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave length", ClampMin = 1.0f))
 	float m_WaveLength;
+
+	/* The delay, in seconds, between the end of a wave and the start of the next. */
+	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Delay between waves", ClampMin = 0.0f))
+	float _DelayBetweenWaves;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
 	int32 m_CurrentWave;

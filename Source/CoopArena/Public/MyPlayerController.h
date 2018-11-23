@@ -34,6 +34,8 @@ public:
 	const FVector& GetDeathLocation() const;
 	APlayerCharacter* GetLastPossessedCharacter();
 
+	virtual void ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime = 0) override;
+
 private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectateNextPlayer_Server();
