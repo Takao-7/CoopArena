@@ -51,6 +51,7 @@ AHumanoid::AHumanoid()
 	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	mesh->SetGenerateOverlapEvents(true);
 	mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	mesh->SetCustomDepthStencilValue(253);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
@@ -73,6 +74,8 @@ AHumanoid::AHumanoid()
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
 	moveComp->MaxCustomMovementSpeed = 650.0f;
 	moveComp->MovementState.bCanCrouch = true;	
+
+	_bCanBeInteractedWith = false;
 }
 
 /////////////////////////////////////////////////////
@@ -144,6 +147,30 @@ void AHumanoid::BeginPlay()
 	{
 		SetUpDefaultEquipment();
 	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	OnBeginInteract_Event.Broadcast(InteractingPawn, HitComponent);
+}
+
+UUserWidget* AHumanoid::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	OnBeginLineTraceOver_Event.Broadcast(Pawn, HitComponent);
+	return _LineTraceOverUserWidget;
+}
+
+void AHumanoid::OnEndLineTraceOver_Implementation(APawn* Pawn)
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	OnEndLineTraceOver_Event.Broadcast(Pawn);
+}
+
+void AHumanoid::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
+{
+	_bCanBeInteractedWith = bCanbeInteractedWith;
 }
 
 /////////////////////////////////////////////////////

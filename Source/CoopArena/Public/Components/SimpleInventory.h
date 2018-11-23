@@ -14,32 +14,6 @@
 class AHumanoid;
 
 
-//USTRUCT(BlueprintType)
-//struct FMagazineStack
-//{
-//	GENERATED_BODY()
-//
-//public:
-//	FMagazineStack() {};
-//	FMagazineStack(TSubclassOf<AMagazine> MagClass, int32 StackSize)
-//	{
-//		this->magClass = MagClass;
-//		this->stackSize = StackSize;
-//	};
-//
-//	FORCEINLINE bool operator==(const TSubclassOf<AMagazine>& OtherMagClass) const
-//	{
-//		return this->magClass == OtherMagClass;
-//	};
-//
-//	UPROPERTY()
-//	TSubclassOf<AMagazine> magClass;
-//
-//	UPROPERTY()
-//	int32 stackSize;
-//};
-
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class COOPARENA_API USimpleInventory : public UActorComponent
 {
@@ -188,6 +162,12 @@ private:
 
 	FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType);
 	const FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType) const;
+
+	UFUNCTION()
+	void MakeOwnerInteractable(AActor* DeadActor, AController* Controller, AController* Killer);
+
+	UFUNCTION()
+	void TransfereInventoryContent(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
 
 
 	/////////////////////////////////////////////////////

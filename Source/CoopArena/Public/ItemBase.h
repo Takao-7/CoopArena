@@ -55,9 +55,26 @@ class COOPARENA_API AItemBase : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
-public:
-	AItemBase();
+	/////////////////////////////////////////////////////
+					/* Parameters */
+	/////////////////////////////////////////////////////
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Stats"))
+	FItemStats _itemStats;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Widget"))
+	UUserWidget* _itemWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
+	UShapeComponent* _InteractionVolume;
+
+	FCollisionResponseContainer _collisionChannels;
+
+
+	/////////////////////////////////////////////////////
+				/* Item functions */
+	/////////////////////////////////////////////////////
+public:
 	/* Sets simulate physics and collision. */
 	UFUNCTION(BlueprintCallable, Category = ItemBase)
 	virtual void ShouldSimulatePhysics(bool bSimulatePhysics);
@@ -87,19 +104,14 @@ public:
 	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
 
 
+	/////////////////////////////////////////////////////
+					/* Misc functions */
+	/////////////////////////////////////////////////////
+public:
+	AItemBase();
+
 protected:
 	virtual void BeginPlay() override;		
 
 	void SetUpInteractionVolume();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Stats"))
-	FItemStats _itemStats;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ItemBase, meta = (DisplayName = "Item Widget"))
-	UUserWidget* _itemWidget;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ItemBase, meta = (DisplayName = "Interaction volume"))
-	UShapeComponent* _InteractionVolume;
-
-	FCollisionResponseContainer _collisionChannels;
 };

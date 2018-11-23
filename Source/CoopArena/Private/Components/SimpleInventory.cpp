@@ -9,6 +9,7 @@
 #include "PickUp.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
+#include "CoopArena.h"
 
 
 USimpleInventory::USimpleInventory()
@@ -44,7 +45,7 @@ void USimpleInventory::BeginPlay()
 		{
 			UHealthComponent* healthComp =  Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
 			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death. "));
-			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::OnOwnerDeath);			
+			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::MakeOwnerInteractable);			
 		}
 		else if (_bDropInventoryOnDestroy)
 		{
@@ -94,10 +95,10 @@ void USimpleInventory::DropInventoryContent()
 		FVector2D randLocationOffset = FMath::RandPointInCircle(50.0f);
 		newLocation.X += randLocationOffset.X;
 		newLocation.Y += randLocationOffset.Y;
-		spawnTransform.SetLocation(newLocation); 
+		spawnTransform.SetLocation(newLocation);
 
 		APickUp* pickUp = GetWorld()->SpawnActorDeferred<APickUp>(APickUp::StaticClass(), spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		if(pickUp)
+		if (pickUp)
 		{
 			const int32 stackSize = magStack.stackSize == -1 ? 5 : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
@@ -121,6 +122,58 @@ FMagazineStack* USimpleInventory::FindMagazineStack(const TSubclassOf<AMagazine>
 const FMagazineStack* USimpleInventory::FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType) const
 {
 	return _StoredMagazines.FindByPredicate([&](FMagazineStack Stack) {return Stack == MagazineType; });
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::MakeOwnerInteractable(AActor* DeadActor, AController* Controller, AController* Killer)
+{
+	IInteractable::Execute_SetCanBeInteractedWith(_Owner, true);
+	_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
+	_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::TransfereInventoryContent);
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
+	if (inventory)
+	{
+		bool bIsEmpty = true;
+		for(FMagazineStack& magStack : _StoredMagazines)
+		{
+			int32 freeSpace = 0;
+			int32 stackSize = magStack.stackSize;
+			if (magStack.stackSize == -1)
+			{
+				stackSize = FMath::RandRange(1, 5);
+				magStack.stackSize = 0;
+			}
+			
+			const bool bHasRoom = inventory->HasSpaceForMagazine(magStack.magClass, freeSpace, stackSize);
+			if (bHasRoom)
+			{
+				inventory->AddMagazineToInventory(magStack.magClass, stackSize);
+			}
+			else if (freeSpace != 0)
+			{
+				inventory->AddMagazineToInventory(magStack.magClass, freeSpace);
+				magStack.stackSize -= freeSpace;
+			}
+
+			if (magStack.stackSize != 0)
+			{
+				bIsEmpty = false;
+			}
+		}
+
+		_StoredMagazines.RemoveAllSwap([](FMagazineStack& magStack) { return magStack.stackSize == 0; });
+
+		if (bIsEmpty)
+		{
+			IInteractable::Execute_SetCanBeInteractedWith(_Owner, false);
+			_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////

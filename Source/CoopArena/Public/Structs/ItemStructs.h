@@ -26,6 +26,13 @@ public:
 		return this->magClass == OtherMagClass;
 	};
 
+	FORCEINLINE bool operator==(const FMagazineStack& OtherStack) const
+	{
+		const bool bSameClass = this->magClass == OtherStack.magClass;
+		const bool bSameStackSize = this->stackSize == OtherStack.stackSize;
+		return bSameClass && bSameStackSize;
+	};
+
 	UPROPERTY()
 	TSubclassOf<AMagazine> magClass;
 
