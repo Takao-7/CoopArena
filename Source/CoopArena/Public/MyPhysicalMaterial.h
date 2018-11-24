@@ -21,9 +21,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta = (DisplayName = "Damage modification"))
 	float _DamageModification;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Impact effect"))
+	UParticleSystem* _ImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Impact sound"))
+	USoundBase* _impactSound;
+
 public:
 	UMyPhysicalMaterial();
 
 	UFUNCTION(BlueprintPure, Category = "Damage Resistance")
-	FORCEINLINE float GetDamageMod() { return _DamageModification; };
+	FORCEINLINE float GetDamageMod() const { return _DamageModification; };
+
+	UFUNCTION(BlueprintPure, Category = "Effects")
+	FORCEINLINE UParticleSystem* GetImpactEffect() { return _ImpactEffect; };
+
+	UFUNCTION(BlueprintPure, Category = "Effects")
+	FORCEINLINE USoundBase* GetImpactSound() { return _impactSound; };
 };

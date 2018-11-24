@@ -826,7 +826,8 @@ void AGun::Multicast_PlayFireSound_Implementation()
 {
 	if (_FireSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
+		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
+		//UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
 	}
 }
 
