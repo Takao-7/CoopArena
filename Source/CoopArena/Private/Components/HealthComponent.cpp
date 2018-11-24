@@ -67,7 +67,7 @@ void UHealthComponent::HandleDeath(AActor* Owner, AController* Controller, ACont
 		ensureMsgf(gameMode, TEXT("The game mode is not a subclass of ACoopArenaGameMode"));
 		
 		const bool bIsPlayer = GetOwner()->GetInstigatorController() && GetOwner()->GetInstigatorController()->IsPlayerController();
-		bIsPlayer ? gameMode->OnPlayerDeath_Event.Broadcast(Cast<APlayerCharacter>(Owner), Killer) : gameMode->OnBotDeath_Event.Broadcast(Owner, Killer);
+		bIsPlayer ? gameMode->PlayerDeath_Event.Broadcast(Cast<APlayerCharacter>(Owner), Killer) : gameMode->BotDeath_Event.Broadcast(Owner, Killer);
 
 		HandleDeath_Multicast();
 	}

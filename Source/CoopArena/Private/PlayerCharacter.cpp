@@ -91,7 +91,7 @@ void APlayerCharacter::CheckForInteractables()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -147,9 +147,9 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		params.AddIgnoredActor((AActor*)m_EquippedWeapon);
+		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
@@ -249,17 +249,17 @@ void APlayerCharacter::OnChangeCameraPressed()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnAimingPressed()
 {
-	if (m_EquippedWeapon && !m_bIsSprinting)
+	if (_EquippedWeapon && !m_bIsSprinting)
 	{
 		m_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(m_EquippedWeapon, 0.2f);
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
 	}
 }
 
 void APlayerCharacter::OnAimingReleased()
 {
-	if (m_EquippedWeapon && !m_bIsSprinting)
+	if (_EquippedWeapon && !m_bIsSprinting)
 	{
 		m_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;

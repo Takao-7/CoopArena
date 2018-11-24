@@ -59,6 +59,7 @@ AGun::AGun()
 	_GunStats.KickbackSpeed = 10.0f;
 
 	bReplicates = true;
+	bReplicateMovement = false;
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -356,13 +357,19 @@ void AGun::AttachMeshToPawn()
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 
-		const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
+		if(HasAuthority())
+		{
+			const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
 
-		const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
-		_Mesh->SetRelativeRotation(offsetRot);
+			const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
+			_Mesh->SetRelativeRotation(offsetRot);
 
-		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
-		_Mesh->SetRelativeLocation(offsetLoc);
+			const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
+			_Mesh->SetRelativeLocation(offsetLoc);
+
+			/*FString conType = HasAuthority() ? "Server" : "Client";
+			UE_LOG(LogTemp, Warning, TEXT("[%s] Rotation: %s. Offset: %s"), *conType, *offsetRot.ToString(), *offsetLoc.ToString());*/
+		}
 	}
 }
 

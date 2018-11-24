@@ -24,36 +24,36 @@ class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
 protected:
 	/* How many bots should be spawned per player in the first wave? */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn per player", ClampMin = 1))
-	int32 m_BotsToSpawnPerPlayer;
+	int32 _BotsToSpawnPerPlayer;
 
 	/**
 	 * After each round, the number of bots that are spawned (@see m_BotsToSpawnPerPlayer)
 	 * are multiplied by this value.
 	 */ 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave strength increase", ClampMin = 1.0f))
-	float m_WaveStrengthIncrease;
+	float _WaveStrengthIncreaseFactor;
 	
 	/* Bot classes to spawn. Will pick a random class each time a bot is spawned */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn"))
-	TArray<TSubclassOf<AHumanoid>> m_BotsToSpawn;
+	TArray<TSubclassOf<AHumanoid>> _BotsToSpawn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
-	int32 m_PointsPerBotKill;
+	int32 _PointsPerBotKill;
 
 	/* How many points will be subtracted from the player score for each team kill */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
-	int32 m_PointPenaltyForTeamKill;
+	int32 _PointPenaltyForTeamKill;
 
 	/* The time, in seconds, after which a new wave starts. */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave length", ClampMin = 1.0f))
-	float m_WaveLength;
+	float _WaveLength;
 
 	/* The delay, in seconds, between the end of a wave and the start of the next. */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Delay between waves", ClampMin = 0.0f))
 	float _DelayBetweenWaves;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
-	int32 m_CurrentWave;
+	int32 _CurrentWaveNumber;
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
@@ -66,6 +66,12 @@ protected:
 	bool ReadyToEndMatch_Implementation() override;
 
 public:
+	virtual void StartMatch() override;
+
+	/* Forces the match to start */
+	UFUNCTION(Exec)
+	void ForceStartMatch();
+
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void StartWave();
 
@@ -73,13 +79,13 @@ public:
 	void EndWave();
 
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
-	FORCEINLINE int32 GetCurrentWaveNumber() const { return m_CurrentWave; };
+	FORCEINLINE int32 GetCurrentWaveNumber() const { return _CurrentWaveNumber; };
 	
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveStart_Event OnWaveStart_Event;
+	FOnWaveStart_Event WaveStart_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveEnd_Event OnWaveEnd_Event;
+	FOnWaveEnd_Event WaveEnd_Event;
 
 public:
 	ARoundSurvivalGameMode();
@@ -89,9 +95,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void SpawnBots();
 
+	bool CanSpawnBots();
+
 	/* Returns the number of bots that are currently alive */
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
-	FORCEINLINE int32 GetNumberOfAliveBots() const { return m_BotsAlive.Num(); }
+	FORCEINLINE int32 GetNumberOfAliveBots() const { return _BotsAlive.Num(); }
 
 	/**
 	 * Return the specific player start actor that should be used for the next spawn
@@ -127,13 +135,13 @@ private:
 
 	void StartSpectating(AMyPlayerController* PlayerController);
 
-	TArray<ASpawnPoint*> m_BotSpawnPoints;
+	TArray<ASpawnPoint*> _BotSpawnPoints;
 
-	/** Bots that are currently alive */
-	TArray<AHumanoid*> m_BotsAlive;
+	/* Bots that are currently alive */
+	TArray<AHumanoid*> _BotsAlive;
 
-	/* Bots that are dead. They will be deleted at the end of the wave and then cleared from this array. */
-	TArray<AHumanoid*> m_BotsDead;
+	/* Bots that are dead. They will be deleted at the start of the next wave and then cleared from this array. */
+	TArray<AHumanoid*> _BotsDead;
 
-	FTimerHandle m_RoundTimerHandle;
+	FTimerHandle _RoundTimerHandle;
 };

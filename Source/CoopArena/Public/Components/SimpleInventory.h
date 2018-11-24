@@ -52,14 +52,14 @@ protected:
 	TArray<FWeaponAttachPoint> _WeaponAttachPoints;
 
 	/* Should we drop all stored magazines when our owner dies? Requires that it has a UHealthComponent! */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Drop inventory on death"))
 	bool _bDropInventoryOnDeath;
 
 	/**
 	 * Should we drop all stored magazines when our owner is destroyed?
 	 * If bDropInventoryOnDeath is set to true and the owner has a UHealthComponent, then this does nothing.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Drop inventory on destroy"))
 	bool _bDropInventoryOnDestroy;
 
 private:
@@ -138,12 +138,6 @@ private:
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable, Category = "Inventory")
 	void GetMagazineFromInventory_Server(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToRemove = 1);
 
-	UFUNCTION()
-	void OnOwnerDeath(AActor* DeadActor, AController* Controller, AController* Killer);
-
-	UFUNCTION()
-	void OnOwnerDestroyed(AActor* DestroyedOwner);
-
 	void DropInventoryContent();
 
 
@@ -163,11 +157,24 @@ private:
 	FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType);
 	const FMagazineStack* FindMagazineStack(const TSubclassOf<AMagazine>& MagazineType) const;
 
-	UFUNCTION()
-	void MakeOwnerInteractable(AActor* DeadActor, AController* Controller, AController* Killer);
+	UFUNCTION(NetMulticast, Reliable)
+	void SetOwnerInteractable(bool bCanBeInteractedWith);
 
 	UFUNCTION()
-	void TransfereInventoryContent(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+	void OnOwnerDeath(AActor* DeadActor, AController* Controller, AController* Killer);
+
+	UFUNCTION()
+	void OnOwnerDestroyed(AActor* DestroyedOwner);
+
+	UFUNCTION()
+	void OnOwnerBeeingInteractedWith(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+
+	/**
+	 * [Server] Transfers our entire content to the interaction pawn.
+	 * If we don't have any magazines left after that, our owning pawn will be set to not be interactable.
+	 */
+	UFUNCTION()
+	void TransfereInventoryContent(APawn* InteractingPawn);
 
 
 	/////////////////////////////////////////////////////

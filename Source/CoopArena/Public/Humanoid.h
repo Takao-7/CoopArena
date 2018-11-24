@@ -334,7 +334,7 @@ protected:
 		
 	/* The characters currently held weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Humanoid, meta = (DisplayName = "Equipped weapon"))
-	AGun* m_EquippedWeapon;
+	AGun* _EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
 	bool m_bIsAiming;
@@ -373,7 +373,7 @@ protected:
 private:
 	/* The weapon that should be equipped. */
 	UPROPERTY(ReplicatedUsing = HandleWeaponEquip)
-	AGun* m_WeaponToEquip;
+	AGun* _WeaponToEquip;
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void EquipWeapon_Server(AGun* Gun);
