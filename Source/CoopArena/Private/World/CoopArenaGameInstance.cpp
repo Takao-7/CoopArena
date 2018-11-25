@@ -129,7 +129,7 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 			const int32 ConnectedPlayer = MaxPlayers - result.Session.NumOpenPublicConnections;
 			searchResult.Add(FSessionData(matchName, playerName, SessionId, Ping, MaxPlayers, ConnectedPlayer));
 		}
-		SessionFound_Event.Broadcast(searchResult);
+		OnSessionFound.Broadcast(searchResult);
 	}
 
 	if (_bWantsToSearchForGames)

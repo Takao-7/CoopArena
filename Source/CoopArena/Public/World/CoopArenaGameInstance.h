@@ -90,7 +90,7 @@ public:
 	void StartMatch(FName MapName = "Level4");
 
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
-	FOnSessionFound_Event SessionFound_Event;
+	FOnSessionFound_Event OnSessionFound;
 
 	int32 GetNumberOfConnectedPlayers() const;
 
