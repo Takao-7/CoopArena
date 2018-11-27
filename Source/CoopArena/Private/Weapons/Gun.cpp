@@ -580,7 +580,7 @@ void AGun::DropMagazine()
 	magazineInHand->SetLifeSpan(30.0f);
 }
 
-
+/////////////////////////////////////////////////////
 void AGun::FinishReloadWeapon()
 {
 	if (_LoadedMagazine)
@@ -591,14 +591,19 @@ void AGun::FinishReloadWeapon()
 	{
 		_CurrentGunState = EWeaponState::NoMagazine;
 	}	
+
+	if (_MyOwner)
+	{
+		_MyOwner->OnReloadFinished.Broadcast(_MyOwner, this);
+	}
 }
 
-
 /////////////////////////////////////////////////////
-void AGun::ToggleFireMode()
+EFireMode AGun::ToggleFireMode()
 {
 	m_CurrentFireModePointer = (m_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
 	_CurrentFireMode = _GunStats.FireModes[m_CurrentFireModePointer];
+	return _CurrentFireMode;
 }
 
 
@@ -674,6 +679,12 @@ void AGun::AttachMagazine(AMagazine* Magazine)
 float AGun::GetCooldownTime() const
 {
 	return _GunStats.Cooldown;
+}
+
+/////////////////////////////////////////////////////
+AMagazine* AGun::GetMagazine() const
+{
+	return _LoadedMagazine;
 }
 
 /////////////////////////////////////////////////////

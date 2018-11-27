@@ -215,6 +215,7 @@ void AHumanoid::FireEquippedWeapon()
 	if (CanFire() && _EquippedWeapon)
 	{
 		_EquippedWeapon->OnFire();
+		OnWeaponFire.Broadcast(this, _EquippedWeapon);
 	}
 }
 
@@ -425,7 +426,8 @@ void AHumanoid::ChangeWeaponFireMode()
 {
 	if (_EquippedWeapon)
 	{
-		_EquippedWeapon->ToggleFireMode();
+		EFireMode newMode = _EquippedWeapon->ToggleFireMode();
+		OnFireModeChanged.Broadcast(this, newMode);
 	}
 }
 

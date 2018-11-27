@@ -23,6 +23,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gu
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
 
 
 UCLASS(abstract)
@@ -296,6 +299,17 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool IsAiming() const;
+
+	/* This event is called, when we have finished reloading our weapon. */
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
+	FReloadFinished_Signature OnReloadFinished;
+
+	/* This event is called each time we fire a weapon. */
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
+	FFireWeapon_Signature OnWeaponFire;
+
+	UPROPERTY(BlueprintAssignable, Category = "PlayerCharacter")
+	FOnFireModeChange_Signature OnFireModeChanged;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)

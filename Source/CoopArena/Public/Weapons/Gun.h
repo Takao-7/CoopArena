@@ -289,7 +289,7 @@ public:
 	bool CanShoot() const;
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void ToggleFireMode();
+	EFireMode ToggleFireMode();
 
 	/* Sets the fire mode to the given value. */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
@@ -298,6 +298,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
 
+	UFUNCTION(BlueprintPure, Category = Weapon)
+	AMagazine* GetMagazine() const;
 
 	/////////////////////////////////////////////////////
 					/* Reloading */

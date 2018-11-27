@@ -9,6 +9,7 @@
 #include "MyGameState.h"
 #include "MyPlayerState.h"
 #include "MyPlayerController.h"
+#include "DefaultHUD.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
@@ -20,6 +21,7 @@ ACoopArenaGameMode::ACoopArenaGameMode()
 	GameStateClass = AMyGameState::StaticClass();
 	PlayerStateClass = AMyPlayerState::StaticClass();
 	PlayerControllerClass = AMyPlayerController::StaticClass();
+	HUDClass = ADefaultHUD::StaticClass();
 }
 
 /////////////////////////////////////////////////////

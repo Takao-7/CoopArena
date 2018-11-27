@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
+#include "DefaultHUD.h"
 
 
 /////////////////////////////////////////////////////
@@ -15,8 +16,8 @@ void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only call this function as the server!"));
 
-	m_DeathLocation = GetPawn()->GetActorLocation();
-	m_MyCharacter = Cast<APlayerCharacter>(GetPawn());
+	_DeathLocation = GetPawn()->GetActorLocation();
+	_MyCharacter = Cast<APlayerCharacter>(GetPawn());
 
 	PlayerState->bIsSpectator = true;
 	PlayerState->bOnlySpectator = true;
@@ -34,6 +35,7 @@ void AMyPlayerController::StartSpectating_Client_Implementation(APlayerCharacter
 	{		
 		PlayerToSpectate->SetThirdPersonCameraToActive();		
 	}
+	GetDefaultHUD()->SetState(EHUDState::Spectating);
 }
 
 /////////////////////////////////////////////////////
@@ -57,13 +59,13 @@ bool AMyPlayerController::IsSpectating()
 /////////////////////////////////////////////////////
 const FVector& AMyPlayerController::GetDeathLocation() const
 {
-	return m_DeathLocation;
+	return _DeathLocation;
 }
 
 /////////////////////////////////////////////////////
 APlayerCharacter* AMyPlayerController::GetLastPossessedCharacter()
 {
-	return m_MyCharacter;
+	return _MyCharacter;
 }
 
 /////////////////////////////////////////////////////
@@ -71,6 +73,19 @@ void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* S
 {
 	Super::ClientTeamMessage_Implementation(SenderPlayerState, S, Type, MsgLifeTime);
 	UGameplayStatics::GetGameInstance(GetWorld())->GetEngine()->AddOnScreenDebugMessage(0, 3.0f, FColor::Green, S);
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::Possess(APawn* aPawn)
+{
+	Super::Possess(aPawn);
+	GetDefaultHUD()->Init(Cast<APlayerCharacter>(aPawn));
+}
+
+/////////////////////////////////////////////////////
+ADefaultHUD* AMyPlayerController::GetDefaultHUD() const
+{
+	return Cast<ADefaultHUD>(GetHUD());
 }
 
 /////////////////////////////////////////////////////
