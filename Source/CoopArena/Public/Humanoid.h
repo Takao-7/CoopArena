@@ -302,6 +302,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool IsAiming() const;
 
+	/**
+	 * Gets the number of rounds left in the equipped weapon. 
+	 * @return The number of rounds left. If no weapon is equipped or the weapon does not have
+	 * a magazine, then 0.
+	 * A value of -1 means that the magazine has infinite ammo.
+	 */
+	UFUNCTION(BlueprintPure, Category = Humanoid)
+	int32 GetNumRoundsLeft();
+
 	/* This event is called, when we have finished reloading our weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
 	FReloadFinished_Signature OnReloadFinished;
