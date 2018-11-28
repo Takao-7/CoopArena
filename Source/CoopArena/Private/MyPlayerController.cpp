@@ -4,6 +4,12 @@
 #include "GameFramework/Controller.h"
 #include "MyPlayerState.h"
 #include "PlayerCharacter.h"
+#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
+#include "DefaultHUD.h"
+#include "TimerManager.h"
 
 
 /////////////////////////////////////////////////////
@@ -11,25 +17,33 @@ void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only call this function as the server!"));
 
-	m_DeathLocation = GetPawn()->GetActorLocation();
-	m_MyCharacter = Cast<APlayerCharacter>(GetPawn());
+	APawn* pawn = GetPawn();
+	if(pawn)
+	{
+		_DeathLocation = pawn->GetActorLocation();
+		_MyCharacter = Cast<APlayerCharacter>(pawn);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Pawn is null!"), *GetName());
+	}
 
 	PlayerState->bIsSpectator = true;
 	PlayerState->bOnlySpectator = true;
 	bPlayerIsWaiting = true;
 
-	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(ActorToSpectate);
-	Possess(playerCharacter);
-	SetViewTargetWithBlend(playerCharacter, 1.0f);
-	StartSpectating_Client(playerCharacter);
+	UnPossess();
+	APlayerCharacter* playerToSpectate = Cast<APlayerCharacter>(ActorToSpectate);
+	StartSpectating_Client(playerToSpectate);
 }
 
 void AMyPlayerController::StartSpectating_Client_Implementation(APlayerCharacter* PlayerToSpectate = nullptr)
 {
 	if (PlayerToSpectate)
 	{		
-		PlayerToSpectate->SetThirdPersonCameraToActive();		
+		PlayerToSpectate->SetThirdPersonCameraToActive();
 	}
+	GetDefaultHUD()->SetState(EHUDState::Spectating);
 }
 
 /////////////////////////////////////////////////////
@@ -53,13 +67,37 @@ bool AMyPlayerController::IsSpectating()
 /////////////////////////////////////////////////////
 const FVector& AMyPlayerController::GetDeathLocation() const
 {
-	return m_DeathLocation;
+	return _DeathLocation;
 }
 
 /////////////////////////////////////////////////////
 APlayerCharacter* AMyPlayerController::GetLastPossessedCharacter()
 {
-	return m_MyCharacter;
+	return _MyCharacter;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime /*= 0*/)
+{
+	Super::ClientTeamMessage_Implementation(SenderPlayerState, S, Type, MsgLifeTime);
+	UGameplayStatics::GetGameInstance(GetWorld())->GetEngine()->AddOnScreenDebugMessage(0, 3.0f, FColor::Green, S);
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::Possess(APawn* aPawn)
+{
+	Super::Possess(aPawn);
+	ADefaultHUD* hud = GetDefaultHUD();
+	if (hud)
+	{
+		hud->Init(Cast<APlayerCharacter>(aPawn));
+	}
+}
+
+/////////////////////////////////////////////////////
+ADefaultHUD* AMyPlayerController::GetDefaultHUD() const
+{
+	return Cast<ADefaultHUD>(GetHUD());
 }
 
 /////////////////////////////////////////////////////

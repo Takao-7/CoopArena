@@ -59,6 +59,7 @@ AGun::AGun()
 	_GunStats.KickbackSpeed = 10.0f;
 
 	bReplicates = true;
+	bReplicateMovement = false;
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -356,13 +357,19 @@ void AGun::AttachMeshToPawn()
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 
-		const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
+		if(HasAuthority())
+		{
+			const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
 
-		const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
-		_Mesh->SetRelativeRotation(offsetRot);
+			const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
+			_Mesh->SetRelativeRotation(offsetRot);
 
-		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
-		_Mesh->SetRelativeLocation(offsetLoc);
+			const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
+			_Mesh->SetRelativeLocation(offsetLoc);
+
+			/*FString conType = HasAuthority() ? "Server" : "Client";
+			UE_LOG(LogTemp, Warning, TEXT("[%s] Rotation: %s. Offset: %s"), *conType, *offsetRot.ToString(), *offsetLoc.ToString());*/
+		}
 	}
 }
 
@@ -573,7 +580,7 @@ void AGun::DropMagazine()
 	magazineInHand->SetLifeSpan(30.0f);
 }
 
-
+/////////////////////////////////////////////////////
 void AGun::FinishReloadWeapon()
 {
 	if (_LoadedMagazine)
@@ -584,14 +591,19 @@ void AGun::FinishReloadWeapon()
 	{
 		_CurrentGunState = EWeaponState::NoMagazine;
 	}	
+
+	if (_MyOwner)
+	{
+		_MyOwner->OnReloadFinished.Broadcast(_MyOwner, this);
+	}
 }
 
-
 /////////////////////////////////////////////////////
-void AGun::ToggleFireMode()
+EFireMode AGun::ToggleFireMode()
 {
 	m_CurrentFireModePointer = (m_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
 	_CurrentFireMode = _GunStats.FireModes[m_CurrentFireModePointer];
+	return _CurrentFireMode;
 }
 
 
@@ -667,6 +679,12 @@ void AGun::AttachMagazine(AMagazine* Magazine)
 float AGun::GetCooldownTime() const
 {
 	return _GunStats.Cooldown;
+}
+
+/////////////////////////////////////////////////////
+AMagazine* AGun::GetMagazine() const
+{
+	return _LoadedMagazine;
 }
 
 /////////////////////////////////////////////////////
@@ -819,7 +837,8 @@ void AGun::Multicast_PlayFireSound_Implementation()
 {
 	if (_FireSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
+		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
+		//UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
 	}
 }
 

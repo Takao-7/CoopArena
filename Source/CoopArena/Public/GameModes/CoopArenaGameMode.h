@@ -24,25 +24,29 @@ class COOPARENA_API ACoopArenaGameMode : public AGameMode
 protected:
 	/* All spawn points on the map */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	TArray<ASpawnPoint*> spawnPoints;
+	TArray<ASpawnPoint*> _spawnPoints;
 
 	/* The number of players that are currently alive */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	int32 numPlayersAlive;
+	int32 _numPlayersAlive;
 
 	/* A list of all player characters on the map (dead an alive) */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	TArray<APlayerCharacter*> playerCharacters;
+	TArray<APlayerCharacter*> _playerCharacters;
+
+	/* A list of all alive player characters on the map */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	TArray<APlayerCharacter*> _playerCharactersAlive;
 
 	/* A list of all player controllers on the map */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	TArray<APlayerController*> playerControllers;
+	TArray<APlayerController*> _playerControllers;
 
-	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	FName defaultPlayerTeam;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
+	FName _defaultPlayerTeam;
 
-	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	FName defaultBotTeam;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
+	FName _defaultBotTeam;
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
@@ -52,10 +56,10 @@ public:
 	ACoopArenaGameMode();
 
 	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
-	FOnPlayerDeath_Signature OnPlayerDeath_Event;
+	FOnPlayerDeath_Signature PlayerDeath_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
-	FOnBotDeath_Signature OnBotDeath_Event;
+	FOnBotDeath_Signature BotDeath_Event;
 
 	/**
 	* Checks if the given Controller has any tag that contains 'Team'.
@@ -76,9 +80,15 @@ public:
 	 */
 	bool CanRespawn(APlayerController* PlayerController, AActor* Actor) const;
 
+	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
+	FName GetPlayerTeamName() const { return _defaultPlayerTeam; };
+
+	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
+	FName GetBotTeamName() const { return _defaultBotTeam; };
+
 
 	/////////////////////////////////////////////////////
-					/* Override functions */
+				/* Overridden functions */
 	/////////////////////////////////////////////////////
 public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;

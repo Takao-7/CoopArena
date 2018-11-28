@@ -12,27 +12,37 @@
 #include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
+#include "CoopArenaGameInstance.h"
+#include "Bot.h"
+#include "BotController.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 {
-	m_CurrentWave = 0;
-	m_WaveStrengthIncrease = 2.0f;
-	m_BotsToSpawnPerPlayer = 2;
-	m_PointsPerBotKill = 10;
-	m_WaveLength = 60.0f;
-	m_PointPenaltyForTeamKill = 50;
+	_CurrentWaveNumber = 0;
+	_WaveStrengthIncreaseFactor = 2.0f;
+	_BotsToSpawnPerPlayer = 2;
+	_PointsPerBotKill = 10;
+	_WaveLength = 60.0f;
+	_PointPenaltyForTeamKill = 50;
+	_DelayBetweenWaves = 3.0f;
+	//bDelayedStart = true;
 }
 
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
-	return Super::ReadyToStartMatch_Implementation();
+	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	ensure(gameInstance);
+
+	const int32 numConnectedPlayers = gameInstance->GetNumberOfConnectedPlayers();
+	const int32 numPlayersOnMap = _playerControllers.Num();
+	return (numPlayersOnMap >= numConnectedPlayers) && numPlayersOnMap > 0;
 }
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 {
-	return numPlayersAlive > 0;
+	return _numPlayersAlive == 0;
 }
 
 /////////////////////////////////////////////////////
@@ -40,50 +50,92 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
-	for (ASpawnPoint* spawnPoint : spawnPoints)
+	for (ASpawnPoint* spawnPoint : _spawnPoints)
 	{
-		if (spawnPoint->PlayerStartTag == defaultBotTeam)
+		if (spawnPoint->PlayerStartTag == _defaultBotTeam)
 		{
-			m_BotSpawnPoints.AddUnique(spawnPoint);
+			_BotSpawnPoints.AddUnique(spawnPoint);
 		}
 	}
 
-	OnBotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
-	OnPlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
+	BotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
+	PlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::StartMatch()
+{
+	Super::StartMatch();
+	if (CanSpawnBots())
+	{
+		StartWave();
+	}
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::StartWave()
 {
-	m_CurrentWave++;
+	if (HasMatchEnded())
+	{
+		return;
+	}
+
+	_CurrentWaveNumber++;
+	DestroyDeadBotBodies();
 	SpawnBots();
-	GetWorld()->GetTimerManager().SetTimer(m_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, m_WaveLength);
-	OnWaveStart_Event.Broadcast();
+	SetAttackTarget();
+	GetWorld()->GetTimerManager().SetTimer(_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, _WaveLength);
+	OnWaveStart.Broadcast();
+
+	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has started.");
+	Broadcast(nullptr, text, NAME_Global);
 }
 
 void ARoundSurvivalGameMode::EndWave()
 {
-	GetWorld()->GetTimerManager().ClearTimer(m_RoundTimerHandle);
-	DestroyDeadBotBodies();
+	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
 	ReviveDeadPlayers();
-	OnWaveEnd_Event.Broadcast();
-	StartWave();
+	OnWaveEnd.Broadcast();
+
+	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has ended.");
+	Broadcast(nullptr, text, NAME_Global);
+
+	if(IsMatchInProgress())
+	{
+		FTimerHandle timerHandle;
+		GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ARoundSurvivalGameMode::StartWave, _DelayBetweenWaves);
+	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::SetAttackTarget()
+{
+	for (ABot* bot : _BotsAlive)
+	{
+		int32 index = FMath::RandRange(0, _playerCharactersAlive.Num() - 1);
+		AController* controller = bot->GetController();
+		ABotController* aiController = Cast<ABotController>(controller);
+		if (aiController)
+		{
+			aiController->SetAttackTarget(_playerCharactersAlive[index]->GetActorLocation());
+		}
+	}
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 {
-	for (AHumanoid* bot : m_BotsDead)
+	for (AHumanoid* bot : _BotsDead)
 	{
 		bot->Destroy();
 	}
-	m_BotsDead.Empty(m_BotsDead.Num() * 2);
+	_BotsDead.Empty(_BotsDead.Num() * 2);
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	for (APlayerController* pc : playerControllers)
+	for (APlayerController* pc : _playerControllers)
 	{
 		if (pc->PlayerState->bIsSpectator)
 		{
@@ -94,42 +146,32 @@ void ARoundSurvivalGameMode::ReviveDeadPlayers()
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
 			playerCharacter->Revive();
-			numPlayersAlive++;
+			_numPlayersAlive++;
 		}
 	}
 }
 
 /////////////////////////////////////////////////////
-AActor* ARoundSurvivalGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
-{
-	return Super::FindPlayerStart_Implementation(Player, IncomingName);
-}
-
-AActor* ARoundSurvivalGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{
-	return Super::ChoosePlayerStart_Implementation(Player);
-}
-
-/////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::SpawnBots()
 {
-	const float waveIncrease = m_CurrentWave > 1 ? m_CurrentWave * m_WaveStrengthIncrease : 1;
-	const int32 numBotsToSpawn = m_BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
-	const int32 numSpawnPoints = m_BotSpawnPoints.Num();
-	if (numSpawnPoints == 0 || numBotsToSpawn == 0)
+	if (CanSpawnBots() == false)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No bot spawn points on the map or no bots to spawn."));
 		return;
 	}
 
+	const float waveIncrease = _CurrentWaveNumber > 1 ? _CurrentWaveNumber * _WaveStrengthIncreaseFactor : 1;
+	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
+	const int32 numSpawnPoints = _BotSpawnPoints.Num();
 	for (int32 i = 0; i < numBotsToSpawn; ++i)
 	{
-		AActor* spawnPoint = m_BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
-		TSubclassOf<AHumanoid> botClassToSpawn = m_BotsToSpawn[FMath::RandRange(0, m_BotsToSpawn.Num() - 1)];
-		AHumanoid* newBot = GetWorld()->SpawnActor<AHumanoid>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation());
+		AActor* spawnPoint = _BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
+		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
 		if(newBot)
 		{
-			m_BotsAlive.Add(newBot);
+			_BotsAlive.Add(newBot);
 
 			URespawnComponent* respawnComp = Cast<URespawnComponent>(newBot->GetComponentByClass(URespawnComponent::StaticClass()));
 			respawnComp->SetEnableRespawn(false);
@@ -142,22 +184,50 @@ void ARoundSurvivalGameMode::SpawnBots()
 }
 
 /////////////////////////////////////////////////////
+bool ARoundSurvivalGameMode::CanSpawnBots()
+{
+	const float waveIncrease = _CurrentWaveNumber > 1 ? _CurrentWaveNumber * _WaveStrengthIncreaseFactor : 1;
+	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
+	const int32 numSpawnPoints = _BotSpawnPoints.Num();
+	bool bValidBotClasses = true;
+	for (TSubclassOf<ABot>& botClass : _BotsToSpawn)
+	{
+		if (botClass == nullptr)
+		{
+			bValidBotClasses = false;
+			break;
+		}
+	}
+
+	if (bValidBotClasses == false || numSpawnPoints == 0 || numBotsToSpawn == 0 || _BotsToSpawn.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No bot spawn points on the map or no bots to spawn."));
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+/////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer)
 {
-	if (HasMatchStarted() == false || m_CurrentWave == 0)
+	if (HasMatchStarted() == false || _CurrentWaveNumber == 0)
 	{
 		return;
 	}
 
-	AHumanoid* bot = Cast<AHumanoid>(DeadBot);
+	ABot* bot = Cast<ABot>(DeadBot);
+	ensureMsgf(bot, TEXT("Bot does not inheret from ABot."));
 
-	m_BotsAlive.RemoveSingleSwap(bot);
-	m_BotsDead.Add(bot);
+	_BotsAlive.RemoveSingleSwap(bot);
+	_BotsDead.Add(bot);
 
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(Killer->PlayerState);
 	if (playerState)
 	{
-		playerState->ScorePoints(m_PointsPerBotKill);
+		playerState->ScorePoints(_PointsPerBotKill);
 	}
 
 	if (GetNumberOfAliveBots() == 0)
@@ -168,31 +238,32 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 
 void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, AController* Killer)
 {
-	if (HasMatchStarted() == false || m_CurrentWave == 0)
+	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
+	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
+	StartSpectating(playerController);
+
+	if (HasMatchStarted() == false || _CurrentWaveNumber == 0)
 	{
 		return;
 	}
 	
-	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
-	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
-
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	playerState->AddDeath();
 
-	numPlayersAlive--;
-	if (numPlayersAlive == 0)
-	{
-		// #todo Game over
-		EndMatch();
-	}
-
-	StartSpectating(playerController);
+	UnregisterPlayerCharacter(DeadPlayer);
 
 	if (Killer && Killer->IsPlayerController())
 	{
 		AMyPlayerState* playerState_Killer = Cast<AMyPlayerState>(Killer->PlayerState);
-		playerState_Killer->ScorePoints(-m_PointPenaltyForTeamKill, false);
+		playerState_Killer->ScorePoints(-_PointPenaltyForTeamKill, false);
+	}
+
+	_numPlayersAlive--;
+	if (_numPlayersAlive == 0)
+	{
+		// #todo Game over
+		EndMatch();
 	}
 }
 
@@ -203,7 +274,7 @@ void ARoundSurvivalGameMode::StartSpectating(AMyPlayerController* PlayerControll
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	
 	/* Find alive player to watch. */
-	for (APlayerCharacter* pc : playerCharacters)
+	for (APlayerCharacter* pc : _playerCharacters)
 	{
 		if (pc->IsAlive())
 		{

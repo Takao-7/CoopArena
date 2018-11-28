@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 #include "Interfaces/Interactable.h"
+#include "Enums/WeaponEnums.h"
 #include "Humanoid.generated.h"
 
 
@@ -23,6 +24,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gu
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
 
 
 UCLASS(abstract)
@@ -35,13 +39,14 @@ public:
 	AHumanoid();
 
 	UFUNCTION(BlueprintCallable, Category = "Humanoid")
-	const FString& GetTeamName() const { return m_TeamName; };
+	const FString& GetTeamName() const { return _TeamName; };
 
 	UFUNCTION(BlueprintCallable, Category = "Humanoid")
-	void SetTeamName(FString NewTeamName) { m_TeamName = NewTeamName; };
+	void SetTeamName(FString NewTeamName) { _TeamName = NewTeamName; };
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	UFUNCTION(BlueprintPure, Category = "Humanoid")
 	bool IsAlive() const;
 
 	/**
@@ -54,8 +59,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
-	FString m_TeamName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
+	FString _TeamName;
 
 
 	/////////////////////////////////////////////////////
@@ -297,6 +302,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool IsAiming() const;
 
+	/* This event is called, when we have finished reloading our weapon. */
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
+	FReloadFinished_Signature OnReloadFinished;
+
+	/* This event is called each time we fire a weapon. */
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
+	FFireWeapon_Signature OnWeaponFire;
+
+	UPROPERTY(BlueprintAssignable, Category = "PlayerCharacter")
+	FOnFireModeChange_Signature OnFireModeChanged;
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void OnHolsterWeapon();
@@ -334,7 +350,7 @@ protected:
 		
 	/* The characters currently held weapon */
 	UPROPERTY(BlueprintReadWrite, Category = Humanoid, meta = (DisplayName = "Equipped weapon"))
-	AGun* m_EquippedWeapon;
+	AGun* _EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
 	bool m_bIsAiming;
@@ -373,7 +389,7 @@ protected:
 private:
 	/* The weapon that should be equipped. */
 	UPROPERTY(ReplicatedUsing = HandleWeaponEquip)
-	AGun* m_WeaponToEquip;
+	AGun* _WeaponToEquip;
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void EquipWeapon_Server(AGun* Gun);

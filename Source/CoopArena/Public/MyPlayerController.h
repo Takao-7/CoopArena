@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "MyPlayerController.generated.h"
 
+class ADefaultHUD;
+
 /**
  * 
  */
@@ -34,6 +36,12 @@ public:
 	const FVector& GetDeathLocation() const;
 	APlayerCharacter* GetLastPossessedCharacter();
 
+	virtual void ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime = 0) override;
+
+	virtual void Possess(APawn* aPawn) override;
+
+	ADefaultHUD* GetDefaultHUD() const;
+
 private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectateNextPlayer_Server();
@@ -41,7 +49,6 @@ private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectatePreviousPlayer_Server();
 
-	FVector m_DeathLocation;	
-
-	APlayerCharacter* m_MyCharacter;
+	FVector _DeathLocation;	
+	APlayerCharacter* _MyCharacter;
 };

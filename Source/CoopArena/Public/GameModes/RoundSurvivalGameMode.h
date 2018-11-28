@@ -10,6 +10,7 @@
 class AHumanoid;
 class APlayerCharacter;
 class AMyPlayerController;
+class ABot;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaveStart_Event);
@@ -24,32 +25,37 @@ class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
 protected:
 	/* How many bots should be spawned per player in the first wave? */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn per player", ClampMin = 1))
-	int32 m_BotsToSpawnPerPlayer;
+	int32 _BotsToSpawnPerPlayer;
 
 	/**
 	 * After each round, the number of bots that are spawned (@see m_BotsToSpawnPerPlayer)
 	 * are multiplied by this value.
 	 */ 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave strength increase", ClampMin = 1.0f))
-	float m_WaveStrengthIncrease;
+	float _WaveStrengthIncreaseFactor;
 	
 	/* Bot classes to spawn. Will pick a random class each time a bot is spawned */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn"))
-	TArray<TSubclassOf<AHumanoid>> m_BotsToSpawn;
+	TArray<TSubclassOf<ABot>> _BotsToSpawn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
-	int32 m_PointsPerBotKill;
+	int32 _PointsPerBotKill;
 
 	/* How many points will be subtracted from the player score for each team kill */
-	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
-	int32 m_PointPenaltyForTeamKill;
+	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Point penalty for team kill", ClampMin = 0))
+	int32 _PointPenaltyForTeamKill;
 
 	/* The time, in seconds, after which a new wave starts. */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave length", ClampMin = 1.0f))
-	float m_WaveLength;
+	float _WaveLength;
+
+	/* The delay, in seconds, between the end of a wave and the start of the next. */
+	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Delay between waves", ClampMin = 0.0f))
+	float _DelayBetweenWaves;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
-	int32 m_CurrentWave;
+	int32 _CurrentWaveNumber;
+
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
@@ -62,6 +68,8 @@ protected:
 	bool ReadyToEndMatch_Implementation() override;
 
 public:
+	virtual void StartMatch() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void StartWave();
 
@@ -69,14 +77,16 @@ public:
 	void EndWave();
 
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
-	FORCEINLINE int32 GetCurrentWaveNumber() const { return m_CurrentWave; };
+	FORCEINLINE int32 GetCurrentWaveNumber() const { return _CurrentWaveNumber; };
 	
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveStart_Event OnWaveStart_Event;
+	FOnWaveStart_Event OnWaveStart;
 
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveEnd_Event OnWaveEnd_Event;
+	FOnWaveEnd_Event OnWaveEnd;
 
+
+	/////////////////////////////////////////////////////
 public:
 	ARoundSurvivalGameMode();
 
@@ -85,30 +95,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void SpawnBots();
 
+	bool CanSpawnBots();
+
 	/* Returns the number of bots that are currently alive */
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
-	FORCEINLINE int32 GetNumberOfAliveBots() const { return m_BotsAlive.Num(); }
-
-	/**
-	 * Return the specific player start actor that should be used for the next spawn
-	 * This will either use a previously saved startactor, or calls ChoosePlayerStart
-	 *
-	 * @param Player The AController for whom we are choosing a Player Start
-	 * @param IncomingName Specifies the tag of a Player Start to use
-	 * @returns Actor chosen as player start (usually a PlayerStart)
-	 */
-	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName = TEXT("")) override;
-
-	/**
-	 * Return the 'best' player start for this player to spawn from
-	 * Default implementation looks for a random unoccupied spot
-	 *
-	 * @param Player is the controller for whom we are choosing a playerstart
-	 * @returns AActor chosen as player start (usually a PlayerStart)
-	 */
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+	FORCEINLINE int32 GetNumberOfAliveBots() const { return _BotsAlive.Num(); }
 
 private:
+	/* Set the target for all spawned bots. */
+	UFUNCTION()
+	void SetAttackTarget();
+
 	void DestroyDeadBotBodies();
 
 	void ReviveDeadPlayers();
@@ -123,13 +120,13 @@ private:
 
 	void StartSpectating(AMyPlayerController* PlayerController);
 
-	TArray<ASpawnPoint*> m_BotSpawnPoints;
+	TArray<ASpawnPoint*> _BotSpawnPoints;
 
-	/** Bots that are currently alive */
-	TArray<AHumanoid*> m_BotsAlive;
+	/* Bots that are currently alive */
+	TArray<ABot*> _BotsAlive;
 
-	/* Bots that are dead. They will be deleted at the end of the wave and then cleared from this array. */
-	TArray<AHumanoid*> m_BotsDead;
+	/* Bots that are dead. They will be deleted at the start of the next wave and then cleared from this array. */
+	TArray<ABot*> _BotsDead;
 
-	FTimerHandle m_RoundTimerHandle;
+	FTimerHandle _RoundTimerHandle;
 };

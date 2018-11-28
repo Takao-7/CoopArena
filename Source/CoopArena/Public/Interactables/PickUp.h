@@ -26,6 +26,7 @@ private:
 	FRotator _RotationDelta;
 
 	/* The magazine stack that this pickup represents */
+	UPROPERTY(Replicated)
 	FMagazineStack _MagazineStack;
 
 protected:

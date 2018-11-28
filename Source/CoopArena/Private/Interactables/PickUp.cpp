@@ -7,11 +7,14 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Pawn.h"
 #include "CoopArena.h"
+#include "UnrealNetwork.h"
 
 
 APickUp::APickUp()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	bReplicateMovement = false;
 	_bCanBeInteractedWith = true;
 	_RotationSpeed = 20.0f;
 	const float edgeLength = 60.0f;
@@ -30,6 +33,7 @@ APickUp::APickUp()
 	_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_Mesh->SetRelativeScale3D(FVector(3.0f));
+	_Mesh->SetIsReplicated(true);
 	_Mesh->SetupAttachment(RootComponent);
 
 	_InteractionBox = CreateDefaultSubobject<UBoxComponent>("InteractionBox");
@@ -80,10 +84,19 @@ void APickUp::SetMagazineStack(TSubclassOf<AMagazine> MagClass, int32 NumMags)
 }
 
 /////////////////////////////////////////////////////
+void APickUp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APickUp, _MagazineStack);
+}
+
+/////////////////////////////////////////////////////
 			/* Interactable interface */
 /////////////////////////////////////////////////////
 void APickUp::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
+	ensureMsgf(HasAuthority(), TEXT("Don't call this function as a client!"));
 	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory)
 	{

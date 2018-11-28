@@ -45,7 +45,8 @@ void USimpleInventory::BeginPlay()
 		{
 			UHealthComponent* healthComp =  Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
 			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death. "));
-			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::MakeOwnerInteractable);			
+			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::OnOwnerDeath);
+			_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::OnOwnerBeeingInteractedWith);
 		}
 		else if (_bDropInventoryOnDestroy)
 		{
@@ -75,7 +76,12 @@ void USimpleInventory::SetupDefaultMagazines()
 /////////////////////////////////////////////////////
 void USimpleInventory::OnOwnerDeath(AActor* DeadActor, AController* Controller, AController* Killer)
 {
-	DropInventoryContent();
+	SetOwnerInteractable(true);
+}
+
+void USimpleInventory::OnOwnerBeeingInteractedWith(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	TransfereInventoryContent(InteractingPawn);
 }
 
 void USimpleInventory::OnOwnerDestroyed(AActor* DestroyedOwner)
@@ -125,16 +131,16 @@ const FMagazineStack* USimpleInventory::FindMagazineStack(const TSubclassOf<AMag
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::MakeOwnerInteractable(AActor* DeadActor, AController* Controller, AController* Killer)
+void USimpleInventory::SetOwnerInteractable_Implementation(bool bCanBeInteractedWith)
 {
-	IInteractable::Execute_SetCanBeInteractedWith(_Owner, true);
-	_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
-	_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::TransfereInventoryContent);
+	IInteractable::Execute_SetCanBeInteractedWith(_Owner, bCanBeInteractedWith);
+	_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, bCanBeInteractedWith ? ECR_Block : ECR_Ignore);
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 {
+	ensureMsgf(GetOwner()->HasAuthority(), TEXT("Only call this function as the server!"));
 	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory)
 	{
@@ -170,8 +176,7 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn, UPrimit
 
 		if (bIsEmpty)
 		{
-			IInteractable::Execute_SetCanBeInteractedWith(_Owner, false);
-			_Owner->GetMesh()->SetCollisionResponseToChannel(ECC_Interactable, ECR_Ignore);
+			SetOwnerInteractable(false);
 		}
 	}
 }

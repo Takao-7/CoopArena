@@ -92,6 +92,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;
 
+	int32 GetNumberOfConnectedPlayers() const;
+
 private:
 	IOnlineSessionPtr _SessionInterface;
 	FString _PlayerName;

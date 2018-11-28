@@ -86,6 +86,18 @@ void UCoopArenaGameInstance::StartMatch(FName MapName /*= "Level4"*/)
 }
 
 /////////////////////////////////////////////////////
+int32 UCoopArenaGameInstance::GetNumberOfConnectedPlayers() const
+{
+	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
+	if (session == nullptr)
+	{
+		return 0;
+	}
+	const int32 maxPlayers = session->SessionSettings.NumPublicConnections;
+	return maxPlayers - session->NumOpenPublicConnections;
+}
+
+/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
 	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
