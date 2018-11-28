@@ -49,7 +49,7 @@ protected:
 
 	/* Should we re-spawn at the location where we died? */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn at death location?"))
-	bool m_bRespawnAtDeathLocation;
+	bool _bRespawnAtDeathLocation;
 
 	/**
 	* If true, we will re-spawn when our owner dies (has a HealthComponent, when the event OnDeath is fired) or when he gets destroyed (OnDestroy() is called on him).
@@ -61,7 +61,7 @@ protected:
 
 	/* If true, the old actor will be destroyed when we re-spawn. */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Destroy old actor on respawn"))
-	bool m_bDestroyOldActorOnRespawn;
+	bool _bDestroyOldActorOnRespawn;
 
 	/* The delay, in seconds, after death / destroy to re-spawn. */
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn delay", ClampMin = 0.0f))
@@ -70,12 +70,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UHealthComponent* m_HealthComp;
+	UHealthComponent* _HealthComp;
 
 	/* Are we already re-spawning? */
 	bool m_IsAlreadyRespawning;
 
-	APlayerController* m_MyPlayerController;
+	APlayerController* _MyPlayerController;
 
 	AActor* FindRespawnPoint();
 

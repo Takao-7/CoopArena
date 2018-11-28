@@ -9,6 +9,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "DefaultHUD.h"
+#include "TimerManager.h"
 
 
 /////////////////////////////////////////////////////
@@ -16,24 +17,31 @@ void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only call this function as the server!"));
 
-	_DeathLocation = GetPawn()->GetActorLocation();
-	_MyCharacter = Cast<APlayerCharacter>(GetPawn());
+	APawn* pawn = GetPawn();
+	if(pawn)
+	{
+		_DeathLocation = pawn->GetActorLocation();
+		_MyCharacter = Cast<APlayerCharacter>(pawn);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Pawn is null!"), *GetName());
+	}
 
 	PlayerState->bIsSpectator = true;
 	PlayerState->bOnlySpectator = true;
 	bPlayerIsWaiting = true;
 
-	APlayerCharacter* playerCharacter = Cast<APlayerCharacter>(ActorToSpectate);
-	Possess(playerCharacter);
-	SetViewTargetWithBlend(playerCharacter, 1.0f);
-	StartSpectating_Client(playerCharacter);
+	UnPossess();
+	APlayerCharacter* playerToSpectate = Cast<APlayerCharacter>(ActorToSpectate);
+	StartSpectating_Client(playerToSpectate);
 }
 
 void AMyPlayerController::StartSpectating_Client_Implementation(APlayerCharacter* PlayerToSpectate = nullptr)
 {
 	if (PlayerToSpectate)
 	{		
-		PlayerToSpectate->SetThirdPersonCameraToActive();		
+		PlayerToSpectate->SetThirdPersonCameraToActive();
 	}
 	GetDefaultHUD()->SetState(EHUDState::Spectating);
 }
