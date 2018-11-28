@@ -24,7 +24,7 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	_WaveLength = 60.0f;
 	_PointPenaltyForTeamKill = 50;
 	_DelayBetweenWaves = 3.0f;
-	bDelayedStart = true;
+	//bDelayedStart = true;
 }
 
 /////////////////////////////////////////////////////
@@ -64,13 +64,10 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 void ARoundSurvivalGameMode::StartMatch()
 {
 	Super::StartMatch();
-	CanSpawnBots() ? StartWave() : EndMatch();
-}
-
-void ARoundSurvivalGameMode::ForceStartMatch()
-{
-	StartWave();
-	Super::StartMatch();
+	if (CanSpawnBots())
+	{
+		StartWave();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -137,17 +134,6 @@ void ARoundSurvivalGameMode::ReviveDeadPlayers()
 }
 
 /////////////////////////////////////////////////////
-AActor* ARoundSurvivalGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
-{
-	return Super::FindPlayerStart_Implementation(Player, IncomingName);
-}
-
-AActor* ARoundSurvivalGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{
-	return Super::ChoosePlayerStart_Implementation(Player);
-}
-
-/////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::SpawnBots()
 {
 	if (CanSpawnBots() == false)
@@ -198,7 +184,6 @@ bool ARoundSurvivalGameMode::CanSpawnBots()
 	if (bValidBotClasses == false || numSpawnPoints == 0 || numBotsToSpawn == 0 || _BotsToSpawn.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No bot spawn points on the map or no bots to spawn."));
-		EndMatch();
 		return false;
 	}
 	else
@@ -234,14 +219,15 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 
 void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, AController* Killer)
 {
+	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
+	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
+	StartSpectating(playerController);
+
 	if (HasMatchStarted() == false || _CurrentWaveNumber == 0)
 	{
 		return;
 	}
 	
-	AMyPlayerController* playerController = Cast<AMyPlayerController>(DeadPlayer->GetController());
-	ensureMsgf(playerController, TEXT("The player controller does not derive from AMyPlayerController!"));
-
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	playerState->AddDeath();
@@ -252,8 +238,6 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 		// #todo Game over
 		EndMatch();
 	}
-
-	StartSpectating(playerController);
 
 	if (Killer && Killer->IsPlayerController())
 	{

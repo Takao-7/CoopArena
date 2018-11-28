@@ -18,7 +18,7 @@ URespawnComponent::URespawnComponent()
 	m_bRespawnOnDestroy = false;
 
 	m_bEnableRespawn = true;
-	m_RespawnDelay = 2.0f;
+	m_RespawnDelay = 0.0f;
 	m_IsAlreadyRespawning = false;
 }
 

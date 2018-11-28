@@ -68,10 +68,6 @@ protected:
 public:
 	virtual void StartMatch() override;
 
-	/* Forces the match to start */
-	UFUNCTION(Exec)
-	void ForceStartMatch();
-
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void StartWave();
 
@@ -100,26 +96,7 @@ public:
 	/* Returns the number of bots that are currently alive */
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
 	FORCEINLINE int32 GetNumberOfAliveBots() const { return _BotsAlive.Num(); }
-
-	/**
-	 * Return the specific player start actor that should be used for the next spawn
-	 * This will either use a previously saved startactor, or calls ChoosePlayerStart
-	 *
-	 * @param Player The AController for whom we are choosing a Player Start
-	 * @param IncomingName Specifies the tag of a Player Start to use
-	 * @returns Actor chosen as player start (usually a PlayerStart)
-	 */
-	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName = TEXT("")) override;
-
-	/**
-	 * Return the 'best' player start for this player to spawn from
-	 * Default implementation looks for a random unoccupied spot
-	 *
-	 * @param Player is the controller for whom we are choosing a playerstart
-	 * @returns AActor chosen as player start (usually a PlayerStart)
-	 */
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
-
+	
 private:
 	void DestroyDeadBotBodies();
 

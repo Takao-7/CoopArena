@@ -79,7 +79,11 @@ void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* S
 void AMyPlayerController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
-	GetDefaultHUD()->Init(Cast<APlayerCharacter>(aPawn));
+	ADefaultHUD* hud = GetDefaultHUD();
+	if (hud)
+	{
+		hud->Init(Cast<APlayerCharacter>(aPawn));
+	}
 }
 
 /////////////////////////////////////////////////////
