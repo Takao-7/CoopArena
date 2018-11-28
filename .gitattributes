@@ -1,2 +1,2 @@
 Content/Meshes/Weapons/Colt1911A1/Substance/* filter=lfs diff=lfs merge=lfs -text
-Content/Meshes/Weapons/Colt1911A1/Substance/Colt1911A1.uasset filter=lfs diff=lfs merge=lfs -text
+Content/LargeFileSystem/* filter=lfs diff=lfs merge=lfs -text

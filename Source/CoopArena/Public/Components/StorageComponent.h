@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Structs/ItemStructs.h"
+#include "ItemBase.h"
 #include "StorageComponent.generated.h"
 
 
@@ -20,7 +20,7 @@ public:
 	FItemStack(FItemStats& Item, uint32 StackSize)
 	{
 		this->item = Item;
-		this->m_stackSize = StackSize;
+		this->stackSize = StackSize;
 	};
 
 	UPROPERTY(BlueprintReadWrite)
@@ -40,20 +40,20 @@ public:
 	int32 ChangeStackSize(int32 AmountToChange)
 	{
 		int32 changedAmount = AmountToChange;
-		if (FMath::Abs(changedAmount) > m_stackSize)
+		if (FMath::Abs(changedAmount) > stackSize)
 		{
-			changedAmount = -m_stackSize;
+			changedAmount = -stackSize;
 		}
-		m_stackSize += changedAmount;
+		stackSize += changedAmount;
 		return FMath::Abs(changedAmount);
 	}
 
-	FORCEINLINE int32 GetStackSize() const	{ return m_stackSize;	}
+	FORCEINLINE int32 GetStackSize() const	{ return stackSize;	}
 
 private:
 	/* How many items are in this stack. */
 	UPROPERTY()
-	int32 m_stackSize;
+	int32 stackSize;
 };
 
 

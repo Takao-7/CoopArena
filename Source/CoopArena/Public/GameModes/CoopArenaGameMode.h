@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "CoopArenaGameMode.generated.h"
 
 
@@ -12,33 +12,50 @@ class APlayerController;
 class AController;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerDeath_Signature, APlayerCharacter*, PlayerThatDied, AController*, Killer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBotDeath_Signature, AActor*, BotThatDied, AController*, Killer);
+
+
 UCLASS()
-class COOPARENA_API ACoopArenaGameMode : public AGameModeBase
+class COOPARENA_API ACoopArenaGameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
-	
 protected:
-	UPROPERTY(BlueprintReadWrite, Category = "CoopArena game mode")
-	TArray<ASpawnPoint*> SpawnPoints;
+	/* All spawn points on the map */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	TArray<ASpawnPoint*> spawnPoints;
 
-	UPROPERTY(BlueprintReadWrite, Category = "CoopArena game mode")
-	TArray<APlayerController*> Players;
+	/* The number of players that are currently alive */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	int32 numPlayersAlive;
 
-	UPROPERTY(BlueprintReadWrite, Category = "CoopArena game mode")
-	TArray<AController*> Bots;
+	/* A list of all player characters on the map (dead an alive) */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	TArray<APlayerCharacter*> playerCharacters;
 
+	/* A list of all player controllers on the map */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	TArray<APlayerController*> playerControllers;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	FName defaultPlayerTeam;
+
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	FName defaultBotTeam;
+
+private:
 	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
 	void FindSpawnPoints();
 
-	UPROPERTY(EditDefaultsOnly, Category = "CoopArena game mode", meta = (DisplayName = "Default player team"))
-	FName m_DefaultPlayerTeam;
-
-	UPROPERTY(EditDefaultsOnly, Category = "CoopArena game mode", meta = (DisplayName = "Default bot team"))
-	FName m_DefaultBotTeam;
-
 public:
 	ACoopArenaGameMode();
+
+	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
+	FOnPlayerDeath_Signature OnPlayerDeath_Event;
+
+	UPROPERTY(BlueprintAssignable, Category = "CoopArena game mode")
+	FOnBotDeath_Signature OnBotDeath_Event;
 
 	/**
 	* Checks if the given Controller has any tag that contains 'Team'.
@@ -46,16 +63,38 @@ public:
 	*/
 	FString CheckForTeamTag(const AController& Controller) const;
 
-	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
-	virtual void RegisterPlayer(APlayerController* Controller);
+	void RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
 
-	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
-	virtual void RegisterBot(AController* Controller);
+	void UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
 
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+	/**
+	 * Checks if the given controller or actor is allowed to re-spawn.
+	 * At least one of the two parameters must be not null.
+	 * @param PlayerController The player controller that wants to re-spawn
+	 * @param Actor The actor that wants to re-spawn.
+	 * @return If the given controller or actor is allowed to re-spawn.
+	 */
+	bool CanRespawn(APlayerController* PlayerController, AActor* Actor) const;
+
+
+	/////////////////////////////////////////////////////
+					/* Override functions */
+	/////////////////////////////////////////////////////
+public:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	/**
+	 * Return the specific player start actor that should be used for the next spawn
+	 * This will either use a previously saved start actor, or calls ChoosePlayerStart
+	 *
+	 * @param Player The AController for whom we are choosing a Player Start
+	 * @param IncomingName Specifies the tag of a Player Start to use
+	 * @returns Actor chosen as player start (usually a PlayerStart)
+	 */
+	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName = TEXT("")) override;
 
 	/** Called after a successful login.  This is the first place it is safe to call replicated functions on the PlayerController. */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+	virtual void Logout(AController* Exiting) override;
 };

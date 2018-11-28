@@ -36,7 +36,8 @@ public:
 	void SetEnableRespawn(bool bShouldRespawn) { m_bEnableRespawn = bShouldRespawn; };
 
 	/* Event will be called when we re-spawned. Controller can be null, if our owner isn't a pawn. */
-	FRespawn_Signature OnRespawn_Event;
+	UPROPERTY(BlueprintReadWrite, Category = "Respawn")
+	FRespawn_Signature OnRespawn;
 
 	UFUNCTION(BlueprintPure, Category = "Respawn")
 	float GetRespawnDelay() const { return m_RespawnDelay; };
@@ -52,7 +53,7 @@ protected:
 
 	/**
 	* If true, we will re-spawn when our owner dies (has a HealthComponent, when the event OnDeath is fired) or when he gets destroyed (OnDestroy() is called on him).
-	* We will not re-spawn two times.
+	* Of course we will only re-spawn once when both events are fired.
 	* If false, we will only re-spawn if we die. When there is no HealthComponent, then only when our owner gets destroyed.
 	*/
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn", meta = (DisplayName = "Respawn on OnDestroy()?"))
@@ -71,7 +72,13 @@ protected:
 private:
 	UHealthComponent* m_HealthComp;
 
+	/* Are we already re-spawning? */
+	bool m_IsAlreadyRespawning;
+
+	APlayerController* m_MyPlayerController;
+
 	AActor* FindRespawnPoint();
+
 	AActor* SpawnNewActor();
 
 	/* Handles the actual re-spawning. Shouldn't be called directly. Call Respawn() instead. */
@@ -81,5 +88,8 @@ private:
 	void HandleOnDestroy(AActor* DestroyedActor);
 
 	UFUNCTION()
-	void HandleOnDeath();
+	void HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer);
+
+	/* Checks if the game mode allows re-spawning of this component's owner */
+	bool CanRespawn();
 };

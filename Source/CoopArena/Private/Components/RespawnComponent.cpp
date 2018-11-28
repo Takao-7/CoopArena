@@ -12,19 +12,22 @@
 URespawnComponent::URespawnComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bAutoActivate = true;
 
 	m_bRespawnAtDeathLocation = false;
 	m_bRespawnOnDestroy = false;
 
 	m_bEnableRespawn = true;
 	m_RespawnDelay = 2.0f;
+	m_IsAlreadyRespawning = false;
 }
 
 /////////////////////////////////////////////////////
 void URespawnComponent::Respawn()
 {
-	if (m_bEnableRespawn && GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority() && !m_IsAlreadyRespawning)
 	{
+		m_IsAlreadyRespawning = true;
 		if (m_RespawnDelay > 0.0f)
 		{
 			FTimerHandle timerhandle;
@@ -40,18 +43,30 @@ void URespawnComponent::Respawn()
 void URespawnComponent::HandleRespawn()
 {
 	AActor* newActor = SpawnNewActor();
-	AController* controller = GetOwner()->GetInstigatorController();
-	if (controller)
+	APawn* pawn = Cast<APawn>(newActor);
+	if(pawn)
 	{
-		controller->Possess(Cast<APawn>(newActor));
+		if (m_MyPlayerController)
+		{
+			m_MyPlayerController->Possess(pawn);
+			m_MyPlayerController->SetViewTarget(pawn);
+		}
+		else
+		{
+			AController* controller = GetOwner()->GetInstigatorController();
+			if (controller)
+			{
+				controller->Possess(pawn);
+			}
+		}
 	}
-
+	
 	if (m_HealthComp)
 	{
-		m_HealthComp->Kill();
+		m_HealthComp->Kill(nullptr);
 	}
 
-	OnRespawn_Event.Broadcast(newActor, controller);
+	OnRespawn.Broadcast(newActor, m_MyPlayerController);
 
 	if (m_bDestroyOldActorOnRespawn)
 	{
@@ -76,15 +91,8 @@ void URespawnComponent::BeginPlay()
 	m_HealthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));	
 	if (m_HealthComp)
 	{
-		m_HealthComp->OnDeathEvent.AddDynamic(this, &URespawnComponent::HandleOnDeath);
+		m_HealthComp->OnDeath.AddDynamic(this, &URespawnComponent::HandleOnDeath);
 	}	
-
-	const APawn* pawnOwner = Cast<APawn>(GetOwner());
-	const AController* controller = GetOwner()->GetInstigatorController();
-	if (pawnOwner == nullptr || controller == nullptr)
-	{
-
-	}
 
 	if (m_bRespawnOnDestroy || m_HealthComp == nullptr)
 	{
@@ -105,14 +113,30 @@ AActor* URespawnComponent::FindRespawnPoint()
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 {
-	if (m_HealthComp && m_HealthComp->IsAlive() || m_HealthComp == nullptr)
+	m_MyPlayerController = GetOwner()->GetInstigator<APlayerController>();
+	if(CanRespawn())
+	{
+		if (m_HealthComp && m_HealthComp->IsAlive() || m_HealthComp == nullptr)
+		{
+			Respawn();
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void URespawnComponent::HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer)
+{
+	m_MyPlayerController = Cast<APlayerController>(Controller);
+	if (CanRespawn())
 	{
 		Respawn();
 	}
 }
 
-/////////////////////////////////////////////////////
-void URespawnComponent::HandleOnDeath()
+bool URespawnComponent::CanRespawn()
 {
-	Respawn();
+	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+	APlayerController* playerController = GetOwner()->GetInstigator<APlayerController>();
+	const bool bGameModeAllowsRespawn = gameMode->CanRespawn(playerController, GetOwner());
+	return bGameModeAllowsRespawn && m_bEnableRespawn;
 }

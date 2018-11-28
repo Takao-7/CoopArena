@@ -9,6 +9,8 @@
 #include "TimerManager.h"
 #include "Gun.h"
 #include "UnrealNetwork.h"
+#include "GameModes/CoopArenaGameMode.h"
+#include "PlayerCharacter.h"
 
 
 UHealthComponent::UHealthComponent()
@@ -27,19 +29,19 @@ FORCEINLINE bool UHealthComponent::IsAlive() const
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::Kill()
+void UHealthComponent::Kill(AController* Killer)
 {
 	if (GetOwner()->HasAuthority() && !bAlreadyDied)
 	{
 		_CurrentHealth = 0.0f;
-		OnDeathEvent_Multicast();
+		OnDeathEvent_Multicast(GetOwner(), GetOwner()->GetInstigatorController(), Killer);
 	}	
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::OnDeathEvent_Multicast_Implementation()
+void UHealthComponent::OnDeathEvent_Multicast_Implementation(AActor* DeadActor, AController* Controller, AController* Killer)
 {
-	OnDeathEvent.Broadcast();
+	OnDeath.Broadcast(GetOwner(), Controller, Killer);
 }
 
 /////////////////////////////////////////////////////
@@ -47,43 +49,51 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
-	_compOwner = GetOwnerAsHumanoid();
+	AHumanoid* owner = Cast<AHumanoid>(GetOwner());
+	ensureMsgf(owner, TEXT("The owner is not a humanoid."));
 
-	OnDeathEvent.AddDynamic(this, &UHealthComponent::HandleDeath);
+	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
+	OnDeath.AddDynamic(this, &UHealthComponent::HandleDeath);
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::HandleDeath()
+void UHealthComponent::HandleDeath(AActor* Owner, AController* Controller, AController* Killer)
 {
 	if (!bAlreadyDied && GetOwner()->HasAuthority())
 	{
 		bAlreadyDied = true;
-		Multicast_HandleDeath();
+
+		ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+		ensureMsgf(gameMode, TEXT("The game mode is not a subclass of ACoopArenaGameMode"));
+		
+		const bool bIsPlayer = GetOwner()->GetInstigatorController()->IsPlayerController();
+		bIsPlayer ? gameMode->OnPlayerDeath_Event.Broadcast(Cast<APlayerCharacter>(Owner), Killer) : gameMode->OnBotDeath_Event.Broadcast(Owner, Killer);
+
+		HandleDeath_Multicast();
 	}
 }
 
 /////////////////////////////////////////////////////
-void UHealthComponent::Multicast_HandleDeath_Implementation()
+void UHealthComponent::HandleDeath_Multicast_Implementation()
 {
 	bAlreadyDied = true;
 
 	DeactivateCollisionCapsuleComponent();
 	SetPhysicsOnMesh();
-	_compOwner->SetComponentIsBlockingFiring(true, this);
-
-	if (_compOwner->IsLocallyControlled())
+	
+	AHumanoid* owner = Cast<AHumanoid>(GetOwner());
+	owner->SetComponentIsBlockingFiring(true, this);
+	if (owner->IsLocallyControlled())
 	{
-		_compOwner->DisableInput(nullptr);
+		owner->DisableInput(nullptr);
 	}
 
 	FTimerDelegate delegate;
-	delegate.BindLambda([this]
+	delegate.BindLambda([this, owner]
 	{
-		if (_compOwner->GetEquippedGun())
+		if (owner->GetEquippedGun())
 		{
-			_compOwner->GetEquippedGun()->SetActorEnableCollision(true);
-			_compOwner->GetEquippedGun()->OnUnequip(true);
+			owner->UnequipWeapon(true, false);
 		}
 	});
 	FTimerHandle handle;
@@ -93,8 +103,9 @@ void UHealthComponent::Multicast_HandleDeath_Implementation()
 /////////////////////////////////////////////////////
 void UHealthComponent::SetPhysicsOnMesh()
 {
-	_compOwner->GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_compOwner->GetMesh()->SetSimulatePhysics(true);
+	AHumanoid* owner = Cast<AHumanoid>(GetOwner());
+	owner->GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	owner->GetMesh()->SetSimulatePhysics(true);
 }
 
 /////////////////////////////////////////////////////
@@ -109,7 +120,7 @@ AHumanoid* UHealthComponent::GetOwnerAsHumanoid()
 /////////////////////////////////////////////////////
 void UHealthComponent::DeactivateCollisionCapsuleComponent()
 {
-	UCapsuleComponent* capsule = _compOwner->GetCapsuleComponent();
+	UCapsuleComponent* capsule = Cast<AHumanoid>(GetOwner())->GetCapsuleComponent();
 	capsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	capsule->SetGenerateOverlapEvents(false);
@@ -122,7 +133,7 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 	_CurrentHealth -= Damage;
 	if (_CurrentHealth <= 0.0f)
 	{
-		OnDeathEvent_Multicast();
+		OnDeathEvent_Multicast(GetOwner(), GetOwner()->GetInstigatorController(), InstigatedBy);
 	}
 }
 

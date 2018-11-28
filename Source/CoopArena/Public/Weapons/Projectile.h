@@ -71,16 +71,17 @@ class COOPARENA_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:
 	AProjectile();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
 	float GetDamageWithFallOff() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	FORCEINLINE TSubclassOf<AActor> GetProjectileCase() const { return m_ProjectileCase; };
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	FORCEINLINE FVector GetImpulse() const;
@@ -95,6 +96,10 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UStaticMeshComponent* Mesh;
+
+	/* The case that is spawned after this projectile is fired. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile, meta = (DisplayName = "Projectile case"))
+	TSubclassOf<AActor> m_ProjectileCase;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	FProjectileValues _ProjectileValues;

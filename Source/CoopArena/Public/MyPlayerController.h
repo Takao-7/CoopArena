@@ -1,0 +1,47 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
+#include "MyPlayerController.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class COOPARENA_API AMyPlayerController : public APlayerController
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Player Controller", meta = (DisplayName = "Class to respawn as"))
+	TSubclassOf<APlayerCharacter> m_ClassToRespawnAs;
+	
+public:
+	/**
+	 * [Server]
+	 */
+	void StartSpectating(AActor* ActorToSpectate = nullptr);
+
+	UFUNCTION(Client, Reliable)
+	void StartSpectating_Client(APlayerCharacter* PlayerToSpectate = nullptr);
+
+	virtual void SetupInputComponent() override;
+
+	bool IsSpectating();
+
+	const FVector& GetDeathLocation() const;
+	APlayerCharacter* GetLastPossessedCharacter();
+
+private:
+	UFUNCTION(Server, WithValidation, Reliable)
+	void SpectateNextPlayer_Server();
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void SpectatePreviousPlayer_Server();
+
+	FVector m_DeathLocation;	
+
+	APlayerCharacter* m_MyCharacter;
+};

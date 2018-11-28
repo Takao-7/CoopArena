@@ -1,14 +1,25 @@
 #include "CoopArenaGameMode.h"
 #include "Engine/World.h"
+#include "Engine/PlayerStartPIE.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpawnPoint.h"
+#include "GameFramework/PlayerStart.h"
 #include "Humanoid.h"
+#include "PlayerCharacter.h"
+#include "MyGameState.h"
+#include "MyPlayerState.h"
+#include "MyPlayerController.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
-	m_DefaultPlayerTeam = "Team1";
-	m_DefaultBotTeam = "TeamBots";
+	defaultPlayerTeam = "Player Team";
+	defaultBotTeam = "Bot Team";
+
+	DefaultPawnClass = APlayerCharacter::StaticClass();
+	GameStateClass = AMyGameState::StaticClass();
+	PlayerStateClass = AMyPlayerState::StaticClass();
+	PlayerControllerClass = AMyPlayerController::StaticClass();
 }
 
 /////////////////////////////////////////////////////
@@ -17,88 +28,16 @@ void ACoopArenaGameMode::FindSpawnPoints()
 	TArray<AActor*> spawnPoint_actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnPoint::StaticClass(), spawnPoint_actors);
 
-	for (AActor* spawnPoint : spawnPoint_actors)
-	{
-		SpawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
-	}
-
-	if (SpawnPoints.Num() == 0)
+	if (spawnPoint_actors.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No spawn points on the map!"));
-	}
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::RegisterPlayer(APlayerController* Controller)
-{
-	if (Players.Contains(Controller) || Controller == nullptr)
-	{
 		return;
 	}
 
-	Players.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultPlayerTeam);
-}
-
-void ACoopArenaGameMode::RegisterBot(AController* Controller)
-{
-	if (Bots.Contains(Controller) || Controller == nullptr)
+	for (AActor* spawnPoint : spawnPoint_actors)
 	{
-		return;
+		spawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
 	}
-
-	Bots.AddUnique(Controller);
-	Controller->Tags.AddUnique(m_DefaultBotTeam);
-}
-
-/////////////////////////////////////////////////////
-AActor* ACoopArenaGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{	
-	if (Player)
-	{
-		APlayerController* playerController = Cast<APlayerController>(Player);
-		playerController ? RegisterPlayer(playerController) : RegisterBot(Player);
-	}
-
-	if (SpawnPoints.Num() == 0)
-	{
-		return Super::ChoosePlayerStart_Implementation(Player);
-	}
-
-	TArray<ASpawnPoint*> freeSpawnPoints;
-	if(Player)
-	{
-		const FString teamTag = CheckForTeamTag(*Player);
-
-		for (ASpawnPoint* point : SpawnPoints)
-		{
-			const bool bIsSafe = point->IsSafeToSpawn(teamTag);
-			if (bIsSafe)
-			{
-				freeSpawnPoints.AddUnique(point);
-			}
-		}
-	}
-
-	if (freeSpawnPoints.Num() > 0)
-	{
-		const int32 index = FMath::RandRange(0, freeSpawnPoints.Num() - 1);
-		return freeSpawnPoints[index];
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No free spawn points found!"));
-
-		const int32 index = FMath::RandRange(0, SpawnPoints.Num() - 1);
-		return SpawnPoints[index];
-	}
-}
-
-/////////////////////////////////////////////////////
-void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	RegisterPlayer(NewPlayer);
 }
 
 /////////////////////////////////////////////////////
@@ -106,6 +45,71 @@ void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	FindSpawnPoints();
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	playerCharacters.AddUnique(PlayerCharacter);
+	numPlayersAlive++;
+}
+
+void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
+{
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	playerCharacters.RemoveSwap(PlayerCharacter);
+	numPlayersAlive--;
+}
+
+/////////////////////////////////////////////////////
+AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName /*= TEXT("")*/)
+{
+	AActor* playerStart = Super::ChoosePlayerStart_Implementation(Player);
+	if (playerStart && playerStart->IsA(APlayerStartPIE::StaticClass()))
+	{
+		return playerStart;
+	}
+
+	if (spawnPoints.Num() == 0)
+	{
+		return Super::FindPlayerStart_Implementation(Player, IncomingName);
+	}
+
+	for (ASpawnPoint* spawnPoint : spawnPoints)
+	{
+		if (IncomingName.IsEmpty() && spawnPoint->PlayerStartTag != defaultBotTeam)
+		{
+			return spawnPoint;
+		}
+		else if (spawnPoint->PlayerStartTag == *IncomingName)
+		{
+			return spawnPoint;
+		}
+	}	
+
+	return spawnPoints[FMath::RandRange(0, spawnPoints.Num() - 1)];
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	playerControllers.AddUnique(NewPlayer);
+	Super::PostLogin(NewPlayer);
+}
+
+void ACoopArenaGameMode::Logout(AController* Exiting)
+{
+	playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
+	Super::Logout(Exiting);
+}
+
+/////////////////////////////////////////////////////
+bool ACoopArenaGameMode::CanRespawn(APlayerController* PlayerController, AActor* Actor) const
+{
+	ensureMsgf(PlayerController || Actor, TEXT("Both parameters are null. At least one of them must be not-null. "));
+	const bool bIsNotAPawn = Actor && Actor->IsA(APawn::StaticClass()) == false;
+	return bIsNotAPawn;
 }
 
 /////////////////////////////////////////////////////

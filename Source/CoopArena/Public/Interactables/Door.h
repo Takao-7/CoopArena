@@ -20,31 +20,31 @@ class COOPARENA_API ADoor : public AActor, public IInteractable
 
 protected:
 	/* If true, the door will open to both sides (away from the interacting pawn). Otherwise only to the front. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Door)
-	bool bTwoSidedOpening;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
+	bool _bTwoSidedOpening;
 
 	/* The angle that the opened door will have. A negative values mean that the door will open to the back. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Door, meta = (ClampMax = 135.0, ClampMin = -135.0f))
-	float OpeningAngle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = _DoorMesh, meta = (ClampMax = 135.0, ClampMin = -135.0f))
+	float _OpeningAngle;
 
-	UPROPERTY(VisibleAnywhere, Category = Door)
-	UArrowComponent* Front;
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	UArrowComponent* _Front;
 
-	UPROPERTY(VisibleAnywhere, Category = Door)
-	UStaticMeshComponent* Door;
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	UStaticMeshComponent* _DoorMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = Door)
-	UBoxComponent* InteractionBox;
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	UBoxComponent* _InteractionBox;
 
 private:
 	/* How fast the door will open */
-	UPROPERTY(EditAnywhere, Category = Door, meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
-	float m_OpeningSpeed;
+	UPROPERTY(EditAnywhere, Category = "Door", meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
+	float _OpeningSpeed;
 	
 	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
-	float m_TargetAngle;
+	float _TargetAngle;
 
-	bool m_bIsOpen;
+	bool _bIsOpen;
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,8 +70,11 @@ public:
 private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void HandleInteract_Server(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+	void HandleInteract_Server_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
+	bool HandleInteract_Server_Validate(APawn* InteractingPawn, UPrimitiveComponent* HitComponent);
 
 	/* Function to enable the tick function, in order to open or close the door. The opening angle is being replicated and set in 'HandleInteract_Server'. */
 	UFUNCTION(NetMulticast, Reliable)
 	void EnableTickFunction_Multicast(float TargetAngle, bool bIsOpen);
+	void EnableTickFunction_Multicast_Implementation(float TargetAngle, bool bIsOpen);
 };

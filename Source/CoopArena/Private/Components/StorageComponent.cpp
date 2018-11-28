@@ -9,6 +9,8 @@
 
 UStorageComponent::UStorageComponent()
 {
+	bReplicates = true;
+
 	_WeightLimit = -1;
 	_Capacity = -1;
 }
@@ -198,16 +200,6 @@ void UStorageComponent::BeginPlay()
 	{
 		CheckWeightLimitAndCapacity();
 		AddStartingItems();
-
-		//if (GetOwner()->GetInstigator() == nullptr)
-		//{
-		//	// We are not attached to a pawn, so we are a container and will replicate our stored items to everyone.
-		//	UNetDriver* netDriver = GetOwner()->GetNetDriver();
-		//	if (netDriver)
-		//	{
-		//		netDriver->FindOrCreateRepChangedPropertyTracker(this).Get()->SetCustomIsActiveOverride(COND_Max, true);
-		//	}
-		//}
 	}
 }
 
@@ -218,12 +210,14 @@ void UStorageComponent::AddStartingItems()
 	{
 		for (auto& item : _ItemsToSpawnWith)
 		{
+			ensureMsgf(item.Key, TEXT("'%s' has an item in the 'Items to spawn with' arra without a set class."), *GetOwner()->GetName());
+			
 			AItemBase* itemBase = Cast<AItemBase>(item.Key->GetDefaultObject(true));
 
 			uint32 amount = item.Value;
 			FItemStats stats = itemBase->GetItemStats();
 
-			AddItem(stats, amount);
+			AddItem(stats, amount);			
 		}
 	}
 }

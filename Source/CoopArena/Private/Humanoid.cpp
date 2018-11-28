@@ -10,7 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
-#include "Components/InventoryComponent.h"
+#include "Components/SimpleInventory.h"
 #include "Components/RespawnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/Gun.h"
@@ -19,7 +19,6 @@
 #include "GameModes/CoopArenaGameMode.h"
 
 
-// Sets default values
 AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -48,16 +47,35 @@ AHumanoid::AHumanoid()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	GetMesh()->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	USkeletalMeshComponent* mesh = GetMesh();
+	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	mesh->SetGenerateOverlapEvents(true);
+	mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	mesh->SetCustomDepthStencilValue(253);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
 	BASComponent = CreateDefaultSubobject<UBasicAnimationSystemComponent>(TEXT("Basic Animation System"));
-	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("Respawn"));
-	AddOwnedComponent(HealthComponent);
-	AddOwnedComponent(BASComponent);
+
 	AddOwnedComponent(Inventory);
+	AddOwnedComponent(BASComponent);
+	AddOwnedComponent(HealthComponent);
 	AddOwnedComponent(RespawnComponent);
+
+	UCharacterMovementComponent* moveComp = GetCharacterMovement();
+	moveComp->JumpZVelocity = 300.0f;
+	moveComp->AirControl = 0.0f;
+	moveComp->MaxAcceleration = 600.0f;
+	moveComp->CrouchedHalfHeight = 65.0f;
+	moveComp->MaxWalkSpeed = 200.0f;
+	moveComp->MaxWalkSpeedCrouched = 200.0f;
+	moveComp->BrakingDecelerationWalking = 400.0f;
+	moveComp->bCanWalkOffLedgesWhenCrouching = true;
+	moveComp->MaxCustomMovementSpeed = 650.0f;
+	moveComp->MovementState.bCanCrouch = true;	
+
+	_bCanBeInteractedWith = false;
 }
 
 /////////////////////////////////////////////////////
@@ -73,14 +91,21 @@ void AHumanoid::PossessedBy(AController* NewController)
 }
 
 /////////////////////////////////////////////////////
+bool AHumanoid::IsAlive() const
+{
+	return HealthComponent->IsAlive();
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::Revive(bool bSpawnDefaultEquipment /*= false*/)
+{
+	RespawnComponent->Respawn();
+}
+
+/////////////////////////////////////////////////////
 AGun* AHumanoid::GetEquippedGun() const
 {
 	return m_EquippedWeapon;
-}
-
-void AHumanoid::SetEquippedWeapon(AGun* Weapon)
-{
-	m_EquippedWeapon = Weapon;
 }
 
 /////////////////////////////////////////////////////
@@ -106,9 +131,9 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnEquipWeapon()
+void AHumanoid::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon);	
+	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -122,6 +147,30 @@ void AHumanoid::BeginPlay()
 	{
 		SetUpDefaultEquipment();
 	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	OnBeginInteract_Event.Broadcast(InteractingPawn, HitComponent);
+}
+
+UUserWidget* AHumanoid::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	OnBeginLineTraceOver_Event.Broadcast(Pawn, HitComponent);
+	return _LineTraceOverUserWidget;
+}
+
+void AHumanoid::OnEndLineTraceOver_Implementation(APawn* Pawn)
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	OnEndLineTraceOver_Event.Broadcast(Pawn);
+}
+
+void AHumanoid::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
+{
+	_bCanBeInteractedWith = bCanbeInteractedWith;
 }
 
 /////////////////////////////////////////////////////
@@ -221,6 +270,49 @@ void AHumanoid::IncrementVelocity_Server_Implementation(float Increment)
 bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 {
 	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= true*/)
+{
+	verifyf(WeaponToEquip, TEXT("Do not call this function if 'WeaponToEquip' is nullptr!"));
+	if (bRequestNetMulticast)
+	{
+		if (HasAuthority() == false)
+		{
+			SetWeaponToEquip_Server(WeaponToEquip);
+		}
+		else
+		{
+			m_WeaponToEquip = WeaponToEquip;
+			HandleWeaponEquip();
+		}
+	}
+	else
+	{
+		m_EquippedWeapon = WeaponToEquip;
+		m_EquippedWeapon->OnEquip(this);
+		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
+	}	
+}
+
+void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*/)
+{
+	if (bRequestNetMulticast)
+	{
+		if (HasAuthority() == false)
+		{
+			UnequipWeapon_Server(bDropGun);
+		}
+		else
+		{
+			HandleWeaponUnEquip_Multicast(bDropGun);
+		}
+	}
+	else
+	{
+		HandleWeaponUnEquip(bDropGun);
+	}	
 }
 
 /////////////////////////////////////////////////////
@@ -370,11 +462,8 @@ FTransform AHumanoid::CalcAndSafeActorOffset(AActor* OtherActor)
 /////////////////////////////////////////////////////
 AItemBase* AHumanoid::DropItem()
 {
-	if (m_ItemInHand == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
-		return nullptr;
-	}
+	verifyf(m_ItemInHand, TEXT("%s tried to drop an item without having any to drop!"), *GetName());
+
 	AItemBase* itemToDrop = m_ItemInHand;	
 	itemToDrop->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	itemToDrop->ShouldSimulatePhysics(true);
@@ -398,22 +487,21 @@ FName AHumanoid::GetEquippedWeaponAttachPoint() const
 /////////////////////////////////////////////////////
 void AHumanoid::SetUpDefaultEquipment()
 {
+	verifyf(HasAuthority(), TEXT("Only the server is allowed to setup the default equippment."));
+
 	if (m_DefaultGun == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DefaultWeapon is null."));
 		return;
 	}
-	if (!GetEquippedWeaponAttachPoint().IsValid())
+	if (GetEquippedWeaponAttachPoint().IsValid() == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("WeaponAttachPoint is not valid!"));
 		return;
 	}
 
-	if(HasAuthority())
-	{
-		m_WeaponToEquip = SpawnWeapon(m_DefaultGun);
-		OnWeaponEquip();
-	}
+	AGun* newWeapon = SpawnWeapon(m_DefaultGun);
+	EquipWeapon(newWeapon);
 }
 
 /////////////////////////////////////////////////////
@@ -485,30 +573,74 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::SetWeaponToEquip(AGun* Weapon)
+void AHumanoid::EquipWeapon_Server_Implementation(AGun* Gun)
 {
-	if (HasAuthority())
+	SetWeaponToEquip_Server(Gun);
+}
+
+bool AHumanoid::EquipWeapon_Server_Validate(AGun* Gun)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::SetWeaponToEquip_Server_Implementation(AGun* Weapon)
+{
+	if (m_WeaponToEquip == Weapon)
 	{
-		m_WeaponToEquip = Weapon;
-		OnWeaponEquip();
+		m_WeaponToEquip = nullptr;
+	}
+	m_WeaponToEquip = Weapon;
+	HandleWeaponEquip();
+}
+
+bool AHumanoid::SetWeaponToEquip_Server_Validate(AGun* Weapon)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::HandleWeaponEquip()
+{
+	if(m_WeaponToEquip)
+	{
+		m_EquippedWeapon = m_WeaponToEquip;
+		m_EquippedWeapon->OnEquip(this);
+		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
+	}
+}
+
+void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
+{
+	if (m_EquippedWeapon)
+	{
+		m_EquippedWeapon->Unequip(bDropGun);
+		m_EquippedWeapon = nullptr;
+		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 	}
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnWeaponEquip()
+void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
 {
-	if(m_WeaponToEquip)
-	{
-		SetEquippedWeapon(m_WeaponToEquip);
-		m_EquippedWeapon->OnEquip(this);
-		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
-	}
+	HandleWeaponUnEquip(bDropGun);
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::OnRep_bIsSprining()
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::UnequipWeapon_Server_Implementation(bool bDropGun)
+{
+	UnequipWeapon(bDropGun);
+}
+
+bool AHumanoid::UnequipWeapon_Server_Validate(bool bDropGun)
+{
+	return true;
 }
 
 /////////////////////////////////////////////////////
