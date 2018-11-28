@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 #include "Interfaces/Interactable.h"
+#include "Enums/WeaponEnums.h"
 #include "Humanoid.generated.h"
 
 

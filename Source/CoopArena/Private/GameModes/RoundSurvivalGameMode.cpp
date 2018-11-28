@@ -13,6 +13,8 @@
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
 #include "CoopArenaGameInstance.h"
+#include "Bot.h"
+#include "BotController.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -81,8 +83,9 @@ void ARoundSurvivalGameMode::StartWave()
 	_CurrentWaveNumber++;
 	DestroyDeadBotBodies();
 	SpawnBots();
+	SetAttackTarget();
 	GetWorld()->GetTimerManager().SetTimer(_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, _WaveLength);
-	WaveStart_Event.Broadcast();
+	OnWaveStart.Broadcast();
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has started.");
 	Broadcast(nullptr, text, NAME_Global);
@@ -92,7 +95,7 @@ void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
 	ReviveDeadPlayers();
-	WaveEnd_Event.Broadcast();
+	OnWaveEnd.Broadcast();
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has ended.");
 	Broadcast(nullptr, text, NAME_Global);
@@ -101,6 +104,21 @@ void ARoundSurvivalGameMode::EndWave()
 	{
 		FTimerHandle timerHandle;
 		GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ARoundSurvivalGameMode::StartWave, _DelayBetweenWaves);
+	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::SetAttackTarget()
+{
+	for (ABot* bot : _BotsAlive)
+	{
+		int32 index = FMath::RandRange(0, _playerCharactersAlive.Num() - 1);
+		AController* controller = bot->GetController();
+		ABotController* aiController = Cast<ABotController>(controller);
+		if (aiController)
+		{
+			aiController->SetAttackTarget(_playerCharactersAlive[index]->GetActorLocation());
+		}
 	}
 }
 
@@ -147,10 +165,10 @@ void ARoundSurvivalGameMode::SpawnBots()
 	for (int32 i = 0; i < numBotsToSpawn; ++i)
 	{
 		AActor* spawnPoint = _BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
-		TSubclassOf<AHumanoid> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		AHumanoid* newBot = GetWorld()->SpawnActor<AHumanoid>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
+		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
 		if(newBot)
 		{
 			_BotsAlive.Add(newBot);
@@ -172,7 +190,7 @@ bool ARoundSurvivalGameMode::CanSpawnBots()
 	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
 	bool bValidBotClasses = true;
-	for (TSubclassOf<AHumanoid>& botClass : _BotsToSpawn)
+	for (TSubclassOf<ABot>& botClass : _BotsToSpawn)
 	{
 		if (botClass == nullptr)
 		{
@@ -200,7 +218,8 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 		return;
 	}
 
-	AHumanoid* bot = Cast<AHumanoid>(DeadBot);
+	ABot* bot = Cast<ABot>(DeadBot);
+	ensureMsgf(bot, TEXT("Bot does not inheret from ABot."));
 
 	_BotsAlive.RemoveSingleSwap(bot);
 	_BotsDead.Add(bot);
@@ -232,17 +251,19 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
 	playerState->AddDeath();
 
-	_numPlayersAlive--;
-	if (_numPlayersAlive == 0)
-	{
-		// #todo Game over
-		EndMatch();
-	}
+	UnregisterPlayerCharacter(DeadPlayer);
 
 	if (Killer && Killer->IsPlayerController())
 	{
 		AMyPlayerState* playerState_Killer = Cast<AMyPlayerState>(Killer->PlayerState);
 		playerState_Killer->ScorePoints(-_PointPenaltyForTeamKill, false);
+	}
+
+	_numPlayersAlive--;
+	if (_numPlayersAlive == 0)
+	{
+		// #todo Game over
+		EndMatch();
 	}
 }
 

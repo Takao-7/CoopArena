@@ -54,6 +54,7 @@ void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharact
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
 	_playerCharacters.AddUnique(PlayerCharacter);
+	_playerCharactersAlive.AddUnique(PlayerCharacter);
 	_numPlayersAlive++;
 }
 
@@ -61,6 +62,7 @@ void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerChara
 {
 	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
 	_playerCharacters.RemoveSwap(PlayerCharacter);
+	_playerCharactersAlive.RemoveSwap(PlayerCharacter);
 	_numPlayersAlive--;
 }
 

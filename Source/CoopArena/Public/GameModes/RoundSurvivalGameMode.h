@@ -10,6 +10,7 @@
 class AHumanoid;
 class APlayerCharacter;
 class AMyPlayerController;
+class ABot;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaveStart_Event);
@@ -35,13 +36,13 @@ protected:
 	
 	/* Bot classes to spawn. Will pick a random class each time a bot is spawned */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn"))
-	TArray<TSubclassOf<AHumanoid>> _BotsToSpawn;
+	TArray<TSubclassOf<ABot>> _BotsToSpawn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
 	int32 _PointsPerBotKill;
 
 	/* How many points will be subtracted from the player score for each team kill */
-	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
+	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Point penalty for team kill", ClampMin = 0))
 	int32 _PointPenaltyForTeamKill;
 
 	/* The time, in seconds, after which a new wave starts. */
@@ -54,6 +55,7 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
 	int32 _CurrentWaveNumber;
+
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
@@ -78,11 +80,13 @@ public:
 	FORCEINLINE int32 GetCurrentWaveNumber() const { return _CurrentWaveNumber; };
 	
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveStart_Event WaveStart_Event;
+	FOnWaveStart_Event OnWaveStart;
 
 	UPROPERTY(BlueprintAssignable, Category = "Round survival game mode")
-	FOnWaveEnd_Event WaveEnd_Event;
+	FOnWaveEnd_Event OnWaveEnd;
 
+
+	/////////////////////////////////////////////////////
 public:
 	ARoundSurvivalGameMode();
 
@@ -96,8 +100,12 @@ public:
 	/* Returns the number of bots that are currently alive */
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
 	FORCEINLINE int32 GetNumberOfAliveBots() const { return _BotsAlive.Num(); }
-	
+
 private:
+	/* Set the target for all spawned bots. */
+	UFUNCTION()
+	void SetAttackTarget();
+
 	void DestroyDeadBotBodies();
 
 	void ReviveDeadPlayers();
@@ -115,10 +123,10 @@ private:
 	TArray<ASpawnPoint*> _BotSpawnPoints;
 
 	/* Bots that are currently alive */
-	TArray<AHumanoid*> _BotsAlive;
+	TArray<ABot*> _BotsAlive;
 
 	/* Bots that are dead. They will be deleted at the start of the next wave and then cleared from this array. */
-	TArray<AHumanoid*> _BotsDead;
+	TArray<ABot*> _BotsDead;
 
 	FTimerHandle _RoundTimerHandle;
 };

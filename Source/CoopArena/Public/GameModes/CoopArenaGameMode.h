@@ -34,6 +34,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
 	TArray<APlayerCharacter*> _playerCharacters;
 
+	/* A list of all alive player characters on the map */
+	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	TArray<APlayerCharacter*> _playerCharactersAlive;
+
 	/* A list of all player controllers on the map */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
 	TArray<APlayerController*> _playerControllers;
