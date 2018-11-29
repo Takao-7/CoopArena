@@ -14,4 +14,7 @@ class COOPARENA_API ABot : public AHumanoid
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BotCharacter")
+	TArray<AActor*> _PatrolPoints;
 };

@@ -83,10 +83,10 @@ void AHumanoid::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	ACoopArenaGameMode* gameMode =  Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
+	ACoopArenaGameMode* gameMode = Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
 	if (gameMode)
 	{
-		m_TeamName = gameMode->CheckForTeamTag(*NewController);
+		_TeamName = (IsPlayerControlled() ? gameMode->GetPlayerTeamName() : gameMode->GetBotTeamName()).ToString();
 	}
 }
 
@@ -215,7 +215,6 @@ void AHumanoid::FireEquippedWeapon()
 	if (CanFire() && _EquippedWeapon)
 	{
 		_EquippedWeapon->OnFire();
-		OnWeaponFire.Broadcast(this, _EquippedWeapon);
 	}
 }
 
@@ -524,6 +523,18 @@ AGun* AHumanoid::SpawnWeapon(TSubclassOf<AGun> Class)
 bool AHumanoid::IsAiming() const
 {
 	return m_bIsAiming;
+}
+
+/////////////////////////////////////////////////////
+int32 AHumanoid::GetNumRoundsLeft()
+{
+	if (_EquippedWeapon == nullptr)
+	{
+		return 0;
+	}
+
+	AMagazine* magazine = _EquippedWeapon->GetMagazine();
+	return magazine ? magazine->RoundsLeft() : 0;	
 }
 
 /////////////////////////////////////////////////////

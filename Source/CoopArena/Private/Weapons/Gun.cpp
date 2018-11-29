@@ -226,6 +226,8 @@ void AGun::OnFire()
 		{
 			GetWorld()->GetTimerManager().SetTimer(m_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
 		}
+
+		_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
 	}
 	else
 	{

@@ -42,10 +42,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
 	TArray<APlayerController*> _playerControllers;
 
-	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
 	FName _defaultPlayerTeam;
 
-	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
 	FName _defaultBotTeam;
 
 private:
@@ -79,6 +79,12 @@ public:
 	 * @return If the given controller or actor is allowed to re-spawn.
 	 */
 	bool CanRespawn(APlayerController* PlayerController, AActor* Actor) const;
+
+	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
+	FName GetPlayerTeamName() const { return _defaultPlayerTeam; };
+
+	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
+	FName GetBotTeamName() const { return _defaultBotTeam; };
 
 
 	/////////////////////////////////////////////////////

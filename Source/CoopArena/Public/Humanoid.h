@@ -39,13 +39,14 @@ public:
 	AHumanoid();
 
 	UFUNCTION(BlueprintCallable, Category = "Humanoid")
-	const FString& GetTeamName() const { return m_TeamName; };
+	const FString& GetTeamName() const { return _TeamName; };
 
 	UFUNCTION(BlueprintCallable, Category = "Humanoid")
-	void SetTeamName(FString NewTeamName) { m_TeamName = NewTeamName; };
+	void SetTeamName(FString NewTeamName) { _TeamName = NewTeamName; };
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	UFUNCTION(BlueprintPure, Category = "Humanoid")
 	bool IsAlive() const;
 
 	/**
@@ -58,8 +59,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
-	FString m_TeamName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
+	FString _TeamName;
 
 
 	/////////////////////////////////////////////////////
@@ -300,6 +301,15 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	bool IsAiming() const;
+
+	/**
+	 * Gets the number of rounds left in the equipped weapon. 
+	 * @return The number of rounds left. If no weapon is equipped or the weapon does not have
+	 * a magazine, then 0.
+	 * A value of -1 means that the magazine has infinite ammo.
+	 */
+	UFUNCTION(BlueprintPure, Category = Humanoid)
+	int32 GetNumRoundsLeft();
 
 	/* This event is called, when we have finished reloading our weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")

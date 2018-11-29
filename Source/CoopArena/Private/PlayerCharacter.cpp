@@ -42,7 +42,7 @@ APlayerCharacter::APlayerCharacter()
 
 	m_IncrementVelocityAmount = 50.0f;
 
-	m_TeamName = "Player Team";
+	_TeamName = "Player Team";
 }
 
 /////////////////////////////////////////////////////
