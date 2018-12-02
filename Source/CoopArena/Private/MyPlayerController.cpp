@@ -59,7 +59,7 @@ void AMyPlayerController::SetupInputComponent()
 }
 
 /////////////////////////////////////////////////////
-bool AMyPlayerController::IsSpectating()
+bool AMyPlayerController::IsSpectating() const
 {
 	return PlayerState->bIsSpectator;
 }

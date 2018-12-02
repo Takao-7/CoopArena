@@ -15,6 +15,7 @@
 #include "CoopArenaGameInstance.h"
 #include "Bot.h"
 #include "BotController.h"
+#include "MyGameState.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -26,7 +27,7 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	_WaveLength = 60.0f;
 	_PointPenaltyForTeamKill = 50;
 	_DelayBetweenWaves = 3.0f;
-	//bDelayedStart = true;
+	bDelayedStart = true;
 }
 
 /////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 
 	const int32 numConnectedPlayers = gameInstance->GetNumberOfConnectedPlayers();
 	const int32 numPlayersOnMap = _playerControllers.Num();
-	return (numPlayersOnMap >= numConnectedPlayers) && numPlayersOnMap > 0;
+	return ((numPlayersOnMap == numConnectedPlayers) && numPlayersOnMap > 0) || numConnectedPlayers == -1;
 }
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
@@ -81,6 +82,7 @@ void ARoundSurvivalGameMode::StartWave()
 	}
 
 	_CurrentWaveNumber++;
+	GetGameState<AMyGameState>()->SetWaveNumber(_CurrentWaveNumber);
 	DestroyDeadBotBodies();
 	SpawnBots();
 	SetAttackTarget();
@@ -247,9 +249,12 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 		return;
 	}
 	
-	AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
-	ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
-	playerState->AddDeath();
+	if(DeadPlayer->PlayerState)
+	{
+		AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
+		ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
+		playerState->AddDeath();
+	}
 
 	UnregisterPlayerCharacter(DeadPlayer);
 

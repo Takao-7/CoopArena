@@ -4,12 +4,17 @@
 #include "World/MyGameState.h"
 #include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
+#include "UnrealNames.h"
 
 
 /////////////////////////////////////////////////////
 AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	_TeamNumber = 0;
+	_NumKills = 0;
+	_NumDeaths = 0;
+	Score = 0;
+	_bIsAlive = false;
 }
 
 /////////////////////////////////////////////////////
@@ -20,6 +25,7 @@ void AMyPlayerState::Reset()
 	_NumKills = 0;
 	_NumDeaths = 0;
 	Score = 0;
+	_bIsAlive = false;
 }
 
 /////////////////////////////////////////////////////
@@ -77,6 +83,12 @@ float AMyPlayerState::GetScore() const
 }
 
 /////////////////////////////////////////////////////
+bool AMyPlayerState::IsAlive() const
+{
+	return _bIsAlive;
+}
+
+/////////////////////////////////////////////////////
 void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -84,4 +96,5 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _NumKills);
 	DOREPLIFETIME(AMyPlayerState, _NumDeaths);
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
+	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
 }
