@@ -48,7 +48,6 @@ AHumanoid::AHumanoid()
 	SetReplicateMovement(true);
 
 	USkeletalMeshComponent* mesh = GetMesh();
-	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	mesh->SetGenerateOverlapEvents(true);
 	mesh->SetCollisionObjectType(ECC_PhysicsBody);
 	mesh->SetCustomDepthStencilValue(253);

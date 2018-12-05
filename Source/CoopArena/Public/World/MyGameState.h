@@ -54,7 +54,4 @@ public:
 
 	/* [Server] Add score to the team score. */
 	void AddScore(int32 Score);
-
-	/** Called by game mode to set the started play bool */
-	virtual void HandleBeginPlay() override;	
 };

@@ -8,7 +8,11 @@
 
 
 /////////////////////////////////////////////////////
-AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) { }
+AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{ 
+	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
+	FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
+}
 
 /////////////////////////////////////////////////////
 int32 AMyGameState::GetTotalScore() const
@@ -32,14 +36,6 @@ void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
 	_TeamScore += Score;
-}
-
-/////////////////////////////////////////////////////
-void AMyGameState::HandleBeginPlay()
-{
-	Super::HandleBeginPlay();
-	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
-	FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
 }
 
 /////////////////////////////////////////////////////

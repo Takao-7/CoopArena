@@ -138,10 +138,10 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("Session created with errors!"));
 	}
 	
-	//SetSeamlessTravel(true);
+	SetSeamlessTravel(true);
 	//GetWorld()->SeamlessTravel("LobbyMenu?listen");
-	GetWorld()->ServerTravel("LobbyMenu?listen");
-	//UGameplayStatics::OpenLevel(GetWorld(), "LobbyMenu", false, "listen");
+	//GetWorld()->ServerTravel("LobbyMenu?listen");
+	UGameplayStatics::OpenLevel(GetWorld(), "LobbyMenu", false, "listen");
 }
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)
