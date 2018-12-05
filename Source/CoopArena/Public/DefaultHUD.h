@@ -76,6 +76,9 @@ private:
 
 	UFUNCTION()
 	void HandleOnFireModeChanged(AHumanoid* Character, EFireMode NewFireMode);
+	
+	UFUNCTION()
+	void HandleOnWeaponEquipped(AHumanoid* Player, AGun* Gun);
 
 	void DisplayHUD();
 };

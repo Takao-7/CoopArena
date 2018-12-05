@@ -57,12 +57,14 @@ bool ASpawnPoint::IsSafeToSpawn(const FString& TagToCompare) const
 	return true;
 }
 
+#if WITH_EDITOR
 /////////////////////////////////////////////////////
 void ASpawnPoint::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	SafeZone ? SafeZone->SetSphereRadius(m_SafeZoneRadius, false) : SafeZone = Cast<USphereComponent>(GetComponentByClass(USphereComponent::StaticClass()));
 }
+#endif
 
 /////////////////////////////////////////////////////
 void ASpawnPoint::OnConstruction(const FTransform& Transform)

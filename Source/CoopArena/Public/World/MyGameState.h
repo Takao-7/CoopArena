@@ -6,9 +6,16 @@
 #include "GameFramework/GameState.h"
 #include "MyGameState.generated.h"
 
-/**
- * 
- */
+
+class AGameModeBase;
+class APlayerController;
+class AMyPlayerState;
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerLogIn_Signature, AMyPlayerState*, PlayerState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerLogout_Signature, AMyPlayerState*, PlayerState);
+
+
 UCLASS()
 class COOPARENA_API AMyGameState : public AGameState
 {
@@ -21,8 +28,20 @@ private:
 
 	UPROPERTY(Transient, Replicated)
 	int32 _WaveNumber;
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	void HandleOnPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer);
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	void HandleOnLogout(AGameModeBase* GameMode, AController* Exiting);
 	
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Game state")
+	FOnPlayerLogIn_Signature OnPlayerLogin;
+
+	UPROPERTY(BlueprintAssignable, Category = "Game state")
+	FOnPlayerLogout_Signature OnPlayerLogout;
+
 	AMyGameState(const class FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintPure, Category = "Game state")
@@ -35,4 +54,7 @@ public:
 
 	/* [Server] Add score to the team score. */
 	void AddScore(int32 Score);
+
+	/** Called by game mode to set the started play bool */
+	virtual void HandleBeginPlay() override;	
 };

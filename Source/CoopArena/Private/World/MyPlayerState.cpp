@@ -15,6 +15,7 @@ AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Su
 	_NumDeaths = 0;
 	Score = 0;
 	_bIsAlive = false;
+	_bIsReady = false;
 }
 
 /////////////////////////////////////////////////////
@@ -26,6 +27,7 @@ void AMyPlayerState::Reset()
 	_NumDeaths = 0;
 	Score = 0;
 	_bIsAlive = false;
+	_bIsReady = false;
 }
 
 /////////////////////////////////////////////////////
@@ -89,6 +91,18 @@ bool AMyPlayerState::IsAlive() const
 }
 
 /////////////////////////////////////////////////////
+bool AMyPlayerState::IsReady() const
+{
+	return _bIsReady;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::OnReadyStatusReplicated()
+{
+	OnPlayerChangedReadyStatus.Broadcast(this, _bIsReady);
+}
+
+/////////////////////////////////////////////////////
 void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -97,4 +111,27 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _NumDeaths);
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
+	DOREPLIFETIME(AMyPlayerState, _bIsReady);
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::SetReadyStatus_Server_Implementation(bool bReady)
+{
+	_bIsReady = bReady;
+}
+
+bool AMyPlayerState::SetReadyStatus_Server_Validate(bool bReady)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::ToggleReadyStatus_Server_Implementation()
+{
+	_bIsReady = !_bIsReady;
+}
+
+bool AMyPlayerState::ToggleReadyStatus_Server_Validate()
+{
+	return true;
 }

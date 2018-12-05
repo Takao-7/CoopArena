@@ -18,6 +18,7 @@ ADefaultHUD::ADefaultHUD()
 /////////////////////////////////////////////////////
 void ADefaultHUD::Init(APlayerCharacter* PlayerCharacter)
 {
+	verify(PlayerCharacter);
 	if (PlayerCharacter != _Character)
 	{
 		if (_Character != nullptr)
@@ -25,13 +26,22 @@ void ADefaultHUD::Init(APlayerCharacter* PlayerCharacter)
 			_Character->OnReloadFinished.RemoveDynamic(this, &ADefaultHUD::HandleOnReloadingFinished);
 			_Character->OnWeaponFire.RemoveDynamic(this, &ADefaultHUD::HandleOnWeaponFire);
 			_Character->OnFireModeChanged.RemoveDynamic(this, &ADefaultHUD::HandleOnFireModeChanged);
+			_Character->OnWeaponEquipped.RemoveDynamic(this, &ADefaultHUD::HandleOnWeaponEquipped);
 		}
 
 		_Character = PlayerCharacter;
 		_Character->OnReloadFinished.AddDynamic(this, &ADefaultHUD::HandleOnReloadingFinished);
 		_Character->OnWeaponFire.AddDynamic(this, &ADefaultHUD::HandleOnWeaponFire);
 		_Character->OnFireModeChanged.AddDynamic(this, &ADefaultHUD::HandleOnFireModeChanged);
+		_Character->OnWeaponEquipped.AddDynamic(this, &ADefaultHUD::HandleOnWeaponEquipped);
 	}
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::HandleOnWeaponEquipped(AHumanoid* Player, AGun* Gun)
+{
+	HandleOnFireModeChanged(Player, Gun->GetCurrentFireMode());
+	HandleOnReloadingFinished(Player, Gun);
 }
 
 /////////////////////////////////////////////////////

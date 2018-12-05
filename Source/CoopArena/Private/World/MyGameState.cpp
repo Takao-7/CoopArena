@@ -2,6 +2,9 @@
 
 #include "World/MyGameState.h"
 #include "UnrealNetwork.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/Controller.h"
+#include "World/MyPlayerState.h"
 
 
 /////////////////////////////////////////////////////
@@ -29,6 +32,25 @@ void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
 	_TeamScore += Score;
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::HandleBeginPlay()
+{
+	Super::HandleBeginPlay();
+	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
+	FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::HandleOnPostLogin_Implementation(AGameModeBase* GameMode, APlayerController* NewPlayer)
+{
+	OnPlayerLogin.Broadcast(Cast<AMyPlayerState>(NewPlayer->PlayerState));
+}
+
+void AMyGameState::HandleOnLogout_Implementation(AGameModeBase* GameMode, AController* Exiting)
+{
+	OnPlayerLogout.Broadcast(Cast<AMyPlayerState>(Exiting->PlayerState));
 }
 
 /////////////////////////////////////////////////////

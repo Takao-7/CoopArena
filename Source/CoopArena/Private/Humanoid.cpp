@@ -293,7 +293,9 @@ void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= t
 		_EquippedWeapon = WeaponToEquip;
 		_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
+		OnWeaponEquipped.Broadcast(this, WeaponToEquip);
 	}	
+
 }
 
 void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*/)
@@ -620,6 +622,7 @@ void AHumanoid::HandleWeaponEquip()
 		_EquippedWeapon = _WeaponToEquip;
 		_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
+		OnWeaponEquipped.Broadcast(this, _EquippedWeapon);
 	}
 }
 

@@ -17,11 +17,10 @@ struct FSessionData
 
 public:
 	FSessionData() {};
-	FSessionData(FString MatchName, FString PlayerName, FString SessionId, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
+	FSessionData(FString MatchName, FString PlayerName, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
 	{
 		this->MatchName = MatchName;
 		this->PlayerName = PlayerName;
-		this->SessionId = SessionId;
 		this->Ping = Ping;
 		this->MaxPlayers = MaxPlayers;
 		this->ConnectedPlayers = ConnectedPlayer;
@@ -34,9 +33,6 @@ public:
 	/* The in game name of this session's creator. */
 	UPROPERTY(BlueprintReadWrite)
 	FString PlayerName;
-
-	UPROPERTY(BlueprintReadWrite)
-	FString SessionId;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 Ping;
@@ -64,7 +60,9 @@ public:
 
 	/* Create a new session on the current map. Will destroy the current session and create a new one if it exists. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void CreateSession(FString MatchName = "My Match");
+	void CreateSession(FString MatchName = "My Match", FString PlayerName = "Player");
+
+	void SetPlayerName(FString PlayerName = "");
 
 	/**
 	 * Joins the game on a IP-Address or travel to a map.
@@ -89,6 +87,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Mode")
 	void StartMatch(FName MapName = "Level4");
 
+	void SetSeamlessTravel(bool bSeamlessTravel);
+
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;
 
@@ -102,11 +102,11 @@ public:
 
 private:
 	IOnlineSessionPtr _SessionInterface;
-	FString _PlayerName;
 
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 	bool _bWantsToSearchForGames;
 	bool _bWantsToCreateSession;
+	FString _PlayerName;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
