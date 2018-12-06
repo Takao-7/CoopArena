@@ -59,10 +59,15 @@ public:
 	UCoopArenaGameInstance();
 
 	/* Create a new session on the current map. Will destroy the current session and create a new one if it exists. */
-	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
-	void CreateSession(FString MatchName = "My Match", FString PlayerName = "Player");
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
+	void CreateSession();
 
-	void SetPlayerName(FString PlayerName = "");
+	/* Destroy the current session. */
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
+	void DestroySession();
+
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
+	void Host(FString ServerName = TEXT("No-Name Server"), FString PlayerName = TEXT("Nobody"));
 
 	/**
 	 * Joins the game on a IP-Address or travel to a map.
@@ -70,47 +75,53 @@ public:
 	 * If it's an IP-Address, then we will try to join the game on this IP-address.
 	 * If it's a map name, then we will (client) travel to that map.
 	 */
-	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
 	void Join(const FString& Address);
 
 	/** virtual function to allow custom GameInstances an opportunity to set up what it needs */
 	virtual void Init() override;
 
 	/* Starts searching for LAN games */
-	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
 	void SearchForGames();
 
 	/* Stops searching for games */
-	UFUNCTION(Exec, BlueprintCallable, Category = "Game Mode")
+	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
 	void StopSearchForGames();
 
-	UFUNCTION(BlueprintCallable, Category = "Game Mode")
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void StartMatch(FString MapName = "Level4");
 
-	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
+	UPROPERTY(BlueprintAssignable, Category = "Game instance")
 	FOnSessionFound_Event OnSessionFound;
 
 	/**
 	 * Returns the number of connected players.
 	 * If there is no session, then we return -1.
 	 */
+	UFUNCTION(BlueprintPure, Category = "Game instance")
 	int32 GetNumberOfConnectedPlayers() const;
 
-	IOnlineSessionPtr GetSessionInterface() const;
+	UFUNCTION(BlueprintPure, Category = "Game instance")
+	FString GetSavedPlayerName() const;
 
 private:
 	IOnlineSessionPtr _SessionInterface;
-
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 	bool _bWantsToSearchForGames;
-	bool _bWantsToCreateSession;
+	bool _bWantsToCreateNewSession;
 	FString _PlayerName;
+	FString _ServerName;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
 	void OnFindSessionComplete(bool bSuccess);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	UFUNCTION(BlueprintCallable, Category = "Game Mode")
-	void JoinServer(int32 SearchResultIndex);
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
+	void JoinServer(int32 SearchResultIndex, FString PlayerName = TEXT("Nobody"));
+	
+	IOnlineSessionPtr GetSessionInterface() const;
+
+	void SetPlayerName(FString PlayerName);
 };

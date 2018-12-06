@@ -29,13 +29,22 @@ private:
 	UPROPERTY(Transient, Replicated)
 	int32 _WaveNumber;
 
-	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	UFUNCTION()
 	void HandleOnPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer);
 
-	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	UFUNCTION(NetMulticast, Reliable)
+	void HandleOnLogout_Multicast(AMyPlayerState* PlayerState);
+
+	UFUNCTION()
 	void HandleOnLogout(AGameModeBase* GameMode, AController* Exiting);
-	
+
 public:
+	/**
+	 * This function will be called after a player has logged in and has send his username to the server.
+	 */
+	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	void OnPostLogin_Multicast(AMyPlayerState* NewPlayerState, const FString& PlayerName);
+
 	UPROPERTY(BlueprintAssignable, Category = "Game state")
 	FOnPlayerLogIn_Signature OnPlayerLogin;
 

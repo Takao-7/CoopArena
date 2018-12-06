@@ -7,11 +7,51 @@
 #include "World/MyPlayerState.h"
 
 
-/////////////////////////////////////////////////////
 AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 { 
-	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
-	FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
+	if (HasAuthority())
+	{
+		FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
+		FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::HandleOnPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer)
+{
+	AMyPlayerState* playerState = Cast<AMyPlayerState>(NewPlayer->PlayerState);
+	if (playerState)
+	{
+		playerState->RequestPlayerName();
+	}
+}
+
+void AMyGameState::HandleOnLogout(AGameModeBase* GameMode, AController* Exiting)
+{
+	AMyPlayerState* playerState = Cast<AMyPlayerState>(Exiting);
+	if (playerState)
+	{
+		HandleOnLogout_Multicast(playerState);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::OnPostLogin_Multicast_Implementation(AMyPlayerState* NewPlayerState, const FString& PlayerName)
+{
+	/*
+	 * Set the player name only on clients. At this point the player name should be already set on the server, but
+	 * may not be replicated to this client, so we just set it here.
+	 */
+	if (HasAuthority() == false && NewPlayerState->GetPlayerName() != PlayerName)
+	{
+		NewPlayerState->SetPlayerName(PlayerName);
+	}
+	OnPlayerLogout.Broadcast(Cast<AMyPlayerState>(NewPlayerState));
+}
+
+void AMyGameState::HandleOnLogout_Multicast_Implementation(AMyPlayerState* PlayerState)
+{
+	OnPlayerLogout.Broadcast(PlayerState);
 }
 
 /////////////////////////////////////////////////////
@@ -36,17 +76,6 @@ void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
 	_TeamScore += Score;
-}
-
-/////////////////////////////////////////////////////
-void AMyGameState::HandleOnPostLogin_Implementation(AGameModeBase* GameMode, APlayerController* NewPlayer)
-{
-	OnPlayerLogin.Broadcast(Cast<AMyPlayerState>(NewPlayer->PlayerState));
-}
-
-void AMyGameState::HandleOnLogout_Implementation(AGameModeBase* GameMode, AController* Exiting)
-{
-	OnPlayerLogout.Broadcast(Cast<AMyPlayerState>(Exiting->PlayerState));
 }
 
 /////////////////////////////////////////////////////

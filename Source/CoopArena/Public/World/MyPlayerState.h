@@ -55,9 +55,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Player state")
 	FOnPlayerChangedReadyStatus_Signature OnPlayerChangedReadyStatus;
 
+	/* Requests the user name from the client. Will call SetPlayerName_Server */
+	UFUNCTION(Client, Reliable)
+	void RequestPlayerName();
+
 private:
 	UFUNCTION()
 	void OnReadyStatusReplicated();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SetPlayerName_Server(const FString& NewPlayerName);
 
 	UPROPERTY(Transient, Replicated)
 	int32 _NumKills;

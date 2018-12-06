@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 #include "UnrealNames.h"
+#include "CoopArenaGameInstance.h"
 
 
 /////////////////////////////////////////////////////
@@ -97,9 +98,52 @@ bool AMyPlayerState::IsReady() const
 }
 
 /////////////////////////////////////////////////////
+void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
+{
+	SetPlayerName(NewPlayerName);
+	GetWorld()->GetGameState<AMyGameState>()->OnPostLogin_Multicast(this, NewPlayerName);
+}
+
+bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::RequestPlayerName_Implementation()
+{
+	FString name = Cast<UCoopArenaGameInstance>(GetGameInstance())->GetSavedPlayerName();
+	SetPlayerName_Server(name);
+}
+
+/////////////////////////////////////////////////////
 void AMyPlayerState::OnReadyStatusReplicated()
 {
 	OnPlayerChangedReadyStatus.Broadcast(this, _bIsReady);
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::SetReadyStatus_Server_Implementation(bool bReady)
+{
+	_bIsReady = bReady;
+	OnReadyStatusReplicated();
+}
+
+bool AMyPlayerState::SetReadyStatus_Server_Validate(bool bReady)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::ToggleReadyStatus_Server_Implementation()
+{
+	_bIsReady = !_bIsReady;
+	OnReadyStatusReplicated();
+}
+
+bool AMyPlayerState::ToggleReadyStatus_Server_Validate()
+{
+	return true;
 }
 
 /////////////////////////////////////////////////////
@@ -112,26 +156,4 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
 	DOREPLIFETIME(AMyPlayerState, _bIsReady);
-}
-
-/////////////////////////////////////////////////////
-void AMyPlayerState::SetReadyStatus_Server_Implementation(bool bReady)
-{
-	_bIsReady = bReady;
-}
-
-bool AMyPlayerState::SetReadyStatus_Server_Validate(bool bReady)
-{
-	return true;
-}
-
-/////////////////////////////////////////////////////
-void AMyPlayerState::ToggleReadyStatus_Server_Implementation()
-{
-	_bIsReady = !_bIsReady;
-}
-
-bool AMyPlayerState::ToggleReadyStatus_Server_Validate()
-{
-	return true;
 }
