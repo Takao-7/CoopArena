@@ -24,6 +24,8 @@ ACoopArenaGameMode::ACoopArenaGameMode()
 	PlayerStateClass = AMyPlayerState::StaticClass();
 	PlayerControllerClass = AMyPlayerController::StaticClass();
 	HUDClass = ADefaultHUD::StaticClass();
+
+	bUseSeamlessTravel = true;
 }
 
 /////////////////////////////////////////////////////

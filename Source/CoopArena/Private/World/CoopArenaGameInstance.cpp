@@ -94,11 +94,10 @@ void UCoopArenaGameInstance::StopSearchForGames()
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::StartMatch(FName MapName /*= "Level4"*/)
+void UCoopArenaGameInstance::StartMatch(FString MapName /*= "Level4"*/)
 {
 	_SessionInterface->StartSession(NAME_GameSession);
-	SetSeamlessTravel(true);
-	UGameplayStatics::OpenLevel(GetWorld(), MapName, false);
+	GetWorld()->ServerTravel(MapName);
 }
 
 /////////////////////////////////////////////////////
@@ -138,10 +137,9 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("Session created with errors!"));
 	}
 	
-	SetSeamlessTravel(true);
 	//GetWorld()->SeamlessTravel("LobbyMenu?listen");
-	//GetWorld()->ServerTravel("LobbyMenu?listen");
-	UGameplayStatics::OpenLevel(GetWorld(), "LobbyMenu", false, "listen");
+	GetWorld()->ServerTravel(TEXT("LobbyMenu?listen?bIsLanMatch=1"));
+	//UGameplayStatics::OpenLevel(GetWorld(), "LobbyMenu", false, "listen");
 }
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)

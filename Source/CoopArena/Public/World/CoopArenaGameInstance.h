@@ -85,7 +85,7 @@ public:
 	void StopSearchForGames();
 
 	UFUNCTION(BlueprintCallable, Category = "Game Mode")
-	void StartMatch(FName MapName = "Level4");
+	void StartMatch(FString MapName = "Level4");
 
 	void SetSeamlessTravel(bool bSeamlessTravel);
 
