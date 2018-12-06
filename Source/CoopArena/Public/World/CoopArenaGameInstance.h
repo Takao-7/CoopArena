@@ -87,8 +87,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game Mode")
 	void StartMatch(FString MapName = "Level4");
 
-	void SetSeamlessTravel(bool bSeamlessTravel);
-
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;
 

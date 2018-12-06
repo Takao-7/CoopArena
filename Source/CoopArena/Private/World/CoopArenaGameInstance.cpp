@@ -8,6 +8,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerState.h"
 #include "Engine/Engine.h"
+#include "Engine/LocalPlayer.h"
 
 
 #define SETTING_MatchName FName("MatchName")
@@ -29,8 +30,7 @@ void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/, F
 	sessionSettings.bIsLANMatch = true;
 	sessionSettings.NumPublicConnections = 6;
 	sessionSettings.bShouldAdvertise = true;
-	sessionSettings.bAllowJoinInProgress = true;
-	sessionSettings.bAllowInvites = true;
+	sessionSettings.bUsesPresence = true;
 	sessionSettings.Set(SETTING_MatchName, MatchName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	sessionSettings.Set(SETTING_PlayerName, PlayerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
@@ -39,7 +39,7 @@ void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/, F
 		_SessionInterface->DestroySession(NAME_GameSession);
 	}
 
-	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
+	_SessionInterface->CreateSession(*GetLocalPlayerByIndex(0)->GetPreferredUniqueNetId().GetUniqueNetId(), NAME_GameSession, sessionSettings);
 }
 
 /////////////////////////////////////////////////////
@@ -101,13 +101,6 @@ void UCoopArenaGameInstance::StartMatch(FString MapName /*= "Level4"*/)
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::SetSeamlessTravel(bool bSeamlessTravel)
-{
-	AGameModeBase* gameMode = GetWorld()->GetAuthGameMode<AGameModeBase>();
-	gameMode->bUseSeamlessTravel = bSeamlessTravel;
-}
-
-/////////////////////////////////////////////////////
 int32 UCoopArenaGameInstance::GetNumberOfConnectedPlayers() const
 {
 	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
@@ -137,8 +130,7 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("Session created with errors!"));
 	}
 	
-	//GetWorld()->SeamlessTravel("LobbyMenu?listen");
-	GetWorld()->ServerTravel(TEXT("LobbyMenu?listen?bIsLanMatch=1"));
+	GetWorld()->ServerTravel(TEXT("Game/Maps/LobbyMenu?listen?bIsLanMatch=1"));
 	//UGameplayStatics::OpenLevel(GetWorld(), "LobbyMenu", false, "listen");
 }
 
@@ -200,5 +192,5 @@ void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex)
 {
 	ensureMsgf(_SessionSearch->SearchResults.IsValidIndex(SearchResultIndex), TEXT("The given index is not valid."));
 	StopSearchForGames();
-	_SessionInterface->JoinSession(0, NAME_GameSession, _SessionSearch->SearchResults[SearchResultIndex]);
+	_SessionInterface->JoinSession(*GetLocalPlayerByIndex(0)->GetPreferredUniqueNetId().GetUniqueNetId(), NAME_GameSession, _SessionSearch->SearchResults[SearchResultIndex]);
 }
