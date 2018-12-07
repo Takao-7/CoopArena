@@ -14,6 +14,7 @@
 #include "CoopArena.h"
 #include "Camera/CameraComponent.h"
 #include "CoopArenaGameMode.h"
+#include "HealthComponent.h"
 
 
 /////////////////////////////////////////////////////
@@ -104,6 +105,7 @@ void APlayerCharacter::BeginPlay()
 
 		OnDestroyed.AddDynamic(this, &APlayerCharacter::HandleOnDestroy);
 	}
+	HealthComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleOnDeath);
 }
 
 /////////////////////////////////////////////////////
@@ -117,6 +119,14 @@ void APlayerCharacter::HandleOnDestroy(AActor* DestroyedActor)
 
 	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
 	gameMode->UnregisterPlayerCharacter(this);
+}
+
+void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorController, AController* Killer)
+{
+	if(IsAiming())
+	{
+		OnAimingReleased();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -180,9 +190,9 @@ void APlayerCharacter::OnSprintPressed()
 {
 	if (m_bToggleSprinting)
 	{
-		SetSprinting(!m_bIsSprinting);
+		SetSprinting(!_bIsSprinting);
 	}
-	else if (!m_bIsSprinting)
+	else if (!_bIsSprinting)
 	{
 		SetSprinting(true);
 	}
@@ -249,9 +259,9 @@ void APlayerCharacter::OnChangeCameraPressed()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnAimingPressed()
 {
-	if (_EquippedWeapon && !m_bIsSprinting)
+	if (_EquippedWeapon && !_bIsSprinting)
 	{
-		m_bIsAiming = true;
+		_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
 		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
 	}
@@ -259,9 +269,9 @@ void APlayerCharacter::OnAimingPressed()
 
 void APlayerCharacter::OnAimingReleased()
 {
-	if (_EquippedWeapon && !m_bIsSprinting)
+	if (_EquippedWeapon && !_bIsSprinting)
 	{
-		m_bIsAiming = false;
+		_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
 		APlayerController* pc = Cast<APlayerController>(GetController());
 		pc->SetViewTargetWithBlend(pc->GetPawn(), 0.2f);

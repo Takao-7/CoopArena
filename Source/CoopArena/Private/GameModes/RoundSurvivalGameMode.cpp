@@ -87,7 +87,7 @@ void ARoundSurvivalGameMode::StartWave()
 	SpawnBots();
 	SetAttackTarget();
 	GetWorld()->GetTimerManager().SetTimer(_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, _WaveLength);
-	OnWaveStart.Broadcast();
+	OnWaveStart.Broadcast(_CurrentWaveNumber);
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has started.");
 	Broadcast(nullptr, text, NAME_Global);
@@ -97,7 +97,7 @@ void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
 	ReviveDeadPlayers();
-	OnWaveEnd.Broadcast();
+	OnWaveEnd.Broadcast(_CurrentWaveNumber);
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has ended.");
 	Broadcast(nullptr, text, NAME_Global);

@@ -189,12 +189,6 @@ FString UCoopArenaGameInstance::GetSavedPlayerName() const
 }
 
 /////////////////////////////////////////////////////
-IOnlineSessionPtr UCoopArenaGameInstance::GetSessionInterface() const
-{
-	return _SessionInterface;
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex, FString PlayerName /*= TEXT("Nobody")*/)
 {
 	ensureMsgf(_SessionSearch->SearchResults.IsValidIndex(SearchResultIndex), TEXT("The given index is not valid."));

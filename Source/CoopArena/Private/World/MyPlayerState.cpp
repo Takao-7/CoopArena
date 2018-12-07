@@ -110,7 +110,7 @@ bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
 }
 
 /////////////////////////////////////////////////////
-void AMyPlayerState::RequestPlayerName_Implementation()
+void AMyPlayerState::RequestPlayerName_Client_Implementation()
 {
 	FString name = Cast<UCoopArenaGameInstance>(GetGameInstance())->GetSavedPlayerName();
 	SetPlayerName_Server(name);

@@ -180,7 +180,7 @@ protected:
 	bool m_bToggleCrouching;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool m_bIsSprinting;
+	bool _bIsSprinting;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
 	bool m_bIsProne;
@@ -207,7 +207,7 @@ protected:
 
 
 	/////////////////////////////////////////////////////
-						/* Interaction */
+					/* Interaction */
 	/////////////////////////////////////////////////////
 public:
 	/* 
@@ -366,7 +366,7 @@ protected:
 	AGun* _EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
-	bool m_bIsAiming;
+	bool _bIsAiming;
 
 private:
 	/* True if a component attached to this actor wants to prevent it from firing it's weapon. */

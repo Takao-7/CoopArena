@@ -58,7 +58,7 @@ class COOPARENA_API UCoopArenaGameInstance : public UGameInstance
 public:
 	UCoopArenaGameInstance();
 
-	/* Create a new session on the current map. Will destroy the current session and create a new one if it exists. */
+	/* Create a new session. Will destroy the current session and create a new one if it exists. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
 	void CreateSession();
 
@@ -92,6 +92,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void StartMatch(FString MapName = "Level4");
 
+	/* This event will be called each time OnFindSessionComplete delegate is fired AND we actually found sessions. */
 	UPROPERTY(BlueprintAssignable, Category = "Game instance")
 	FOnSessionFound_Event OnSessionFound;
 
@@ -102,6 +103,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game instance")
 	int32 GetNumberOfConnectedPlayers() const;
 
+	/**
+	 * Returns the saved player name, which was entered in the host or join game menu and saved here in the game instance.
+	 * This is necessary, because whenever we travel non-seamless the PlayerName in PlayerState is reset.
+	 */
 	UFUNCTION(BlueprintPure, Category = "Game instance")
 	FString GetSavedPlayerName() const;
 
@@ -120,8 +125,6 @@ private:
 
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void JoinServer(int32 SearchResultIndex, FString PlayerName = TEXT("Nobody"));
-	
-	IOnlineSessionPtr GetSessionInterface() const;
 
 	void SetPlayerName(FString PlayerName);
 };

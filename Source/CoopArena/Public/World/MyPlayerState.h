@@ -57,7 +57,7 @@ public:
 
 	/* Requests the user name from the client. Will call SetPlayerName_Server */
 	UFUNCTION(Client, Reliable)
-	void RequestPlayerName();
+	void RequestPlayerName_Client();
 
 private:
 	UFUNCTION()

@@ -31,10 +31,10 @@ AHumanoid::AHumanoid()
 	m_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	m_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
-	m_bIsSprinting = false;
+	_bIsSprinting = false;
 	m_bIsProne = false;
 	bIsCrouched = false;
-	m_bIsAiming = false;
+	_bIsAiming = false;
 
 	m_MaxForwardSpeed = 600.0f;
 	m_MaxCrouchingSpeed = 200.0f;
@@ -178,23 +178,23 @@ void AHumanoid::SetSprinting(bool bWantsToSprint)
 	bool bCanSprint = BASComponent->GetActorVariables().bIsMovingForward;
 	if (bWantsToSprint && bCanSprint)
 	{
-		if (m_bIsAiming)
+		if (_bIsAiming)
 		{
 			ToggleAiming();
 		}
 		m_SpeedBeforeSprinting = GetCharacterMovement()->MaxWalkSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
-		m_bIsSprinting = true;
+		_bIsSprinting = true;
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = m_SpeedBeforeSprinting;
-		m_bIsSprinting = false;
+		_bIsSprinting = false;
 	}
 
 	if (!HasAuthority())
 	{
-		SetSprinting_Server(m_bIsSprinting);
+		SetSprinting_Server(_bIsSprinting);
 	}
 }
 
@@ -335,7 +335,7 @@ void AHumanoid::MoveForward(float Value)
 		const FVector Direction = Rotation.Vector();
 		AddMovementInput(Direction, Value);
 	}
-	else if (Value < 0.0f && m_bIsSprinting)
+	else if (Value < 0.0f && _bIsSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -343,7 +343,7 @@ void AHumanoid::MoveForward(float Value)
 
 void AHumanoid::MoveRight(float Value)
 {
-	if (Controller && Value != 0.0f && !m_bIsSprinting)
+	if (Controller && Value != 0.0f && !_bIsSprinting)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0.0f;
@@ -372,14 +372,14 @@ void AHumanoid::SetProne(bool bProne)
 /////////////////////////////////////////////////////
 void AHumanoid::ToggleAiming()
 {
-	if (!m_bIsSprinting)
+	if (!_bIsSprinting)
 	{
-		m_bIsAiming = !m_bIsAiming;
-		BASComponent->GetActorVariables().bIsAiming = m_bIsAiming;
+		_bIsAiming = !_bIsAiming;
+		BASComponent->GetActorVariables().bIsAiming = _bIsAiming;
 	}
 	else
 	{
-		m_bIsAiming = false;
+		_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
 	}
 }
@@ -477,7 +477,7 @@ AItemBase* AHumanoid::DropItem()
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return !m_bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
+	return !_bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
 }
 
 /////////////////////////////////////////////////////
@@ -523,7 +523,7 @@ AGun* AHumanoid::SpawnWeapon(TSubclassOf<AGun> Class)
 /////////////////////////////////////////////////////
 bool AHumanoid::IsAiming() const
 {
-	return m_bIsAiming;
+	return _bIsAiming;
 }
 
 /////////////////////////////////////////////////////
@@ -580,8 +580,8 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHumanoid, m_bIsSprinting);
-	DOREPLIFETIME(AHumanoid, m_bIsAiming);
+	DOREPLIFETIME(AHumanoid, _bIsSprinting);
+	DOREPLIFETIME(AHumanoid, _bIsAiming);
 	DOREPLIFETIME(AHumanoid, m_bIsProne);
 	DOREPLIFETIME(AHumanoid, _WeaponToEquip);
 }
@@ -644,7 +644,7 @@ void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
 /////////////////////////////////////////////////////
 void AHumanoid::OnRep_bIsSprining()
 {
-	GetCharacterMovement()->MaxWalkSpeed = m_bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
+	GetCharacterMovement()->MaxWalkSpeed = _bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
 }
 
 /////////////////////////////////////////////////////

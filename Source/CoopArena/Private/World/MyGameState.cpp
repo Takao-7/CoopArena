@@ -22,7 +22,7 @@ void AMyGameState::HandleOnPostLogin(AGameModeBase* GameMode, APlayerController*
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(NewPlayer->PlayerState);
 	if (playerState)
 	{
-		playerState->RequestPlayerName();
+		playerState->RequestPlayerName_Client();
 	}
 }
 
