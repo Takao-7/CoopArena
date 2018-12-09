@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player state")
 	float GetScore() const;
 
+	UFUNCTION(BlueprintPure, Category = "Player state")
+	bool IsAlive() const;
+
 private:
 	UPROPERTY(Transient, Replicated)
 	int32 _NumKills;
@@ -49,4 +52,7 @@ private:
 	/* Team number assigned to player */
 	UPROPERTY(Transient, Replicated)
 	int32 _TeamNumber;
+
+	UPROPERTY(Transient, Replicated)
+	bool _bIsAlive;
 };

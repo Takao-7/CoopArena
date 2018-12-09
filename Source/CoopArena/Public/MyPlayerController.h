@@ -18,7 +18,7 @@ class COOPARENA_API AMyPlayerController : public APlayerController
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Controller", meta = (DisplayName = "Class to respawn as"))
-	TSubclassOf<APlayerCharacter> m_ClassToRespawnAs;
+	TSubclassOf<APlayerCharacter> _ClassToRespawnAs;
 	
 public:
 	/**
@@ -31,7 +31,8 @@ public:
 
 	virtual void SetupInputComponent() override;
 
-	bool IsSpectating();
+	UFUNCTION(BlueprintPure, Category = "Player Controller")
+	bool IsSpectating() const;
 
 	const FVector& GetDeathLocation() const;
 	APlayerCharacter* GetLastPossessedCharacter();

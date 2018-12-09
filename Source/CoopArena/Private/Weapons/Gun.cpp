@@ -730,6 +730,82 @@ FVector AGun::GetForwardCameraVector() const
 	}
 }
 
+/////////////////////////////////////////////////////
+void AGun::HandleMuzzleFlash(bool bSpawnMuzzleFlash)
+{
+	if (bSpawnMuzzleFlash)
+	{
+		if (_MuzzleFlash && _SpawnedMuzzleFlashComponent == nullptr)
+		{
+			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint);
+		}
+	}
+	else
+	{
+		if (_SpawnedMuzzleFlashComponent)
+		{
+			_SpawnedMuzzleFlashComponent->DeactivateSystem();
+			_SpawnedMuzzleFlashComponent = nullptr;
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::PlayFireAnimation()
+{
+	if (_FireAnimation)
+	{
+		UAnimInstance* AnimInstance;
+		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->Montage_Play(_FireAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::PlayFireSound()
+{
+	if (_FireSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::SpawnEjectedShell()
+{
+	if (_ShellEjectionPoint.IsValid() == false)
+	{
+		return;
+	}
+
+	const AProjectile* projectile = _LoadedMagazine->GetProjectileClass().GetDefaultObject();
+	if (projectile == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No default projectile object found."));
+		return;
+	}
+
+	const TSubclassOf<AActor> caseClass = projectile->GetProjectileCase();
+	if (caseClass)
+	{
+		const FTransform spawnTransform = GetMesh()->GetSocketTransform(_ShellEjectionPoint);
+		FActorSpawnParameters spawnParams = FActorSpawnParameters();
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);
+		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
+		if (caseMesh)
+		{
+			const FTransform caseTransform = cartridgeCase->GetActorTransform();
+			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
+			caseMesh->AddImpulse(impulse);
+		}
+	}
+}
+
 
 /////////////////////////////////////////////////////
 					/* Networking */
@@ -743,11 +819,20 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 }
 
 /////////////////////////////////////////////////////
+void AGun::PlayEffects_Multicast_Implementation()
+{
+	SpawnEjectedShell();
+	PlayFireSound();
+	PlayFireAnimation();
+	HandleMuzzleFlash(true);
+}
+
+/////////////////////////////////////////////////////
 void AGun::Server_OnStopFire_Implementation()
 {
 	_CurrentGunState = EWeaponState::Idle;
 	_SalvoCount = 0;
-	Multicast_HandleMuzzleFlash(false);
+	HandleMuzzleFlash_Multicast(false);
 }
 
 /////////////////////////////////////////////////////
@@ -784,10 +869,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());
-		Multicast_PlayFireSound();
-		Multicast_PlayFireAnimation();
-		Multicast_HandleMuzzleFlash(true);
-		Multicast_SpawnEjectedShell();
+		PlayEffects_Multicast();
 	}
 	else
 	{
@@ -801,79 +883,8 @@ bool AGun::Server_OnFire_Validate(EFireMode FireMode, FTransform SpawnTransform)
 }
 
 /////////////////////////////////////////////////////
-void AGun::Multicast_HandleMuzzleFlash_Implementation(bool bSpawnMuzzleFlash)
+void AGun::HandleMuzzleFlash_Multicast_Implementation(bool bSpawnMuzzleFlash)
 {
-	if(bSpawnMuzzleFlash)
-	{
-		if (_MuzzleFlash && _SpawnedMuzzleFlashComponent == nullptr)
-		{
-			_SpawnedMuzzleFlashComponent = UGameplayStatics::SpawnEmitterAttached(_MuzzleFlash, _Mesh, _MuzzleAttachPoint);
-		}
-	}
-	else
-	{
-		if (_SpawnedMuzzleFlashComponent)
-		{
-			_SpawnedMuzzleFlashComponent->DeactivateSystem();
-			_SpawnedMuzzleFlashComponent = nullptr;
-		}
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_PlayFireAnimation_Implementation()
-{
-	if (_FireAnimation)
-	{
-		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			AnimInstance->Montage_Play(_FireAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-		}
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_PlayFireSound_Implementation()
-{
-	if (_FireSound)
-	{
-		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
-		//UGameplayStatics::PlaySoundAtLocation(this, _FireSound, GetActorLocation());
-	}
-}
-
-/////////////////////////////////////////////////////
-void AGun::Multicast_SpawnEjectedShell_Implementation()
-{
-	if (_ShellEjectionPoint.IsValid() == false)
-	{
-		return;
-	}
-
-	const AProjectile* projectile = _LoadedMagazine->GetProjectileClass().GetDefaultObject();
-	if (projectile == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No default projectile object found."));
-		return;
-	}
-
-	const TSubclassOf<AActor> caseClass = projectile->GetProjectileCase();
-	if (caseClass)
-	{
-		const FTransform spawnTransform = GetMesh()->GetSocketTransform(_ShellEjectionPoint);
-		FActorSpawnParameters spawnParams = FActorSpawnParameters();
-		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		const AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);		
-		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
-		if (caseMesh)
-		{
-			const FTransform caseTransform = cartridgeCase->GetActorTransform();
-			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
-			caseMesh->AddImpulse(impulse);
-		}
-	}
+	HandleMuzzleFlash(bSpawnMuzzleFlash);
 }
 

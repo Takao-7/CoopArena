@@ -270,6 +270,11 @@ private:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void ApplyWeaponSpread(float DeltaSeconds);
 
+	void HandleMuzzleFlash(bool bSpawnMuzzleFlash);
+	void PlayFireAnimation();
+	void PlayFireSound();
+	void SpawnEjectedShell();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void OnFire();
@@ -300,6 +305,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
 	AMagazine* GetMagazine() const;
+
 
 	/////////////////////////////////////////////////////
 					/* Reloading */
@@ -390,6 +396,9 @@ private:
 	UFUNCTION()
 	void OnMagAttached();
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void PlayEffects_Multicast();
+
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RepMyOwner(AHumanoid* NewOwner);
 
@@ -405,16 +414,6 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayReloadAnimation();
 
-	/* Spawns or destroys the muzzle flash particle system. */
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_HandleMuzzleFlash(bool bSpawnMuzzleFlash);
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_PlayFireAnimation();
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_PlayFireSound();
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_SpawnEjectedShell();
+	UFUNCTION(NetMulticast, Reliable)
+	void HandleMuzzleFlash_Multicast(bool bSpawnMuzzleFlash);
 };

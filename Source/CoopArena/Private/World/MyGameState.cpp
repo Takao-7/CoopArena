@@ -13,6 +13,18 @@ int32 AMyGameState::GetTotalScore() const
 	return _TeamScore;
 }
 
+int32 AMyGameState::GetWaveNumber() const
+{
+	return _WaveNumber;
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::SetWaveNumber(int32 WaveNumber)
+{
+	_WaveNumber = WaveNumber;
+}
+
+/////////////////////////////////////////////////////
 void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
@@ -25,4 +37,5 @@ void AMyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMyGameState, _TeamScore);
+	DOREPLIFETIME(AMyGameState, _WaveNumber);
 }

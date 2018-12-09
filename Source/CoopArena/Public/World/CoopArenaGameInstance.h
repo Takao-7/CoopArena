@@ -92,7 +92,13 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Game Mode")
 	FOnSessionFound_Event OnSessionFound;
 
+	/**
+	 * Returns the number of connected players.
+	 * If there is no session, then we return -1.
+	 */
 	int32 GetNumberOfConnectedPlayers() const;
+
+	IOnlineSessionPtr GetSessionInterface() const;
 
 private:
 	IOnlineSessionPtr _SessionInterface;
@@ -100,6 +106,7 @@ private:
 
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 	bool _bWantsToSearchForGames;
+	bool _bWantsToCreateSession;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
