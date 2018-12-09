@@ -78,13 +78,13 @@ public:
 	float GetDamageWithFallOff() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
-	FORCEINLINE TSubclassOf<AActor> GetProjectileCase() const { return m_ProjectileCase; };
+	TSubclassOf<AActor> GetProjectileCase() const { return m_ProjectileCase; };
 	
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = Projectile)
-	FORCEINLINE FVector GetImpulse() const;
+	FVector GetImpulse() const;
 
 	/* When this projectile "hits" something. Will apply damage do the hit actor and destroy this projectile.
 	 * TODO: Add penetration functionality. */

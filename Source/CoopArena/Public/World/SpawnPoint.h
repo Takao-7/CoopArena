@@ -29,8 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Spawn point")
 	USphereComponent* GetSafeZone() const { return SafeZone; };
 
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-
+#endif
 	/**
 	 * Called when an instance of this class is placed (in editor) or spawned.
 	 * @param Transform The transform the actor was constructed at.

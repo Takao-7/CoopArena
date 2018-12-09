@@ -26,6 +26,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APaw
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
 
 
@@ -179,7 +180,7 @@ protected:
 	bool m_bToggleCrouching;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool m_bIsSprinting;
+	bool _bIsSprinting;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
 	bool m_bIsProne;
@@ -206,7 +207,7 @@ protected:
 
 
 	/////////////////////////////////////////////////////
-						/* Interaction */
+					/* Interaction */
 	/////////////////////////////////////////////////////
 public:
 	/* 
@@ -319,8 +320,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
 	FFireWeapon_Signature OnWeaponFire;
 
-	UPROPERTY(BlueprintAssignable, Category = "PlayerCharacter")
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
 	FOnFireModeChange_Signature OnFireModeChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
+	FOnWeaponEquipped_Signature OnWeaponEquipped;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -362,7 +366,7 @@ protected:
 	AGun* _EquippedWeapon;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = Humanoid)
-	bool m_bIsAiming;
+	bool _bIsAiming;
 
 private:
 	/* True if a component attached to this actor wants to prevent it from firing it's weapon. */

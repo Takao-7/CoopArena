@@ -2,10 +2,57 @@
 
 #include "World/MyGameState.h"
 #include "UnrealNetwork.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/Controller.h"
+#include "World/MyPlayerState.h"
 
+
+AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{ 
+	if (HasAuthority())
+	{
+		FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &AMyGameState::HandleOnPostLogin);
+		FGameModeEvents::GameModeLogoutEvent.AddUObject(this, &AMyGameState::HandleOnLogout);
+	}
+}
 
 /////////////////////////////////////////////////////
-AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) { }
+void AMyGameState::HandleOnPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer)
+{
+	AMyPlayerState* playerState = Cast<AMyPlayerState>(NewPlayer->PlayerState);
+	if (playerState)
+	{
+		playerState->RequestPlayerName_Client();
+	}
+}
+
+void AMyGameState::HandleOnLogout(AGameModeBase* GameMode, AController* Exiting)
+{
+	AMyPlayerState* playerState = Cast<AMyPlayerState>(Exiting);
+	if (playerState)
+	{
+		HandleOnLogout_Multicast(playerState);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::OnPostLogin_Multicast_Implementation(AMyPlayerState* NewPlayerState, const FString& PlayerName)
+{
+	/*
+	 * Set the player name only on clients. At this point the player name should be already set on the server, but
+	 * may not be replicated to this client, so we just set it here.
+	 */
+	if (HasAuthority() == false && NewPlayerState->GetPlayerName() != PlayerName)
+	{
+		NewPlayerState->SetPlayerName(PlayerName);
+	}
+	OnPlayerLogout.Broadcast(Cast<AMyPlayerState>(NewPlayerState));
+}
+
+void AMyGameState::HandleOnLogout_Multicast_Implementation(AMyPlayerState* PlayerState)
+{
+	OnPlayerLogout.Broadcast(PlayerState);
+}
 
 /////////////////////////////////////////////////////
 int32 AMyGameState::GetTotalScore() const

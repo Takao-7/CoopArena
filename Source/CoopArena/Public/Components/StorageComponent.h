@@ -48,7 +48,7 @@ public:
 		return FMath::Abs(changedAmount);
 	}
 
-	FORCEINLINE int32 GetStackSize() const	{ return stackSize;	}
+	int32 GetStackSize() const	{ return stackSize;	}
 
 private:
 	/* How many items are in this stack. */
@@ -168,10 +168,10 @@ public:
 
 	/* Returns a copy of the entire storage. */
 	UFUNCTION(BlueprintPure, Category = Storage)
-	FORCEINLINE TArray<FItemStack> GetStorageCopy() const;
+	TArray<FItemStack> GetStorageCopy() const;
 
 protected:
-	FORCEINLINE FItemStack* FindItem(FName ItemName);
+	FItemStack* FindItem(FName ItemName);
 
 
 	/////////////////////////////////////////////////////

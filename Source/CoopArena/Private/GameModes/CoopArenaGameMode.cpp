@@ -10,6 +10,8 @@
 #include "MyPlayerState.h"
 #include "MyPlayerController.h"
 #include "DefaultHUD.h"
+#include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
@@ -98,14 +100,15 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 /////////////////////////////////////////////////////
 void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	_playerControllers.AddUnique(NewPlayer);
 	Super::PostLogin(NewPlayer);
+	_playerControllers.AddUnique(NewPlayer);
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Player logged in"));
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
 {
-	_playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
 	Super::Logout(Exiting);
+	_playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
 }
 
 /////////////////////////////////////////////////////

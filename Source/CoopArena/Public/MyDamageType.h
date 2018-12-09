@@ -22,5 +22,5 @@ protected:
 
 public:
 	UFUNCTION(BlueprintPure, Category = Effects)
-	FORCEINLINE UParticleSystem* GetHitEffect(EPhysicalSurface Surface) const;
+	UParticleSystem* GetHitEffect(EPhysicalSurface Surface) const;
 };
