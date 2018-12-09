@@ -17,9 +17,6 @@ private:
 
 public:
 	ADeathmatch();
-	virtual void RegisterPlayer(APlayerController* Controller) override;	
 
 	void SetTeamName(AController* Controller);
-
-	virtual void RegisterBot(AController* Controller) override;
 };

@@ -74,25 +74,10 @@ Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-<<<<<<< HEAD
-Content/Static/._sync_30de15d1146c.db-shm
-Content/Static/._sync_30de15d1146c.db-wal
-Content/Static/._sync_30de15d1146c.db
-<<<<<<< HEAD
-*.db-shm
-=======
-=======
 
 # Temp  folder
 enc_temp_folder/*
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> master
->>>>>>> 17f86cef60dd7dd576fc030497f09716282c8ed8
-=======
-._sync*
->>>>>>> master
-=======
 
-Content/LargeFileSystem/*
->>>>>>> master
+Content/LargeFileSystem
+
+._*

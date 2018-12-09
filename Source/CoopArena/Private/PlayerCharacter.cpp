@@ -13,6 +13,7 @@
 #include "Gun.h"
 #include "CoopArena.h"
 #include "Camera/CameraComponent.h"
+#include "CoopArenaGameMode.h"
 
 
 /////////////////////////////////////////////////////
@@ -40,6 +41,8 @@ APlayerCharacter::APlayerCharacter()
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
 
 	m_IncrementVelocityAmount = 50.0f;
+
+	_TeamName = "Player Team";
 }
 
 /////////////////////////////////////////////////////
@@ -86,9 +89,34 @@ void APlayerCharacter::CheckForInteractables()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnEquipWeapon()
+void APlayerCharacter::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (HasAuthority())
+	{
+		ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+		gameMode->RegisterPlayerCharacter(this);
+
+		OnDestroyed.AddDynamic(this, &APlayerCharacter::HandleOnDestroy);
+	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::HandleOnDestroy(AActor* DestroyedActor)
+{
+	AGun* equippedGun = GetEquippedGun();
+	if(equippedGun)
+	{
+		equippedGun->Unequip(true, true);
+	}
+
+	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+	gameMode->UnregisterPlayerCharacter(this);
 }
 
 /////////////////////////////////////////////////////
@@ -119,9 +147,9 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		params.AddIgnoredActor((AActor*)m_EquippedWeapon);
+		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
@@ -219,19 +247,24 @@ void APlayerCharacter::OnChangeCameraPressed()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::ToggleAiming()
+void APlayerCharacter::OnAimingPressed()
 {
-	if (m_bIsAiming)
-	{
-		m_bIsAiming = false;
-		BASComponent->GetActorVariables().bIsAiming = false;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
-	}
-	else if (m_EquippedWeapon && !m_bIsSprinting)
+	if (_EquippedWeapon && !m_bIsSprinting)
 	{
 		m_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(m_EquippedWeapon, 0.2f);		
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+	}
+}
+
+void APlayerCharacter::OnAimingReleased()
+{
+	if (_EquippedWeapon && !m_bIsSprinting)
+	{
+		m_bIsAiming = false;
+		BASComponent->GetActorVariables().bIsAiming = false;
+		APlayerController* pc = Cast<APlayerController>(GetController());
+		pc->SetViewTargetWithBlend(pc->GetPawn(), 0.2f);
 	}
 }
 
@@ -244,7 +277,6 @@ void APlayerCharacter::OnBeginInteracting()
 	}
 }
 
-
 void APlayerCharacter::OnEndInteracting()
 {
 	if (_InteractableInFocus)
@@ -252,7 +284,6 @@ void APlayerCharacter::OnEndInteracting()
 		IInteractable::Execute_OnEndInteract(_ActorInFocus, this);
 	}
 }
-
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -285,12 +316,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::OnAimingPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::OnAimingReleased);
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnEquipWeapon);	
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
 
 	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
 	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
@@ -309,6 +340,13 @@ FVector APlayerCharacter::GetCameraLocation() const
 UCameraComponent* APlayerCharacter::GetActiveCamera() const
 {
 	return _FirstPersonCamera->IsActive() ? _FirstPersonCamera : _ThirdPersonCamera;
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::SetThirdPersonCameraToActive()
+{
+	_FirstPersonCamera->SetActive(false);
+	_ThirdPersonCamera->SetActive(true);
 }
 
 /////////////////////////////////////////////////////

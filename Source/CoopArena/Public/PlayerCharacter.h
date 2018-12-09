@@ -36,6 +36,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = PlayerCharacter)
 	UCameraComponent* GetFirstPersonCamera() { return _FirstPersonCamera; };
 
+	void SetThirdPersonCameraToActive();
+
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = PlayerCharacter)
 	UCameraComponent* _FirstPersonCamera;
@@ -49,9 +51,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = PlayerCharacter)
 	UCameraComponent* _LastCamera;
 
-	virtual void ToggleAiming() override;
+	virtual void OnHolsterWeapon() override;
 
-	virtual void OnEquipWeapon() override;
+	virtual void BeginPlay() override;
+
+private:
+	UFUNCTION()
+	void HandleOnDestroy(AActor* DestroyedActor);
 
 
 	/////////////////////////////////////////////////////
@@ -134,6 +140,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnChangeCameraPressed();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnAimingPressed();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnAimingReleased();
 
 
 	/////////////////////////////////////////////////////
