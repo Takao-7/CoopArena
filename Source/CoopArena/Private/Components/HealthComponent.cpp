@@ -23,7 +23,7 @@ UHealthComponent::UHealthComponent()
 }
 
 /////////////////////////////////////////////////////
-FORCEINLINE bool UHealthComponent::IsAlive() const
+bool UHealthComponent::IsAlive() const
 {
 	return !bAlreadyDied;
 }

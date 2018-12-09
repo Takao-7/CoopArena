@@ -87,7 +87,7 @@ void ARoundSurvivalGameMode::StartWave()
 	SpawnBots();
 	SetAttackTarget();
 	GetWorld()->GetTimerManager().SetTimer(_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, _WaveLength);
-	OnWaveStart.Broadcast();
+	OnWaveStart.Broadcast(_CurrentWaveNumber);
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has started.");
 	Broadcast(nullptr, text, NAME_Global);
@@ -97,7 +97,7 @@ void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
 	ReviveDeadPlayers();
-	OnWaveEnd.Broadcast();
+	OnWaveEnd.Broadcast(_CurrentWaveNumber);
 
 	FString text("Wave " + FString::FromInt(_CurrentWaveNumber) + " has ended.");
 	Broadcast(nullptr, text, NAME_Global);
@@ -248,22 +248,26 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	{
 		return;
 	}
-	
-	if(DeadPlayer->PlayerState)
+
+	APlayerState* playerState = DeadPlayer->PlayerState;
+	if(playerState)
 	{
-		AMyPlayerState* playerState = Cast<AMyPlayerState>(DeadPlayer->PlayerState);
-		ensureMsgf(playerState, TEXT("Player state does not derive from AMyPlayerState"));
-		playerState->AddDeath();
+		AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(playerState);
+		ensureMsgf(myPlayerState, TEXT("Player state does not derive from AMyPlayerState"));
+		myPlayerState->AddDeath();		
 	}
 
 	UnregisterPlayerCharacter(DeadPlayer);
-
+	
 	if (Killer && Killer->IsPlayerController())
 	{
 		AMyPlayerState* playerState_Killer = Cast<AMyPlayerState>(Killer->PlayerState);
-		playerState_Killer->ScorePoints(-_PointPenaltyForTeamKill, false);
+		if (playerState_Killer)
+		{
+			playerState_Killer->ScorePoints(-_PointPenaltyForTeamKill, false);
+		}
 	}
-
+	
 	_numPlayersAlive--;
 	if (_numPlayersAlive == 0)
 	{
