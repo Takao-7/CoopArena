@@ -692,7 +692,16 @@ AMagazine* AGun::GetMagazine() const
 /////////////////////////////////////////////////////
 void AGun::SetFireMode(EFireMode NewFireMode)
 {
-	_GunStats.FireModes.Find(NewFireMode);
+	const bool bHasFireMode = _GunStats.FireModes.Find(NewFireMode);
+	if (bHasFireMode)
+	{
+		_CurrentFireMode = NewFireMode;
+	}
+}
+
+EFireMode AGun::GetCurrentFireMode() const
+{
+	return _CurrentFireMode;
 }
 
 /////////////////////////////////////////////////////

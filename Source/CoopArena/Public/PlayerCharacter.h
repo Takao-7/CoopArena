@@ -59,6 +59,9 @@ private:
 	UFUNCTION()
 	void HandleOnDestroy(AActor* DestroyedActor);
 
+	UFUNCTION()
+	void HandleOnDeath(AActor* DeadActor, AController* ActorController, AController* Killer);
+
 
 	/////////////////////////////////////////////////////
 						/* Interaction */

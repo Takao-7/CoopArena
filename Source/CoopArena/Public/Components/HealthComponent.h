@@ -26,7 +26,7 @@ public:
 	 * @return true if alive, otherwise false
 	 */
 	UFUNCTION(BlueprintPure, Category = Health)
-	FORCEINLINE bool IsAlive() const;
+	bool IsAlive() const;
 
 	/* Kills the attached actor */
 	UFUNCTION(BlueprintCallable, Category = Health)

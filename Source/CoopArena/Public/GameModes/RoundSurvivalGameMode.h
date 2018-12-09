@@ -13,8 +13,8 @@ class AMyPlayerController;
 class ABot;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaveStart_Event);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaveEnd_Event);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart_Event, int32, WaveNumber);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveEnd_Event, int32, WaveNumber);
 
 
 UCLASS()

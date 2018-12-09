@@ -301,6 +301,9 @@ public:
 	void SetFireMode(EFireMode NewFireMode);
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
+	EFireMode GetCurrentFireMode() const;
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
 	float GetCooldownTime() const;
 
 	UFUNCTION(BlueprintPure, Category = Weapon)
