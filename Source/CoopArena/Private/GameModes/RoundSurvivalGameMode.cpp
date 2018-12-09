@@ -33,17 +33,22 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
-	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-	ensure(gameInstance);
-
-	const int32 numConnectedPlayers = gameInstance->GetNumberOfConnectedPlayers();
 	const int32 numPlayersOnMap = _playerControllers.Num();
+	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
 	return ((numPlayersOnMap == numConnectedPlayers) && numPlayersOnMap > 0) || numConnectedPlayers == -1;
 }
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 {
 	return _numPlayersAlive == 0;
+}
+
+/////////////////////////////////////////////////////
+int32 ARoundSurvivalGameMode::GetNumberOfConnectedPlayers()
+{
+	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	ensure(gameInstance);
+	return gameInstance->GetNumberOfConnectedPlayers();
 }
 
 /////////////////////////////////////////////////////
@@ -188,20 +193,18 @@ void ARoundSurvivalGameMode::SpawnBots()
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::CanSpawnBots()
 {
-	const float waveIncrease = _CurrentWaveNumber > 1 ? _CurrentWaveNumber * _WaveStrengthIncreaseFactor : 1;
-	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
-	bool bValidBotClasses = true;
+	bool bAllBotClassesAreValid = true;
 	for (TSubclassOf<ABot>& botClass : _BotsToSpawn)
 	{
 		if (botClass == nullptr)
 		{
-			bValidBotClasses = false;
+			bAllBotClassesAreValid = false;
 			break;
 		}
 	}
 
-	if (bValidBotClasses == false || numSpawnPoints == 0 || numBotsToSpawn == 0 || _BotsToSpawn.Num() == 0)
+	if (bAllBotClassesAreValid == false || numSpawnPoints == 0 || _BotsToSpawn.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No bot spawn points on the map or no bots to spawn."));
 		return false;

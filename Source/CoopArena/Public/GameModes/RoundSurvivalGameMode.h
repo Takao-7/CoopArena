@@ -110,6 +110,8 @@ private:
 
 	void ReviveDeadPlayers();
 
+	int32 GetNumberOfConnectedPlayers();
+
 	/* Is called when the OnBotDeath_Event is fired */
 	UFUNCTION()
 	void HandleBotDeath(AActor* DeadBot, AController* Killer);
