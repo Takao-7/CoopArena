@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "MyPlayerController.generated.h"
 
+class ADefaultHUD;
+
 /**
  * 
  */
@@ -16,7 +18,7 @@ class COOPARENA_API AMyPlayerController : public APlayerController
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Controller", meta = (DisplayName = "Class to respawn as"))
-	TSubclassOf<APlayerCharacter> m_ClassToRespawnAs;
+	TSubclassOf<APlayerCharacter> _ClassToRespawnAs;
 	
 public:
 	/**
@@ -29,10 +31,17 @@ public:
 
 	virtual void SetupInputComponent() override;
 
-	bool IsSpectating();
+	UFUNCTION(BlueprintPure, Category = "Player Controller")
+	bool IsSpectating() const;
 
 	const FVector& GetDeathLocation() const;
 	APlayerCharacter* GetLastPossessedCharacter();
+
+	virtual void ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime = 0) override;
+
+	virtual void Possess(APawn* aPawn) override;
+
+	ADefaultHUD* GetDefaultHUD() const;
 
 private:
 	UFUNCTION(Server, WithValidation, Reliable)
@@ -41,7 +50,6 @@ private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectatePreviousPlayer_Server();
 
-	FVector m_DeathLocation;	
-
-	APlayerCharacter* m_MyCharacter;
+	FVector _DeathLocation;	
+	APlayerCharacter* _MyCharacter;
 };

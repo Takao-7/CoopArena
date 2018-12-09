@@ -4,14 +4,17 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "CoopArenaGameMode.h"
+#include "UnrealNames.h"
 
 
 #define SETTING_MatchName FName("MatchName")
+const FName GAME_SESSION = FName(TEXT("GameSession"));
 
 
 UCoopArenaGameInstance::UCoopArenaGameInstance()
 {
 	_bWantsToSearchForGames = false;
+	_bWantsToCreateSession = false;
 }
 
 /////////////////////////////////////////////////////
@@ -23,12 +26,16 @@ void UCoopArenaGameInstance::CreateSession(FString MatchName /*= "My Match"*/)
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.Set(SETTING_MatchName, MatchName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	if (_SessionInterface->GetNamedSession(NAME_GameSession))
+	if (_SessionInterface->GetNamedSession(GAME_SESSION))
 	{
-		_SessionInterface->DestroySession(NAME_GameSession);
+		_bWantsToCreateSession = true;
+		_SessionInterface->DestroySession(GAME_SESSION);
 	}
-
-	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
+	else
+	{
+		_bWantsToCreateSession = false;
+		_SessionInterface->CreateSession(0, GAME_SESSION, sessionSettings);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -86,15 +93,32 @@ void UCoopArenaGameInstance::StartMatch(FName MapName /*= "Level4"*/)
 }
 
 /////////////////////////////////////////////////////
+int32 UCoopArenaGameInstance::GetNumberOfConnectedPlayers() const
+{
+	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(GAME_SESSION);
+	if (session == nullptr)
+	{
+		return -1;
+	}
+	const int32 maxPlayers = session->SessionSettings.NumPublicConnections;
+	return maxPlayers - session->NumOpenPublicConnections;
+}
+
+/////////////////////////////////////////////////////
+IOnlineSessionPtr UCoopArenaGameInstance::GetSessionInterface() const
+{
+	return _SessionInterface;
+}
+
+/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
-	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(NAME_GameSession);
-	session->OwningUserName = _PlayerName;
+	FNamedOnlineSession* session = _SessionInterface->GetNamedSession(GAME_SESSION);
 }
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)
 {
-	if (bSuccess)
+	if (bSuccess && _bWantsToCreateSession)
 	{
 		CreateSession();
 	}
@@ -144,5 +168,5 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex)
 {
 	ensureMsgf(_SessionSearch->SearchResults.IsValidIndex(SearchResultIndex), TEXT("The given index is not valid."));
-	_SessionInterface->JoinSession(0, NAME_GameSession, _SessionSearch->SearchResults[SearchResultIndex]);
+	_SessionInterface->JoinSession(0, GAME_SESSION, _SessionSearch->SearchResults[SearchResultIndex]);
 }

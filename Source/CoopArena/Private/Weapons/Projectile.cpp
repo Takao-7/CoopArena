@@ -68,11 +68,16 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		return;
 	}
 
+	UParticleSystem* hitEffect = nullptr;
+	USoundBase* impactSound = nullptr;
+
 	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());	
 	float damage = GetDamageWithFallOff();
 	if (material)
 	{
 		damage *= material->GetDamageMod();
+		hitEffect = material->GetImpactEffect();
+		impactSound = material->GetImpactSound();
 	}
 	else
 	{
@@ -88,22 +93,29 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		ApplyDamage_Multicast(OtherActor, damage, SweepResult);
 	}
 
-	UParticleSystem* hitEffect = nullptr;
-	if (_ProjectileValues.DamageType)
-	{
-		UMyDamageType* damageObj = Cast<UMyDamageType>(_ProjectileValues.DamageType->GetDefaultObject(true));
-		hitEffect = damageObj->GetHitEffect(UPhysicalMaterial::DetermineSurfaceType(material));
-	}
 	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
-	//SpawnHitEffect_Multicast(_DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
+	if (impactSound)
+	{
+		PlayImpactSound_Multicast(impactSound, OtherComp);
+	}
 	Destroy();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::PlayImpactSound_Multicast_Implementation(USoundBase* impactSound, UPrimitiveComponent* OtherComp)
+{
+	UGameplayStatics::SpawnSoundAttached(impactSound, OtherComp);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();	
-
+	UParticleSystemComponent* trailEffect = UGameplayStatics::SpawnEmitterAttached(_TrailEffect, Mesh);
+	if (trailEffect == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No trail effect spawned."));
+	}
 	_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
 	SetLifeSpan(_ProjectileValues.lifeTime);
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Structs/ItemStructs.h"
+#include "ItemBase.h"
 #include "StorageComponent.generated.h"
 
 

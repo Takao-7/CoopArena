@@ -51,6 +51,7 @@ AHumanoid::AHumanoid()
 	mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	mesh->SetGenerateOverlapEvents(true);
 	mesh->SetCollisionObjectType(ECC_PhysicsBody);
+	mesh->SetCustomDepthStencilValue(253);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 	Inventory = CreateDefaultSubobject<USimpleInventory>(TEXT("Inventory"));
@@ -73,6 +74,8 @@ AHumanoid::AHumanoid()
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
 	moveComp->MaxCustomMovementSpeed = 650.0f;
 	moveComp->MovementState.bCanCrouch = true;	
+
+	_bCanBeInteractedWith = false;
 }
 
 /////////////////////////////////////////////////////
@@ -80,10 +83,10 @@ void AHumanoid::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	ACoopArenaGameMode* gameMode =  Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
+	ACoopArenaGameMode* gameMode = Cast<ACoopArenaGameMode>(GetWorld()->GetAuthGameMode());
 	if (gameMode)
 	{
-		m_TeamName = gameMode->CheckForTeamTag(*NewController);
+		_TeamName = (IsPlayerControlled() ? gameMode->GetPlayerTeamName() : gameMode->GetBotTeamName()).ToString();
 	}
 }
 
@@ -102,7 +105,7 @@ void AHumanoid::Revive(bool bSpawnDefaultEquipment /*= false*/)
 /////////////////////////////////////////////////////
 AGun* AHumanoid::GetEquippedGun() const
 {
-	return m_EquippedWeapon;
+	return _EquippedWeapon;
 }
 
 /////////////////////////////////////////////////////
@@ -130,7 +133,7 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 /////////////////////////////////////////////////////
 void AHumanoid::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -144,6 +147,30 @@ void AHumanoid::BeginPlay()
 	{
 		SetUpDefaultEquipment();
 	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
+{
+	OnBeginInteract_Event.Broadcast(InteractingPawn, HitComponent);
+}
+
+UUserWidget* AHumanoid::OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent)
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	OnBeginLineTraceOver_Event.Broadcast(Pawn, HitComponent);
+	return _LineTraceOverUserWidget;
+}
+
+void AHumanoid::OnEndLineTraceOver_Implementation(APawn* Pawn)
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	OnEndLineTraceOver_Event.Broadcast(Pawn);
+}
+
+void AHumanoid::SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith)
+{
+	_bCanBeInteractedWith = bCanbeInteractedWith;
 }
 
 /////////////////////////////////////////////////////
@@ -185,17 +212,17 @@ bool AHumanoid::SetSprinting_Server_Validate(bool bWantsToSprint)
 /////////////////////////////////////////////////////
 void AHumanoid::FireEquippedWeapon()
 {
-	if (CanFire() && m_EquippedWeapon)
+	if (CanFire() && _EquippedWeapon)
 	{
-		m_EquippedWeapon->OnFire();
+		_EquippedWeapon->OnFire();
 	}
 }
 
 void AHumanoid::StopFireEquippedWeapon()
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		m_EquippedWeapon->OnStopFire();
+		_EquippedWeapon->OnStopFire();
 	}
 }
 
@@ -257,15 +284,15 @@ void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= t
 		}
 		else
 		{
-			m_WeaponToEquip = WeaponToEquip;
+			_WeaponToEquip = WeaponToEquip;
 			HandleWeaponEquip();
 		}
 	}
 	else
 	{
-		m_EquippedWeapon = WeaponToEquip;
-		m_EquippedWeapon->OnEquip(this);
-		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
+		_EquippedWeapon = WeaponToEquip;
+		_EquippedWeapon->OnEquip(this);
+		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
 	}	
 }
 
@@ -291,9 +318,9 @@ void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*
 /////////////////////////////////////////////////////
 void AHumanoid::SetEquippedWeaponFireMode(EFireMode NewFireMode)
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		m_EquippedWeapon->SetFireMode(NewFireMode);
+		_EquippedWeapon->SetFireMode(NewFireMode);
 	}
 }
 
@@ -387,18 +414,19 @@ void AHumanoid::ToggleJump()
 /////////////////////////////////////////////////////
 void AHumanoid::ReloadWeapon()
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		m_EquippedWeapon->Reload();
+		_EquippedWeapon->Reload();
 	}
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::ChangeWeaponFireMode()
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		m_EquippedWeapon->ToggleFireMode();
+		EFireMode newMode = _EquippedWeapon->ToggleFireMode();
+		OnFireModeChanged.Broadcast(this, newMode);
 	}
 }
 
@@ -498,6 +526,18 @@ bool AHumanoid::IsAiming() const
 }
 
 /////////////////////////////////////////////////////
+int32 AHumanoid::GetNumRoundsLeft()
+{
+	if (_EquippedWeapon == nullptr)
+	{
+		return 0;
+	}
+
+	AMagazine* magazine = _EquippedWeapon->GetMagazine();
+	return magazine ? magazine->RoundsLeft() : 0;	
+}
+
+/////////////////////////////////////////////////////
 void AHumanoid::GetWeaponSpawnTransform(FTransform& OutTransform)
 {
 	FVector location;
@@ -542,7 +582,7 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(AHumanoid, m_bIsSprinting);
 	DOREPLIFETIME(AHumanoid, m_bIsAiming);
 	DOREPLIFETIME(AHumanoid, m_bIsProne);
-	DOREPLIFETIME(AHumanoid, m_WeaponToEquip);
+	DOREPLIFETIME(AHumanoid, _WeaponToEquip);
 }
 
 /////////////////////////////////////////////////////
@@ -559,11 +599,11 @@ bool AHumanoid::EquipWeapon_Server_Validate(AGun* Gun)
 /////////////////////////////////////////////////////
 void AHumanoid::SetWeaponToEquip_Server_Implementation(AGun* Weapon)
 {
-	if (m_WeaponToEquip == Weapon)
+	if (_WeaponToEquip == Weapon)
 	{
-		m_WeaponToEquip = nullptr;
+		_WeaponToEquip = nullptr;
 	}
-	m_WeaponToEquip = Weapon;
+	_WeaponToEquip = Weapon;
 	HandleWeaponEquip();
 }
 
@@ -575,20 +615,20 @@ bool AHumanoid::SetWeaponToEquip_Server_Validate(AGun* Weapon)
 /////////////////////////////////////////////////////
 void AHumanoid::HandleWeaponEquip()
 {
-	if(m_WeaponToEquip)
+	if(_WeaponToEquip)
 	{
-		m_EquippedWeapon = m_WeaponToEquip;
-		m_EquippedWeapon->OnEquip(this);
-		BASComponent->GetActorVariables().EquippedWeaponType = m_EquippedWeapon->GetWeaponType();
+		_EquippedWeapon = _WeaponToEquip;
+		_EquippedWeapon->OnEquip(this);
+		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
 	}
 }
 
 void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
 {
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		m_EquippedWeapon->Unequip(bDropGun);
-		m_EquippedWeapon = nullptr;
+		_EquippedWeapon->Unequip(bDropGun);
+		_EquippedWeapon = nullptr;
 		BASComponent->GetActorVariables().EquippedWeaponType = EWEaponType::None;
 	}
 }
