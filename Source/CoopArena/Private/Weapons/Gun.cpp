@@ -54,9 +54,11 @@ AGun::AGun()
 	_BurstCount = 0;
 	_SalvoCount = 0;
 
-	m_VerticalSpreadToApply = 0.0f;
-	m_HorizontalSpreadToApply = 0.0f;
+	_VerticalSpreadToApply = 0.0f;
+	_HorizontalSpreadToApply = 0.0f;
 	_GunStats.KickbackSpeed = 10.0f;
+
+	_DespawnTime = 60.0f;
 
 	bReplicates = true;
 	bReplicateMovement = false;
@@ -67,7 +69,6 @@ AGun::AGun()
 void AGun::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	ApplyWeaponSpread(DeltaSeconds);
 }
 
@@ -162,22 +163,20 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 	{
 		if (bDropGun)
 		{
+			if (Instigator && !Instigator->IsPlayerControlled() || Instigator == nullptr)
+			{
+				StartRespawnTimer();
+			}
 			DetachMeshFromPawn();
 			SetOwningPawn(nullptr);
 			SetCanBeInteractedWith_Implementation(true);
-			if (HasAuthority())
-			{
-				SetReplicateMovement(true);
-			}
+			SetReplicateMovement(true);
 		}
 		else
 		{
 			_Mesh->SetSimulatePhysics(false);
 			_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-			if (HasAuthority())
-			{
-				SetReplicateMovement(false);
-			}
+			SetReplicateMovement(false);
 		}
 	}
 }
@@ -224,7 +223,7 @@ void AGun::OnFire()
 
 		if (CanRapidFire() && _CurrentGunState == EWeaponState::Firing)
 		{
-			GetWorld()->GetTimerManager().SetTimer(m_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
+			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
 		}
 
 		_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
@@ -275,14 +274,14 @@ void AGun::OnStopFire()
 /////////////////////////////////////////////////////
 void AGun::AddWeaponSpread()
 {
-	m_HorizontalSpreadToApply += FMath::RandRange(-_GunStats.SpreadHorizontal, _GunStats.SpreadHorizontal);
-	m_VerticalSpreadToApply += _GunStats.SpreadVertical;
+	_HorizontalSpreadToApply += FMath::RandRange(-_GunStats.SpreadHorizontal, _GunStats.SpreadHorizontal);
+	_VerticalSpreadToApply += _GunStats.SpreadVertical;
 	PrimaryActorTick.SetTickFunctionEnable(true);
 }
 
 void AGun::ApplyWeaponSpread(float DeltaSeconds)
 {
-	if ((m_VerticalSpreadToApply == 0.0f && m_HorizontalSpreadToApply == 0.0f) || _MyOwner == nullptr || (_MyOwner && _MyOwner->GetController() == nullptr))
+	if ((_VerticalSpreadToApply == 0.0f && _HorizontalSpreadToApply == 0.0f) || _MyOwner == nullptr || (_MyOwner && _MyOwner->GetController() == nullptr))
 	{
 		PrimaryActorTick.SetTickFunctionEnable(false);
 		return;
@@ -290,26 +289,26 @@ void AGun::ApplyWeaponSpread(float DeltaSeconds)
 	
 	FRotator newControlRotation = _MyOwner->GetControlRotation();
 
-	if (m_VerticalSpreadToApply)
+	if (_VerticalSpreadToApply)
 	{
 		const float currentPitch = newControlRotation.Pitch;
-		const float newPitch = FMath::FInterpTo(currentPitch, currentPitch + m_VerticalSpreadToApply, DeltaSeconds, _GunStats.KickbackSpeed);
-		m_VerticalSpreadToApply -= newPitch - currentPitch;
-		if (FMath::IsNearlyZero(m_VerticalSpreadToApply) || m_VerticalSpreadToApply < 0.0f)
+		const float newPitch = FMath::FInterpTo(currentPitch, currentPitch + _VerticalSpreadToApply, DeltaSeconds, _GunStats.KickbackSpeed);
+		_VerticalSpreadToApply -= newPitch - currentPitch;
+		if (FMath::IsNearlyZero(_VerticalSpreadToApply) || _VerticalSpreadToApply < 0.0f)
 		{
-			m_VerticalSpreadToApply = 0.0f;
+			_VerticalSpreadToApply = 0.0f;
 		}
 
 		newControlRotation.Pitch = newPitch;
 	}
-	if (m_HorizontalSpreadToApply)
+	if (_HorizontalSpreadToApply)
 	{
 		const float currentYaw = newControlRotation.Yaw;
-		const float newYaw = FMath::FInterpTo(currentYaw, currentYaw + m_HorizontalSpreadToApply, DeltaSeconds, _GunStats.KickbackSpeed);
-		m_HorizontalSpreadToApply -= newYaw - currentYaw;
-		if (FMath::IsNearlyZero(m_HorizontalSpreadToApply) || m_HorizontalSpreadToApply < 0.0f)
+		const float newYaw = FMath::FInterpTo(currentYaw, currentYaw + _HorizontalSpreadToApply, DeltaSeconds, _GunStats.KickbackSpeed);
+		_HorizontalSpreadToApply -= newYaw - currentYaw;
+		if (FMath::IsNearlyZero(_HorizontalSpreadToApply) || _HorizontalSpreadToApply < 0.0f)
 		{
-			m_HorizontalSpreadToApply = 0.0f;
+			_HorizontalSpreadToApply = 0.0f;
 		}
 
 		newControlRotation.Yaw = newYaw;
@@ -326,6 +325,11 @@ void AGun::SetOwningPawn(AHumanoid* NewOwner)
 		Instigator = NewOwner;
 		SetOwner(NewOwner);
 		_MyOwner = NewOwner;
+	}
+
+	if (NewOwner)
+	{
+		StopRespawnTimer();
 	}
 }
 
@@ -452,7 +456,7 @@ void AGun::OnAnimNotify_SpawnNewMag()
 		return;
 	}
 	
-	m_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
+	_ItemToGrab = SpawnNewMagazine(_MyOwner->GetItemOffset(false));
 	OnItemGrab();
 }
 
@@ -485,9 +489,9 @@ void AGun::Reload()
 /////////////////////////////////////////////////////
 void AGun::OnItemGrab()
 {
-	if (m_ItemToGrab)
+	if (_ItemToGrab)
 	{
-		_MyOwner->GrabItem(m_ItemToGrab, true);
+		_MyOwner->GrabItem(_ItemToGrab, true);
 		_LoadedMagazine = nullptr;
 	}
 }
@@ -495,9 +499,9 @@ void AGun::OnItemGrab()
 /////////////////////////////////////////////////////
 void AGun::OnMagAttached()
 {
-	if (m_MagToAttach)
+	if (_MagToAttach)
 	{
-		AttachMagazine(m_MagToAttach);
+		AttachMagazine(_MagToAttach);
 	}
 }
 
@@ -603,8 +607,8 @@ void AGun::FinishReloadWeapon()
 /////////////////////////////////////////////////////
 EFireMode AGun::ToggleFireMode()
 {
-	m_CurrentFireModePointer = (m_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
-	_CurrentFireMode = _GunStats.FireModes[m_CurrentFireModePointer];
+	_CurrentFireModePointer = (_CurrentFireModePointer + 1) % _GunStats.FireModes.Num();
+	_CurrentFireMode = _GunStats.FireModes[_CurrentFireModePointer];
 	return _CurrentFireMode;
 }
 
@@ -621,12 +625,23 @@ UCameraComponent* AGun::GetZoomCamera() const
 }
 
 /////////////////////////////////////////////////////
+void AGun::StartRespawnTimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(_DespawnTH, [&]() {Destroy(); }, _DespawnTime, false);
+}
+
+void AGun::StopRespawnTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(_DespawnTH);
+}
+
+/////////////////////////////////////////////////////
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
 	_CurrentFireMode = _GunStats.FireModes[0];
-	m_CurrentFireModePointer = 0;
+	_CurrentFireModePointer = 0;
 
 	if(HasAuthority())
 	{
@@ -637,8 +652,8 @@ void AGun::BeginPlay()
 		}
 		
 		FTransform spawnTransform = GetMesh()->GetSocketTransform("Magazine", RTS_World);
-		m_MagToAttach = SpawnNewMagazine(spawnTransform);
-		AttachMagazine(m_MagToAttach);
+		_MagToAttach = SpawnNewMagazine(spawnTransform);
+		AttachMagazine(_MagToAttach);
 	}
 }
 
@@ -823,8 +838,8 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AGun, m_ItemToGrab);
-	DOREPLIFETIME(AGun, m_MagToAttach);
+	DOREPLIFETIME(AGun, _ItemToGrab);
+	DOREPLIFETIME(AGun, _MagToAttach);
 }
 
 /////////////////////////////////////////////////////

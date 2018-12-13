@@ -44,33 +44,33 @@ struct FGunStats
 	* However, this value should NOT be <= 0.0f because then enemies will fire to quickly in single mode
 	* and player could abuse the single mode for rapid fire.
 	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float Cooldown;
 
 	/* The horizontal spread cone (random between +/- SpreadHorizontal), in degree, that will be applied after each shot. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float SpreadHorizontal;
 
 	/* Vertical spread (kickback), in degree, that will be applied after each shot. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float SpreadVertical;
 
 	/* How fast the spread (kickback) is applied */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float KickbackSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<EFireMode> FireModes;
 
 	/* If the weapon supports Burst mode, how many shots are fired in that mode. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	int32 ShotsPerBurst;
 
 	/* The magazine type this gun can use. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<AMagazine> UsableMagazineClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	EWEaponType WeaponType;
 
 	/**
@@ -78,7 +78,7 @@ struct FGunStats
 	* If there isn't any viable target in that range, the shoot will travel at a strait line
 	* from the barrel in the owner's view direction.
 	*/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float LineTraceRange;
 };
 
@@ -88,6 +88,7 @@ class COOPARENA_API AGun : public AItemBase
 {
 	GENERATED_BODY()
 	
+
 	/////////////////////////////////////////////////////
 					/* Parameters */
 	/////////////////////////////////////////////////////
@@ -136,32 +137,36 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* _EquipOffset;
 
+	/* The time, in seconds, after getting dropped by a NPC, that this weapon will get destroyed. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Despawn time"))
+	float _DespawnTime;
+
 
 	/////////////////////////////////////////////////////
 					/* Misc */
 	/////////////////////////////////////////////////////
 protected:
 	/* The owner's animation instance */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	UAnimInstance* _AnimInstance;
 
-	UPROPERTY(BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	bool _bCanShoot;	
 
 	/* The pawn that currently owns and carries this weapon */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	AHumanoid* _MyOwner;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	FVector GetForwardCameraVector() const;
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AttachMeshToPawn();
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void DetachMeshFromPawn();
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void SetOwningPawn(AHumanoid* NewOwner);
 
 	virtual void BeginPlay() override;
@@ -173,7 +178,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnEquip(AHumanoid* NewOwner);
 
 	/* Un-equip the gun. 
@@ -181,24 +186,25 @@ public:
 	 * otherwise it will be dropped.
 	 * @param bRequestMulticast If true, then the weapon will be un-equipped on the server and all clients
 	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Unequip(bool bDropGun = false, bool bRequestMulticast = true);
-
-private:
-	UFUNCTION(NetMulticast, Reliable)
-	void Unequip_Multicast(bool bDropGun);
-
-	UFUNCTION(Server, WithValidation, Reliable)
-	void Unequip_Server(bool bDropGun);
-
-public:
-	UFUNCTION(BlueprintPure, Category = Weapon)
-	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 	
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
+
 	virtual UMeshComponent* GetMesh() const override;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	UCameraComponent* GetZoomCamera() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void StartRespawnTimer();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void StopRespawnTimer();
+
+private:
+	FTimerHandle _DespawnTH;
 
 
 	/////////////////////////////////////////////////////
@@ -231,16 +237,16 @@ protected:
 	class UParticleSystemComponent* _SpawnedMuzzleFlashComponent;
 
 private:
-	FTimerHandle m_WeaponCooldownTH;
+	FTimerHandle _WeaponCooldownTH;
 
 	/* Used to set the new fire mode, when the player changes the fire mode. */
-	int32 m_CurrentFireModePointer;
+	int32 _CurrentFireModePointer;
 
 	/* If non-zero, this is the remaining vertical spread (kickback) to apply after the weapon was fired. */
-	float m_VerticalSpreadToApply;
+	float _VerticalSpreadToApply;
 
 	/* If non-zero, this is the remaining horizontal spread (kickback) to apply after the weapon was fired. */
-	float m_HorizontalSpreadToApply;
+	float _HorizontalSpreadToApply;
 
 	/**
 	* Adjusts the aim based on lineTraceRange.
@@ -255,19 +261,19 @@ private:
 	FVector AdjustAimRotation(FVector startLocation, FVector direction);
 
 	/** Function is called after the WeaponCooldownTimer is called and activated. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void ContinousOnFire();
 
 	/* Checks if the weapon is able to fire in an automatic mode (= holding Fire button results in continuous fire) */
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanRapidFire() const;
 	
 	/* Adds horizontal and vertical weapon spread to the variables 'm_HorizontalSpreadToApply' and 'm_VerticalSpreadToApply'. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AddWeaponSpread();
 
 	/* Applies the set weapon spread (see @AddWeaponSpread) to this gun's owners controller. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void ApplyWeaponSpread(float DeltaSeconds);
 
 	void HandleMuzzleFlash(bool bSpawnMuzzleFlash);
@@ -276,37 +282,37 @@ private:
 	void SpawnEjectedShell();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnFire();
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnStopFire();
 
 	/** Returns the number of rounds the weapon can fire each minute. */
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	float GetRoundsPerMinute() const;
 
 	/** Returns the muzzle sockets location in world space. */
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	FVector GetMuzzleLocation() const;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanShoot() const;
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	EFireMode ToggleFireMode();
 
 	/* Sets the fire mode to the given value. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void SetFireMode(EFireMode NewFireMode);
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	EFireMode GetCurrentFireMode() const;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	float GetCooldownTime() const;
 
-	UFUNCTION(BlueprintPure, Category = Weapon)
+	UFUNCTION(BlueprintPure, Category = "Weapon")
 	AMagazine* GetMagazine() const;
 
 
@@ -315,21 +321,21 @@ public:
 	/////////////////////////////////////////////////////
 protected:
 	/* The currently loaded magazine. */
-	UPROPERTY(BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	AMagazine* _LoadedMagazine;
 
 	/* Stops the reloading process by stop playing the reload animation. */
-	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = Weapon)
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Weapon")
 	void Multicast_StopReloading();
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void FinishReloadWeapon();
 
 	/**
 	 * [Server] Spawns a new magazine from the class that this weapon can use.
 	 * Does NOT attach it to anything.
 	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	AMagazine* SpawnNewMagazine(const FTransform& SpawnTransform);
 
 	/**
@@ -337,49 +343,49 @@ protected:
 	 * @return True if the magazine was successfully removed, e.g. there was a magazine in the inventory.
 	 * Otherwise false.
 	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool GetAmmoFromInventory();
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void DropMagazine();
 
 	/**
 	 * Attaches the given magazine to the gun at the correct location on the gun.
 	 */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AttachMagazine(AMagazine* Magazine);
 
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool CheckIfOwnerHasMagazine() const;
 
 public:
 	/* Will attach the loaded magazine to the character's hand. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_AttachMagToHand();
 
 	/* Drops the attached magazine. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_DropMagazine();
 
 	/* Checks if the owner has ammo to reload. If not, the reload animation will be stopped. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_CheckForAmmo();
 
 	/* Gets a new magazine from the inventory, spawns and attaches it to the character's hand. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_SpawnNewMag();
 
 	/* Attaches the currently held magazine to the gun. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_AttachMagToGun();
 
 	/* Sets the new weapon state. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnAnimNotify_FinishReloading();
 
 	/* Reloads the weapon. */
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Reload();
 
 
@@ -388,10 +394,10 @@ public:
 	/////////////////////////////////////////////////////
 private:
 	UPROPERTY(ReplicatedUsing = OnItemGrab)
-	AItemBase* m_ItemToGrab;
+	AItemBase* _ItemToGrab;
 
 	UPROPERTY(ReplicatedUsing = OnMagAttached)
-	AMagazine* m_MagToAttach;
+	AMagazine* _MagToAttach;
 	
 	UFUNCTION()
 	void OnItemGrab();
@@ -419,4 +425,11 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void HandleMuzzleFlash_Multicast(bool bSpawnMuzzleFlash);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Unequip_Multicast(bool bDropGun);
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void Unequip_Server(bool bDropGun);
+
 };
