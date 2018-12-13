@@ -44,7 +44,8 @@ void USimpleInventory::BeginPlay()
 		if (_bDropInventoryOnDeath)
 		{
 			UHealthComponent* healthComp =  Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
-			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death. "));
+			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death."));
+			
 			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::OnOwnerDeath);
 			_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::OnOwnerBeeingInteractedWith);
 		}
@@ -60,6 +61,7 @@ void USimpleInventory::BeginPlay()
 void USimpleInventory::SetupDefaultMagazines()
 {
 	ensureMsgf(GetOwner()->HasAuthority(), TEXT("This is a server function. Do not call this on clients."));
+	
 	for (auto magazine : _MagazinesToSpawnWith)
 	{
 		ensureMsgf(magazine.Key, TEXT("'%s' has a magazine in the 'Magazines to spawn with' array without a set class."), *GetOwner()->GetName());
@@ -70,6 +72,11 @@ void USimpleInventory::SetupDefaultMagazines()
 		const int32 value = maxMagazineCount < magazine.Value ? maxMagazineCount : magazine.Value;
 
 		_StoredMagazines.Add(FMagazineStack(key, value));
+
+		if (value == -1)
+		{
+			_MaxNumberOfMagazines.Add(key, value);
+		}
 	}
 }
 
@@ -141,13 +148,13 @@ void USimpleInventory::SetOwnerInteractable_Implementation(bool bCanBeInteracted
 void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 {
 	ensureMsgf(GetOwner()->HasAuthority(), TEXT("Only call this function as the server!"));
+
 	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory)
 	{
 		bool bIsEmpty = true;
 		for(FMagazineStack& magStack : _StoredMagazines)
 		{
-			int32 freeSpace = 0;
 			int32 stackSize = magStack.stackSize;
 			if (magStack.stackSize == -1)
 			{
@@ -155,7 +162,13 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 				magStack.stackSize = 0;
 			}
 			
+			int32 freeSpace;
 			const bool bHasRoom = inventory->HasSpaceForMagazine(magStack.magClass, freeSpace, stackSize);
+			if (freeSpace == -1)
+			{
+				continue;	// If the interacting character has an infinite amount of magazines for a type, then we don't add any more to the inventory.
+			}
+
 			if (bHasRoom)
 			{
 				inventory->AddMagazineToInventory(magStack.magClass, stackSize);
@@ -308,34 +321,39 @@ bool USimpleInventory::HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, 
 {
 	ensureMsgf(NumMagazinesToStore > 0, TEXT("The number of magazines to store in this inventory must be greater than 0"));
 
+	const int32 maxMagCount = GetMaxMagazineCountForType(MagazineType);
+	if (maxMagCount == -1)
+	{
+		Out_FreeSpace = -1;
+		return true;
+	}
+
 	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
 	const int32 numberOfMagsInInventory = magStack ? magStack->stackSize : 0;
 
-	const int32* maxNumMags_Pointer = _MaxNumberOfMagazines.Find(MagazineType);
-	const int32 maxNumberOfMagsInInventory = maxNumMags_Pointer ? *maxNumMags_Pointer : _DefaultMaxNumberOfMagazines;
-
-	if (_DefaultMaxNumberOfMagazines == -1)	// -1 = unlimited capacity
-	{
-		Out_FreeSpace = numberOfMagsInInventory;
-		return true;
-	}
-	else
-	{
-		Out_FreeSpace = FMath::Clamp(maxNumberOfMagsInInventory - numberOfMagsInInventory, 0, maxNumberOfMagsInInventory);
-		return numberOfMagsInInventory + NumMagazinesToStore <= maxNumberOfMagsInInventory;
-	}
+	Out_FreeSpace = maxMagCount - numberOfMagsInInventory;
+	return numberOfMagsInInventory + NumMagazinesToStore <= Out_FreeSpace;
 }
 
+bool USimpleInventory::HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const
+{
+	int32 freeSpace;
+	return HasSpaceForMagazine(MagazineType, freeSpace, NumMagazinesToStore);
+}
+
+/////////////////////////////////////////////////////
 bool USimpleInventory::HasMagazines(TSubclassOf<AMagazine> MagazineType, int32 NumMagazines /*= 1*/) const
 {
-	return GetNumberOfMagazinesForType(MagazineType) >= NumMagazines;
+	const int32 numMagazinesInInventory = GetNumberOfMagazinesForType(MagazineType);
+	const bool bHasInfiniteMagazines = numMagazinesInInventory == -1;
+
+	return bHasInfiniteMagazines || numMagazinesInInventory >= NumMagazines;
 }
 
 /////////////////////////////////////////////////////
 bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToStore /*= 1*/)
 {
-	int32 freeSpace = 0;
-	const bool bHasSpace = HasSpaceForMagazine(MagazineType, freeSpace, NumMagazinesToStore);
+	const bool bHasSpace = HasSpaceForMagazine(NumMagazinesToStore, MagazineType);
 	if (!bHasSpace)
 	{
 		return false;
@@ -344,7 +362,7 @@ bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineTyp
 	if (GetOwner()->HasAuthority())
 	{
 		FMagazineStack* magStack = FindMagazineStack(MagazineType);
-		if (magStack)
+		if (magStack && magStack->stackSize != -1)
 		{
 			magStack->stackSize += NumMagazinesToStore;
 		}

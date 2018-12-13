@@ -24,7 +24,10 @@ class COOPARENA_API USimpleInventory : public UActorComponent
 				/* Parameters & variables */
 	/////////////////////////////////////////////////////
 protected:
-	/* The maximum number of magazines, for each magazine type, that this inventory can hold */
+	/**
+	 * The maximum number of magazines, for each magazine type, that this inventory can hold 
+	 * Set to -1 for an unlimited amount of magazines for that type.
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory", meta = (DisplayName = "Maximum number of magazines"))
 	TMap<TSubclassOf<AMagazine>, int32> _MaxNumberOfMagazines;
 
@@ -85,7 +88,7 @@ public:
 	/////////////////////////////////////////////////////
 public:
 	/**
-	* Has this inventory enough space to store the given magazine?
+	* Has this inventory enough space to store the given magazine(s)?
 	* @param MagazineType The given magazine to look for
 	* @param Out_FreeSpace How many magazines we can actually store
 	* @param NumMagazinesToStore How many of the given magazine we want to check for
@@ -93,6 +96,14 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	bool HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, int32& Out_FreeSpace, int32 NumMagazinesToStore = 1) const;
+
+	/**
+	* Has this inventory enough space to store the given magazine(s)?
+	* @param NumMagazinesToStore How many of the given magazine we want to check for
+	* @param MagazineType The given magazine to look for
+	* @return True if we have enough space to store the given magazines
+	*/
+	bool HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const;
 
 	/* Has this inventory the given number of magazines? */
 	UFUNCTION(BlueprintPure, Category = "Inventory")
