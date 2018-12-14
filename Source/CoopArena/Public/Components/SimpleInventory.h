@@ -14,6 +14,9 @@
 class AHumanoid;
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHolsteringWeaponFinished_Signature);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class COOPARENA_API USimpleInventory : public UActorComponent
 {
@@ -195,6 +198,14 @@ public:
 	/* Called when a weapon holstering is in progress and the hand is over the holster. */
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnWeaponHolstering();
+
+	/* Returns the weapon at the given attach point index or nullptr if the index is not valid or there is no gun at that index.*/
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	AGun* GetGunAtAttachPoint(int32 AttachPointIndex);
+
+	FOnHolsteringWeaponFinished_Signature OnHolsteringWeaponFinished;
+
+	void SetAttachPointIndex(int32 Index);
 
 private:
 	/**

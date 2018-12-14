@@ -16,13 +16,13 @@ struct FWeaponAttachPoint
 	FWeaponAttachPoint()
 	{
 		bAllowedTypesAreWhiteList = true;
-		slotName = "NoName";
+		slotName = TEXT("NoName");
 	};
 
 	/**
 	 * Attaches the given weapon to this holster.
-	 * @param Weapon The weapon.
-	 * @param Actor The actor to attach the weapon to.
+	 * @param Weapon The weapon to attach. Must not be null.
+	 * @param Mesh The mesh to attach the weapon to. This should be the mesh that this attach point belongs to.
 	 * @return True if the weapon was successfully attached.
 	 */
 	bool AttachWeapon(AGun* Weapon, UMeshComponent* Mesh)
@@ -31,7 +31,7 @@ struct FWeaponAttachPoint
 
 		if (bCanAttach)
 		{
-			m_currentlyHeldWeapon = Weapon;
+			_CurrentlyHeldWeapon = Weapon;
 			Weapon->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);
 			return true;
 		}
@@ -43,28 +43,37 @@ struct FWeaponAttachPoint
 
 	/**
 	 * Can the given weapon be attached to this holster?
-	 * @return True if the given weapon is valid,
-	 * no weapon is currently held in this holster and
-	 * if the given weapon's type is allowed in this holster.
+	 * The given weapon must not be null.
+	 * @return True if the given weapon's type is allowed on this holster and we aren't holding any other weapon at the moment.
 	 */
 	bool CanAttachWeapon(AGun* Weapon) const
 	{
-		return Weapon && m_currentlyHeldWeapon == nullptr && (allowedWeaponTypes.Find(Weapon->GetWeaponType()) != INDEX_NONE);
+		check(Weapon);
+
+		bool bWeaponTypeIsAllowed;
+		if (bAllowedTypesAreWhiteList)
+		{
+			bWeaponTypeIsAllowed = allowedWeaponTypes.Find(Weapon->GetWeaponType()) != INDEX_NONE;
+		}
+		else
+		{
+			bWeaponTypeIsAllowed = allowedWeaponTypes.Find(Weapon->GetWeaponType()) == INDEX_NONE;
+		}
+
+		return bWeaponTypeIsAllowed && _CurrentlyHeldWeapon == nullptr;
 	}
 
 	/**
-	 * Removes the attached weapon.
-	 * @return The detached weapon. Nullptr if there wasn't any weapon attached to this holster.
+	 * Removes the attached weapon. Only call this function if there is a weapon attached to this attach point!
+	 * @return The detached weapon.
 	 */
 	AGun* DetachWeapon()
 	{
-		AGun* gunTemp = m_currentlyHeldWeapon;
-		if (gunTemp)
-		{
-			m_currentlyHeldWeapon = nullptr;
-			gunTemp->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		}
+		check(_CurrentlyHeldWeapon);
 
+		AGun* gunTemp = _CurrentlyHeldWeapon;
+		_CurrentlyHeldWeapon = nullptr;
+		gunTemp->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		return gunTemp;
 	}
 
@@ -72,11 +81,11 @@ struct FWeaponAttachPoint
 	 * Gets the attached weapon.
 	 * @return The attached weapon. Nullptr if there isn't any weapon attached to this holster.
 	 */
-	FORCEINLINE AGun* GetAttachedWeapon() const { return m_currentlyHeldWeapon; }
+	FORCEINLINE AGun* GetAttachedWeapon() const { return _CurrentlyHeldWeapon; }
 
 	FORCEINLINE bool operator==(const AGun* otherGun) const
 	{
-		return otherGun == m_currentlyHeldWeapon;
+		return otherGun == _CurrentlyHeldWeapon;
 	}
 
 	/* The socket on the owner's mesh to attach the held weapon to. */
@@ -100,5 +109,5 @@ struct FWeaponAttachPoint
 
 private:
 	UPROPERTY()
-	AGun* m_currentlyHeldWeapon;
+	AGun* _CurrentlyHeldWeapon;
 };

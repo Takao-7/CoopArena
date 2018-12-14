@@ -20,14 +20,16 @@ class USimpleInventory;
 class URespawnComponent;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndLineTraceOver_Signature, APawn*, Pawn);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
 
 UCLASS(abstract)
@@ -83,13 +85,13 @@ public:
 	UUserWidget* _LineTraceOverUserWidget;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FBeginInteract_Signature OnBeginInteract_Event;
+	FOnBeginInteract_Signature OnBeginInteract_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FBeginLineTraceOver_Signature OnBeginLineTraceOver_Event;
+	FOnBeginLineTraceOver_Signature OnBeginLineTraceOver_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FEndLineTraceOver_Signature OnEndLineTraceOver_Event;
+	FOnEndLineTraceOver_Signature OnEndLineTraceOver_Event;
 
 
 	/////////////////////////////////////////////////////
@@ -295,7 +297,7 @@ public:
 
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
-	FHolsterWeapon_Signature HolsterWeapon_Event;
+	FOnHolsterWeapon_Signature HolsterWeapon_Event;
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
@@ -314,11 +316,11 @@ public:
 
 	/* This event is called, when we have finished reloading our weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
-	FReloadFinished_Signature OnReloadFinished;
+	FOnReloadFinished_Signature OnReloadFinished;
 
 	/* This event is called each time we fire a weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
-	FFireWeapon_Signature OnWeaponFire;
+	FOnFireWeapon_Signature OnWeaponFire;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
 	FOnFireModeChange_Signature OnFireModeChanged;

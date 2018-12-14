@@ -212,6 +212,19 @@ void USimpleInventory::OnWeaponHolstering()
 }
 
 /////////////////////////////////////////////////////
+AGun* USimpleInventory::GetGunAtAttachPoint(int32 AttachPointIndex)
+{
+	const bool bValidIndex = _WeaponAttachPoints.IsValidIndex(AttachPointIndex);
+	return bValidIndex ? _WeaponAttachPoints[AttachPointIndex].GetAttachedWeapon() : nullptr;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::SetAttachPointIndex(int32 Index)
+{
+	_AttachPointIndex = Index;
+}
+
+/////////////////////////////////////////////////////
 void USimpleInventory::OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
 {
 	if (GetOwner()->HasAuthority() == false)

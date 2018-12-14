@@ -15,6 +15,7 @@
 #include "Camera/CameraComponent.h"
 #include "CoopArenaGameMode.h"
 #include "HealthComponent.h"
+#include "SimpleInventory.h"
 
 
 /////////////////////////////////////////////////////
@@ -279,6 +280,27 @@ void APlayerCharacter::OnAimingReleased()
 }
 
 /////////////////////////////////////////////////////
+void APlayerCharacter::OnSelectPrimaryWeapon()
+{
+	AGun* primaryGun = Inventory->GetGunAtAttachPoint(1);
+
+	if (_EquippedWeapon == nullptr && primaryGun)
+	{
+		HolsterWeapon_Event.Broadcast(primaryGun, 1);
+	}
+	else if (_EquippedWeapon && primaryGun)
+	{
+		
+		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+	}
+}
+
+void APlayerCharacter::OnSelectSecondaryWeapon()
+{
+
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
 	if (_InteractableInFocus)
@@ -328,15 +350,20 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::OnAimingPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::OnAimingReleased);
-	
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
-	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
 
 	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
 	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
+	
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
+
+	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
 
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
+
+	PlayerInputComponent->BindAction("SelectPrimaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectPrimaryWeapon);
+	PlayerInputComponent->BindAction("SelectSecondaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectSecondaryWeapon);
 }
 
 
