@@ -76,6 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void EndWave();
 
+	void SetPlayersHealthToMax();
+
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
 	FORCEINLINE int32 GetCurrentWaveNumber() const { return _CurrentWaveNumber; };
 	

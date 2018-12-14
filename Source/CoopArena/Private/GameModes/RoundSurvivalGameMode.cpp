@@ -101,6 +101,7 @@ void ARoundSurvivalGameMode::StartWave()
 void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
+	SetPlayersHealthToMax();
 	ReviveDeadPlayers();
 	OnWaveEnd.Broadcast(_CurrentWaveNumber);
 
@@ -111,6 +112,16 @@ void ARoundSurvivalGameMode::EndWave()
 	{
 		FTimerHandle timerHandle;
 		GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ARoundSurvivalGameMode::StartWave, _DelayBetweenWaves);
+	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::SetPlayersHealthToMax()
+{
+	for (APlayerCharacter* player : _playerCharactersAlive)
+	{
+		UHealthComponent* healthComp = Cast<UHealthComponent>(player->GetComponentByClass(UHealthComponent::StaticClass()));
+		healthComp->SetHealth(healthComp->GetMaxHealth());
 	}
 }
 
