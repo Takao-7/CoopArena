@@ -13,8 +13,8 @@
 
 class AHumanoid;
 
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHolsteringWeaponFinished_Signature);
+/* This event will be fired when the holstering animation is finished playing. */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteringWeaponFinished_Signature, AHumanoid*, Owner);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -215,7 +215,7 @@ private:
 	* If the value is < 0 we will search all attach points for a free, valid slot for the given gun.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
+	void HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
 
 	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
 	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
@@ -228,4 +228,6 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
 	void DetachAndEquipWeapon_Multicast(int32 AttachPointIndex);
+
+	FTimerHandle _MontageFinishedTH;
 };

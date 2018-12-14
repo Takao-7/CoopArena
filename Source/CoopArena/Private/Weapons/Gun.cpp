@@ -86,6 +86,13 @@ void AGun::SetUpMesh()
 	RootComponent = _Mesh;
 }
 
+/////////////////////////////////////////////////////
+void AGun::EquipSelf(AHumanoid* Target)
+{
+	USimpleInventory* inventory = Cast<USimpleInventory>(Target->GetComponentByClass(USimpleInventory::StaticClass()));
+	inventory->OnHolsteringWeaponFinished.RemoveDynamic(this, &AGun::EquipSelf);
+	Target->EquipWeapon(this);
+}
 
 /////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
@@ -96,13 +103,10 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			equippedGun->Unequip_Multicast(true);
+			humanoid->HolsterWeapon_Event.Broadcast(equippedGun, -1);
 
-			FTimerHandle timerHandle;
-			GetWorld()->GetTimerManager().SetTimer(timerHandle, ([this, humanoid]
-			{
-				humanoid->EquipWeapon(this);
-			}), 0.5f, false);
+			USimpleInventory* inventory = Cast<USimpleInventory>(humanoid->GetComponentByClass(USimpleInventory::StaticClass()));
+			inventory->OnHolsteringWeaponFinished.AddDynamic(this, &AGun::EquipSelf);
 		}
 		else
 		{

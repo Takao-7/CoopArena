@@ -21,14 +21,21 @@ class URespawnComponent;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndLineTraceOver_Signature, APawn*, Pawn);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+
+/* This event is called when we have equipped a weapon. */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
+
+/**
+ * This event will be called when we want to holster the given weapon at the attach point.
+ * The inventory should pick this up and handle the actual holstering.
+ */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
 
