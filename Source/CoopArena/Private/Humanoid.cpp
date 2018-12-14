@@ -355,12 +355,12 @@ void AHumanoid::MoveRight(float Value)
 /////////////////////////////////////////////////////
 void AHumanoid::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(Rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerYawInput(Rate * m_BaseTurnRate/* * GetWorld()->GetDeltaSeconds()*/);
 }
 
 void AHumanoid::LookUpAtRate(float Rate)
 {
-	AddControllerPitchInput(Rate * m_BaseTurnRate * GetWorld()->GetDeltaSeconds());	
+	AddControllerPitchInput(Rate * m_BaseTurnRate/* * GetWorld()->GetDeltaSeconds()*/);
 }
 
 /////////////////////////////////////////////////////

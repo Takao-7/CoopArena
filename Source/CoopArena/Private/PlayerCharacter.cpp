@@ -369,7 +369,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("SelectSecondaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectSecondaryWeapon);
 }
 
-
 /////////////////////////////////////////////////////
 FVector APlayerCharacter::GetCameraLocation() const
 {

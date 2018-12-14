@@ -28,6 +28,30 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	_PointPenaltyForTeamKill = 50;
 	_DelayBetweenWaves = 3.0f;
 	bDelayedStart = true;
+	_BotDespawnTime = 30.0f;
+	_bSpawnLocationLoaded = false;
+
+	if (_SpawnLocations.Num() == 0)
+	{
+		_SpawnLocations.Add(TEXT("SpawnPoints_North"));
+	}
+	_ChoosenSpawnLocation = _SpawnLocations[0];
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::OnSpawnLocationLoaded()
+{
+	FindSpawnPoints();
+
+	for (ASpawnPoint* spawnPoint : _spawnPoints)
+	{
+		if (spawnPoint->PlayerStartTag == _defaultBotTeam)
+		{
+			_BotSpawnPoints.AddUnique(spawnPoint);
+		}
+	}
+
+	_bSpawnLocationLoaded = true;
 }
 
 /////////////////////////////////////////////////////
@@ -35,7 +59,11 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
 	const int32 numPlayersOnMap = _playerControllers.Num();
 	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
-	return ((numPlayersOnMap == numConnectedPlayers) && numPlayersOnMap > 0) || numConnectedPlayers == -1;
+
+	const bool bIsSinglePlayer = GetNetMode() == ENetMode::NM_Standalone;
+	const bool bAllPlayersAreOnMap = numPlayersOnMap == numConnectedPlayers;
+
+	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
 }
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
@@ -56,23 +84,22 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
-	for (ASpawnPoint* spawnPoint : _spawnPoints)
-	{
-		if (spawnPoint->PlayerStartTag == _defaultBotTeam)
-		{
-			_BotSpawnPoints.AddUnique(spawnPoint);
-		}
-	}
-
 	BotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
 	PlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
+
+	FLatentActionInfo latentActionInfo;
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = TEXT("OnSpawnLocationLoaded");
+	latentActionInfo.Linkage = 0;
+	latentActionInfo.UUID = 0;
+	UGameplayStatics::LoadStreamLevel(GetWorld(), _ChoosenSpawnLocation, true, true, latentActionInfo);
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::StartMatch()
 {
 	Super::StartMatch();
-	if (CanSpawnBots())
+	if (CanSpawnBots() && _bSpawnLocationLoaded)
 	{
 		StartWave();
 	}
@@ -145,7 +172,7 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 {
 	for (AHumanoid* bot : _BotsDead)
 	{
-		bot->Destroy();
+		bot->SetLifeSpan(_BotDespawnTime);
 	}
 	_BotsDead.Empty(_BotsDead.Num() * 2);
 }

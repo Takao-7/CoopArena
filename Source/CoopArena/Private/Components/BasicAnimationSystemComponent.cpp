@@ -1,5 +1,6 @@
 #include "BasicAnimationSystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
 #include "Animation/AnimInstance.h"
@@ -28,16 +29,10 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
 
-	m_bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
-
-	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
-	if (m_bIsLocallyControlled)
-	{
-		OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::BroadcastJumpEvent_Server);
-	}
-	
+	SetIsLocallyControlled();
+	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);	
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 
@@ -48,23 +43,38 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	}
 	
 	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;
-	m_CapsuleHalfHeight = m_Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	m_CapsuleHalfHeight = _Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetIsLocallyControlled()
+{
+	if(_bIsLocallyControlled == false)
+	{
+		APawn* instigator = GetOwner()->GetInstigator();
+		_bIsLocallyControlled = instigator ? instigator->IsLocallyControlled() : false;
+
+		if (_bIsLocallyControlled)
+		{
+			OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::BroadcastJumpEvent_Server);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::FindAnimInstance()
 {
-	m_Owner = Cast<ACharacter>(GetOwner());
-	check(m_Owner);
+	_Owner = Cast<ACharacter>(GetOwner());
+	check(_Owner);
 
-	m_AnimInstance = m_Owner->GetMesh()->GetAnimInstance();
+	m_AnimInstance = _Owner->GetMesh()->GetAnimInstance();
 	check(m_AnimInstance);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::FindCharacterMovementComponent()
 {
-	m_MovementComponent = m_Owner->GetCharacterMovement();
+	m_MovementComponent = _Owner->GetCharacterMovement();
 	if (m_MovementComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("'%s' does not have a CharacterMovementComponent."), *GetOwner()->GetName());
@@ -115,13 +125,13 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementAdditive()
 {
-	m_Variables.MovementAdditive = m_Owner->bIsCrouched ? EMovementAdditive::Crouch : EMovementAdditive::None;
+	m_Variables.MovementAdditive = _Owner->bIsCrouched ? EMovementAdditive::Crouch : EMovementAdditive::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
-	if (!m_bIsLocallyControlled)
+	if (!_bIsLocallyControlled)
 	{
 		m_AimYawLastFrame = m_Variables.AimYaw;
 		m_Variables.AimYaw = m_AimYaw;
@@ -224,7 +234,7 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 void UBasicAnimationSystemComponent::DisableComponent(AActor* Actor, AController* Controller, AController* Killer)
 {
 	PrimaryComponentTick.SetTickFunctionEnable(false);
-	m_bIsLocallyControlled = false;
+	_bIsLocallyControlled = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -292,7 +302,7 @@ void UBasicAnimationSystemComponent::PlayJumpAnimation()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimPitch()
 {
-	if(m_bIsLocallyControlled)
+	if(_bIsLocallyControlled)
 	{
 		const APawn* instigator = GetOwner()->GetInstigator();
 		float controlPitch = instigator->GetControlRotation().Pitch;
@@ -384,7 +394,7 @@ bool UBasicAnimationSystemComponent::BroadcastJumpEvent_Server_Validate()
 
 void UBasicAnimationSystemComponent::BroadcastJumpEvent_Multicast_Implementation()
 {
-	if (!m_bIsLocallyControlled)
+	if (!_bIsLocallyControlled)
 	{
 		OnJumpEvent.Broadcast();
 	}

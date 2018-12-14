@@ -1,6 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -13,6 +11,7 @@ class UCharacterMovementComponent;
 class IBAS_Interface;
 class UAnimMontage;
 class UAnimInstance;
+class ACharacter;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJump_Signature);
@@ -29,9 +28,9 @@ struct FBASVariables
 
 	/**
 	 * The angle between the actor's rotation and the movement direction.
-	 * 0°: The actor is moving straight forward.
-	 * 90° / -90°: The actor is moving to the right / left.
-	 * +/- 180°: The actor is moving straight backwards.
+	 * 0Â°: The actor is moving straight forward.
+	 * 90Â° / -90Â°: The actor is moving to the right / left.
+	 * +/- 180Â°: The actor is moving straight backwards.
 	 */
 	UPROPERTY(BlueprintReadOnly)
 	float MovementDirection;
@@ -117,7 +116,7 @@ protected:
 
 private:
 	/* This components owner casted to ACharacter */
-	ACharacter* m_Owner;
+	ACharacter* _Owner;
 
 	/* The owner's capsule half height (unmodified). */
 	float m_CapsuleHalfHeight;
@@ -144,7 +143,7 @@ private:
 
 	bool m_bIsTurningRight;
 
-	bool m_bIsLocallyControlled;
+	bool _bIsLocallyControlled;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
 	UAnimMontage* m_TurnAnimationPlaying;
@@ -156,6 +155,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	void SetIsLocallyControlled();
+
 	UBasicAnimationSystemComponent();
 
 	/**
@@ -186,14 +187,14 @@ private:
 	void PlayJumpAnimation();
 
 	/**
-	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.
+	 * Maps the given angle to a range of +/- 180Â°, even if we are turning at the moment.
 	 * @param Angle The angle to map.
 	 * @return The mapped angle.
 	 */
 	float MapAngleTo180_Forced(float Angle);
 
 	/**
-	 * Maps the given angle to a range of +/- 180° if we are not turning at the moment.
+	 * Maps the given angle to a range of +/- 180Â° if we are not turning at the moment.
 	 * @param Angle The angle to map.
 	 * @return The mapped angle. If we are currently turning then this is the given, unmodified Angle.
 	 */
@@ -210,7 +211,7 @@ private:
 	/* Adds the curve delta value (value last frame - value this frame) to the given deltaYaw if a turn animation is playing. */
 	void AddCurveValueToYawWhenTurning(float& Yaw);
 
-	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
+	/* Checks if the absolute yaw angle is at least 90Â° and if so starts playing the turn animation montage. */
 	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
 	UFUNCTION()
