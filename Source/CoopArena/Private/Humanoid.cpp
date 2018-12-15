@@ -23,26 +23,21 @@ AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	m_BaseTurnRate = 45.f;
-	m_BaseLookUpRate = 45.f;
-
 	m_EquippedWeaponAttachPoint = "GripPoint";
 
 	m_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	m_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
 
-	_bIsSprinting = false;
-	m_bIsProne = false;
+	_bIsProne = false;
 	bIsCrouched = false;
 	_bIsAiming = false;
 
-	m_MaxForwardSpeed = 600.0f;
-	m_MaxCrouchingSpeed = 200.0f;
-	m_MaxBackwardsSpeed = 300.0f;
-	m_SprintingSpeedThreshold = 355.0f;
+	_Gait = EGait::Jogging;
 
-	m_bToggleProne = true;
-	m_bToggleCrouching = true;
+	_SprintingSpeed = 600.0f;
+	_JoggingSpeed = 450.0f;
+	_WalkingSpeed = 150.0f;
+	_MaxCrouchingSpeed = 200.0f;
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -65,13 +60,15 @@ AHumanoid::AHumanoid()
 	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	moveComp->JumpZVelocity = 300.0f;
 	moveComp->AirControl = 0.0f;
-	moveComp->MaxAcceleration = 600.0f;
+	moveComp->MaxAcceleration = 1000.0f;
+	moveComp->BrakingDecelerationWalking = 1000.0f;
+	moveComp->GroundFriction = 8.0f;
+	moveComp->BrakingFriction = 8.0f;
 	moveComp->CrouchedHalfHeight = 65.0f;
-	moveComp->MaxWalkSpeed = 200.0f;
-	moveComp->MaxWalkSpeedCrouched = 200.0f;
-	moveComp->BrakingDecelerationWalking = 400.0f;
+	moveComp->MaxWalkSpeed = _JoggingSpeed;
+	moveComp->MaxWalkSpeedCrouched = _MaxCrouchingSpeed;
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
-	moveComp->MaxCustomMovementSpeed = 650.0f;
+	moveComp->MaxCustomMovementSpeed = _SprintingSpeed;
 	moveComp->MovementState.bCanCrouch = true;	
 
 	_bCanBeInteractedWith = false;
@@ -140,8 +137,9 @@ void AHumanoid::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_MaxBackwardsSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	BASComponent->SetSprintingSpeedThreshold(m_SprintingSpeedThreshold);
+	BASComponent->SetSprintingSpeedThreshold(_JoggingSpeed + 10.0f);
+	GetCharacterMovement()->MaxWalkSpeed = _JoggingSpeed;
+
 	if (HasAuthority())
 	{
 		SetUpDefaultEquipment();
@@ -182,19 +180,18 @@ void AHumanoid::SetSprinting(bool bWantsToSprint)
 		{
 			ToggleAiming();
 		}
-		m_SpeedBeforeSprinting = GetCharacterMovement()->MaxWalkSpeed;
-		GetCharacterMovement()->MaxWalkSpeed = m_MaxForwardSpeed;
-		_bIsSprinting = true;
+		GetCharacterMovement()->MaxWalkSpeed = _SprintingSpeed;
+		_Gait = EGait::Sprinting;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = m_SpeedBeforeSprinting;
-		_bIsSprinting = false;
+		GetCharacterMovement()->MaxWalkSpeed = _JoggingSpeed;
+		_Gait = EGait::Jogging;
 	}
 
 	if (!HasAuthority())
 	{
-		SetSprinting_Server(_bIsSprinting);
+		SetSprinting_Server(bWantsToSprint);
 	}
 }
 
@@ -206,6 +203,21 @@ void AHumanoid::SetSprinting_Server_Implementation(bool bWantsToSprint)
 bool AHumanoid::SetSprinting_Server_Validate(bool bWantsToSprint)
 {
 	return true;
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::SetWalking(bool bWantsToWalk)
+{
+	if (bWantsToWalk)
+	{
+		_Gait = EGait::Walking;
+		GetCharacterMovement()->MaxWalkSpeed = _WalkingSpeed;
+	}
+	else
+	{
+		_Gait = EGait::Jogging;
+		GetCharacterMovement()->MaxWalkSpeed = _JoggingSpeed;
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -228,8 +240,8 @@ void AHumanoid::StopFireEquippedWeapon()
 /////////////////////////////////////////////////////
 void AHumanoid::SetVelocity(float NewVelocity)
 {
-	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(NewVelocity, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
-	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(NewVelocity, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
+	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(NewVelocity, -_JoggingSpeed, _SprintingSpeed);
+	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(NewVelocity, -_MaxCrouchingSpeed, _MaxCrouchingSpeed);
 	
 	if (!HasAuthority())
 	{
@@ -243,30 +255,6 @@ void AHumanoid::SetVelocity_Server_Implementation(float NewVelocity)
 }
 
 bool AHumanoid::SetVelocity_Server_Validate(float NewVelocity)
-{
-	return true;
-}
-
-void AHumanoid::IncrementVelocity(float Increment)
-{
-	float newMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed + Increment;
-	GetCharacterMovement()->MaxWalkSpeed = FMath::Clamp(newMaxWalkSpeed, -m_MaxBackwardsSpeed, m_MaxForwardSpeed);
-
-	float newMaxCrouchingSpeed = GetCharacterMovement()->MaxWalkSpeedCrouched + Increment;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = FMath::Clamp(newMaxCrouchingSpeed, -m_MaxCrouchingSpeed, m_MaxCrouchingSpeed);
-
-	if (!HasAuthority())
-	{
-		IncrementVelocity_Server(Increment);
-	}
-}
-
-void AHumanoid::IncrementVelocity_Server_Implementation(float Increment)
-{
-	IncrementVelocity(Increment);
-}
-
-bool AHumanoid::IncrementVelocity_Server_Validate(float Increment)
 {
 	return true;
 }
@@ -328,22 +316,27 @@ void AHumanoid::SetEquippedWeaponFireMode(EFireMode NewFireMode)
 /////////////////////////////////////////////////////
 void AHumanoid::MoveForward(float Value)
 {
-	if (Controller && Value != 0.0f)
+	if (Value == 0.0f || Controller == nullptr)
+	{
+		return;
+	}
+
+	if (Value < 0.0f && _Gait == EGait::Sprinting)
+	{
+		SetSprinting(false);
+	}
+	else
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0.0f;
 		const FVector Direction = Rotation.Vector();
 		AddMovementInput(Direction, Value);
 	}
-	else if (Value < 0.0f && _bIsSprinting)
-	{
-		SetSprinting(false);
-	}
 }
 
 void AHumanoid::MoveRight(float Value)
 {
-	if (Controller && Value != 0.0f && !_bIsSprinting)
+	if (Controller && Value != 0.0f && _Gait != EGait::Sprinting)
 	{
 		FRotator Rotation = Controller->GetControlRotation();
 		Rotation.Pitch = 0.0f;
@@ -353,26 +346,15 @@ void AHumanoid::MoveRight(float Value)
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::TurnAtRate(float Rate)
-{
-	AddControllerYawInput(Rate * m_BaseTurnRate/* * GetWorld()->GetDeltaSeconds()*/);
-}
-
-void AHumanoid::LookUpAtRate(float Rate)
-{
-	AddControllerPitchInput(Rate * m_BaseTurnRate/* * GetWorld()->GetDeltaSeconds()*/);
-}
-
-/////////////////////////////////////////////////////
 void AHumanoid::SetProne(bool bProne)
 {
-	m_bIsProne = bProne;
+	_bIsProne = bProne;
 }
 
 /////////////////////////////////////////////////////
 void AHumanoid::ToggleAiming()
 {
-	if (!_bIsSprinting)
+	if (_Gait != EGait::Sprinting)
 	{
 		_bIsAiming = !_bIsAiming;
 		BASComponent->GetActorVariables().bIsAiming = _bIsAiming;
@@ -477,7 +459,7 @@ AItemBase* AHumanoid::DropItem()
 /////////////////////////////////////////////////////
 bool AHumanoid::CanFire() const
 {
-	return !_bIsSprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
+	return _Gait != EGait::Sprinting && GetCharacterMovement()->IsMovingOnGround() && !m_bComponentBlocksFiring;
 }
 
 /////////////////////////////////////////////////////
@@ -580,9 +562,9 @@ void AHumanoid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHumanoid, _bIsSprinting);
+	DOREPLIFETIME(AHumanoid, _Gait);
 	DOREPLIFETIME(AHumanoid, _bIsAiming);
-	DOREPLIFETIME(AHumanoid, m_bIsProne);
+	DOREPLIFETIME(AHumanoid, _bIsProne);
 	DOREPLIFETIME(AHumanoid, _WeaponToEquip);
 }
 
@@ -639,12 +621,6 @@ void AHumanoid::HandleWeaponUnEquip(bool bDropGun)
 void AHumanoid::HandleWeaponUnEquip_Multicast_Implementation(bool bDropGun)
 {
 	HandleWeaponUnEquip(bDropGun);
-}
-
-/////////////////////////////////////////////////////
-void AHumanoid::OnRep_bIsSprining()
-{
-	GetCharacterMovement()->MaxWalkSpeed = _bIsSprinting ? m_MaxForwardSpeed : m_SpeedBeforeSprinting;
 }
 
 /////////////////////////////////////////////////////

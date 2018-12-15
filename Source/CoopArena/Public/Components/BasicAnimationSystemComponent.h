@@ -136,7 +136,11 @@ private:
 
 	/* Our aim yaw value. Identically to m_variables.AimYaw. Used for replication. */
 	UPROPERTY(Replicated)
-	float m_AimYaw;
+	float _AimYaw;
+
+	/* Our movement direction. Identically to _Variables.MovementDirection. Used for replication. */
+	UPROPERTY(Replicated)
+	float _Direction;
 
 	/* True if the turn animation montage is playing and the curve 'DistanceCurve' had at least one value. */
 	bool m_bTurnCurveIsPlaying;
@@ -229,7 +233,7 @@ private:
 	void SetAimPitch_Multicast(float AimPitch);
 
 	UFUNCTION(Server, WithValidation, Unreliable)
-	void ReplicateAimYaw_Server(float AimYaw);
+	void ReplicateYawAndDirection_Server(float AimYaw, float Direction);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void BroadcastJumpEvent_Multicast();

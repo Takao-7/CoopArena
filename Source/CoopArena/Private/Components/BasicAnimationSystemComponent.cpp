@@ -13,7 +13,6 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	bReplicates = true;
-	bAutoActivate = true;
 
 	m_TurnSpeed = 10.0f;
 
@@ -134,7 +133,8 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 	if (!_bIsLocallyControlled)
 	{
 		m_AimYawLastFrame = m_Variables.AimYaw;
-		m_Variables.AimYaw = m_AimYaw;
+		m_Variables.AimYaw = _AimYaw;
+		m_Variables.MovementDirection = _Direction;
 		CheckWhetherToPlayTurnAnimation(DeltaTime, m_Variables.AimYaw);
 		CheckIfTurnAnimFinished();
 		return;
@@ -152,6 +152,8 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 		AddCurveValueToYawWhenTurning(newAimYaw);
 
 		m_Variables.AimYaw = MapAngleTo180(newAimYaw);
+
+		m_Variables.MovementDirection = FMath::FInterpTo(m_Variables.MovementDirection, 0.0f, DeltaTime, m_TurnSpeed);
 	}
 	else
 	{
@@ -161,8 +163,10 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 		const FTransform actorTransform = GetOwner()->GetActorTransform();
 		yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
-		const float newAimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);
-		m_Variables.AimYaw = MapAngleTo180(newAimYaw);
+		const float direction = FMath::FInterpTo(m_Variables.MovementDirection, yawDelta, DeltaTime, m_TurnSpeed);
+		m_Variables.MovementDirection = MapAngleTo180(direction);
+
+		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, 0.0f, DeltaTime, m_TurnSpeed);
 	}
 
 	m_ActorYawLastFrame = actorRotation.Yaw;
@@ -170,11 +174,12 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 	if (GetOwner()->HasAuthority() == false)
 	{
-		ReplicateAimYaw_Server(m_Variables.AimYaw);
+		ReplicateYawAndDirection_Server(m_Variables.AimYaw, m_Variables.MovementDirection);
 	}
 	else
 	{
-		m_AimYaw = m_Variables.AimYaw;
+		_AimYaw = m_Variables.AimYaw;
+		_Direction = m_Variables.MovementDirection;
 	}
 
 	CheckIfTurnAnimFinished();
@@ -371,12 +376,13 @@ void UBasicAnimationSystemComponent::SetSprintingSpeedThreshold(float SprintingS
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Implementation(float AimYaw)
+void UBasicAnimationSystemComponent::ReplicateYawAndDirection_Server_Implementation(float AimYaw, float Direction)
 {
-	m_AimYaw = AimYaw;
+	_AimYaw = AimYaw;
+	_Direction = Direction;
 }
 
-bool UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Validate(float AimYaw)
+bool UBasicAnimationSystemComponent::ReplicateYawAndDirection_Server_Validate(float AimYaw, float Direction)
 {
 	return true;
 }
@@ -405,5 +411,6 @@ void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, m_AimYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, _AimYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, _Direction, COND_SkipOwner);
 }

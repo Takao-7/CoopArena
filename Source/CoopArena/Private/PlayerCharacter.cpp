@@ -23,6 +23,12 @@ APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	_BaseTurnRate = 0.5f;
+	_BaseLookUpRate = 0.5f;
+
+	_bToggleProne = true;
+	_bToggleCrouching = true;
+
 	_InteractionRange = 200.0f;
 	_InteractableInFocus = nullptr;
 
@@ -42,8 +48,6 @@ APlayerCharacter::APlayerCharacter()
 	_ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
 	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
 
-	m_IncrementVelocityAmount = 50.0f;
-
 	_TeamName = "Player Team";
 }
 
@@ -56,6 +60,17 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		CheckForInteractables();
 	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::TurnAtRate(float Rate)
+{
+	AddControllerYawInput(Rate * _BaseTurnRate);
+}
+
+void APlayerCharacter::LookUpAtRate(float Rate)
+{
+	AddControllerPitchInput(Rate * _BaseTurnRate);
 }
 
 /////////////////////////////////////////////////////
@@ -168,32 +183,61 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnPronePressed()
 {
-	if (m_bToggleProne)
+	if (_bToggleProne)
 	{
-		m_bIsProne = !m_bIsProne;
+		_bIsProne = !_bIsProne;
 	}
 	else
 	{
-		m_bIsProne = true;
+		_bIsProne = true;
 	}
 }
 
 void APlayerCharacter::OnProneReleased()
 {
-	if (!m_bToggleProne)
+	if (!_bToggleProne)
 	{
-		m_bIsProne = false;
+		_bIsProne = false;
+	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::OnWalkPressed()
+{
+	if (_bToggleWalking)
+	{
+		if (_Gait == EGait::Walking)
+		{
+			SetWalking(false);
+		}
+		else
+		{
+			SetWalking(true);
+		}
+	}
+	else
+	{
+		SetWalking(true);
+	}
+}
+
+void APlayerCharacter::OnWalkReleased()
+{
+	if (!_bToggleWalking)
+	{
+		SetWalking(false);
 	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnSprintPressed()
 {
-	if (m_bToggleSprinting)
+	if (_bToggleSprinting)
 	{
-		SetSprinting(!_bIsSprinting);
+		const bool bIsSprinting = _Gait == EGait::Sprinting;
+		SetSprinting(!bIsSprinting);
 	}
-	else if (!_bIsSprinting)
+	else if (_Gait != EGait::Sprinting)
 	{
 		SetSprinting(true);
 	}
@@ -201,7 +245,7 @@ void APlayerCharacter::OnSprintPressed()
 
 void APlayerCharacter::OnSprintReleased()
 {
-	if (!m_bToggleSprinting)
+	if (!_bToggleSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -210,7 +254,7 @@ void APlayerCharacter::OnSprintReleased()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnCrouchPressed()
 {
-	if (m_bToggleCrouching)
+	if (_bToggleCrouching)
 	{
 		SetCrouch(!bIsCrouched);
 	}
@@ -223,22 +267,11 @@ void APlayerCharacter::OnCrouchPressed()
 
 void APlayerCharacter::OnCrouchReleased()
 {
-	if (!m_bToggleCrouching)
+	if (!_bToggleCrouching)
 	{
 		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
 	}
-}
-
-/////////////////////////////////////////////////////
-void APlayerCharacter::OnIncreaseVelocity()
-{
-	IncrementVelocity(m_IncrementVelocityAmount);
-}
-
-void APlayerCharacter::OnDecreaseVelocity()
-{
-	IncrementVelocity(-m_IncrementVelocityAmount);
 }
 
 /////////////////////////////////////////////////////
@@ -260,7 +293,7 @@ void APlayerCharacter::OnChangeCameraPressed()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnAimingPressed()
 {
-	if (_EquippedWeapon && !_bIsSprinting)
+	if (_EquippedWeapon && _Gait != EGait::Sprinting)
 	{
 		_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
@@ -270,7 +303,7 @@ void APlayerCharacter::OnAimingPressed()
 
 void APlayerCharacter::OnAimingReleased()
 {
-	if (_EquippedWeapon && !_bIsSprinting)
+	if (_EquippedWeapon && _Gait != EGait::Sprinting)
 	{
 		_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
@@ -348,14 +381,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::OnSprintPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::OnSprintReleased);
 
+	PlayerInputComponent->BindAction("Walk", IE_Pressed, this, &APlayerCharacter::OnWalkPressed);
+	PlayerInputComponent->BindAction("Walk", IE_Released, this, &APlayerCharacter::OnWalkReleased);
+
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::OnAimingPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::OnAimingReleased);
-
-	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
-	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
 

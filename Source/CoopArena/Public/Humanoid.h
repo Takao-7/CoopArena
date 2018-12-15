@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "Interfaces/Interactable.h"
 #include "Enums/WeaponEnums.h"
+#include "Enums/BAS_Enums.h"
 #include "Humanoid.generated.h"
 
 
@@ -129,13 +130,6 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
 	void SetVelocity_Server(float NewVelocity);
 
-	/* Increments the character's velocity by the given value. Will clamp the new velocity to the allowed range. */
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void IncrementVelocity(float Increment);
-
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
-	void IncrementVelocity_Server(float Increment);
-
 protected:
 	/** Handles moving forward/backward */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -145,20 +139,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void MoveRight(float value);
 
-	/**
-	* Called via input to turn at a given rate.
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void TurnAtRate(float value);
-
-	/**
-	* Called via input to turn look up/down at a given rate.
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void LookUpAtRate(float value);
-
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetProne(bool bProne);
 
@@ -166,53 +146,32 @@ protected:
 	void SetSprinting(bool bWantsToSprint);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetWalking(bool bWantsToWalk);
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetCrouch(bool bCrouch);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ToggleJump();
 
-	/** Base turn rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base turn rate"))
-	float m_BaseTurnRate;
-
-	/** Base look up/down rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base Look up rate"))
-	float m_BaseLookUpRate;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle prone"))
-	bool m_bToggleProne;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle sprinting"))
-	bool m_bToggleSprinting;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle crouching"))
-	bool m_bToggleCrouching;
-
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool _bIsSprinting;
+	bool _bIsProne;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool m_bIsProne;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed"))
+	float _SprintingSpeed;
 
-	/* The maximum speed at which this character can move forwards. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max forward speed"))
-	float m_MaxForwardSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Jogging speed"))
+	float _JoggingSpeed;
 
-	/* If the character's speed is greater than this, he is sprinting. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed threshold"))
-	float m_SprintingSpeedThreshold;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Walking speed"))
+	float _WalkingSpeed;
 
 	/* The maximum velocity, in cm/s, at which the character can crouch (forward and backward).  */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
-	float m_MaxCrouchingSpeed;
+	float _MaxCrouchingSpeed;
 
-	/* The maximum speed at which the character can move backwards. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max backwards speed"))
-	float m_MaxBackwardsSpeed;
-
-	/* The character's speed before he started sprinting. */
-	UPROPERTY(Replicated)
-	float m_SpeedBeforeSprinting;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Humanoid")
+	EGait _Gait;
 
 
 	/////////////////////////////////////////////////////
@@ -419,9 +378,6 @@ private:
 	/* Handles the actual weapon un-equipping. */
 	UFUNCTION(NetMulticast, Reliable)
 	void HandleWeaponUnEquip_Multicast(bool bDropGun);
-
-	UFUNCTION()
-	void OnRep_bIsSprining();
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void UnequipWeapon_Server(bool bDropGun);
