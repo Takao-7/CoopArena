@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "Interfaces/Interactable.h"
 #include "Enums/WeaponEnums.h"
+#include "Enums/BAS_Enums.h"
 #include "Humanoid.generated.h"
 
 
@@ -20,14 +21,23 @@ class USimpleInventory;
 class URespawnComponent;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEndLineTraceOver_Signature, APawn*, Pawn);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginInteract_Signature, APawn*, InteractingPawn, UPrimitiveComponent*, HitComponent);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBeginLineTraceOver_Signature, APawn*, Pawn, UPrimitiveComponent*, HitComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndLineTraceOver_Signature, APawn*, Pawn);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReloadFinished_Signature, AHumanoid*, Character, AGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireWeapon_Signature, AHumanoid*, Character, AGun*, Gun);
+
+/* This event is called when we have equipped a weapon. */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
+
+/**
+ * This event will be called when we want to holster the given weapon at the attach point.
+ * The inventory should pick this up and handle the actual holstering.
+ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
 
 UCLASS(abstract)
@@ -83,13 +93,13 @@ public:
 	UUserWidget* _LineTraceOverUserWidget;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FBeginInteract_Signature OnBeginInteract_Event;
+	FOnBeginInteract_Signature OnBeginInteract_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FBeginLineTraceOver_Signature OnBeginLineTraceOver_Event;
+	FOnBeginLineTraceOver_Signature OnBeginLineTraceOver_Event;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid|Interactable")
-	FEndLineTraceOver_Signature OnEndLineTraceOver_Event;
+	FOnEndLineTraceOver_Signature OnEndLineTraceOver_Event;
 
 
 	/////////////////////////////////////////////////////
@@ -120,13 +130,6 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
 	void SetVelocity_Server(float NewVelocity);
 
-	/* Increments the character's velocity by the given value. Will clamp the new velocity to the allowed range. */
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void IncrementVelocity(float Increment);
-
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation, Category = Humanoid)
-	void IncrementVelocity_Server(float Increment);
-
 protected:
 	/** Handles moving forward/backward */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -136,20 +139,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	virtual void MoveRight(float value);
 
-	/**
-	* Called via input to turn at a given rate.
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void TurnAtRate(float value);
-
-	/**
-	* Called via input to turn look up/down at a given rate.
-	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void LookUpAtRate(float value);
-
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetProne(bool bProne);
 
@@ -157,53 +146,32 @@ protected:
 	void SetSprinting(bool bWantsToSprint);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void SetWalking(bool bWantsToWalk);
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetCrouch(bool bCrouch);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ToggleJump();
 
-	/** Base turn rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base turn rate"))
-	float m_BaseTurnRate;
-
-	/** Base look up/down rate, in deg/sec */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Base Look up rate"))
-	float m_BaseLookUpRate;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle prone"))
-	bool m_bToggleProne;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle sprinting"))
-	bool m_bToggleSprinting;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Toggle crouching"))
-	bool m_bToggleCrouching;
-
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool _bIsSprinting;
+	bool _bIsProne;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
-	bool m_bIsProne;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed"))
+	float _SprintingSpeed;
 
-	/* The maximum speed at which this character can move forwards. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max forward speed"))
-	float m_MaxForwardSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Jogging speed"))
+	float _JoggingSpeed;
 
-	/* If the character's speed is greater than this, he is sprinting. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed threshold"))
-	float m_SprintingSpeedThreshold;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Walking speed"))
+	float _WalkingSpeed;
 
 	/* The maximum velocity, in cm/s, at which the character can crouch (forward and backward).  */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
-	float m_MaxCrouchingSpeed;
+	float _MaxCrouchingSpeed;
 
-	/* The maximum speed at which the character can move backwards. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max backwards speed"))
-	float m_MaxBackwardsSpeed;
-
-	/* The character's speed before he started sprinting. */
-	UPROPERTY(Replicated)
-	float m_SpeedBeforeSprinting;
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Humanoid")
+	EGait _Gait;
 
 
 	/////////////////////////////////////////////////////
@@ -295,7 +263,7 @@ public:
 
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
-	FHolsterWeapon_Signature HolsterWeapon_Event;
+	FOnHolsterWeapon_Signature HolsterWeapon_Event;
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
@@ -314,11 +282,11 @@ public:
 
 	/* This event is called, when we have finished reloading our weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
-	FReloadFinished_Signature OnReloadFinished;
+	FOnReloadFinished_Signature OnReloadFinished;
 
 	/* This event is called each time we fire a weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
-	FFireWeapon_Signature OnWeaponFire;
+	FOnFireWeapon_Signature OnWeaponFire;
 
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
 	FOnFireModeChange_Signature OnFireModeChanged;
@@ -410,9 +378,6 @@ private:
 	/* Handles the actual weapon un-equipping. */
 	UFUNCTION(NetMulticast, Reliable)
 	void HandleWeaponUnEquip_Multicast(bool bDropGun);
-
-	UFUNCTION()
-	void OnRep_bIsSprining();
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void UnequipWeapon_Server(bool bDropGun);

@@ -21,3 +21,12 @@ enum class EMovementAdditive : uint8
 	Crouch,
 	Prone
 };
+
+
+UENUM(BlueprintType)
+enum class EGait : uint8
+{
+	Walking,
+	Jogging,
+	Sprinting
+};

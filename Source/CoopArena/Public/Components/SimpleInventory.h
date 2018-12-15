@@ -13,6 +13,9 @@
 
 class AHumanoid;
 
+/* This event will be fired when the holstering animation is finished playing. */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteringWeaponFinished_Signature, AHumanoid*, Owner);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class COOPARENA_API USimpleInventory : public UActorComponent
@@ -196,6 +199,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnWeaponHolstering();
 
+	/* Returns the weapon at the given attach point index or nullptr if the index is not valid or there is no gun at that index.*/
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	AGun* GetGunAtAttachPoint(int32 AttachPointIndex);
+
+	FOnHolsteringWeaponFinished_Signature OnHolsteringWeaponFinished;
+
+	void SetAttachPointIndex(int32 Index);
+
 private:
 	/**
 	* Function that handles weapon holstering (= moving a weapon from the hands or ground to a weapon holster) and equipping (= moving a gun from a holster to the hands).
@@ -204,7 +215,7 @@ private:
 	* If the value is < 0 we will search all attach points for a free, valid slot for the given gun.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
+	void HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
 
 	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
 	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
@@ -217,4 +228,6 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
 	void DetachAndEquipWeapon_Multicast(int32 AttachPointIndex);
+
+	FTimerHandle _MontageFinishedTH;
 };

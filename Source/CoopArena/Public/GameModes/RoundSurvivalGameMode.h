@@ -56,6 +56,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Round survival game mode", meta = (DisplayName = "Current wave"))
 	int32 _CurrentWaveNumber;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bot despawn time", ClampMin = 0.0f))
+	float _BotDespawnTime;
+
+	/**
+	 * All spawn locations on the map. These are the names of the sub-levels where the spawn points are on. 
+	 * Each sub-level contains a spawn point for the players and several spawn points for the bots.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Round survival game mode")
+	TArray<FName> _SpawnLocations;
+
+	/* The chosen spawn location from _SpawnLocations. This sub-level will be loaded and used. */
+	UPROPERTY()
+	FName _ChoosenSpawnLocation;
+
+	UFUNCTION()
+	void OnSpawnLocationLoaded();
+
+private:
+	bool _bSpawnLocationLoaded;
+
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
@@ -75,6 +95,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void EndWave();
+
+	void SetPlayersHealthToMax();
 
 	UFUNCTION(BlueprintPure, Category = "Round survival game mode")
 	FORCEINLINE int32 GetCurrentWaveNumber() const { return _CurrentWaveNumber; };
