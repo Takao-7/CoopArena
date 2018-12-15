@@ -36,6 +36,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Door")
 	UBoxComponent* _InteractionBox;
 
+	/* When a bot is inside this volume, the door will open automatically. */
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	UBoxComponent* _BotInteractionVolume;
+
 private:
 	/* How fast the door will open */
 	UPROPERTY(EditAnywhere, Category = "Door", meta = (ClampMax = 10.0, ClampMin = 1.0, DisplayName = "Opening speed"))
@@ -45,6 +49,9 @@ private:
 	float _TargetAngle;
 
 	bool _bIsOpen;
+
+	UFUNCTION()
+	void HandleOnPawnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 protected:
 	virtual void BeginPlay() override;

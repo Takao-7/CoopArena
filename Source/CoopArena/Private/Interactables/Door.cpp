@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "UnrealNetwork.h"
 #include "CoopArena.h"
+#include "Bot.h"
 
 
 ADoor::ADoor()
@@ -29,6 +30,12 @@ ADoor::ADoor()
 	_InteractionBox->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionBox->SetupAttachment(RootComponent);
 
+	_BotInteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Bot interaction volume"));
+	_BotInteractionVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_BotInteractionVolume->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	_BotInteractionVolume->SetGenerateOverlapEvents(true);
+	_BotInteractionVolume->SetupAttachment(RootComponent);
+
 	_OpeningAngle = 90.0f;
 	_OpeningSpeed = 5.0f;
 
@@ -38,10 +45,23 @@ ADoor::ADoor()
 }
 
 /////////////////////////////////////////////////////
+void ADoor::HandleOnPawnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	const bool bIsBot = Cast<ABot>(OtherActor);
+	if (_bIsOpen || !bIsBot)
+	{
+		return;
+	}
+
+	HandleInteract_Server(Cast<APawn>(OtherActor), nullptr);
+}
+
+/////////////////////////////////////////////////////
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
 	PrimaryActorTick.SetTickFunctionEnable(false);
+	_BotInteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &ADoor::HandleOnPawnOverlap);
 }
 
 /////////////////////////////////////////////////////
