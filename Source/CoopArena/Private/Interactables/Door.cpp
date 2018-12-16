@@ -25,7 +25,7 @@ ADoor::ADoor()
 	_Front->SetupAttachment(RootComponent);
 	_Front->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 
-	_InteractionBox = CreateDefaultSubobject<UBoxComponent>("InteractionBox");
+	_InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	_InteractionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_InteractionBox->SetCollisionResponseToChannel(ECC_Interactable, ECR_Block);
 	_InteractionBox->SetupAttachment(RootComponent);
@@ -35,6 +35,8 @@ ADoor::ADoor()
 	_BotInteractionVolume->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	_BotInteractionVolume->SetGenerateOverlapEvents(true);
 	_BotInteractionVolume->SetupAttachment(RootComponent);
+	_BotInteractionVolume->SetRelativeLocation(FVector(45.0f, 0.0f, 85.0f));
+	_BotInteractionVolume->SetBoxExtent(FVector(100.0f, 100.0f, 150.0f));
 
 	_OpeningAngle = 90.0f;
 	_OpeningSpeed = 5.0f;
