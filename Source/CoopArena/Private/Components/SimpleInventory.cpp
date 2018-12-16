@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
 #include "CoopArena.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 
 USimpleInventory::USimpleInventory()
@@ -30,7 +32,7 @@ void USimpleInventory::BeginPlay()
 	
 	_Owner = Cast<AHumanoid>(GetOwner());
 	check(_Owner);
-	_Owner->HolsterWeapon_Event.AddDynamic(this, &USimpleInventory::OnOwnerHolsterWeapon);
+	_Owner->HolsterWeapon_Event.AddDynamic(this, &USimpleInventory::HandleOwnerHolsterWeapon);
 
 	if (Cast<APlayerCharacter>(GetOwner()))
 	{
@@ -44,11 +46,13 @@ void USimpleInventory::BeginPlay()
 		if (_bDropInventoryOnDeath)
 		{
 			UHealthComponent* healthComp =  Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
-			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death. "));
+			ensureMsgf(healthComp, TEXT("'%s' does not have a UHealthComponent but it's USimpleInventoryComponent is set to drop it's content on death."));
+			
 			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::OnOwnerDeath);
 			_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::OnOwnerBeeingInteractedWith);
 		}
-		else if (_bDropInventoryOnDestroy)
+
+		if (_bDropInventoryOnDestroy)
 		{
 			GetOwner()->OnDestroyed.AddDynamic(this, &USimpleInventory::OnOwnerDestroyed);
 		}
@@ -60,6 +64,7 @@ void USimpleInventory::BeginPlay()
 void USimpleInventory::SetupDefaultMagazines()
 {
 	ensureMsgf(GetOwner()->HasAuthority(), TEXT("This is a server function. Do not call this on clients."));
+	
 	for (auto magazine : _MagazinesToSpawnWith)
 	{
 		ensureMsgf(magazine.Key, TEXT("'%s' has a magazine in the 'Magazines to spawn with' array without a set class."), *GetOwner()->GetName());
@@ -70,6 +75,11 @@ void USimpleInventory::SetupDefaultMagazines()
 		const int32 value = maxMagazineCount < magazine.Value ? maxMagazineCount : magazine.Value;
 
 		_StoredMagazines.Add(FMagazineStack(key, value));
+
+		if (value == -1)
+		{
+			_MaxNumberOfMagazines.Add(key, value);
+		}
 	}
 }
 
@@ -92,11 +102,11 @@ void USimpleInventory::OnOwnerDestroyed(AActor* DestroyedOwner)
 /////////////////////////////////////////////////////
 void USimpleInventory::DropInventoryContent()
 {
-	const FVector ownerLocation = GetOwner()->GetActorLocation();
-	FTransform spawnTransform = GetOwner()->GetActorTransform();
-	spawnTransform.SetRotation(FQuat());
 	for (FMagazineStack& magStack : _StoredMagazines)
 	{
+		FTransform spawnTransform = GetOwner()->GetActorTransform();
+		spawnTransform.SetRotation(FQuat());
+
 		FVector newLocation = spawnTransform.GetLocation();
 		FVector2D randLocationOffset = FMath::RandPointInCircle(50.0f);
 		newLocation.X += randLocationOffset.X;
@@ -109,8 +119,6 @@ void USimpleInventory::DropInventoryContent()
 			const int32 stackSize = magStack.stackSize == -1 ? 5 : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
 			UGameplayStatics::FinishSpawningActor(pickUp, spawnTransform);
-
-			spawnTransform.SetLocation(ownerLocation);
 		}
 		else
 		{
@@ -141,13 +149,13 @@ void USimpleInventory::SetOwnerInteractable_Implementation(bool bCanBeInteracted
 void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 {
 	ensureMsgf(GetOwner()->HasAuthority(), TEXT("Only call this function as the server!"));
+
 	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
 	if (inventory)
 	{
 		bool bIsEmpty = true;
 		for(FMagazineStack& magStack : _StoredMagazines)
 		{
-			int32 freeSpace = 0;
 			int32 stackSize = magStack.stackSize;
 			if (magStack.stackSize == -1)
 			{
@@ -155,7 +163,13 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 				magStack.stackSize = 0;
 			}
 			
+			int32 freeSpace;
 			const bool bHasRoom = inventory->HasSpaceForMagazine(magStack.magClass, freeSpace, stackSize);
+			if (freeSpace == -1)
+			{
+				continue;	// If the interacting character has an infinite amount of magazines for a type, then we don't add any more to the inventory.
+			}
+
 			if (bHasRoom)
 			{
 				inventory->AddMagazineToInventory(magStack.magClass, stackSize);
@@ -189,6 +203,14 @@ void USimpleInventory::OnWeaponHolstering()
 	{
 		AGun* gun = _Owner->GetEquippedGun();
 		_Owner->UnequipWeapon(false, false);
+
+		AGun* holsteredGun = _WeaponAttachPoints[_AttachPointIndex].GetAttachedWeapon();
+		if (holsteredGun)
+		{
+			_WeaponAttachPoints[_AttachPointIndex].DetachWeapon();
+			_Owner->EquipWeapon(holsteredGun, false);
+		}
+
 		_WeaponAttachPoints[_AttachPointIndex].AttachWeapon(gun, _Owner->GetMesh());
 	}
 	else
@@ -199,7 +221,20 @@ void USimpleInventory::OnWeaponHolstering()
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
+AGun* USimpleInventory::GetGunAtAttachPoint(int32 AttachPointIndex)
+{
+	const bool bValidIndex = _WeaponAttachPoints.IsValidIndex(AttachPointIndex);
+	return bValidIndex ? _WeaponAttachPoints[AttachPointIndex].GetAttachedWeapon() : nullptr;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::SetAttachPointIndex(int32 Index)
+{
+	_AttachPointIndex = Index;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
 {
 	if (GetOwner()->HasAuthority() == false)
 	{
@@ -220,10 +255,9 @@ void USimpleInventory::OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPoin
 			}
 		}
 	}
-
 	const int32 index = _WeaponAttachPoints.Num() == 1 ? 0 : AttachPointIndex;
 
-	if ((bCanAttach == false && GunToHolster) || _WeaponAttachPoints.IsValidIndex(index) == false)
+	if (!bCanAttach || _WeaponAttachPoints.IsValidIndex(index) == false)
 	{
 		return;
 	}
@@ -275,13 +309,14 @@ void USimpleInventory::UnequipAndAttachWeapon_Multicast_Implementation(int32 Att
 void USimpleInventory::PlayHolsteringAnimation_Multicast_Implementation(UAnimMontage* HolsterAnimationToPlay)
 {
 	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
-	animInstance->Montage_Play(HolsterAnimationToPlay, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+	float montageLength = animInstance->Montage_Play(HolsterAnimationToPlay, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(_MontageFinishedTH, [&]() {OnHolsteringWeaponFinished.Broadcast(_Owner); }, montageLength, false);
 }
 
 /////////////////////////////////////////////////////
 void USimpleInventory::OnOwnerHolsterWeapon_Server_Implementation(AGun* GunToHolster, int32 AttachPointIndex)
 {
-	OnOwnerHolsterWeapon(GunToHolster, AttachPointIndex);
+	HandleOwnerHolsterWeapon(GunToHolster, AttachPointIndex);
 }
 
 bool USimpleInventory::OnOwnerHolsterWeapon_Server_Validate(AGun* GunToHolster, int32 AttachPointIndex)
@@ -308,34 +343,39 @@ bool USimpleInventory::HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, 
 {
 	ensureMsgf(NumMagazinesToStore > 0, TEXT("The number of magazines to store in this inventory must be greater than 0"));
 
+	const int32 maxMagCount = GetMaxMagazineCountForType(MagazineType);
+	if (maxMagCount == -1)
+	{
+		Out_FreeSpace = -1;
+		return true;
+	}
+
 	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
 	const int32 numberOfMagsInInventory = magStack ? magStack->stackSize : 0;
 
-	const int32* maxNumMags_Pointer = _MaxNumberOfMagazines.Find(MagazineType);
-	const int32 maxNumberOfMagsInInventory = maxNumMags_Pointer ? *maxNumMags_Pointer : _DefaultMaxNumberOfMagazines;
-
-	if (_DefaultMaxNumberOfMagazines == -1)	// -1 = unlimited capacity
-	{
-		Out_FreeSpace = numberOfMagsInInventory;
-		return true;
-	}
-	else
-	{
-		Out_FreeSpace = FMath::Clamp(maxNumberOfMagsInInventory - numberOfMagsInInventory, 0, maxNumberOfMagsInInventory);
-		return numberOfMagsInInventory + NumMagazinesToStore <= maxNumberOfMagsInInventory;
-	}
+	Out_FreeSpace = maxMagCount - numberOfMagsInInventory;
+	return numberOfMagsInInventory + NumMagazinesToStore <= Out_FreeSpace;
 }
 
+bool USimpleInventory::HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const
+{
+	int32 freeSpace;
+	return HasSpaceForMagazine(MagazineType, freeSpace, NumMagazinesToStore);
+}
+
+/////////////////////////////////////////////////////
 bool USimpleInventory::HasMagazines(TSubclassOf<AMagazine> MagazineType, int32 NumMagazines /*= 1*/) const
 {
-	return GetNumberOfMagazinesForType(MagazineType) >= NumMagazines;
+	const int32 numMagazinesInInventory = GetNumberOfMagazinesForType(MagazineType);
+	const bool bHasInfiniteMagazines = numMagazinesInInventory == -1;
+
+	return bHasInfiniteMagazines || numMagazinesInInventory >= NumMagazines;
 }
 
 /////////////////////////////////////////////////////
 bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineType, int32 NumMagazinesToStore /*= 1*/)
 {
-	int32 freeSpace = 0;
-	const bool bHasSpace = HasSpaceForMagazine(MagazineType, freeSpace, NumMagazinesToStore);
+	const bool bHasSpace = HasSpaceForMagazine(NumMagazinesToStore, MagazineType);
 	if (!bHasSpace)
 	{
 		return false;
@@ -344,7 +384,7 @@ bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineTyp
 	if (GetOwner()->HasAuthority())
 	{
 		FMagazineStack* magStack = FindMagazineStack(MagazineType);
-		if (magStack)
+		if (magStack && magStack->stackSize != -1)
 		{
 			magStack->stackSize += NumMagazinesToStore;
 		}

@@ -28,28 +28,20 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	_PointPenaltyForTeamKill = 50;
 	_DelayBetweenWaves = 3.0f;
 	bDelayedStart = true;
+	_BotDespawnTime = 30.0f;
+	_bSpawnLocationLoaded = false;
+
+	if (_SpawnLocations.Num() == 0)
+	{
+		_SpawnLocations.Add(TEXT("SpawnPoints_North"));
+	}
+	_ChoosenSpawnLocation = _SpawnLocations[0];
 }
 
 /////////////////////////////////////////////////////
-bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
+void ARoundSurvivalGameMode::OnSpawnLocationLoaded()
 {
-	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-	ensure(gameInstance);
-
-	const int32 numConnectedPlayers = gameInstance->GetNumberOfConnectedPlayers();
-	const int32 numPlayersOnMap = _playerControllers.Num();
-	return ((numPlayersOnMap == numConnectedPlayers) && numPlayersOnMap > 0) || numConnectedPlayers == -1;
-}
-
-bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
-{
-	return _numPlayersAlive == 0;
-}
-
-/////////////////////////////////////////////////////
-void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
-{
-	Super::InitGame(MapName, Options, ErrorMessage);
+	FindSpawnPoints();
 
 	for (ASpawnPoint* spawnPoint : _spawnPoints)
 	{
@@ -59,15 +51,55 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 		}
 	}
 
+	_bSpawnLocationLoaded = true;
+}
+
+/////////////////////////////////////////////////////
+bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
+{
+	const int32 numPlayersOnMap = _playerControllers.Num();
+	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
+
+	const bool bIsSinglePlayer = GetNetMode() == ENetMode::NM_Standalone;
+	const bool bAllPlayersAreOnMap = numPlayersOnMap == numConnectedPlayers;
+
+	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
+}
+
+bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
+{
+	return _numPlayersAlive == 0;
+}
+
+/////////////////////////////////////////////////////
+int32 ARoundSurvivalGameMode::GetNumberOfConnectedPlayers()
+{
+	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	ensure(gameInstance);
+	return gameInstance->GetNumberOfConnectedPlayers();
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
 	BotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
 	PlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
+
+	FLatentActionInfo latentActionInfo;
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = TEXT("OnSpawnLocationLoaded");
+	latentActionInfo.Linkage = 0;
+	latentActionInfo.UUID = 0;
+	UGameplayStatics::LoadStreamLevel(GetWorld(), _ChoosenSpawnLocation, true, true, latentActionInfo);
 }
 
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::StartMatch()
 {
 	Super::StartMatch();
-	if (CanSpawnBots())
+	if (CanSpawnBots() && _bSpawnLocationLoaded)
 	{
 		StartWave();
 	}
@@ -96,6 +128,7 @@ void ARoundSurvivalGameMode::StartWave()
 void ARoundSurvivalGameMode::EndWave()
 {
 	GetWorld()->GetTimerManager().ClearTimer(_RoundTimerHandle);
+	SetPlayersHealthToMax();
 	ReviveDeadPlayers();
 	OnWaveEnd.Broadcast(_CurrentWaveNumber);
 
@@ -106,6 +139,16 @@ void ARoundSurvivalGameMode::EndWave()
 	{
 		FTimerHandle timerHandle;
 		GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ARoundSurvivalGameMode::StartWave, _DelayBetweenWaves);
+	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::SetPlayersHealthToMax()
+{
+	for (APlayerCharacter* player : _playerCharactersAlive)
+	{
+		UHealthComponent* healthComp = Cast<UHealthComponent>(player->GetComponentByClass(UHealthComponent::StaticClass()));
+		healthComp->SetHealth(healthComp->GetMaxHealth());
 	}
 }
 
@@ -129,7 +172,7 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 {
 	for (AHumanoid* bot : _BotsDead)
 	{
-		bot->Destroy();
+		bot->SetLifeSpan(_BotDespawnTime);
 	}
 	_BotsDead.Empty(_BotsDead.Num() * 2);
 }
@@ -188,20 +231,18 @@ void ARoundSurvivalGameMode::SpawnBots()
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::CanSpawnBots()
 {
-	const float waveIncrease = _CurrentWaveNumber > 1 ? _CurrentWaveNumber * _WaveStrengthIncreaseFactor : 1;
-	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
-	bool bValidBotClasses = true;
+	bool bAllBotClassesAreValid = true;
 	for (TSubclassOf<ABot>& botClass : _BotsToSpawn)
 	{
 		if (botClass == nullptr)
 		{
-			bValidBotClasses = false;
+			bAllBotClassesAreValid = false;
 			break;
 		}
 	}
 
-	if (bValidBotClasses == false || numSpawnPoints == 0 || numBotsToSpawn == 0 || _BotsToSpawn.Num() == 0)
+	if (bAllBotClassesAreValid == false || numSpawnPoints == 0 || _BotsToSpawn.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No bot spawn points on the map or no bots to spawn."));
 		return false;

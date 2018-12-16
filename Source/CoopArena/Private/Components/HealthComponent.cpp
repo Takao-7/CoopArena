@@ -127,6 +127,12 @@ void UHealthComponent::DeactivateCollisionCapsuleComponent()
 }
 
 /////////////////////////////////////////////////////
+void UHealthComponent::SetHealth(float NewHealth)
+{
+	_CurrentHealth = FMath::Clamp(NewHealth, 0.0f, _MaxHealth);
+}
+
+/////////////////////////////////////////////////////
 void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, 
 										FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser)
 {

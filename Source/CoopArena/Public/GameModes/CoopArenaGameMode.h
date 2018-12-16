@@ -48,7 +48,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
 	FName _defaultBotTeam;
 
-private:
 	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
 	void FindSpawnPoints();
 
