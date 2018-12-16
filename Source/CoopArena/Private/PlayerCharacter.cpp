@@ -28,6 +28,7 @@ APlayerCharacter::APlayerCharacter()
 
 	_bToggleProne = true;
 	_bToggleCrouching = true;
+	_bToggleWalking = true;
 
 	_InteractionRange = 200.0f;
 	_InteractableInFocus = nullptr;

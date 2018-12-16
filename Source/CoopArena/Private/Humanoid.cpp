@@ -64,6 +64,7 @@ AHumanoid::AHumanoid()
 	moveComp->BrakingDecelerationWalking = 1000.0f;
 	moveComp->GroundFriction = 8.0f;
 	moveComp->BrakingFriction = 8.0f;
+	moveComp->bUseSeparateBrakingFriction = true;
 	moveComp->CrouchedHalfHeight = 65.0f;
 	moveComp->MaxWalkSpeed = _JoggingSpeed;
 	moveComp->MaxWalkSpeedCrouched = _MaxCrouchingSpeed;

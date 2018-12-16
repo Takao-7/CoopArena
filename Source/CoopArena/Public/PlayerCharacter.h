@@ -84,7 +84,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter", meta = (DisplayName = "Toggle crouching"))
 	bool _bToggleCrouching;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter", meta = (DisplayName = "Toggle crouching"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter", meta = (DisplayName = "Toggle walking"))
 	bool _bToggleWalking;
 
 	/**
