@@ -77,3 +77,7 @@ DerivedDataCache/*
 
 # Temp  folder
 enc_temp_folder/*
+
+._sync*
+
+LargeFileSystem/*
