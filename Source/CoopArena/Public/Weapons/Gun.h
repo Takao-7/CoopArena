@@ -124,18 +124,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Reload animation"))
 	UAnimMontage* _ReloadAnimation;
 
-	/* This gun's forward direction. Will be used for projectile spawning. */
-	UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (DisplayName = "Forward direction"))
-	UArrowComponent* _ForwardDirection;
+	///* This gun's forward direction. Will be used for projectile spawning. */
+	//UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (DisplayName = "Forward direction"))
+	//UArrowComponent* _ForwardDirection;
 
 	/**
-	 * The offset to properly equip this weapon. After attaching this weapon to the carrier,
+	 * The offset to properly equip this weapon, after attaching this weapon to the carrier,
 	 * we will be moved and rotated by this.
-	 * The offset has to be placed at the grip handle's center.
+	 * The offset has to be placed at the trigger, where it is touched by the pointer finger.
 	 * The X-Axis faces along the barrel, the Y-Axis to the right.
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* _EquipOffset;
+
+	/**
+	 * The position where the left hand will be placed on the gun.
+	 * This offset is used by the animation blueprint for the inverse kinematic.
+	 * Place this under the weapon, where the inner palm would touch the weapon.
+	 * The X-Axis faces along the barrel, the Y-Axis to the right.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* _LeftHandPosition;
 
 	/* The time, in seconds, after getting dropped by a NPC, that this weapon will get destroyed. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Despawn time"))

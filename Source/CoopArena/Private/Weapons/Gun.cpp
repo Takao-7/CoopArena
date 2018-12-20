@@ -35,11 +35,14 @@ AGun::AGun()
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
 	_ZoomCamera->SetAutoActivate(true);
 
-	_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
-	_ForwardDirection->SetupAttachment(RootComponent);
+	//_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
+	//_ForwardDirection->SetupAttachment(RootComponent);
 
 	_EquipOffset = CreateDefaultSubobject<USceneComponent>(TEXT("Offset"));
 	_EquipOffset->SetupAttachment(RootComponent);
+
+	_LeftHandPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Left hand position"));
+	_LeftHandPosition->SetupAttachment(RootComponent);
 
 	_CurrentGunState = EWeaponState::Idle;
 
@@ -210,7 +213,7 @@ void AGun::OnFire()
 		FVector spawnDirection;
 		if (_MyOwner->IsAiming() || _MyOwner->IsPlayerControlled() == false)
 		{
-			spawnDirection = _ForwardDirection->GetForwardVector();
+			spawnDirection = _Mesh->GetSocketLocation(_MuzzleAttachPoint).ForwardVector;
 		}
 		else
 		{
