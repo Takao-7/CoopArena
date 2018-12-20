@@ -19,6 +19,8 @@ class COOPARENA_API AMyPlayerController : public APlayerController
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player Controller", meta = (DisplayName = "Class to respawn as"))
 	TSubclassOf<APlayerCharacter> _ClassToRespawnAs;
+
+	virtual void BeginPlay() override;
 	
 public:
 	/**

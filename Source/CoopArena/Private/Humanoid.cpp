@@ -17,6 +17,8 @@
 #include "GameFramework/Controller.h"
 #include "UnrealNetwork.h"
 #include "GameModes/CoopArenaGameMode.h"
+#include "AudioThread.h"
+#include "Sound/SoundNodeLocalPlayer.h"
 
 
 AHumanoid::AHumanoid()
@@ -145,6 +147,14 @@ void AHumanoid::BeginPlay()
 	{
 		SetUpDefaultEquipment();
 	}
+
+	const APlayerController* PC = Cast<APlayerController>(GetController());
+	const bool bLocallyControlled = (PC ? PC->IsLocalController() : false);
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID, bLocallyControlled]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
+	});
 }
 
 /////////////////////////////////////////////////////

@@ -16,6 +16,8 @@
 #include "CoopArenaGameMode.h"
 #include "HealthComponent.h"
 #include "SimpleInventory.h"
+#include "AudioThread.h"
+#include "SoundNodeLocalPlayer.h"
 
 
 /////////////////////////////////////////////////////

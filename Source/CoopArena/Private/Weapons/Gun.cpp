@@ -797,7 +797,7 @@ void AGun::PlayFireSound()
 {
 	if (_FireSound)
 	{
-		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
+		UGameplayStatics::SpawnSoundAttached(_FireSound, _MyOwner->GetRootComponent());
 	}
 }
 
