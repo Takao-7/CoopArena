@@ -21,12 +21,12 @@
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 {
 	_CurrentWaveNumber = 0;
-	_WaveStrengthIncreaseFactor = 2.0f;
+	_WaveStrengthIncreaseFactor = 1.0f;
 	_BotsToSpawnPerPlayer = 2;
 	_PointsPerBotKill = 10;
 	_WaveLength = 60.0f;
 	_PointPenaltyForTeamKill = 50;
-	_DelayBetweenWaves = 3.0f;
+	_DelayBetweenWaves = 5.0f;
 	bDelayedStart = true;
 	_BotDespawnTime = 30.0f;
 	_bSpawnLocationLoaded = false;
@@ -101,7 +101,8 @@ void ARoundSurvivalGameMode::StartMatch()
 	Super::StartMatch();
 	if (CanSpawnBots() && _bSpawnLocationLoaded)
 	{
-		StartWave();
+		FTimerHandle timerhandle;
+		GetWorld()->GetTimerManager().SetTimer(timerhandle, [&]() {StartWave(); }, 2.0f, false);
 	}
 }
 
@@ -204,10 +205,9 @@ void ARoundSurvivalGameMode::SpawnBots()
 		return;
 	}
 
-	const float waveIncrease = _CurrentWaveNumber > 1 ? _CurrentWaveNumber * _WaveStrengthIncreaseFactor : 1;
-	const int32 numBotsToSpawn = _BotsToSpawnPerPlayer * GetNumPlayers() * waveIncrease;
+	_NumBotsToSpawn += (_BotsToSpawnPerPlayer * GetNumPlayers()) * _WaveStrengthIncreaseFactor;
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
-	for (int32 i = 0; i < numBotsToSpawn; ++i)
+	for (int32 i = 0; i < _NumBotsToSpawn; ++i)
 	{
 		AActor* spawnPoint = _BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
 		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];

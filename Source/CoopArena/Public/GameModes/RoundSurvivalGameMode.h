@@ -75,7 +75,7 @@ protected:
 
 private:
 	bool _bSpawnLocationLoaded;
-
+	int32 _NumBotsToSpawn;
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
