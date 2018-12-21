@@ -36,18 +36,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnDeath_Signature OnDeath;
 
-private:
-	UFUNCTION(NetMulticast, Reliable)
-	void OnDeathEvent_Multicast(AActor* DeadActor, AController* Controller, AController* Killer);
-
-protected:
 	UPROPERTY(EditDefaultsOnly, Category = Health, meta = (DisplayName = "Max health"))
 	float _MaxHealth;
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = Health, meta = (DisplayName = "Current health"))
 	float _CurrentHealth;
-
-	bool bAlreadyDied;
 
 	virtual void BeginPlay() override;
 
@@ -71,7 +64,20 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Health)
 	void DeactivateCollisionCapsuleComponent();
-	
+
+	/* Sets the health to the given value. Value will be clamped between 0 and MaxHealth. */
+	UFUNCTION()
+	void SetHealth(float NewHealth);
+
+	UFUNCTION()
+	float GetMaxHealth() const { return _MaxHealth;	};
+
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void OnDeathEvent_Multicast(AActor* DeadActor, AController* Controller, AController* Killer);
+
+	bool bAlreadyDied;
+
 private:
 	UFUNCTION()
 	void HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);

@@ -13,6 +13,9 @@
 
 class AHumanoid;
 
+/* This event will be fired when the holstering animation is finished playing. */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteringWeaponFinished_Signature, AHumanoid*, Owner);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class COOPARENA_API USimpleInventory : public UActorComponent
@@ -24,7 +27,10 @@ class COOPARENA_API USimpleInventory : public UActorComponent
 				/* Parameters & variables */
 	/////////////////////////////////////////////////////
 protected:
-	/* The maximum number of magazines, for each magazine type, that this inventory can hold */
+	/**
+	 * The maximum number of magazines, for each magazine type, that this inventory can hold 
+	 * Set to -1 for an unlimited amount of magazines for that type.
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory", meta = (DisplayName = "Maximum number of magazines"))
 	TMap<TSubclassOf<AMagazine>, int32> _MaxNumberOfMagazines;
 
@@ -85,7 +91,7 @@ public:
 	/////////////////////////////////////////////////////
 public:
 	/**
-	* Has this inventory enough space to store the given magazine?
+	* Has this inventory enough space to store the given magazine(s)?
 	* @param MagazineType The given magazine to look for
 	* @param Out_FreeSpace How many magazines we can actually store
 	* @param NumMagazinesToStore How many of the given magazine we want to check for
@@ -93,6 +99,14 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	bool HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, int32& Out_FreeSpace, int32 NumMagazinesToStore = 1) const;
+
+	/**
+	* Has this inventory enough space to store the given magazine(s)?
+	* @param NumMagazinesToStore How many of the given magazine we want to check for
+	* @param MagazineType The given magazine to look for
+	* @return True if we have enough space to store the given magazines
+	*/
+	bool HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const;
 
 	/* Has this inventory the given number of magazines? */
 	UFUNCTION(BlueprintPure, Category = "Inventory")
@@ -185,6 +199,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnWeaponHolstering();
 
+	/* Returns the weapon at the given attach point index or nullptr if the index is not valid or there is no gun at that index.*/
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	AGun* GetGunAtAttachPoint(int32 AttachPointIndex);
+
+	FOnHolsteringWeaponFinished_Signature OnHolsteringWeaponFinished;
+
+	void SetAttachPointIndex(int32 Index);
+
 private:
 	/**
 	* Function that handles weapon holstering (= moving a weapon from the hands or ground to a weapon holster) and equipping (= moving a gun from a holster to the hands).
@@ -193,7 +215,7 @@ private:
 	* If the value is < 0 we will search all attach points for a free, valid slot for the given gun.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void OnOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
+	void HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
 
 	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
 	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
@@ -206,4 +228,6 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
 	void DetachAndEquipWeapon_Multicast(int32 AttachPointIndex);
+
+	FTimerHandle _MontageFinishedTH;
 };

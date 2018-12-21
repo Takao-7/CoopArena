@@ -10,6 +10,7 @@
 #include "Engine/Engine.h"
 #include "DefaultHUD.h"
 #include "TimerManager.h"
+#include "BasicAnimationSystemComponent.h"
 
 
 /////////////////////////////////////////////////////
@@ -91,6 +92,12 @@ void AMyPlayerController::Possess(APawn* aPawn)
 	if (hud)
 	{
 		hud->Init(Cast<APlayerCharacter>(aPawn));
+	}
+
+	UBasicAnimationSystemComponent* basComp = Cast<UBasicAnimationSystemComponent>(aPawn->GetComponentByClass(UBasicAnimationSystemComponent::StaticClass()));
+	if (basComp)
+	{
+		basComp->SetIsLocallyControlled();
 	}
 }
 
