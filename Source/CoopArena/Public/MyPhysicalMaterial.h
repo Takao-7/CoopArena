@@ -8,9 +8,6 @@
 #include "MyPhysicalMaterial.generated.h"
 
 
-/**
- * 
- */
 UCLASS(BlueprintType, Blueprintable, ClassGroup = Physics)
 class COOPARENA_API UMyPhysicalMaterial : public UPhysicalMaterial
 {
@@ -21,11 +18,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage Resistance", meta = (DisplayName = "Damage modification"))
 	float _DamageModification;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Impact effect"))
-	UParticleSystem* _ImpactEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Projectile impact effect"))
+	UParticleSystem* _ProjectileImpactEffect;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Impact sound"))
-	USoundBase* _impactSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Projectile impact sound"))
+	USoundBase* _ProjectileImpactSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Footstep sound"))
+	USoundBase* _FootstepSound;
 
 public:
 	UMyPhysicalMaterial();
@@ -34,8 +34,11 @@ public:
 	FORCEINLINE float GetDamageMod() const { return _DamageModification; };
 
 	UFUNCTION(BlueprintPure, Category = "Effects")
-	FORCEINLINE UParticleSystem* GetImpactEffect() { return _ImpactEffect; };
+	FORCEINLINE UParticleSystem* GetImpactEffect() { return _ProjectileImpactEffect; };
 
 	UFUNCTION(BlueprintPure, Category = "Effects")
-	FORCEINLINE USoundBase* GetImpactSound() { return _impactSound; };
+	FORCEINLINE USoundBase* GetImpactSound() { return _ProjectileImpactSound; };
+
+	UFUNCTION(BlueprintPure, Category = "Effects")
+	FORCEINLINE USoundBase* GetFootStepSound() { return _FootstepSound; };
 };

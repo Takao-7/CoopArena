@@ -110,6 +110,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game instance")
 	FString GetSavedPlayerName() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
+	void EndMatch();
+
 private:
 	IOnlineSessionPtr _SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;

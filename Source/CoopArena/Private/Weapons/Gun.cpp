@@ -35,11 +35,14 @@ AGun::AGun()
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
 	_ZoomCamera->SetAutoActivate(true);
 
-	_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
-	_ForwardDirection->SetupAttachment(RootComponent);
+	//_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
+	//_ForwardDirection->SetupAttachment(RootComponent);
 
 	_EquipOffset = CreateDefaultSubobject<USceneComponent>(TEXT("Offset"));
 	_EquipOffset->SetupAttachment(RootComponent);
+
+	_LeftHandPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Left hand position"));
+	_LeftHandPosition->SetupAttachment(RootComponent);
 
 	_CurrentGunState = EWeaponState::Idle;
 
@@ -207,10 +210,11 @@ void AGun::OnFire()
 	{
 		_CurrentGunState = EWeaponState::Firing;
 		
-		FVector spawnDirection;
+		FVector spawnDirection = FVector::ForwardVector;
 		if (_MyOwner->IsAiming() || _MyOwner->IsPlayerControlled() == false)
 		{
-			spawnDirection = _ForwardDirection->GetForwardVector();
+			FTransform transform = _Mesh->GetSocketTransform(_MuzzleAttachPoint);
+			spawnDirection = transform.GetRotation().RotateVector(spawnDirection);
 		}
 		else
 		{
@@ -797,7 +801,7 @@ void AGun::PlayFireSound()
 {
 	if (_FireSound)
 	{
-		UGameplayStatics::SpawnSoundAttached(_FireSound, _Mesh, _MuzzleAttachPoint, FVector::ZeroVector, EAttachLocation::SnapToTarget);
+		UGameplayStatics::SpawnSoundAttached(_FireSound, _MyOwner->GetRootComponent());
 	}
 }
 
@@ -894,6 +898,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
+
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());

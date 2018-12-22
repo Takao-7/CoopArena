@@ -11,7 +11,22 @@
 #include "DefaultHUD.h"
 #include "TimerManager.h"
 #include "BasicAnimationSystemComponent.h"
+#include "AudioThread.h"
+#include "SoundNodeLocalPlayer.h"
 
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	const bool bLocallyControlled = IsLocalController();
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID, bLocallyControlled]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
+	});
+}
 
 /////////////////////////////////////////////////////
 void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
@@ -88,11 +103,11 @@ void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* S
 void AMyPlayerController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
-	ADefaultHUD* hud = GetDefaultHUD();
+	/*ADefaultHUD* hud = GetDefaultHUD();
 	if (hud)
 	{
 		hud->Init(Cast<APlayerCharacter>(aPawn));
-	}
+	}*/
 
 	UBasicAnimationSystemComponent* basComp = Cast<UBasicAnimationSystemComponent>(aPawn->GetComponentByClass(UBasicAnimationSystemComponent::StaticClass()));
 	if (basComp)
