@@ -61,7 +61,7 @@ AHumanoid::AHumanoid()
 
 	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	moveComp->JumpZVelocity = 300.0f;
-	moveComp->AirControl = 0.0f;
+	moveComp->AirControl = 0.1f;
 	moveComp->MaxAcceleration = 1000.0f;
 	moveComp->BrakingDecelerationWalking = 1000.0f;
 	moveComp->GroundFriction = 8.0f;

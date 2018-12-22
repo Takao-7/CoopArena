@@ -210,10 +210,11 @@ void AGun::OnFire()
 	{
 		_CurrentGunState = EWeaponState::Firing;
 		
-		FVector spawnDirection;
+		FVector spawnDirection = FVector::ForwardVector;
 		if (_MyOwner->IsAiming() || _MyOwner->IsPlayerControlled() == false)
 		{
-			spawnDirection = _Mesh->GetSocketLocation(_MuzzleAttachPoint).ForwardVector;
+			FTransform transform = _Mesh->GetSocketTransform(_MuzzleAttachPoint);
+			spawnDirection = transform.GetRotation().RotateVector(spawnDirection);
 		}
 		else
 		{
@@ -897,6 +898,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 			UE_LOG(LogTemp, Error, TEXT("Gun %s, owned by %s: No projectile spawned!"), *GetName(), *_MyOwner->GetName());
 			return;
 		}
+
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());

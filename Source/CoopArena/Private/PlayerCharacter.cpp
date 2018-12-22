@@ -6,18 +6,21 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
-#include "Camera/CameraComponent.h"
 #include "CoopArenaGameMode.h"
 #include "HealthComponent.h"
 #include "SimpleInventory.h"
 #include "AudioThread.h"
 #include "SoundNodeLocalPlayer.h"
+#include "Projectile.h"
+#include "Kismet/GameplayStatics.h"
 
 
 /////////////////////////////////////////////////////
@@ -33,25 +36,33 @@ APlayerCharacter::APlayerCharacter()
 	_bToggleWalking = true;
 
 	_InteractionRange = 200.0f;
-	_InteractableInFocus = nullptr;
 
-	_FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First person camera"));
-	_FirstPersonCamera->SetupAttachment(GetMesh(), "head");
-	_FirstPersonCamera->bUsePawnControlRotation = true;
-	_FirstPersonCamera->SetRelativeLocationAndRotation(FVector(7.0f, 5.0f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First person camera"));
+	FirstPersonCamera->SetupAttachment(GetMesh(), "head");
+	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->SetRelativeLocationAndRotation(FVector(7.0f, 5.0f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
 
-	_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
-	_SpringArm->SetupAttachment(RootComponent);
-	_SpringArm->SetRelativeLocation(FVector(0.0f, 20.0f, 60.0f));
-	_SpringArm->TargetArmLength = 200.0f;
-	_SpringArm->bUsePawnControlRotation = true;
-	_SpringArm->bEnableCameraLag = true;
-	_SpringArm->bEnableCameraRotationLag = true;
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetRelativeLocation(FVector(0.0f, 20.0f, 60.0f));
+	SpringArm->TargetArmLength = 200.0f;
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
 
-	_ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
-	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
+	ProjectileInteraction = CreateDefaultSubobject<USphereComponent>(TEXT("Projectile interaction"));
+	ProjectileInteraction->SetupAttachment(RootComponent);
+	ProjectileInteraction->SetSphereRadius(150.0f);
+	ProjectileInteraction->SetGenerateOverlapEvents(true);
+	ProjectileInteraction->SetCollisionResponseToAllChannels(ECR_Ignore);
+	ProjectileInteraction->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+
+	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
+	ThirdPersonCamera->SetupAttachment(SpringArm, "SpringEndpoint");
 
 	_TeamName = "Player Team";
+
+	_StopSoundDelay = 3.0f;
 }
 
 /////////////////////////////////////////////////////
@@ -68,12 +79,37 @@ void APlayerCharacter::Tick(float DeltaTime)
 /////////////////////////////////////////////////////
 void APlayerCharacter::TurnAtRate(float Rate)
 {
-	AddControllerYawInput(Rate * _BaseTurnRate);
+	float sprintModifier = _Gait == EGait::Sprinting ? 0.5f : 1.0f;
+	AddControllerYawInput(Rate * _BaseTurnRate * sprintModifier);
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * _BaseTurnRate);
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::SetSprinting(bool bWantsToSprint)
+{
+	Super::SetSprinting(bWantsToSprint);
+	if (bWantsToSprint)
+	{
+		_TimeOfSprintStart = GetWorld()->GetTimeSeconds();
+		_PlayingSprintingSound = UGameplayStatics::SpawnSoundAttached(_SprintingSound, GetRootComponent());
+	}
+	else
+	{
+		if (_PlayingSprintingSound)
+		{
+			_PlayingSprintingSound->Stop();
+		}
+
+		float currentTime = GetWorld()->GetTimeSeconds();
+		if ((currentTime - _TimeOfSprintStart) >= _StopSoundDelay)
+		{
+			UGameplayStatics::SpawnSoundAttached(_StopSprintingSound, GetRootComponent());
+		}
+	}	
 }
 
 /////////////////////////////////////////////////////
@@ -83,24 +119,21 @@ void APlayerCharacter::CheckForInteractables()
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
 		UPrimitiveComponent* hitComponent = _InteractionHitResult.GetComponent();
-		IInteractable* interactable = Cast<IInteractable>(hitActor);
-		if (interactable)
-		{
-			// Only do Begin/End line traces calls if we are pointing at something new
-			if (interactable != _InteractableInFocus)
-			{
-				if (_ActorInFocus)
-				{
-					IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
-				}
 
-				IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
-				SetActorInFocus(hitActor);
+		// Only do Begin/End line traces calls if we are pointing at something new
+		if (hitActor != _ActorInFocus)
+		{
+			if (_ActorInFocus)
+			{
+				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 			}
-			SetComponentInFocus(hitComponent);
+
+			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
+			SetActorInFocus(hitActor);
 		}
+		SetComponentInFocus(hitComponent);
 	}
-	else if (_InteractableInFocus && _ActorInFocus)
+	else if (_ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
@@ -114,6 +147,7 @@ void APlayerCharacter::OnHolsterWeapon()
 	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 }
 
+/////////////////////////////////////////////////////
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -149,19 +183,22 @@ void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorContro
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::SetActorInFocus(AActor* actor)
+void APlayerCharacter::HandleProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	_InteractableInFocus = Cast<IInteractable>(actor);
-	if (_InteractableInFocus)
+	if(IsLocallyControlled())
 	{
-		_ActorInFocus = actor;
+		AProjectile* projectile = Cast<AProjectile>(OtherActor);
+		ensure(projectile);
+
+		projectile->PlayFlyBySound();
 	}
-	else
-	{
-		_ActorInFocus = nullptr;
-	}	
 }
 
+/////////////////////////////////////////////////////
+void APlayerCharacter::SetActorInFocus(AActor* actor)
+{
+	_ActorInFocus = actor;
+}
 
 void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
 {
@@ -280,16 +317,16 @@ void APlayerCharacter::OnCrouchReleased()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnChangeCameraPressed()
 {
-	_FirstPersonCamera->ToggleActive();
-	_ThirdPersonCamera->ToggleActive();
+	FirstPersonCamera->ToggleActive();
+	ThirdPersonCamera->ToggleActive();
 
-	if (_ThirdPersonCamera->IsActive())
+	if (ThirdPersonCamera->IsActive())
 	{
-		_InteractionRange += _SpringArm->TargetArmLength;
+		_InteractionRange += SpringArm->TargetArmLength;
 	}
 	else
 	{
-		_InteractionRange -= _SpringArm->TargetArmLength;
+		_InteractionRange -= SpringArm->TargetArmLength;
 	}
 }
 
@@ -342,7 +379,7 @@ void APlayerCharacter::OnSelectSecondaryWeapon()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
-	if (_InteractableInFocus)
+	if (_ActorInFocus)
 	{
 		Server_OnBeginInteracting(_ActorInFocus, _ComponentInFocus);
 	}
@@ -350,7 +387,7 @@ void APlayerCharacter::OnBeginInteracting()
 
 void APlayerCharacter::OnEndInteracting()
 {
-	if (_InteractableInFocus)
+	if (_ActorInFocus)
 	{
 		IInteractable::Execute_OnEndInteract(_ActorInFocus, this);
 	}
@@ -364,7 +401,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::ToggleJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::ToggleJump);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -406,22 +442,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 /////////////////////////////////////////////////////
-FVector APlayerCharacter::GetCameraLocation() const
-{
-	return GetActiveCamera()->GetComponentLocation();
-}
-
-/////////////////////////////////////////////////////
-UCameraComponent* APlayerCharacter::GetActiveCamera() const
-{
-	return _FirstPersonCamera->IsActive() ? _FirstPersonCamera : _ThirdPersonCamera;
-}
-
-/////////////////////////////////////////////////////
 void APlayerCharacter::SetThirdPersonCameraToActive()
 {
-	_FirstPersonCamera->SetActive(false);
-	_ThirdPersonCamera->SetActive(true);
+	FirstPersonCamera->SetActive(false);
+	ThirdPersonCamera->SetActive(true);
 }
 
 /////////////////////////////////////////////////////
