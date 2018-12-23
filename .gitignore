@@ -80,3 +80,5 @@ DerivedDataCache/*
 enc_temp_folder/*
 
 ._*
+
+Content/LargeFileSystem/
