@@ -17,6 +17,8 @@
 #include "GameFramework/Controller.h"
 #include "UnrealNetwork.h"
 #include "GameModes/CoopArenaGameMode.h"
+#include "AudioThread.h"
+#include "Sound/SoundNodeLocalPlayer.h"
 
 
 AHumanoid::AHumanoid()
@@ -59,11 +61,12 @@ AHumanoid::AHumanoid()
 
 	UCharacterMovementComponent* moveComp = GetCharacterMovement();
 	moveComp->JumpZVelocity = 300.0f;
-	moveComp->AirControl = 0.0f;
+	moveComp->AirControl = 0.1f;
 	moveComp->MaxAcceleration = 1000.0f;
 	moveComp->BrakingDecelerationWalking = 1000.0f;
 	moveComp->GroundFriction = 8.0f;
 	moveComp->BrakingFriction = 8.0f;
+	moveComp->bUseSeparateBrakingFriction = true;
 	moveComp->CrouchedHalfHeight = 65.0f;
 	moveComp->MaxWalkSpeed = _JoggingSpeed;
 	moveComp->MaxWalkSpeedCrouched = _MaxCrouchingSpeed;
@@ -144,6 +147,14 @@ void AHumanoid::BeginPlay()
 	{
 		SetUpDefaultEquipment();
 	}
+
+	const APlayerController* PC = Cast<APlayerController>(GetController());
+	const bool bLocallyControlled = (PC ? PC->IsLocalController() : false);
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID, bLocallyControlled]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
+	});
 }
 
 /////////////////////////////////////////////////////

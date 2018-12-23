@@ -51,7 +51,8 @@ void USimpleInventory::BeginPlay()
 			healthComp->OnDeath.AddDynamic(this, &USimpleInventory::OnOwnerDeath);
 			_Owner->OnBeginInteract_Event.AddDynamic(this, &USimpleInventory::OnOwnerBeeingInteractedWith);
 		}
-		else if (_bDropInventoryOnDestroy)
+
+		if (_bDropInventoryOnDestroy)
 		{
 			GetOwner()->OnDestroyed.AddDynamic(this, &USimpleInventory::OnOwnerDestroyed);
 		}
@@ -101,11 +102,11 @@ void USimpleInventory::OnOwnerDestroyed(AActor* DestroyedOwner)
 /////////////////////////////////////////////////////
 void USimpleInventory::DropInventoryContent()
 {
-	const FVector ownerLocation = GetOwner()->GetActorLocation();
-	FTransform spawnTransform = GetOwner()->GetActorTransform();
-	spawnTransform.SetRotation(FQuat());
 	for (FMagazineStack& magStack : _StoredMagazines)
 	{
+		FTransform spawnTransform = GetOwner()->GetActorTransform();
+		spawnTransform.SetRotation(FQuat());
+
 		FVector newLocation = spawnTransform.GetLocation();
 		FVector2D randLocationOffset = FMath::RandPointInCircle(50.0f);
 		newLocation.X += randLocationOffset.X;
@@ -118,8 +119,6 @@ void USimpleInventory::DropInventoryContent()
 			const int32 stackSize = magStack.stackSize == -1 ? 5 : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
 			UGameplayStatics::FinishSpawningActor(pickUp, spawnTransform);
-
-			spawnTransform.SetLocation(ownerLocation);
 		}
 		else
 		{

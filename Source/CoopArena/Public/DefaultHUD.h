@@ -40,6 +40,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD", meta = (DisplayName = "HandleOnWeaponFire"))
 	void HandleOnWeaponFire_K2(int32 NumRoundsLeft);
 
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void GetAmmoStatus(int32& Out_NumMagazines, int32& Out_NumRoundsLeft, EFireMode& Out_FireMode);
+
 public:
 	ADefaultHUD();
 

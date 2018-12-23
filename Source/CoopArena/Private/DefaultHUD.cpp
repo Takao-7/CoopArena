@@ -112,3 +112,23 @@ void ADefaultHUD::DisplayHUD()
 		}, _TimeToHideHUD, false);
 	}
 }
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::GetAmmoStatus(int32& Out_NumMagazines, int32& Out_NumRoundsLeft, EFireMode& Out_FireMode)
+{
+	AHumanoid* myowner = Cast<AHumanoid>(GetOwningPawn());	
+	AGun* gun = myowner ? myowner->GetEquippedGun() : nullptr;
+	AMagazine* magazine = gun ? gun->GetMagazine() : nullptr;
+
+	if (!myowner || !gun || !magazine)
+	{
+		return;
+	}
+
+	Out_NumRoundsLeft = magazine->RoundsLeft();	
+
+	Out_FireMode = gun->GetCurrentFireMode();
+
+	USimpleInventory* inventory = Cast<USimpleInventory>(myowner->GetComponentByClass(USimpleInventory::StaticClass()));
+	Out_NumMagazines = inventory->GetNumberOfMagazinesForType(magazine->GetClass());	
+}
