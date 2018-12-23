@@ -31,7 +31,7 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	Super::BeginPlay();	
 
 	SetIsLocallyControlled();
-	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);	
+	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 
