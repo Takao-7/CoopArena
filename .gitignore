@@ -79,8 +79,4 @@ DerivedDataCache/*
 # Temp  folder
 enc_temp_folder/*
 
-Content/LargeFileSystem
-
 ._*
-
-Content/Maps/Arena.umap
