@@ -5,13 +5,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Engine/World.h"
 #include "CoopArena.h"
 #include "MyPhysicalMaterial.h"
 #include "UnrealNetwork.h"
 
 
-// Sets default values
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -19,19 +19,30 @@ AProjectile::AProjectile()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetCollisionResponseToAllChannels(ECR_Overlap);
-	Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	Mesh->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
-	Mesh->SetCollisionResponseToChannel(ECC_ProjectilePenetration, ECR_Ignore);
-	Mesh->bReturnMaterialOnMove = true;
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleOverlap);
-	RootComponent = Mesh;
+	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision"));
+	Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Collision->SetGenerateOverlapEvents(true);
+	Collision->SetNotifyRigidBodyCollision(true);
+	Collision->SetCollisionResponseToAllChannels(ECR_Block);
+	Collision->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	Collision->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	Collision->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
+	Collision->SetCollisionObjectType(ECC_Projectile);
+	Collision->SetUseCCD(true);
+	Collision->bReturnMaterialOnMove = true;
+	Collision->OnComponentHit.AddDynamic(this, &AProjectile::HandleHit);
+	Collision->SetCapsuleSize(0.3f, 1.0f);
+	RootComponent = Collision;
+	Collision->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
 
-	_ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetGenerateOverlapEvents(false);
+	Mesh->SetNotifyRigidBodyCollision(false);
+	Mesh->SetCollisionObjectType(ECC_Projectile);
+	Mesh->SetupAttachment(RootComponent);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +54,7 @@ float AProjectile::GetDamageWithFallOff() const
 		flightTime = GetWorld()->GetTimeSeconds() - _TimeSecondsWhenSpawned;
 	}
 	float damage;
-	if (_ProjectileValues.bLinealDamageDropOff)
+	if (_ProjectileValues.bLinearDamageDropOff)
 	{
 		damage = _ProjectileValues.BaseDamage - (flightTime * _ProjectileValues.DamageDropOffPerSecond);
 	}
@@ -55,23 +66,29 @@ float AProjectile::GetDamageWithFallOff() const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-FVector AProjectile::GetImpulse() const
+void AProjectile::PlayFlyBySound()
 {
-	return GetActorForwardVector() * (GetVelocity().Size() * _ProjectileValues.Mass);
+	UGameplayStatics::SpawnSoundAttached(_FlyBySound, Mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+FVector AProjectile::GetImpulse() const
 {
-	if (!HasAuthority() || OtherActor == nullptr)
+	return GetActorForwardVector() * (GetVelocity().Size());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (HasAuthority() == false)
 	{
 		return;
 	}
 
-	UParticleSystem* hitEffect = nullptr;
-	USoundBase* impactSound = nullptr;
+	UParticleSystem* hitEffect = _DefaultHitEffect;
+	USoundBase* impactSound = _DefaultHitSound;
 
-	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());	
+	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(Hit.PhysMaterial.Get());
 	float damage = GetDamageWithFallOff();
 	if (material)
 	{
@@ -81,41 +98,50 @@ void AProjectile::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No MyPhysicalMaterial on: %s"), *OtherActor->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("No MyPhysicalMaterial on: %s"), OtherActor ? *OtherActor->GetName() : TEXT("Target"));
 	}
 
-	if (OtherActor->GetInstigator())
+	if (OtherActor && OtherActor->GetInstigator())
 	{
-		UGameplayStatics::ApplyPointDamage(OtherActor, damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
+		UGameplayStatics::ApplyPointDamage(OtherActor, damage, GetImpulse(), Hit, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
 	}
 	else  // We hit the environment.
 	{
-		ApplyDamage_Multicast(OtherActor, damage, SweepResult);
+		ApplyDamage_Multicast(OtherActor, damage, Hit);
 	}
 
-	SpawnHitEffect_Multicast(hitEffect ? hitEffect : _DefaultHitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation());
-	if (impactSound)
+	if (hitEffect || impactSound)
 	{
-		PlayImpactSound_Multicast(impactSound, OtherComp);
+		HandleHitEffects(hitEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation(), impactSound, OtherComp);
 	}
+
 	Destroy();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void AProjectile::PlayImpactSound_Multicast_Implementation(USoundBase* impactSound, UPrimitiveComponent* OtherComp)
+void AProjectile::HandleHitEffects_Implementation(UParticleSystem* ImpactEffect, FVector Location, FRotator Rotation, USoundBase* ImpactSound, UPrimitiveComponent* OtherComp)
 {
-	UGameplayStatics::SpawnSoundAttached(impactSound, OtherComp);
+	if (ImpactSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(ImpactSound, OtherComp);
+	}
+
+	if (ImpactEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Location, Rotation, true, EPSCPoolMethod::None);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::BeginPlay()
 {
-	Super::BeginPlay();	
-	UParticleSystemComponent* trailEffect = UGameplayStatics::SpawnEmitterAttached(_TrailEffect, Mesh);
+	Super::BeginPlay();
+	UParticleSystemComponent* trailEffect = UGameplayStatics::SpawnEmitterAttached(_TrailEffect, RootComponent, NAME_None, FVector::ZeroVector, FRotator(90.0f, 0.0f, 0.0f));
 	if (trailEffect == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No trail effect spawned."));
 	}
+
 	_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
 	SetLifeSpan(_ProjectileValues.lifeTime);
 }
@@ -124,10 +150,4 @@ void AProjectile::BeginPlay()
 void AProjectile::ApplyDamage_Multicast_Implementation(AActor* OtherActor, float Damage, const FHitResult& SweepResult)
 {
 	UGameplayStatics::ApplyPointDamage(OtherActor, Damage, GetImpulse(), SweepResult, GetOwner()->GetInstigatorController(), this, _ProjectileValues.DamageType);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void AProjectile::SpawnHitEffect_Multicast_Implementation(UParticleSystem* Effect, FVector Location, FRotator Rotation)
-{
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, Location, Rotation, true, EPSCPoolMethod::None);
 }

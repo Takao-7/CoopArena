@@ -143,7 +143,7 @@ protected:
 	void SetProne(bool bProne);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void SetSprinting(bool bWantsToSprint);
+	virtual void SetSprinting(bool bWantsToSprint);
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void SetWalking(bool bWantsToWalk);
@@ -154,23 +154,23 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void ToggleJump();
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = Humanoid)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Humanoid|Movement")
 	bool _bIsProne;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Sprinting speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Humanoid|Movement", meta = (DisplayName = "Sprinting speed"))
 	float _SprintingSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Jogging speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Humanoid|Movement", meta = (DisplayName = "Jogging speed"))
 	float _JoggingSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Walking speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Humanoid|Movement", meta = (DisplayName = "Walking speed"))
 	float _WalkingSpeed;
 
 	/* The maximum velocity, in cm/s, at which the character can crouch (forward and backward).  */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Humanoid, meta = (DisplayName = "Max crouching speed"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Humanoid|Movement", meta = (DisplayName = "Max crouching speed"))
 	float _MaxCrouchingSpeed;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Humanoid")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Humanoid|Movement")
 	EGait _Gait;
 
 
