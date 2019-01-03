@@ -60,7 +60,8 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 	const int32 numPlayersOnMap = _playerControllers.Num();
 	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
 
-	const bool bIsSinglePlayer = GetNetMode() == ENetMode::NM_Standalone;
+	ENetMode netMode = GetNetMode();
+	const bool bIsSinglePlayer = (netMode == ENetMode::NM_Standalone) || numConnectedPlayers == 0;
 	const bool bAllPlayersAreOnMap = numPlayersOnMap == numConnectedPlayers;
 
 	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
