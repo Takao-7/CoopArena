@@ -136,6 +136,11 @@ void UHealthComponent::SetHealth(float NewHealth)
 void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, 
 										FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser)
 {
+	if (_MaxHealth == -1.0f)
+	{
+		return;
+	}
+
 	_CurrentHealth -= Damage;
 	if (_CurrentHealth <= 0.0f)
 	{

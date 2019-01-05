@@ -35,9 +35,6 @@ AGun::AGun()
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
 	_ZoomCamera->SetAutoActivate(true);
 
-	//_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
-	//_ForwardDirection->SetupAttachment(RootComponent);
-
 	_EquipOffset = CreateDefaultSubobject<USceneComponent>(TEXT("Offset"));
 	_EquipOffset->SetupAttachment(RootComponent);
 
