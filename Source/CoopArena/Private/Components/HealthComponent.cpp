@@ -11,12 +11,13 @@
 #include "UnrealNetwork.h"
 #include "GameModes/CoopArenaGameMode.h"
 #include "PlayerCharacter.h"
+#include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 
 
 UHealthComponent::UHealthComponent()
 {
 	_MaxHealth = 100.0f;
-	_CurrentHealth = _MaxHealth;
 	
 	bReplicates = true;
 	bAutoActivate = true;
@@ -54,6 +55,8 @@ void UHealthComponent::BeginPlay()
 
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
 	OnDeath.AddDynamic(this, &UHealthComponent::HandleDeath);
+
+	_CurrentHealth = _MaxHealth;
 }
 
 /////////////////////////////////////////////////////
@@ -140,8 +143,11 @@ void UHealthComponent::HandlePointDamage(AActor* DamagedActor, float Damage, cla
 	{
 		return;
 	}
-
 	_CurrentHealth -= Damage;
+
+	//FString string = GetName() + TEXT(": Recieved ") + FString::SanitizeFloat(Damage) + TEXT(" damage. ") + FString::SanitizeFloat(_CurrentHealth) + TEXT(" health remaining.");
+	//GetWorld()->GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(0, 5.0f, FColor::Green, string);
+
 	if (_CurrentHealth <= 0.0f)
 	{
 		OnDeathEvent_Multicast(GetOwner(), GetOwner()->GetInstigatorController(), InstigatedBy);

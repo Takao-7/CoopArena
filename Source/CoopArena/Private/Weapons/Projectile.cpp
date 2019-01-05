@@ -10,6 +10,8 @@
 #include "CoopArena.h"
 #include "MyPhysicalMaterial.h"
 #include "UnrealNetwork.h"
+#include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 
 
 AProjectile::AProjectile()
@@ -48,11 +50,8 @@ AProjectile::AProjectile()
 //////////////////////////////////////////////////////////////////////////////////////
 float AProjectile::GetDamageWithFallOff() const
 {
-	float flightTime = 0.0f;
-	if (_TimeSecondsWhenSpawned != 0.0f)
-	{
-		flightTime = GetWorld()->GetTimeSeconds() - _TimeSecondsWhenSpawned;
-	}
+	float flightTime = _TimeSecondsWhenSpawned != 0.0f ? GetWorld()->GetTimeSeconds() - _TimeSecondsWhenSpawned : 0;
+
 	float damage;
 	if (_ProjectileValues.bLinearDamageDropOff)
 	{
