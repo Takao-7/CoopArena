@@ -9,29 +9,6 @@ ADeathmatch::ADeathmatch()
 }
 
 /////////////////////////////////////////////////////
-void ADeathmatch::RegisterPlayer(APlayerController* Controller)
-{
-	if (Players.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Players.AddUnique(Controller);
-	SetTeamName(Controller);
-}
-
-void ADeathmatch::RegisterBot(AController* Controller)
-{
-	if (Bots.Contains(Controller) || Controller == nullptr)
-	{
-		return;
-	}
-
-	Bots.AddUnique(Controller);
-	SetTeamName(Controller);
-}
-
-/////////////////////////////////////////////////////
 void ADeathmatch::SetTeamName(AController* Controller)
 {
 	FString teamTag = CheckForTeamTag(*Controller);

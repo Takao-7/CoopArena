@@ -54,6 +54,7 @@ Binaries/*
 
 # Builds
 Build/*
+Builds/*
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
@@ -78,6 +79,6 @@ DerivedDataCache/*
 # Temp  folder
 enc_temp_folder/*
 
-._sync*
+._*
 
-LargeFileSystem/
+Content/LargeFileSystem/

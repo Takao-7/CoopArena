@@ -6,13 +6,21 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/BasicAnimationSystemComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Enums/WeaponEnums.h"
 #include "Gun.h"
 #include "CoopArena.h"
-#include "Camera/CameraComponent.h"
+#include "CoopArenaGameMode.h"
+#include "HealthComponent.h"
+#include "SimpleInventory.h"
+#include "AudioThread.h"
+#include "SoundNodeLocalPlayer.h"
+#include "Projectile.h"
+#include "Kismet/GameplayStatics.h"
 
 
 /////////////////////////////////////////////////////
@@ -20,26 +28,42 @@ APlayerCharacter::APlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	_BaseTurnRate = 0.5f;
+	_BaseLookUpRate = 0.5f;
+
+	_bToggleProne = true;
+	_bToggleCrouching = true;
+	_bToggleWalking = true;
+
 	_InteractionRange = 200.0f;
-	_InteractableInFocus = nullptr;
 
-	_FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First person camera"));
-	_FirstPersonCamera->SetupAttachment(GetMesh(), "head");
-	_FirstPersonCamera->bUsePawnControlRotation = true;
-	_FirstPersonCamera->SetRelativeLocationAndRotation(FVector(7.0f, 5.0f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("First person camera"));
+	FirstPersonCamera->SetupAttachment(GetMesh(), "head");
+	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->SetRelativeLocationAndRotation(FVector(7.0f, 5.0f, 0.0f), FRotator(0.0f, 90.0f, -90.0f));
 
-	_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
-	_SpringArm->SetupAttachment(RootComponent);
-	_SpringArm->SetRelativeLocation(FVector(0.0f, 20.0f, 60.0f));
-	_SpringArm->TargetArmLength = 200.0f;
-	_SpringArm->bUsePawnControlRotation = true;
-	_SpringArm->bEnableCameraLag = true;
-	_SpringArm->bEnableCameraRotationLag = true;
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetRelativeLocation(FVector(0.0f, 20.0f, 60.0f));
+	SpringArm->TargetArmLength = 200.0f;
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
 
-	_ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
-	_ThirdPersonCamera->SetupAttachment(_SpringArm, "SpringEndpoint");
+	ProjectileInteraction = CreateDefaultSubobject<USphereComponent>(TEXT("Projectile interaction"));
+	ProjectileInteraction->SetupAttachment(RootComponent);
+	ProjectileInteraction->SetSphereRadius(150.0f);
+	ProjectileInteraction->SetGenerateOverlapEvents(true);
+	ProjectileInteraction->SetCollisionResponseToAllChannels(ECR_Ignore);
+	ProjectileInteraction->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	ProjectileInteraction->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::HandleProjectileOverlap);
 
-	m_IncrementVelocityAmount = 50.0f;
+	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
+	ThirdPersonCamera->SetupAttachment(SpringArm, "SpringEndpoint");
+
+	_TeamName = "Player Team";
+
+	_StopSoundDelay = 3.0f;
 }
 
 /////////////////////////////////////////////////////
@@ -54,30 +78,63 @@ void APlayerCharacter::Tick(float DeltaTime)
 }
 
 /////////////////////////////////////////////////////
+void APlayerCharacter::TurnAtRate(float Rate)
+{
+	float sprintModifier = _Gait == EGait::Sprinting ? 0.5f : 1.0f;
+	AddControllerYawInput(Rate * _BaseTurnRate * sprintModifier);
+}
+
+void APlayerCharacter::LookUpAtRate(float Rate)
+{
+	AddControllerPitchInput(Rate * _BaseTurnRate);
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::SetSprinting(bool bWantsToSprint)
+{
+	Super::SetSprinting(bWantsToSprint);
+	if (bWantsToSprint)
+	{
+		_TimeOfSprintStart = GetWorld()->GetTimeSeconds();
+		_PlayingSprintingSound = UGameplayStatics::SpawnSoundAttached(_SprintingSound, GetRootComponent());
+	}
+	else
+	{
+		if (_PlayingSprintingSound)
+		{
+			_PlayingSprintingSound->Stop();
+		}
+
+		float currentTime = GetWorld()->GetTimeSeconds();
+		if ((currentTime - _TimeOfSprintStart) >= _StopSoundDelay)
+		{
+			UGameplayStatics::SpawnSoundAttached(_StopSprintingSound, GetRootComponent());
+		}
+	}	
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::CheckForInteractables()
 {
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))
 	{
 		AActor* hitActor = _InteractionHitResult.GetActor();
 		UPrimitiveComponent* hitComponent = _InteractionHitResult.GetComponent();
-		IInteractable* interactable = Cast<IInteractable>(hitActor);
-		if (interactable)
-		{
-			// Only do Begin/End line traces calls if we are pointing at something new
-			if (interactable != _InteractableInFocus)
-			{
-				if (_ActorInFocus)
-				{
-					IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
-				}
 
-				IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
-				SetActorInFocus(hitActor);
+		// Only do Begin/End line traces calls if we are pointing at something new
+		if (hitActor != _ActorInFocus)
+		{
+			if (_ActorInFocus)
+			{
+				IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 			}
-			SetComponentInFocus(hitComponent);
+
+			IInteractable::Execute_OnBeginLineTraceOver(hitActor, this, hitComponent);				
+			SetActorInFocus(hitActor);
 		}
+		SetComponentInFocus(hitComponent);
 	}
-	else if (_InteractableInFocus && _ActorInFocus)
+	else if (_ActorInFocus)
 	{
 		IInteractable::Execute_OnEndLineTraceOver(_ActorInFocus, this);
 		SetActorInFocus(nullptr);
@@ -88,23 +145,61 @@ void APlayerCharacter::CheckForInteractables()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(m_EquippedWeapon, -1);
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (HasAuthority())
+	{
+		ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+		gameMode->RegisterPlayerCharacter(this);
+
+		OnDestroyed.AddDynamic(this, &APlayerCharacter::HandleOnDestroy);
+	}
+	HealthComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleOnDeath);
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::HandleOnDestroy(AActor* DestroyedActor)
+{
+	AGun* equippedGun = GetEquippedGun();
+	if(equippedGun)
+	{
+		equippedGun->Unequip(true, true);
+	}
+
+	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+	gameMode->UnregisterPlayerCharacter(this);
+}
+
+void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorController, AController* Killer)
+{
+	if(IsAiming())
+	{
+		OnAimingReleased();
+	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::HandleProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(IsLocallyControlled() && OtherActor->GetOwner() != this)
+	{
+		AProjectile* projectile = Cast<AProjectile>(OtherActor);
+		ensure(projectile);
+
+		projectile->PlayFlyBySound();
+	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::SetActorInFocus(AActor* actor)
 {
-	_InteractableInFocus = Cast<IInteractable>(actor);
-	if (_InteractableInFocus)
-	{
-		_ActorInFocus = actor;
-	}
-	else
-	{
-		_ActorInFocus = nullptr;
-	}	
+	_ActorInFocus = actor;
 }
-
 
 void APlayerCharacter::SetComponentInFocus(UPrimitiveComponent* Component)
 {
@@ -119,9 +214,9 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 	FVector traceEndLoaction = cameraLocation + forwardVector * _InteractionRange;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	if (m_EquippedWeapon)
+	if (_EquippedWeapon)
 	{
-		params.AddIgnoredActor((AActor*)m_EquippedWeapon);
+		params.AddIgnoredActor((AActor*)_EquippedWeapon);
 	}
 	return GetWorld()->LineTraceSingleByChannel(outHitresult, cameraLocation, traceEndLoaction, ECC_Interactable, params);
 }
@@ -129,32 +224,61 @@ bool APlayerCharacter::InteractionLineTrace(FHitResult& outHitresult)
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnPronePressed()
 {
-	if (m_bToggleProne)
+	if (_bToggleProne)
 	{
-		m_bIsProne = !m_bIsProne;
+		_bIsProne = !_bIsProne;
 	}
 	else
 	{
-		m_bIsProne = true;
+		_bIsProne = true;
 	}
 }
 
 void APlayerCharacter::OnProneReleased()
 {
-	if (!m_bToggleProne)
+	if (!_bToggleProne)
 	{
-		m_bIsProne = false;
+		_bIsProne = false;
+	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::OnWalkPressed()
+{
+	if (_bToggleWalking)
+	{
+		if (_Gait == EGait::Walking)
+		{
+			SetWalking(false);
+		}
+		else
+		{
+			SetWalking(true);
+		}
+	}
+	else
+	{
+		SetWalking(true);
+	}
+}
+
+void APlayerCharacter::OnWalkReleased()
+{
+	if (!_bToggleWalking)
+	{
+		SetWalking(false);
 	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnSprintPressed()
 {
-	if (m_bToggleSprinting)
+	if (_bToggleSprinting)
 	{
-		SetSprinting(!m_bIsSprinting);
+		const bool bIsSprinting = _Gait == EGait::Sprinting;
+		SetSprinting(!bIsSprinting);
 	}
-	else if (!m_bIsSprinting)
+	else if (_Gait != EGait::Sprinting)
 	{
 		SetSprinting(true);
 	}
@@ -162,7 +286,7 @@ void APlayerCharacter::OnSprintPressed()
 
 void APlayerCharacter::OnSprintReleased()
 {
-	if (!m_bToggleSprinting)
+	if (!_bToggleSprinting)
 	{
 		SetSprinting(false);
 	}
@@ -171,7 +295,7 @@ void APlayerCharacter::OnSprintReleased()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnCrouchPressed()
 {
-	if (m_bToggleCrouching)
+	if (_bToggleCrouching)
 	{
 		SetCrouch(!bIsCrouched);
 	}
@@ -184,7 +308,7 @@ void APlayerCharacter::OnCrouchPressed()
 
 void APlayerCharacter::OnCrouchReleased()
 {
-	if (!m_bToggleCrouching)
+	if (!_bToggleCrouching)
 	{
 		BASComponent->GetActorVariables().MovementAdditive = EMovementAdditive::None;
 		UnCrouch();
@@ -192,67 +316,83 @@ void APlayerCharacter::OnCrouchReleased()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnIncreaseVelocity()
-{
-	IncrementVelocity(m_IncrementVelocityAmount);
-}
-
-void APlayerCharacter::OnDecreaseVelocity()
-{
-	IncrementVelocity(-m_IncrementVelocityAmount);
-}
-
-/////////////////////////////////////////////////////
 void APlayerCharacter::OnChangeCameraPressed()
 {
-	_FirstPersonCamera->ToggleActive();
-	_ThirdPersonCamera->ToggleActive();
+	FirstPersonCamera->ToggleActive();
+	ThirdPersonCamera->ToggleActive();
 
-	if (_ThirdPersonCamera->IsActive())
+	if (ThirdPersonCamera->IsActive())
 	{
-		_InteractionRange += _SpringArm->TargetArmLength;
+		_InteractionRange += SpringArm->TargetArmLength;
 	}
 	else
 	{
-		_InteractionRange -= _SpringArm->TargetArmLength;
+		_InteractionRange -= SpringArm->TargetArmLength;
 	}
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::ToggleAiming()
+void APlayerCharacter::OnAimingPressed()
 {
-	if (m_bIsAiming)
+	if (_EquippedWeapon && _Gait != EGait::Sprinting)
 	{
-		m_bIsAiming = false;
-		BASComponent->GetActorVariables().bIsAiming = false;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(GetController()->GetPawn(), 0.2f);		
-	}
-	else if (m_EquippedWeapon && !m_bIsSprinting)
-	{
-		m_bIsAiming = true;
+		_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(m_EquippedWeapon, 0.2f);		
+		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+	}
+}
+
+void APlayerCharacter::OnAimingReleased()
+{
+	if (_EquippedWeapon && _Gait != EGait::Sprinting)
+	{
+		_bIsAiming = false;
+		BASComponent->GetActorVariables().bIsAiming = false;
+		APlayerController* pc = Cast<APlayerController>(GetController());
+		pc->SetViewTargetWithBlend(pc->GetPawn(), 0.2f);
+	}
+}
+
+/////////////////////////////////////////////////////
+void APlayerCharacter::OnSelectPrimaryWeapon()
+{
+	AGun* primaryGun = Inventory->GetGunAtAttachPoint(0);
+	if (primaryGun)
+	{
+		HolsterWeapon_Event.Broadcast(primaryGun, -1);
+	}
+}
+
+void APlayerCharacter::OnSelectSecondaryWeapon()
+{
+	AGun* secondaryWeapon = Inventory->GetGunAtAttachPoint(1);
+
+	if (_EquippedWeapon == nullptr && secondaryWeapon)
+	{
+		HolsterWeapon_Event.Broadcast(secondaryWeapon, 1);
+	}
+	else if (_EquippedWeapon && secondaryWeapon)
+	{
+		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 	}
 }
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
-	if (_InteractableInFocus)
+	if (_ActorInFocus)
 	{
 		Server_OnBeginInteracting(_ActorInFocus, _ComponentInFocus);
 	}
 }
 
-
 void APlayerCharacter::OnEndInteracting()
 {
-	if (_InteractableInFocus)
+	if (_ActorInFocus)
 	{
 		IInteractable::Execute_OnEndInteract(_ActorInFocus, this);
 	}
 }
-
 
 /////////////////////////////////////////////////////
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -262,7 +402,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	check(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::ToggleJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::ToggleJump);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -282,33 +421,32 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::OnSprintPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::OnSprintReleased);
 
+	PlayerInputComponent->BindAction("Walk", IE_Pressed, this, &APlayerCharacter::OnWalkPressed);
+	PlayerInputComponent->BindAction("Walk", IE_Released, this, &APlayerCharacter::OnWalkReleased);
+
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::OnBeginInteracting);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APlayerCharacter::OnEndInteracting);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::ToggleAiming);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::OnAimingPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::OnAimingReleased);
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
+
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
+
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
 
-	PlayerInputComponent->BindAction("Increase velocity", IE_Pressed, this, &APlayerCharacter::OnIncreaseVelocity);
-	PlayerInputComponent->BindAction("Decrease velocity", IE_Pressed, this, &APlayerCharacter::OnDecreaseVelocity);
-
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
-}
 
-
-/////////////////////////////////////////////////////
-FVector APlayerCharacter::GetCameraLocation() const
-{
-	return GetActiveCamera()->GetComponentLocation();
+	PlayerInputComponent->BindAction("SelectPrimaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectPrimaryWeapon);
+	PlayerInputComponent->BindAction("SelectSecondaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectSecondaryWeapon);
 }
 
 /////////////////////////////////////////////////////
-UCameraComponent* APlayerCharacter::GetActiveCamera() const
+void APlayerCharacter::SetThirdPersonCameraToActive()
 {
-	return _FirstPersonCamera->IsActive() ? _FirstPersonCamera : _ThirdPersonCamera;
+	FirstPersonCamera->SetActive(false);
+	ThirdPersonCamera->SetActive(true);
 }
 
 /////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 #include "BasicAnimationSystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
 #include "Engine/World.h"
 #include "Animation/AnimInstance.h"
@@ -11,15 +12,13 @@
 UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	bReplicates = true;
 
 	m_TurnSpeed = 10.0f;
 
 	m_Variables.MovementType = EMovementType::Idle;
 	m_Variables.MovementAdditive = EMovementAdditive::None;
 	m_Variables.EquippedWeaponType = EWEaponType::None;
-
-	bReplicates = true;
-	bAutoActivate = true;
 
 	m_180TurnThreshold = 120.0f;
 	m_AngleClampThreshold = 180.0f;
@@ -29,43 +28,52 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
 
-	m_bIsLocallyControlled = GetOwner()->GetInstigator()->IsLocallyControlled();
-
+	SetIsLocallyControlled();
 	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
-	if (m_bIsLocallyControlled)
-	{
-		OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::BroadcastJumpEvent_Server);
-	}
-	
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 
 	UHealthComponent* healthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
 	if (healthComp)
 	{
-		healthComp->OnDeathEvent.AddDynamic(this, &UBasicAnimationSystemComponent::DisableComponent);
+		healthComp->OnDeath.AddDynamic(this, &UBasicAnimationSystemComponent::DisableComponent);
 	}
 	
 	m_ActorYawLastFrame = GetOwner()->GetActorRotation().Yaw;
-	m_CapsuleHalfHeight = m_Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	m_CapsuleHalfHeight = _Owner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetIsLocallyControlled()
+{
+	if(_bIsLocallyControlled == false)
+	{
+		APawn* instigator = GetOwner()->GetInstigator();
+		_bIsLocallyControlled = instigator ? instigator->IsLocallyControlled() : false;
+
+		if (_bIsLocallyControlled)
+		{
+			OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::BroadcastJumpEvent_Server);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::FindAnimInstance()
 {
-	m_Owner = Cast<ACharacter>(GetOwner());
-	check(m_Owner);
+	_Owner = Cast<ACharacter>(GetOwner());
+	check(_Owner);
 
-	m_AnimInstance = m_Owner->GetMesh()->GetAnimInstance();
+	m_AnimInstance = _Owner->GetMesh()->GetAnimInstance();
 	check(m_AnimInstance);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::FindCharacterMovementComponent()
 {
-	m_MovementComponent = m_Owner->GetCharacterMovement();
+	m_MovementComponent = _Owner->GetCharacterMovement();
 	if (m_MovementComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("'%s' does not have a CharacterMovementComponent."), *GetOwner()->GetName());
@@ -116,22 +124,23 @@ void UBasicAnimationSystemComponent::SetIsMovingForward()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementAdditive()
 {
-	m_Variables.MovementAdditive = m_Owner->bIsCrouched ? EMovementAdditive::Crouch : EMovementAdditive::None;
+	m_Variables.MovementAdditive = _Owner->bIsCrouched ? EMovementAdditive::Crouch : EMovementAdditive::None;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 {
-	if (!m_bIsLocallyControlled)
+	if (!_bIsLocallyControlled)
 	{
 		m_AimYawLastFrame = m_Variables.AimYaw;
-		m_Variables.AimYaw = m_AimYaw;
+		m_Variables.AimYaw = _AimYaw;
+		m_Variables.MovementDirection = _Direction;
 		CheckWhetherToPlayTurnAnimation(DeltaTime, m_Variables.AimYaw);
 		CheckIfTurnAnimFinished();
 		return;
 	}
 
-	FRotator actorRotation = GetOwner()->GetActorRotation();
+	const FRotator actorRotation = GetOwner()->GetActorRotation();
 	float yawDelta = 0.0f;
 	if (m_Variables.MovementType == EMovementType::Idle)
 	{
@@ -141,8 +150,10 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 		CheckWhetherToPlayTurnAnimation(DeltaTime, newAimYaw);
 		AddCurveValueToYawWhenTurning(newAimYaw);
-		
+
 		m_Variables.AimYaw = MapAngleTo180(newAimYaw);
+
+		m_Variables.MovementDirection = FMath::FInterpTo(m_Variables.MovementDirection, 0.0f, DeltaTime, m_TurnSpeed);
 	}
 	else
 	{
@@ -152,8 +163,10 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 		const FTransform actorTransform = GetOwner()->GetActorTransform();
 		yawDelta = actorTransform.InverseTransformVector(velocity).ToOrientationRotator().Yaw;
-		const float newAimYaw = FMath::FInterpTo(m_Variables.AimYaw, yawDelta, DeltaTime, m_TurnSpeed);		
-		m_Variables.AimYaw = MapAngleTo180(newAimYaw);;
+		const float direction = FMath::FInterpTo(m_Variables.MovementDirection, yawDelta, DeltaTime, m_TurnSpeed);
+		m_Variables.MovementDirection = MapAngleTo180(direction);
+
+		m_Variables.AimYaw = FMath::FInterpTo(m_Variables.AimYaw, 0.0f, DeltaTime, m_TurnSpeed);
 	}
 
 	m_ActorYawLastFrame = actorRotation.Yaw;
@@ -161,11 +174,12 @@ void UBasicAnimationSystemComponent::SetAimYaw(float DeltaTime)
 
 	if (GetOwner()->HasAuthority() == false)
 	{
-		ReplicateAimYaw_Server(m_Variables.AimYaw);
+		ReplicateYawAndDirection_Server(m_Variables.AimYaw, m_Variables.MovementDirection);
 	}
 	else
 	{
-		m_AimYaw = m_Variables.AimYaw;
+		_AimYaw = m_Variables.AimYaw;
+		_Direction = m_Variables.MovementDirection;
 	}
 
 	CheckIfTurnAnimFinished();
@@ -222,10 +236,10 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::DisableComponent()
+void UBasicAnimationSystemComponent::DisableComponent(AActor* Actor, AController* Controller, AController* Killer)
 {
 	PrimaryComponentTick.SetTickFunctionEnable(false);
-	m_bIsLocallyControlled = false;
+	_bIsLocallyControlled = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -293,7 +307,7 @@ void UBasicAnimationSystemComponent::PlayJumpAnimation()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimPitch()
 {
-	if(m_bIsLocallyControlled)
+	if(_bIsLocallyControlled)
 	{
 		const APawn* instigator = GetOwner()->GetInstigator();
 		float controlPitch = instigator->GetControlRotation().Pitch;
@@ -330,6 +344,8 @@ FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 //////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetMovementType()
 {
+	m_Variables.MovementType_LastFrame = m_Variables.MovementType;
+
 	if (!FMath::IsNearlyZero(m_Variables.Velocity.Z))
 	{
 		m_Variables.MovementType = EMovementType::InAir;
@@ -360,12 +376,13 @@ void UBasicAnimationSystemComponent::SetSprintingSpeedThreshold(float SprintingS
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Implementation(float AimYaw)
+void UBasicAnimationSystemComponent::ReplicateYawAndDirection_Server_Implementation(float AimYaw, float Direction)
 {
-	m_AimYaw = AimYaw;
+	_AimYaw = AimYaw;
+	_Direction = Direction;
 }
 
-bool UBasicAnimationSystemComponent::ReplicateAimYaw_Server_Validate(float AimYaw)
+bool UBasicAnimationSystemComponent::ReplicateYawAndDirection_Server_Validate(float AimYaw, float Direction)
 {
 	return true;
 }
@@ -383,7 +400,7 @@ bool UBasicAnimationSystemComponent::BroadcastJumpEvent_Server_Validate()
 
 void UBasicAnimationSystemComponent::BroadcastJumpEvent_Multicast_Implementation()
 {
-	if (!m_bIsLocallyControlled)
+	if (!_bIsLocallyControlled)
 	{
 		OnJumpEvent.Broadcast();
 	}
@@ -394,5 +411,6 @@ void UBasicAnimationSystemComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, m_AimYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, _AimYaw, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(UBasicAnimationSystemComponent, _Direction, COND_SkipOwner);
 }

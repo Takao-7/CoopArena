@@ -11,6 +11,8 @@ class UProjectileMovementComponent;
 class UCapsuleComponent;
 class UStaticMeshComponent;
 class UMyDamageType;
+class UArrowComponent;
+namespace ForwardDeclare { class USoundBase; }
 
 
 USTRUCT(BlueprintType)
@@ -21,30 +23,15 @@ struct FProjectileValues
 	FProjectileValues()
 	{
 		BaseDamage = 20.0f;
-		Mass = 0.01;
 		CriticalHitDamageMultiplier = 10.0f;
-		bLinealDamageDropOff = true;
+		bLinearDamageDropOff = true;
 		DamageDropOffPerSecond = 1.0f;
 		lifeTime = 5.0f;
-		Penetration = 10.0f;
-		bPenetrationIsVelocityBound = true;
 	}
 
 	/* The projectiles base damage, without any modifiers */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	float BaseDamage;
-
-	/* This projectile's penetration against RHA, in mm. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	float Penetration;
-
-	/* Is the penetration value proportional (=bound) to the velocity (e.g. a normal projectile) ? */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	bool bPenetrationIsVelocityBound;
-
-	/* Projectile's mass in kg. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	float Mass;
 
 	/* With how much the damage is multiplied when a critical hit is scored */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
@@ -56,7 +43,7 @@ struct FProjectileValues
 
 	/* False = exponential damage drop-off */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
-	bool bLinealDamageDropOff;
+	bool bLinearDamageDropOff;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	TSubclassOf<UMyDamageType> DamageType;
@@ -66,40 +53,37 @@ struct FProjectileValues
 	float lifeTime;
 };
 
+
 UCLASS()
 class COOPARENA_API AProjectile : public AActor
 {
 	GENERATED_BODY()
-	
-public:
-	AProjectile();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
-	float GetDamageWithFallOff() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
-	FORCEINLINE TSubclassOf<AActor> GetProjectileCase() const { return m_ProjectileCase; };
-	
+	/////////////////////////////////////////////////////
+					/* Components */
+	/////////////////////////////////////////////////////
 protected:
-	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category = Projectile)
-	FORCEINLINE FVector GetImpulse() const;
-
-	/* When this projectile "hits" something. Will apply damage do the hit actor and destroy this projectile.
-	 * TODO: Add penetration functionality. */
-	UFUNCTION(BlueprintCallable, Category = Projectile)
-	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-	UProjectileMovementComponent* _ProjectileMovementComponent;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Projectile)
+	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Projectile)
+	UCapsuleComponent* Collision;
+
+	///////////////////////////////////////////////////
+					/* Parameters */
+	///////////////////////////////////////////////////
+protected:
+	/* The sound that will be played when this projectile flies by a player. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
+	USoundBase* _FlyBySound;
+
 	/* The case that is spawned after this projectile is fired. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile, meta = (DisplayName = "Projectile case"))
-	TSubclassOf<AActor> m_ProjectileCase;
+	TSubclassOf<AActor> _ProjectileCase;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	FProjectileValues _ProjectileValues;
@@ -115,7 +99,34 @@ protected:
 	UParticleSystem* _DefaultHitEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
+	USoundBase* _DefaultHitSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Projectile)
 	UParticleSystem* _TrailEffect;
+	
+
+	/////////////////////////////////////////////////////
+					/* Functions */
+	/////////////////////////////////////////////////////
+public:
+	AProjectile();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	float GetDamageWithFallOff() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Projectile)
+	TSubclassOf<AActor> GetProjectileCase() const { return _ProjectileCase; };
+
+	void PlayFlyBySound();
+	
+protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	FVector GetImpulse() const;
+
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	void HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 
 	/////////////////////////////////////////////////////
@@ -125,6 +136,6 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void ApplyDamage_Multicast(AActor* OtherActor, float Damage, const FHitResult& SweepResult);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SpawnHitEffect_Multicast(UParticleSystem* Effect, FVector Location, FRotator Rotation);
+	UFUNCTION(NetMulticast, Unreliable)
+	void HandleHitEffects(UParticleSystem* ImpactEffect, FVector Location, FRotator Rotation, USoundBase* ImpactSound, UPrimitiveComponent* OtherComp);
 };

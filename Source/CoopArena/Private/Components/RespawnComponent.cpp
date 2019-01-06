@@ -12,19 +12,22 @@
 URespawnComponent::URespawnComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bAutoActivate = true;
 
-	m_bRespawnAtDeathLocation = false;
+	_bRespawnAtDeathLocation = false;
 	m_bRespawnOnDestroy = false;
 
 	m_bEnableRespawn = true;
-	m_RespawnDelay = 2.0f;
+	m_RespawnDelay = 0.0f;
+	m_IsAlreadyRespawning = false;
 }
 
 /////////////////////////////////////////////////////
 void URespawnComponent::Respawn()
 {
-	if (m_bEnableRespawn && GetOwner()->HasAuthority())
+	if (GetOwner()->HasAuthority() && !m_IsAlreadyRespawning)
 	{
+		m_IsAlreadyRespawning = true;
 		if (m_RespawnDelay > 0.0f)
 		{
 			FTimerHandle timerhandle;
@@ -39,21 +42,33 @@ void URespawnComponent::Respawn()
 
 void URespawnComponent::HandleRespawn()
 {
-	AActor* newActor = SpawnNewActor();
-	AController* controller = GetOwner()->GetInstigatorController();
-	if (controller)
+	AActor* newActor = Cast<APawn>(SpawnNewActor());
+	APawn* newPawn = Cast<APawn>(newActor);
+	if(newPawn)
 	{
-		controller->Possess(Cast<APawn>(newActor));
+		if (_MyPlayerController)
+		{
+			_MyPlayerController->Possess(newPawn);
+			_MyPlayerController->SetViewTarget(newPawn);
+		}
+		else
+		{
+			AController* controller = GetOwner()->GetInstigatorController();
+			if (controller)
+			{
+				controller->Possess(newPawn);
+			}
+		}
+	}
+	
+	if (_HealthComp)
+	{
+		_HealthComp->Kill(nullptr);
 	}
 
-	if (m_HealthComp)
-	{
-		m_HealthComp->Kill();
-	}
+	OnRespawn.Broadcast(newActor, _MyPlayerController);
 
-	OnRespawn_Event.Broadcast(newActor, controller);
-
-	if (m_bDestroyOldActorOnRespawn)
+	if (_bDestroyOldActorOnRespawn)
 	{
 		GetOwner()->Destroy();
 	}
@@ -62,9 +77,9 @@ void URespawnComponent::HandleRespawn()
 /////////////////////////////////////////////////////
 AActor* URespawnComponent::SpawnNewActor()
 {
-	const AActor* newSpawnPoint = m_bRespawnAtDeathLocation ? GetOwner() : FindRespawnPoint();
-	const FVector location = newSpawnPoint->GetActorLocation();
-	const FRotator rotation = newSpawnPoint->GetActorRotation();
+	const AActor* newSpawnPoint = _bRespawnAtDeathLocation ? GetOwner() : FindRespawnPoint();
+	const FVector& location = newSpawnPoint->GetActorLocation();
+	const FRotator& rotation = newSpawnPoint->GetActorRotation();
 	return GetWorld()->SpawnActor(GetOwner()->GetClass(), &location, &rotation);
 }
 
@@ -73,20 +88,13 @@ void URespawnComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_HealthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));	
-	if (m_HealthComp)
+	_HealthComp = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));	
+	if (_HealthComp)
 	{
-		m_HealthComp->OnDeathEvent.AddDynamic(this, &URespawnComponent::HandleOnDeath);
+		_HealthComp->OnDeath.AddDynamic(this, &URespawnComponent::HandleOnDeath);
 	}	
 
-	const APawn* pawnOwner = Cast<APawn>(GetOwner());
-	const AController* controller = GetOwner()->GetInstigatorController();
-	if (pawnOwner == nullptr || controller == nullptr)
-	{
-
-	}
-
-	if (m_bRespawnOnDestroy || m_HealthComp == nullptr)
+	if (m_bRespawnOnDestroy || _HealthComp == nullptr)
 	{
 		GetOwner()->OnDestroyed.AddDynamic(this, &URespawnComponent::HandleOnDestroy);
 	}
@@ -105,14 +113,30 @@ AActor* URespawnComponent::FindRespawnPoint()
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 {
-	if (m_HealthComp && m_HealthComp->IsAlive() || m_HealthComp == nullptr)
+	_MyPlayerController = GetOwner()->GetInstigator<APlayerController>();
+	if(CanRespawn())
+	{
+		if (_HealthComp && _HealthComp->IsAlive() || _HealthComp == nullptr)
+		{
+			Respawn();
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void URespawnComponent::HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer)
+{
+	_MyPlayerController = Cast<APlayerController>(Controller);
+	if (CanRespawn())
 	{
 		Respawn();
 	}
 }
 
-/////////////////////////////////////////////////////
-void URespawnComponent::HandleOnDeath()
+bool URespawnComponent::CanRespawn()
 {
-	Respawn();
+	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
+	APlayerController* playerController = GetOwner()->GetInstigator<APlayerController>();
+	const bool bGameModeAllowsRespawn = gameMode->CanRespawn(playerController, GetOwner());
+	return bGameModeAllowsRespawn && m_bEnableRespawn;
 }

@@ -1,6 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -13,6 +11,7 @@ class UCharacterMovementComponent;
 class IBAS_Interface;
 class UAnimMontage;
 class UAnimInstance;
+class ACharacter;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJump_Signature);
@@ -23,9 +22,18 @@ struct FBASVariables
 {
 	GENERATED_BODY()
 
-	/* The yaw angle between the control rotation and the velocity direction. */
+	/* The angle between the control rotation and the velocity direction. */
 	UPROPERTY(BlueprintReadOnly)
 	float AimYaw;
+
+	/**
+	 * The angle between the actor's rotation and the movement direction.
+	 * 0°: The actor is moving straight forward.
+	 * 90° / -90°: The actor is moving to the right / left.
+	 * +/- 180°: The actor is moving straight backwards.
+	 */
+	UPROPERTY(BlueprintReadOnly)
+	float MovementDirection;
 
 	/* The pitch angle between the control rotation and the actor's pitch.  */
 	UPROPERTY(BlueprintReadOnly)
@@ -35,7 +43,7 @@ struct FBASVariables
 	UPROPERTY(BlueprintReadOnly)
 	float HorizontalVelocity;
 
-	/* The actor's velocity. */
+	/* The actor's velocity in world space. */
 	UPROPERTY(BlueprintReadOnly)
 	FVector Velocity;
 
@@ -50,6 +58,10 @@ struct FBASVariables
 	/* The actor's current movement type. */
 	UPROPERTY(BlueprintReadOnly)
 	EMovementType MovementType;
+
+	/* The actor's movement type in the last frame. */
+	UPROPERTY(BlueprintReadOnly)
+	EMovementType MovementType_LastFrame;
 
 	UPROPERTY(BlueprintReadOnly)
 	EMovementAdditive MovementAdditive;
@@ -104,7 +116,7 @@ protected:
 
 private:
 	/* This components owner casted to ACharacter */
-	ACharacter* m_Owner;
+	ACharacter* _Owner;
 
 	/* The owner's capsule half height (unmodified). */
 	float m_CapsuleHalfHeight;
@@ -124,14 +136,18 @@ private:
 
 	/* Our aim yaw value. Identically to m_variables.AimYaw. Used for replication. */
 	UPROPERTY(Replicated)
-	float m_AimYaw;
+	float _AimYaw;
+
+	/* Our movement direction. Identically to _Variables.MovementDirection. Used for replication. */
+	UPROPERTY(Replicated)
+	float _Direction;
 
 	/* True if the turn animation montage is playing and the curve 'DistanceCurve' had at least one value. */
 	bool m_bTurnCurveIsPlaying;
 
 	bool m_bIsTurningRight;
 
-	bool m_bIsLocallyControlled;
+	bool _bIsLocallyControlled;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
 	UAnimMontage* m_TurnAnimationPlaying;
@@ -143,6 +159,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	void SetIsLocallyControlled();
+
 	UBasicAnimationSystemComponent();
 
 	/**
@@ -173,14 +191,14 @@ private:
 	void PlayJumpAnimation();
 
 	/**
-	 * Maps the given angle to a range of +/- 180�, even if we are turning at the moment.
+	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.
 	 * @param Angle The angle to map.
 	 * @return The mapped angle.
 	 */
 	float MapAngleTo180_Forced(float Angle);
 
 	/**
-	 * Maps the given angle to a range of +/- 180� if we are not turning at the moment.
+	 * Maps the given angle to a range of +/- 180° if we are not turning at the moment.
 	 * @param Angle The angle to map.
 	 * @return The mapped angle. If we are currently turning then this is the given, unmodified Angle.
 	 */
@@ -197,11 +215,11 @@ private:
 	/* Adds the curve delta value (value last frame - value this frame) to the given deltaYaw if a turn animation is playing. */
 	void AddCurveValueToYawWhenTurning(float& Yaw);
 
-	/* Checks if the absolute yaw angle is at least 90� and if so starts playing the turn animation montage. */
+	/* Checks if the absolute yaw angle is at least 90° and if so starts playing the turn animation montage. */
 	void CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw);
 
 	UFUNCTION()
-	void DisableComponent();
+	void DisableComponent(AActor* Actor, AController* Controller, AController* Killer);
 
 
 	/////////////////////////////////////////////////////
@@ -215,7 +233,7 @@ private:
 	void SetAimPitch_Multicast(float AimPitch);
 
 	UFUNCTION(Server, WithValidation, Unreliable)
-	void ReplicateAimYaw_Server(float AimYaw);
+	void ReplicateYawAndDirection_Server(float AimYaw, float Direction);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void BroadcastJumpEvent_Multicast();
