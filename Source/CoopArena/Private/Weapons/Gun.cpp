@@ -35,9 +35,6 @@ AGun::AGun()
 	_ZoomCamera->SetupAttachment(_Mesh, "Scope");
 	_ZoomCamera->SetAutoActivate(true);
 
-	//_ForwardDirection = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardDirection"));
-	//_ForwardDirection->SetupAttachment(RootComponent);
-
 	_EquipOffset = CreateDefaultSubobject<USceneComponent>(TEXT("Offset"));
 	_EquipOffset->SetupAttachment(RootComponent);
 
@@ -61,7 +58,7 @@ AGun::AGun()
 	_HorizontalSpreadToApply = 0.0f;
 	_GunStats.KickbackSpeed = 10.0f;
 
-	_DespawnTime = 60.0f;
+	_DespawnTime = 30.0f;
 
 	bReplicates = true;
 	bReplicateMovement = false;
@@ -380,9 +377,6 @@ void AGun::AttachMeshToPawn()
 
 			const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
 			_Mesh->SetRelativeLocation(offsetLoc);
-
-			/*FString conType = HasAuthority() ? "Server" : "Client";
-			UE_LOG(LogTemp, Warning, TEXT("[%s] Rotation: %s. Offset: %s"), *conType, *offsetRot.ToString(), *offsetLoc.ToString());*/
 		}
 	}
 }
@@ -635,7 +629,15 @@ UCameraComponent* AGun::GetZoomCamera() const
 /////////////////////////////////////////////////////
 void AGun::StartRespawnTimer()
 {
-	GetWorld()->GetTimerManager().SetTimer(_DespawnTH, [&]() {Destroy(); }, _DespawnTime, false);
+	GetWorld()->GetTimerManager().SetTimer(_DespawnTH, [&]()
+	{
+		if (_LoadedMagazine)
+		{
+			_LoadedMagazine->Destroy();
+		}
+		Destroy();
+	}, 
+	_DespawnTime, false);
 }
 
 void AGun::StopRespawnTimer()
@@ -920,4 +922,3 @@ void AGun::HandleMuzzleFlash_Multicast_Implementation(bool bSpawnMuzzleFlash)
 {
 	HandleMuzzleFlash(bSpawnMuzzleFlash);
 }
-

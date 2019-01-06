@@ -30,6 +30,10 @@ private:
 	FMagazineStack _MagazineStack;
 
 protected:
+	/* How long, in seconds, this pick up exists. Set to 0 for infinite. */
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup", meta = (ClampMin = 0.0f))
+	float _LiveSpan;
+
 	/* How fast the mesh is rotating */
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
 	float _RotationSpeed;
@@ -69,6 +73,4 @@ public:
 	virtual UUserWidget* OnBeginLineTraceOver_Implementation(APawn* Pawn, UPrimitiveComponent* HitComponent) override;
 	virtual void OnEndLineTraceOver_Implementation(APawn* Pawn) override;
 	virtual void SetCanBeInteractedWith_Implementation(bool bCanbeInteractedWith) override;
-	
-	
 };

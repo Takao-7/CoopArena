@@ -17,6 +17,7 @@ APickUp::APickUp()
 	bReplicateMovement = false;
 	_bCanBeInteractedWith = true;
 	_RotationSpeed = 20.0f;
+	_LiveSpan = 60.0f;
 	const float edgeLength = 60.0f;
 
 	_Collision = CreateDefaultSubobject<UBoxComponent>("Collision");
@@ -63,6 +64,8 @@ void APickUp::BeginPlay()
 	_Yaw = _RotationSpeed * (FMath::RandBool() ? 1.0f : -1.0f);
 	_Roll = _RotationSpeed * (FMath::RandBool() ? 1.0f : -1.0f);
 	_RotationDelta = FRotator(_Pitch, _Yaw, _Roll);
+
+	SetLifeSpan(_LiveSpan);	
 }
 
 /////////////////////////////////////////////////////

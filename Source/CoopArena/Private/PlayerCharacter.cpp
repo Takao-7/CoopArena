@@ -56,6 +56,7 @@ APlayerCharacter::APlayerCharacter()
 	ProjectileInteraction->SetGenerateOverlapEvents(true);
 	ProjectileInteraction->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ProjectileInteraction->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	ProjectileInteraction->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::HandleProjectileOverlap);
 
 	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Third person camera"));
 	ThirdPersonCamera->SetupAttachment(SpringArm, "SpringEndpoint");
@@ -185,7 +186,7 @@ void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorContro
 /////////////////////////////////////////////////////
 void APlayerCharacter::HandleProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(IsLocallyControlled())
+	if(IsLocallyControlled() && OtherActor->GetOwner() != this)
 	{
 		AProjectile* projectile = Cast<AProjectile>(OtherActor);
 		ensure(projectile);

@@ -76,7 +76,7 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 		return;
 	}
 
-	const FString mapFolder = FString(TEXT("/Game/Maps/"));
+	const FString mapFolder = FString(TEXT("/Game/Maps/Menu/"));
 	const FString lobbyMap = FString(TEXT("LobbyMenu"));
 	const FString options = FString(TEXT("?listen"));
 	const FString url = mapFolder + lobbyMap + options;
@@ -164,9 +164,9 @@ void UCoopArenaGameInstance::StopSearchForGames()
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= "Level4"*/)
 {
 	_SessionInterface->StartSession(NAME_GameSession);
-
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
-	const FString url = MapName + TEXT("?listen");
+	
+	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = !GetEngine()->IsEditor();
+	const FString url = TEXT("/Game/Maps/") + MapName + TEXT("?listen");
 	GetWorld()->ServerTravel(url);
 }
 
