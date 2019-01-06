@@ -210,7 +210,7 @@ void ARoundSurvivalGameMode::SpawnBots()
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
 	for (int32 i = 0; i < _NumBotsToSpawn; ++i)
 	{
-		AActor* spawnPoint = _BotSpawnPoints[FMath::RandRange(0, numSpawnPoints - 1)];
+		AActor* spawnPoint = _BotSpawnPoints[i % _BotSpawnPoints.Num()];
 		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
