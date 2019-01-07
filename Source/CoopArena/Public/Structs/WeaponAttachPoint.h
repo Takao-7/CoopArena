@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Enums/WeaponEnums.h"
-#include "Gun.h"
+#include "Weapons/Gun.h"
 #include "Components/MeshComponent.h"
 #include "Animation/AnimMontage.h"
 #include "WeaponAttachPoint.generated.h"
