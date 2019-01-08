@@ -131,7 +131,7 @@ FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 		return direction;
 	}
 
-	FVector adjustetDirection = Hit.Location - GetMuzzleLocation();
+	FVector adjustetDirection = Hit.Location - GetMuzzleTransform().GetLocation();
 	adjustetDirection.Normalize();
 
 	return adjustetDirection;
@@ -206,22 +206,22 @@ void AGun::OnFire()
 	if (CanShoot())
 	{
 		_CurrentGunState = EWeaponState::Firing;
+		FTransform muzzleTransform = GetMuzzleTransform();
 		
-		FVector spawnDirection = FVector::ForwardVector;
+		FRotator spawnDirection = FRotator::ZeroRotator;
 		if (_MyOwner->IsAiming() || _MyOwner->IsPlayerControlled() == false)
 		{
-			FTransform transform = _Mesh->GetSocketTransform(_MuzzleAttachPoint);
-			spawnDirection = transform.GetRotation().RotateVector(spawnDirection);
+			spawnDirection = muzzleTransform.GetRotation().Rotator();
 		}
 		else
 		{
 			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
-			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection);
+			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection).ToOrientationRotator();
 		}
 
-		const FVector spawnLocation = GetMuzzleLocation();
-		const FTransform spawnTransform = FTransform(spawnDirection.ToOrientationRotator(), spawnLocation);
+		const FVector spawnLocation = muzzleTransform.GetLocation();
+		const FTransform spawnTransform = FTransform(spawnDirection, spawnLocation);
 		Server_OnFire(_CurrentFireMode, spawnTransform);
 
 		AddWeaponSpread();
@@ -736,16 +736,10 @@ float AGun::GetRoundsPerMinute() const
 }
 
 /////////////////////////////////////////////////////
-FVector AGun::GetMuzzleLocation() const
+FTransform AGun::GetMuzzleTransform() const
 {
-	FVector VecMuzzleLocation;
-	FRotator MuzzleRotation;
-
-	if (_Mesh)
-	{
-		_Mesh->GetSocketWorldLocationAndRotation(_MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
-	}
-	return VecMuzzleLocation;
+	ensure(_Mesh);
+	return _Mesh->GetSocketTransform(_MuzzleAttachPoint, RTS_World);
 }
 
 /////////////////////////////////////////////////////
@@ -833,9 +827,12 @@ void AGun::SpawnEjectedShell()
 		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
 		if (caseMesh)
 		{
-			const FTransform caseTransform = cartridgeCase->GetActorTransform();
-			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
-			caseMesh->AddImpulse(impulse);
+			FTransform transform = cartridgeCase->GetActorTransform();			
+			FVector rightVector = transform.TransformVector(FVector(0.0f, 1.0f, 0.0f));
+			FVector velocity = GetOwner()->GetVelocity();
+
+			FVector impulse = (rightVector * 500.0f) + velocity;
+			caseMesh->AddImpulse(impulse, NAME_None, true);
 		}
 	}
 }
