@@ -18,6 +18,7 @@ ACoopArenaGameMode::ACoopArenaGameMode()
 {
 	_defaultPlayerTeam = "Player Team";
 	_defaultBotTeam = "Bot Team";
+	bUseSeamlessTravel = true;
 
 	DefaultPawnClass = APlayerCharacter::StaticClass();
 	GameStateClass = AMyGameState::StaticClass();

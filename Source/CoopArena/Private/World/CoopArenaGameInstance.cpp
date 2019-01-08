@@ -14,6 +14,7 @@
 
 #define SETTING_ServerName FName("MatchName")
 #define SETTING_PlayerName FName("PlayerName")
+const FString ARENA_MAP = TEXT("Level6");
 
 
 UCoopArenaGameInstance::UCoopArenaGameInstance()
@@ -80,7 +81,6 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 	const FString lobbyMap = FString(TEXT("LobbyMenu"));
 	const FString options = FString(TEXT("?listen"));
 	const FString url = mapFolder + lobbyMap + options;
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
 	GetWorld()->ServerTravel(url);
 }
 
@@ -161,12 +161,11 @@ void UCoopArenaGameInstance::StopSearchForGames()
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::StartMatch(FString MapName /*= "Level4"*/)
+void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
 	_SessionInterface->StartSession(NAME_GameSession);
 	
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = !GetEngine()->IsEditor();
-	const FString url = TEXT("/Game/Maps/") + MapName + TEXT("?listen");
+	const FString url = TEXT("/Game/Maps/") + MapName;
 	GetWorld()->ServerTravel(url);
 }
 

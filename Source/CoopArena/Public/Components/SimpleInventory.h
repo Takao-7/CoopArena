@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Magazine.h"
-#include "Gun.h"
+#include "Weapons/Magazine.h"
+#include "Weapons/Gun.h"
 #include "Components/ActorComponent.h"
 #include "Structs/WeaponAttachPoint.h"
 #include "Structs/ItemStructs.h"

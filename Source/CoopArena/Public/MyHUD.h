@@ -21,8 +21,4 @@ UCLASS()
 class COOPARENA_API AMyHUD : public AHUD
 {
 	GENERATED_BODY()
-	
-	
-	
-	
 };

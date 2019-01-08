@@ -116,7 +116,7 @@ void USimpleInventory::DropInventoryContent()
 		APickUp* pickUp = GetWorld()->SpawnActorDeferred<APickUp>(APickUp::StaticClass(), spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (pickUp)
 		{
-			const int32 stackSize = magStack.stackSize == -1 ? 5 : magStack.stackSize;
+			const int32 stackSize = magStack.stackSize < 1 ? FMath::RandRange(1, 3) : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
 			UGameplayStatics::FinishSpawningActor(pickUp, spawnTransform);
 		}
