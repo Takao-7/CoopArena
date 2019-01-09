@@ -21,4 +21,16 @@ UCLASS()
 class COOPARENA_API AMyHUD : public AHUD
 {
 	GENERATED_BODY()
+
+
+public:
+	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
+	void SetState(EHUDState  State);
+	void SetState_Implementation(EHUDState  State);
+
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	EHUDState GetCurrentState() const { return _HUDState; };
+
+private:
+	EHUDState _HUDState;
 };

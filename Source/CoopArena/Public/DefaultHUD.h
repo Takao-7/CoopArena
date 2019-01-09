@@ -49,17 +49,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void Init(APlayerCharacter* PlayerCharacter);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
-	void SetState(EHUDState  State);
-	void SetState_Implementation(EHUDState  State);
-
-	UFUNCTION(BlueprintPure, Category = "HUD")
-	EHUDState GetCurrentState() const { return _HUDState; };
-
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+	void RefreshHud();
+
 private:
-	EHUDState _HUDState;
 	FTimerHandle _Timer;
 
 	UFUNCTION()

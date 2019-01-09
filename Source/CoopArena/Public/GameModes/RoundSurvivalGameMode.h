@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "GameModes/CoopArenaGameMode.h"
 #include "RoundSurvivalGameMode.generated.h"
@@ -11,6 +10,7 @@ class AHumanoid;
 class APlayerCharacter;
 class AMyPlayerController;
 class ABot;
+class UCoopArenaGameInstance;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart_Event, int32, WaveNumber);
@@ -76,6 +76,7 @@ protected:
 private:
 	bool _bSpawnLocationLoaded;
 	int32 _NumBotsToSpawn;
+	
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
@@ -83,6 +84,9 @@ private:
 protected:
 	/** @return True if ready to Start Match. Games should override this */
 	bool ReadyToStartMatch_Implementation() override;
+
+	/** @return The CoopArena game instance. Will crash if none exists. */
+	UCoopArenaGameInstance* GetCoopArenaGameInstance();
 
 	/** @return true if ready to End Match. Games should override this */
 	bool ReadyToEndMatch_Implementation() override;

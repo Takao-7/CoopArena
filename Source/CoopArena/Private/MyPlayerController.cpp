@@ -103,11 +103,6 @@ void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* S
 void AMyPlayerController::Possess(APawn* aPawn)
 {
 	Super::Possess(aPawn);
-	/*ADefaultHUD* hud = GetDefaultHUD();
-	if (hud)
-	{
-		hud->Init(Cast<APlayerCharacter>(aPawn));
-	}*/
 
 	UBasicAnimationSystemComponent* basComp = Cast<UBasicAnimationSystemComponent>(aPawn->GetComponentByClass(UBasicAnimationSystemComponent::StaticClass()));
 	if (basComp)

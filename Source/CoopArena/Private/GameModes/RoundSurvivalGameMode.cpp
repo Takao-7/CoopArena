@@ -12,10 +12,11 @@
 #include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
-#include "CoopArenaGameInstance.h"
+#include "World/CoopArenaGameInstance.h"
 #include "Bot.h"
 #include "BotController.h"
 #include "MyGameState.h"
+#include "Engine/Engine.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -57,12 +58,13 @@ void ARoundSurvivalGameMode::OnSpawnLocationLoaded()
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
-	const int32 numPlayersOnMap = _playerControllers.Num();
-	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
+	const int32 nunConnectedPlayers = GetNumberOfConnectedPlayers();
+	const bool bIsSinglePlayer = GetCoopArenaGameInstance()->GetOnlineMode() == EOnlineMode::Offline;
+	const bool bAllPlayersAreOnMap = NumTravellingPlayers == 0;
 
-	ENetMode netMode = GetNetMode();
-	const bool bIsSinglePlayer = (netMode == ENetMode::NM_Standalone) || numConnectedPlayers == 0;
-	const bool bAllPlayersAreOnMap = numPlayersOnMap == numConnectedPlayers;
+	FString message = TEXT("Connected players: " + FString::FromInt(nunConnectedPlayers) + ". ");
+	message.Append(TEXT("Travelling players: ") + FString::FromInt(NumTravellingPlayers));
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, message);
 
 	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
 }
@@ -73,11 +75,17 @@ bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 }
 
 /////////////////////////////////////////////////////
+UCoopArenaGameInstance* ARoundSurvivalGameMode::GetCoopArenaGameInstance()
+{
+	UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	ensure(gameInstance);
+	return gameInstance;
+}
+
+/////////////////////////////////////////////////////
 int32 ARoundSurvivalGameMode::GetNumberOfConnectedPlayers()
 {
-	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-	ensure(gameInstance);
-	return gameInstance->GetNumberOfConnectedPlayers();
+	return GetCoopArenaGameInstance()->GetNumberOfConnectedPlayers();
 }
 
 /////////////////////////////////////////////////////

@@ -190,6 +190,10 @@ private:
 	UFUNCTION()
 	void TransfereInventoryContent(APawn* InteractingPawn);
 
+	/* Refreshes the player hud after magazines where added or removed from his inventory. */
+	UFUNCTION(Client, Reliable, Category = "Inventory")
+	void RefreshHud();
+
 
 	/////////////////////////////////////////////////////
 					/* Weapon holstering */

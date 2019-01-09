@@ -147,4 +147,5 @@ void ADoor::EnableTickFunction_Multicast_Implementation(float TargetAngle, bool 
 	_TargetAngle = TargetAngle;
 	_bIsOpen = bIsOpen;
 	PrimaryActorTick.SetTickFunctionEnable(true);
+	_DoorMesh->SetCanEverAffectNavigation(bIsOpen);
 }

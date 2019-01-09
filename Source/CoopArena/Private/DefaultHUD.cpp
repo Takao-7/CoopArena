@@ -8,6 +8,8 @@
 #include "SimpleInventory.h"
 #include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
+#include "WidgetBlueprintLibrary.h"
+#include "WidgetLayoutLibrary.h"
 
 
 ADefaultHUD::ADefaultHUD()
@@ -45,15 +47,22 @@ void ADefaultHUD::HandleOnWeaponEquipped(AHumanoid* Player, AGun* Gun)
 }
 
 /////////////////////////////////////////////////////
-void ADefaultHUD::SetState_Implementation(EHUDState State)
-{
-	_HUDState = State;
-}
-
-/////////////////////////////////////////////////////
 void ADefaultHUD::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);	
+	DisplayHUD();
+
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerOwner);
+	PlayerOwner->bShowMouseCursor = false;
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::RefreshHud()
+{
+	AHumanoid* owner = Cast<AHumanoid>(GetOwningPawn());
+	HandleOnReloadingFinished(owner, owner->GetEquippedGun());
 	DisplayHUD();
 }
 

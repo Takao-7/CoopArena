@@ -3,5 +3,8 @@
 #include "MyHUD.h"
 
 
-
-
+/////////////////////////////////////////////////////
+void AMyHUD::SetState_Implementation(EHUDState State)
+{
+	_HUDState = State;
+}
