@@ -27,9 +27,7 @@ struct FWeaponAttachPoint
 	 */
 	bool AttachWeapon(AGun* Weapon, UMeshComponent* Mesh)
 	{
-		const bool bCanAttach = CanAttachWeapon(Weapon);
-
-		if (bCanAttach)
+		if (CanAttachWeapon(Weapon))
 		{
 			_CurrentlyHeldWeapon = Weapon;
 			Weapon->AttachToComponent(Mesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);

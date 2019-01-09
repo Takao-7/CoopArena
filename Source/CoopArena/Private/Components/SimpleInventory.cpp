@@ -267,14 +267,14 @@ void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 Attach
 			}
 		}
 	}
-	const int32 index = _WeaponAttachPoints.Num() == 1 ? 0 : AttachPointIndex;
+	_AttachPointIndex = _WeaponAttachPoints.Num() == 1 ? 0 : AttachPointIndex;
 
-	if (!bCanAttach || _WeaponAttachPoints.IsValidIndex(index) == false)
+	if (!bCanAttach || _WeaponAttachPoints.IsValidIndex(_AttachPointIndex) == false)
 	{
 		return;
 	}
 
-	UAnimMontage* holsterAnimation = _WeaponAttachPoints[index].holsterAnimation;
+	UAnimMontage* holsterAnimation = _WeaponAttachPoints[_AttachPointIndex].holsterAnimation;
 	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
 
 	if (GunToHolster)
@@ -285,7 +285,7 @@ void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 Attach
 		}
 		else
 		{
-			UnequipAndAttachWeapon_Multicast(index, GunToHolster);
+			UnequipAndAttachWeapon_Multicast(_AttachPointIndex, GunToHolster);
 		}
 	}
 	else
@@ -296,7 +296,7 @@ void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 Attach
 		}
 		else
 		{
-			DetachAndEquipWeapon_Multicast(index);
+			DetachAndEquipWeapon_Multicast(_AttachPointIndex);
 		}
 	}
 }

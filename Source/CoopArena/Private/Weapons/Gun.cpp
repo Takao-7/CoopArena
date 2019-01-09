@@ -103,15 +103,13 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			humanoid->HolsterWeapon_Event.Broadcast(equippedGun, -1);
+			humanoid->UnequipWeapon(true, true);
+			/*humanoid->HolsterWeapon_Event.Broadcast(equippedGun, -1);
 
 			USimpleInventory* inventory = Cast<USimpleInventory>(humanoid->GetComponentByClass(USimpleInventory::StaticClass()));
-			inventory->OnHolsteringWeaponFinished.AddDynamic(this, &AGun::EquipSelf);
+			inventory->OnHolsteringWeaponFinished.AddDynamic(this, &AGun::EquipSelf);*/
 		}
-		else
-		{
-			humanoid->EquipWeapon(this);
-		}
+		humanoid->EquipWeapon(this);
 	}
 }
 

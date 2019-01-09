@@ -359,22 +359,26 @@ void APlayerCharacter::OnSelectPrimaryWeapon()
 	AGun* primaryGun = Inventory->GetGunAtAttachPoint(0);
 	if (primaryGun)
 	{
-		HolsterWeapon_Event.Broadcast(primaryGun, -1);
+		HolsterWeapon_Event.Broadcast(primaryGun, 0);
 	}
 }
 
 void APlayerCharacter::OnSelectSecondaryWeapon()
 {
 	AGun* secondaryWeapon = Inventory->GetGunAtAttachPoint(1);
+	if (secondaryWeapon)
+	{
+		HolsterWeapon_Event.Broadcast(secondaryWeapon, 1);
+	}
 
-	if (_EquippedWeapon == nullptr && secondaryWeapon)
+	/*if (_EquippedWeapon == nullptr && secondaryWeapon)
 	{
 		HolsterWeapon_Event.Broadcast(secondaryWeapon, 1);
 	}
 	else if (_EquippedWeapon && secondaryWeapon)
 	{
 		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
-	}
+	}*/
 }
 
 /////////////////////////////////////////////////////
