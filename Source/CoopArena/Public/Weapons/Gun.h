@@ -307,7 +307,7 @@ public:
 
 	/** Returns the muzzle sockets location in world space. */
 	UFUNCTION(BlueprintPure, Category = "Weapon")
-	FVector GetMuzzleLocation() const;
+	FTransform GetMuzzleTransform() const;
 
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanShoot() const;
@@ -444,5 +444,4 @@ private:
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void Unequip_Server(bool bDropGun);
-
 };
