@@ -20,7 +20,7 @@ UBasicAnimationSystemComponent::UBasicAnimationSystemComponent()
 	m_Variables.MovementAdditive = EMovementAdditive::None;
 	m_Variables.EquippedWeaponType = EWEaponType::None;
 
-	m_180TurnThreshold = 120.0f;
+	_180TurnThreshold = 120.0f;
 	m_AngleClampThreshold = 180.0f;
 	m_180TurnPredictionTime = 0.2f;
 }
@@ -31,7 +31,7 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	Super::BeginPlay();	
 
 	SetIsLocallyControlled();
-	OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
+	//OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 
@@ -66,8 +66,8 @@ void UBasicAnimationSystemComponent::FindAnimInstance()
 	_Owner = Cast<ACharacter>(GetOwner());
 	check(_Owner);
 
-	m_AnimInstance = _Owner->GetMesh()->GetAnimInstance();
-	check(m_AnimInstance);
+	_AnimInstance = _Owner->GetMesh()->GetAnimInstance();
+	check(_AnimInstance);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -190,8 +190,8 @@ void UBasicAnimationSystemComponent::AddCurveValueToYawWhenTurning(float& Yaw)
 {
 	if (TurnAnimationIsActive())
 	{
-		const float curveValue = m_AnimInstance->GetCurveValue("DistanceCurve");
-		if (m_bTurnCurveIsPlaying)
+		const float curveValue = _AnimInstance->GetCurveValue("DistanceCurve");
+		if (_bTurnCurveIsPlaying)
 		{
 			const float curveDelta = m_CurveValueLastFrame - curveValue;
 			Yaw += curveDelta;
@@ -201,7 +201,7 @@ void UBasicAnimationSystemComponent::AddCurveValueToYawWhenTurning(float& Yaw)
 		{
 			/* The first time we got a value from the curve, we want to just set the last curve value and not update delta yaw. */
 			m_CurveValueLastFrame = curveValue;
-			m_bTurnCurveIsPlaying = true;
+			_bTurnCurveIsPlaying = true;
 		}
 	}
 }
@@ -210,29 +210,34 @@ void UBasicAnimationSystemComponent::AddCurveValueToYawWhenTurning(float& Yaw)
 void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float DeltaTime, float NewAimYaw)
 {
 	const float aimYaw_Abs = FMath::Abs(NewAimYaw);
-	if (m_TurnAnimationPlaying || aimYaw_Abs < 90.0f)
+	if (_TurnAnimationPlaying || aimYaw_Abs < 90.0f)
 	{
 		return;
 	}
 
 	const float aimYawDelta = NewAimYaw - m_AimYawLastFrame;
-	const float predictedYaw = (aimYawDelta * (m_180TurnPredictionTime / DeltaTime)) + NewAimYaw;
+	const float predictedYaw = FMath::Abs((aimYawDelta * (m_180TurnPredictionTime / DeltaTime)) + NewAimYaw);
 	// Play the turn animation faster to avoid over bending the upper body.
-	const float playRate = FMath::Abs(predictedYaw) > (m_180TurnThreshold * 1.5f) ? 1.5f : 1.0f;
+	const float playRate = predictedYaw > (_180TurnThreshold * 1.5f) ? 1.5f : 1.0f;
 
-	if (NewAimYaw <= -90.0f) // Turn right
-	{
-		m_TurnAnimationPlaying = predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation ? m_TurnRight180Animation : m_TurnRight90Animation;	
-		m_bIsTurningRight = true;
-	}
-	else  // Turn left
-	{
-		m_TurnAnimationPlaying = predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation ? m_TurnLeft180Animation : m_TurnLeft90Animation;
-		m_bIsTurningRight = false;
-	}
+	const bool bTurnRight = NewAimYaw <= -90.0f;
+	const bool bPlay180 = predictedYaw >= _180TurnThreshold;
+	_bTurnCurveIsPlaying = false;
+	_PlayTurnAnimation.Broadcast(bTurnRight, bPlay180, playRate);
 
-	m_bTurnCurveIsPlaying = false;
-	m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, playRate, EMontagePlayReturnType::MontageLength, 0.0f, false);
+	//if (NewAimYaw <= -90.0f) // Turn right
+	//{
+	//	m_TurnAnimationPlaying = predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation ? m_TurnRight180Animation : m_TurnRight90Animation;	
+	//	m_bIsTurningRight = true;
+	//}
+	//else  // Turn left
+	//{
+	//	m_TurnAnimationPlaying = predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation ? m_TurnLeft180Animation : m_TurnLeft90Animation;
+	//	m_bIsTurningRight = false;
+	//}
+
+	//m_bTurnCurveIsPlaying = false;
+	//m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, playRate, EMontagePlayReturnType::MontageLength, 0.0f, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -247,15 +252,15 @@ void UBasicAnimationSystemComponent::CheckIfTurnAnimFinished()
 {
 	if(TurnAnimationIsActive() == false)
 	{
-		m_TurnAnimationPlaying = nullptr;
-		m_bTurnCurveIsPlaying = false;
+		_TurnAnimationPlaying = nullptr;
+		_bTurnCurveIsPlaying = false;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 bool UBasicAnimationSystemComponent::TurnAnimationIsActive()
 {
-	return m_AnimInstance->Montage_IsActive(m_TurnAnimationPlaying) && m_TurnAnimationPlaying;
+	return _AnimInstance->Montage_IsActive(_TurnAnimationPlaying) && _TurnAnimationPlaying;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -277,8 +282,8 @@ float UBasicAnimationSystemComponent::MapAngleTo180_Forced(float Angle)
 
 float UBasicAnimationSystemComponent::MapAngleTo180(float Angle)
 {
-	const bool bIsTurning = m_AnimInstance->GetCurveValue("IsTurning");
-	if ((bIsTurning || m_TurnAnimationPlaying) && FMath::Abs(Angle) < 360.0f)
+	const bool bIsTurning = _AnimInstance->GetCurveValue("IsTurning");
+	if ((bIsTurning || _TurnAnimationPlaying) && FMath::Abs(Angle) < 360.0f)
 	{
 		return Angle;
 	}
@@ -293,14 +298,14 @@ void UBasicAnimationSystemComponent::PlayJumpAnimation()
 {
 	if (m_Variables.HorizontalVelocity != 0.0f)
 	{
-		if (!m_AnimInstance->Montage_IsPlaying(m_MovingJumpAnimation))
+		if (!_AnimInstance->Montage_IsPlaying(m_MovingJumpAnimation))
 		{
-			m_AnimInstance->Montage_Play(m_MovingJumpAnimation);
+			_AnimInstance->Montage_Play(m_MovingJumpAnimation);
 		}
 	}
-	else if (!m_AnimInstance->Montage_IsPlaying(m_IdleJumpAnimation))
+	else if (!_AnimInstance->Montage_IsPlaying(m_IdleJumpAnimation))
 	{
-		m_AnimInstance->Montage_Play(m_IdleJumpAnimation);
+		_AnimInstance->Montage_Play(m_IdleJumpAnimation);
 	}	
 }
 
@@ -339,6 +344,12 @@ void UBasicAnimationSystemComponent::SetAimPitch_Multicast_Implementation(float 
 FBASVariables& UBasicAnimationSystemComponent::GetActorVariables()
 {
 	return m_Variables;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void UBasicAnimationSystemComponent::SetPlayingTurnAnimation(UAnimMontage* TurnAnimation)
+{
+	_TurnAnimationPlaying = TurnAnimation;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

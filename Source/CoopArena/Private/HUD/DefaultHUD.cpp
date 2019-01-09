@@ -67,6 +67,12 @@ void ADefaultHUD::RefreshHud()
 }
 
 /////////////////////////////////////////////////////
+void ADefaultHUD::SetState_Implementation(EHUDState State)
+{
+	_HUDState = State;
+}
+
+/////////////////////////////////////////////////////
 void ADefaultHUD::HandleOnReloadingFinished(AHumanoid* Character, AGun* Gun)
 {
 	verify(Character);

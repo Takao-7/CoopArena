@@ -11,7 +11,6 @@
 #include "Engine/LocalPlayer.h"
 #include "MyPlayerState.h"
 #include "MoviePlayer.h"
-#include "HUD/MainMenuHUD.h"
 #include "WidgetLayoutLibrary.h"
 
 
@@ -183,12 +182,6 @@ void UCoopArenaGameInstance::StopSearchForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
-	AMainMenuHUD* hud = Cast<AMainMenuHUD>(GetPrimaryPlayerController()->GetHUD());
-	if (hud)
-	{
-		hud->DisplayLoadingScreen_Multicast(true);
-	}
-
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
 	
@@ -227,22 +220,11 @@ void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 	{
 		UWidgetLayoutLibrary::RemoveAllWidgets(GetPrimaryPlayerController());
 
-		if (MapName.Equals(TRANSITION_MAP))
-		{
-			AMainMenuHUD* HUD = Cast<AMainMenuHUD>(GetPrimaryPlayerController()->GetHUD());
-			if (HUD)
-			{
-				HUD->DisplayLoadingScreen(true);
-			}
-		}
-		else
-		{
-			FLoadingScreenAttributes LoadingScreen;
-			LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;
-			LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
+		FLoadingScreenAttributes LoadingScreen;
+		LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;
+		LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
 
-			GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
-		}
+		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);		
 	}
 }
 
@@ -281,6 +263,7 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 void UCoopArenaGameInstance::Join(const FString& Address, FString PlayerName /*= ""*/)
 {
 	const bool bValidAdress = !Address.IsEmpty();
+	StopSearchForGames();
 
 	SetOnlineMode(bValidAdress ? EOnlineMode::LAN : EOnlineMode::Offline);
 	SetPlayerName(PlayerName);

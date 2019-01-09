@@ -132,7 +132,10 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 /////////////////////////////////////////////////////
 void AHumanoid::OnHolsterWeapon()
 {
-	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+	if (_EquippedWeapon)
+	{
+		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -292,8 +295,7 @@ void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= t
 		_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
 		OnWeaponEquipped.Broadcast(this, WeaponToEquip);
-	}	
-
+	}
 }
 
 void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*/)

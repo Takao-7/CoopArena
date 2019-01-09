@@ -81,16 +81,6 @@ private:
 	/////////////////////////////////////////////////////
 					/* Match flow */
 	/////////////////////////////////////////////////////
-protected:
-	/** @return True if ready to Start Match. Games should override this */
-	bool ReadyToStartMatch_Implementation() override;
-
-	/** @return The CoopArena game instance. Will crash if none exists. */
-	UCoopArenaGameInstance* GetCoopArenaGameInstance();
-
-	/** @return true if ready to End Match. Games should override this */
-	bool ReadyToEndMatch_Implementation() override;
-
 public:
 	virtual void StartMatch() override;
 
@@ -113,10 +103,12 @@ public:
 
 
 	/////////////////////////////////////////////////////
+protected:
+	/** @return The CoopArena game instance. Will crash if none exists. */
+	UCoopArenaGameInstance* GetCoopArenaGameInstance();
+
 public:
 	ARoundSurvivalGameMode();
-
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void SpawnBots();
@@ -157,4 +149,20 @@ private:
 	TArray<ABot*> _BotsDead;
 
 	FTimerHandle _RoundTimerHandle;
+
+
+	/////////////////////////////////////////////////////
+				/* Overridden functions */
+	/////////////////////////////////////////////////////
+protected:
+	/** @return True if ready to Start Match. Games should override this */
+	bool ReadyToStartMatch_Implementation() override;
+
+	/** @return true if ready to End Match. Games should override this */
+	bool ReadyToEndMatch_Implementation() override;
+
+public:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	virtual void Logout(AController* Exiting) override;
 };

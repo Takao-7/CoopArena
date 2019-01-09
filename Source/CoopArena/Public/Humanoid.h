@@ -39,6 +39,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHuman
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
 
+/**
+ * This event will be called when we want to equip a weapon from our inventory.
+ * The inventory should pick this up and handle the actual equipping and holstering.
+ */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEquipWeaponFromInventory_Signature, AHumanoid*, Humanoid, AGun*, Gun, int32, AttachPointIndex);
+
 
 UCLASS(abstract)
 class COOPARENA_API AHumanoid : public ACharacter, public IInteractable
@@ -264,6 +270,10 @@ public:
 	/* Called when the character wants to holster a weapon. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
 	FOnHolsterWeapon_Signature HolsterWeapon_Event;
+
+	/* Called when the character wants to equip a weapon from his inventory. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
+	FOnEquipWeaponFromInventory_Signature EquipWeaponFromInventory_Event;
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);

@@ -69,7 +69,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	virtual void OnHolsterWeapon() override;
 	virtual void BeginPlay() override;
 
 private:

@@ -13,9 +13,6 @@
 
 class AHumanoid;
 
-/* This event will be fired when the holstering animation is finished playing. */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteringWeaponFinished_Signature, AHumanoid*, Owner);
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class COOPARENA_API USimpleInventory : public UActorComponent
@@ -70,7 +67,13 @@ protected:
 
 private:
 	AHumanoid* _Owner;
+
+	UPROPERTY(Replicated)
 	int32 _AttachPointIndex;
+
+	/* This index is used, when we holster a weapon in one slot and get the weapon from the other (this) slot. */
+	UPROPERTY(Replicated)
+	int32 _SecondAttachPointIndex;
 
 
 	/////////////////////////////////////////////////////
@@ -207,8 +210,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	AGun* GetGunAtAttachPoint(int32 AttachPointIndex);
 
-	FOnHolsteringWeaponFinished_Signature OnHolsteringWeaponFinished;
-
 	void SetAttachPointIndex(int32 Index);
 
 private:
@@ -221,11 +222,23 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
 
+	/* Looks for a valid slot to attach the given gun. If there is no slot, then we return -1. */
+	int32 FindValidSlotForGun(AGun* GunToHolster);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void HandleOwnerEquipWeaponFromInventory(AHumanoid* Humanoid, AGun* GunToEquip, int32 AttachPointIndex);
+
+	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
+	void HandleOwnerEquipWeaponFromInventory_Server(AHumanoid* Humanoid, AGun* GunToEquip, int32 AttachPointIndex);
+
 	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
 	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
-	void PlayHolsteringAnimation_Multicast(UAnimMontage* HolsterAnimationToPlay);
+	void PlayHolsteringAnimation_Multicast(UAnimMontage* HolsterAnimationToPlay, int32 AttachPointIndex, int32 SecondAttachPointIndex);
+
+	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
+	void PlayHolsteringAnimation_Server(UAnimMontage* HolsterAnimationToPlay, int32 AttachPointIndex, int32 SecondAttachPointIndex);
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
 	void UnequipAndAttachWeapon_Multicast(int32 AttachPointIndex, AGun* Gun);
