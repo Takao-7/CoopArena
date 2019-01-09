@@ -67,7 +67,6 @@ public:
 	FString CheckForTeamTag(const AController& Controller) const;
 
 	void RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
-
 	void UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
 
 	/**

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MyHUD.h"
+#include "GameFramework/HUD.h"
 #include "DefaultHUD.generated.h"
 
 
@@ -13,8 +13,18 @@ class AGun;
 class AHumanoid;
 
 
+UENUM(BlueprintType)
+enum class EHUDState : uint8
+{
+	MainMenu,
+	Playing,
+	Spectating,
+	MatchEnd
+};
+
+
 UCLASS()
-class COOPARENA_API ADefaultHUD : public AMyHUD
+class COOPARENA_API ADefaultHUD : public AHUD
 {
 	GENERATED_BODY()
 
@@ -54,8 +64,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void RefreshHud();
 
+	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
+	void SetState(EHUDState  State);
+	void SetState_Implementation(EHUDState  State);
+
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	EHUDState GetCurrentState() const { return _HUDState; };
+
 private:
 	FTimerHandle _Timer;
+
+	EHUDState _HUDState;
 
 	UFUNCTION()
 	void HandleOnReloadingFinished(AHumanoid* Character, AGun* Gun);

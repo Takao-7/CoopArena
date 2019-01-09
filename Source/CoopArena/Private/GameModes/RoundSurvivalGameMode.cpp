@@ -64,7 +64,7 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 
 	FString message = TEXT("Connected players: " + FString::FromInt(nunConnectedPlayers) + ". ");
 	message.Append(TEXT("Travelling players: ") + FString::FromInt(NumTravellingPlayers));
-	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, message);
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, message);
 
 	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
 }
@@ -102,6 +102,17 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 	latentActionInfo.Linkage = 0;
 	latentActionInfo.UUID = 0;
 	UGameplayStatics::LoadStreamLevel(GetWorld(), _ChoosenSpawnLocation, true, true, latentActionInfo);
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::Logout(AController* Exiting)
+{
+	APlayerCharacter* character = Cast<APlayerCharacter>(Exiting->GetPawn());
+	if (character)
+	{
+		character->UnequipWeapon(true, true);
+		UnregisterPlayerCharacter(character);
+	}
 }
 
 /////////////////////////////////////////////////////

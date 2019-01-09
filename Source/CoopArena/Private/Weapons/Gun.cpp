@@ -87,14 +87,6 @@ void AGun::SetUpMesh()
 }
 
 /////////////////////////////////////////////////////
-void AGun::EquipSelf(AHumanoid* Target)
-{
-	USimpleInventory* inventory = Cast<USimpleInventory>(Target->GetComponentByClass(USimpleInventory::StaticClass()));
-	inventory->OnHolsteringWeaponFinished.RemoveDynamic(this, &AGun::EquipSelf);
-	Target->EquipWeapon(this);
-}
-
-/////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	AHumanoid* humanoid = Cast<AHumanoid>(InteractingPawn);
@@ -104,10 +96,6 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		if (equippedGun)
 		{
 			humanoid->UnequipWeapon(true, true);
-			/*humanoid->HolsterWeapon_Event.Broadcast(equippedGun, -1);
-
-			USimpleInventory* inventory = Cast<USimpleInventory>(humanoid->GetComponentByClass(USimpleInventory::StaticClass()));
-			inventory->OnHolsteringWeaponFinished.AddDynamic(this, &AGun::EquipSelf);*/
 		}
 		humanoid->EquipWeapon(this);
 	}
@@ -366,16 +354,13 @@ void AGun::AttachMeshToPawn()
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 
-		if(HasAuthority())
-		{
-			const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
+		const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
 
-			const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
-			_Mesh->SetRelativeRotation(offsetRot);
+		const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
+		_Mesh->SetRelativeRotation(offsetRot);
 
-			const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
-			_Mesh->SetRelativeLocation(offsetLoc);
-		}
+		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
+		_Mesh->SetRelativeLocation(offsetLoc);		
 	}
 }
 
