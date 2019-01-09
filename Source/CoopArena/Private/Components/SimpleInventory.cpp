@@ -12,6 +12,7 @@
 #include "CoopArena.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "DefaultHUD.h"
 
 
 USimpleInventory::USimpleInventory()
@@ -192,6 +193,17 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 		{
 			SetOwnerInteractable(false);
 		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::RefreshHud_Implementation()
+{
+	APlayerController* pc = Cast<APlayerController>(_Owner->GetInstigatorController());
+	if (pc)
+	{
+		ADefaultHUD* hud = Cast<ADefaultHUD>(pc->GetHUD());
+		hud->RefreshHud();
 	}
 }
 
@@ -392,6 +404,7 @@ bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineTyp
 		{
 			_StoredMagazines.Add(FMagazineStack(MagazineType, NumMagazinesToStore));
 		}
+		RefreshHud();
 	}
 	else
 	{
@@ -426,6 +439,7 @@ bool USimpleInventory::GetMagazineFromInventory(TSubclassOf<AMagazine> MagazineT
 		{
 			FMagazineStack* stack = FindMagazineStack(MagazineType);
 			stack->stackSize -= NumMagazinesToRemove;
+			RefreshHud();
 		}
 	}
 	else

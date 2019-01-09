@@ -103,7 +103,6 @@ void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	_playerControllers.AddUnique(NewPlayer);
-	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Player logged in"));
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
