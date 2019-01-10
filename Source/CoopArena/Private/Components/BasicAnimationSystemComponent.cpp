@@ -31,7 +31,6 @@ void UBasicAnimationSystemComponent::BeginPlay()
 	Super::BeginPlay();	
 
 	SetIsLocallyControlled();
-	//OnJumpEvent.AddDynamic(this, &UBasicAnimationSystemComponent::PlayJumpAnimation);
 	FindAnimInstance();
 	FindCharacterMovementComponent();
 
@@ -224,20 +223,6 @@ void UBasicAnimationSystemComponent::CheckWhetherToPlayTurnAnimation(float Delta
 	const bool bPlay180 = predictedYaw >= _180TurnThreshold;
 	_bTurnCurveIsPlaying = false;
 	_PlayTurnAnimation.Broadcast(bTurnRight, bPlay180, playRate);
-
-	//if (NewAimYaw <= -90.0f) // Turn right
-	//{
-	//	m_TurnAnimationPlaying = predictedYaw <= -m_180TurnThreshold && m_TurnRight180Animation ? m_TurnRight180Animation : m_TurnRight90Animation;	
-	//	m_bIsTurningRight = true;
-	//}
-	//else  // Turn left
-	//{
-	//	m_TurnAnimationPlaying = predictedYaw >= m_180TurnThreshold && m_TurnLeft180Animation ? m_TurnLeft180Animation : m_TurnLeft90Animation;
-	//	m_bIsTurningRight = false;
-	//}
-
-	//m_bTurnCurveIsPlaying = false;
-	//m_AnimInstance->Montage_Play(m_TurnAnimationPlaying, playRate, EMontagePlayReturnType::MontageLength, 0.0f, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
