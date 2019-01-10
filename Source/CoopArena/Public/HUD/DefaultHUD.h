@@ -35,6 +35,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "HUD")
 	UUserWidget* _AmmoStatusWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	TSubclassOf<UUserWidget> _AmmoStatusWidget_Class;
+
+	UPROPERTY(BlueprintReadWrite, Category = "HUD")
+	UUserWidget* _WaveMessage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	TSubclassOf<UUserWidget> _WaveMessage_Class;
+
 	/* The time, in seconds, after reloading, shooting or switching the weapon mode, the HUD will be hidden. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")
 	float _TimeToHideHUD;
@@ -52,6 +61,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void GetAmmoStatus(int32& Out_NumMagazines, int32& Out_NumRoundsLeft, EFireMode& Out_FireMode);
+
+	virtual void Tick(float DeltaSeconds) override;
 
 public:
 	ADefaultHUD();

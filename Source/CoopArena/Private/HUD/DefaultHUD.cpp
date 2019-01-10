@@ -51,11 +51,36 @@ void ADefaultHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);	
-	DisplayHUD();
-
+	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerOwner);
 	PlayerOwner->bShowMouseCursor = false;
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	APlayerCharacter* character = Cast<APlayerCharacter>(GetOwningPawn());
+	if (PlayerOwner && character)
+	{
+		if (_AmmoStatusWidget_Class)
+		{
+			_AmmoStatusWidget = CreateWidget<UUserWidget>(PlayerOwner, _AmmoStatusWidget_Class, TEXT("Ammo status widget"));
+			_AmmoStatusWidget->AddToViewport();
+		}
+
+		if (_WaveMessage)
+		{
+			_WaveMessage = CreateWidget<UUserWidget>(PlayerOwner, _WaveMessage_Class, TEXT("Wave message widget"));
+			_WaveMessage->AddToViewport();
+		}
+
+		Init(character);
+		DisplayHUD();
+
+		PrimaryActorTick.SetTickFunctionEnable(false);
+	}
 }
 
 /////////////////////////////////////////////////////
