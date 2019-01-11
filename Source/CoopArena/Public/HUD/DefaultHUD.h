@@ -32,13 +32,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "HUD")
 	APlayerCharacter* _Character;
 
-	UPROPERTY(BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(BlueprintReadWrite, Category = "HUD", meta = (DisplayName = "Ammo status widget"))
 	UUserWidget* _AmmoStatusWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")
 	TSubclassOf<UUserWidget> _AmmoStatusWidget_Class;
 
-	UPROPERTY(BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(BlueprintReadWrite, Category = "HUD", meta = (DisplayName = "Wave message"))
 	UUserWidget* _WaveMessage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")

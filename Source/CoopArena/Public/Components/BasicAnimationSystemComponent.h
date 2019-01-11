@@ -97,12 +97,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Idle jump animation"))
-	UAnimMontage* m_IdleJumpAnimation;
-
-	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Moving jump animation"))
-	UAnimMontage* m_MovingJumpAnimation;
-
 private:
 	/* This components owner casted to ACharacter */
 	ACharacter* _Owner;
@@ -183,11 +177,7 @@ private:
 	void FindAnimInstance();
 	void FindCharacterMovementComponent();
 	void CheckIfTurnAnimFinished();
-
 	bool TurnAnimationIsActive();
-
-	UFUNCTION()
-	void PlayJumpAnimation();
 
 	/**
 	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.

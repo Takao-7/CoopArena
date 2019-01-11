@@ -25,7 +25,7 @@ AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	m_EquippedWeaponAttachPoint = "GripPoint";
+	_EquippedWeaponAttachPoint = "GripPoint";
 
 	m_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	m_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
@@ -72,7 +72,7 @@ AHumanoid::AHumanoid()
 	moveComp->MaxWalkSpeedCrouched = _MaxCrouchingSpeed;
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
 	moveComp->MaxCustomMovementSpeed = _SprintingSpeed;
-	moveComp->MovementState.bCanCrouch = true;	
+	moveComp->MovementState.bCanCrouch = true;
 
 	_bCanBeInteractedWith = false;
 }
@@ -130,11 +130,11 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnHolsterWeapon()
+void AHumanoid::OnWeaponChange()
 {
-	if (_EquippedWeapon)
+	if (Inventory->GetGunAtAttachPoint())
 	{
-		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
+		Inventory->ChangeWeapon();
 	}
 }
 
@@ -478,7 +478,7 @@ bool AHumanoid::CanFire() const
 /////////////////////////////////////////////////////
 FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
-	return m_EquippedWeaponAttachPoint;
+	return _EquippedWeaponAttachPoint;
 }
 
 /////////////////////////////////////////////////////
@@ -531,6 +531,21 @@ int32 AHumanoid::GetNumRoundsLeft()
 
 	AMagazine* magazine = _EquippedWeapon->GetMagazine();
 	return magazine ? magazine->RoundsLeft() : 0;	
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::AttachWeaponToHolster(AGun* GunToAttach)
+{
+	if (GunToAttach)
+	{
+		Inventory->AttachGun(GunToAttach);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::SetHolsterWeapon(AGun* Weapon)
+{
+	Inventory->SetHolsterWeapon_Multicast(Weapon);
 }
 
 /////////////////////////////////////////////////////

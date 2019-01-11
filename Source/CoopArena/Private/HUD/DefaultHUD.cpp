@@ -62,8 +62,10 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	APlayerCharacter* character = Cast<APlayerCharacter>(GetOwningPawn());
-	if (PlayerOwner && character)
+	if (character && PlayerOwner && character->GetEquippedGun())
 	{
+		Init(character);
+
 		if (_AmmoStatusWidget_Class)
 		{
 			_AmmoStatusWidget = CreateWidget<UUserWidget>(PlayerOwner, _AmmoStatusWidget_Class, TEXT("Ammo status widget"));
@@ -76,9 +78,7 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 			_WaveMessage->AddToViewport();
 		}
 
-		Init(character);
-		DisplayHUD();
-
+		RefreshHud();
 		PrimaryActorTick.SetTickFunctionEnable(false);
 	}
 }
@@ -86,9 +86,9 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 /////////////////////////////////////////////////////
 void ADefaultHUD::RefreshHud()
 {
-	AHumanoid* owner = Cast<AHumanoid>(GetOwningPawn());
-	HandleOnReloadingFinished(owner, owner->GetEquippedGun());
-	DisplayHUD();
+	AGun* equippedGun = _Character->GetEquippedGun();
+	HandleOnReloadingFinished(_Character, equippedGun);
+	HandleOnFireModeChanged(_Character, equippedGun->GetCurrentFireMode());
 }
 
 /////////////////////////////////////////////////////

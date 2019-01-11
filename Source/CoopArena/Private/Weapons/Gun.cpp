@@ -95,7 +95,9 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			humanoid->UnequipWeapon(true, true);
+			humanoid->UnequipWeapon(false, true);
+			humanoid->AttachWeaponToHolster(equippedGun);
+			humanoid->SetHolsterWeapon(equippedGun);
 		}
 		humanoid->EquipWeapon(this);
 	}
@@ -345,23 +347,42 @@ void AGun::AttachMeshToPawn()
 {
 	if (_MyOwner && _Mesh)
 	{
-		FName AttachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
+		FName attachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
+		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, attachPoint);
 
-		const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
+		/*FString role = HasAuthority() ? "Server" : "Client";
+		UE_LOG(LogTemp, Warning, TEXT("[%s] Before offset: %s"), *role, *_Mesh->GetRelativeTransform().ToString());*/
 
+		SetEquipOffset(attachPoint);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::SetEquipOffset(FName Socket)
+{
+	const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(Socket);
+	const FTransform meshTransform = _Mesh->GetRelativeTransform();
+
+	if(meshTransform.GetRotation().Rotator() == FRotator::ZeroRotator)
+	{
 		const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
 		_Mesh->SetRelativeRotation(offsetRot);
-
-		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
-		_Mesh->SetRelativeLocation(offsetLoc);		
 	}
+
+	if(meshTransform.GetLocation() == FVector::ZeroVector)
+	{
+		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
+		_Mesh->SetRelativeLocation(offsetLoc);
+	}
+
+	/*FString role = HasAuthority() ? "Server" : "Client";
+	UE_LOG(LogTemp, Warning, TEXT("[%s] After offset: %s"), *role, *_Mesh->GetRelativeTransform().ToString());*/
 }
 
 /////////////////////////////////////////////////////

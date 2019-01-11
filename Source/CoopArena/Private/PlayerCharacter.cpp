@@ -348,25 +348,6 @@ void APlayerCharacter::OnAimingReleased()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnSelectPrimaryWeapon()
-{
-	AGun* primaryGun = Inventory->GetGunAtAttachPoint(0);
-	if (primaryGun)
-	{
-		EquipWeaponFromInventory_Event.Broadcast(this, primaryGun, 0);
-	}
-}
-
-void APlayerCharacter::OnSelectSecondaryWeapon()
-{
-	AGun* secondaryGun = Inventory->GetGunAtAttachPoint(1);
-	if (secondaryGun)
-	{
-		EquipWeaponFromInventory_Event.Broadcast(this, secondaryGun, 1);
-	}
-}
-
-/////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
 	if (_ActorInFocus)
@@ -423,12 +404,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
 
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnWeaponChange);	
 
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
-
-	PlayerInputComponent->BindAction("SelectPrimaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectPrimaryWeapon);
-	PlayerInputComponent->BindAction("SelectSecondaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectSecondaryWeapon);
 }
 
 /////////////////////////////////////////////////////

@@ -279,22 +279,6 @@ float UBasicAnimationSystemComponent::MapAngleTo180(float Angle)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void UBasicAnimationSystemComponent::PlayJumpAnimation()
-{
-	if (m_Variables.HorizontalVelocity != 0.0f)
-	{
-		if (!_AnimInstance->Montage_IsPlaying(m_MovingJumpAnimation))
-		{
-			_AnimInstance->Montage_Play(m_MovingJumpAnimation);
-		}
-	}
-	else if (!_AnimInstance->Montage_IsPlaying(m_IdleJumpAnimation))
-	{
-		_AnimInstance->Montage_Play(m_IdleJumpAnimation);
-	}	
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
 void UBasicAnimationSystemComponent::SetAimPitch()
 {
 	if(_bIsLocallyControlled)

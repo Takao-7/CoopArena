@@ -230,12 +230,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnAimingReleased();
 
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void OnSelectPrimaryWeapon();
-
-	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	void OnSelectSecondaryWeapon();
-
 
 	/////////////////////////////////////////////////////
 					/* Networking */

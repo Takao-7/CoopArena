@@ -172,6 +172,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AttachMeshToPawn();
 
+
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void DetachMeshFromPawn();
 
@@ -183,6 +184,8 @@ protected:
 	void SetUpMesh();
 
 public:
+	void SetEquipOffset(FName Socket);
+
 	AGun();
 
 	virtual void Tick(float DeltaSeconds) override;
