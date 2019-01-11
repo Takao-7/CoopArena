@@ -51,19 +51,44 @@ void ADefaultHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);	
-	DisplayHUD();
-
+	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerOwner);
 	PlayerOwner->bShowMouseCursor = false;
 }
 
 /////////////////////////////////////////////////////
+void ADefaultHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	APlayerCharacter* character = Cast<APlayerCharacter>(GetOwningPawn());
+	if (character && PlayerOwner && character->GetEquippedGun())
+	{
+		Init(character);
+
+		if (_AmmoStatusWidget_Class)
+		{
+			_AmmoStatusWidget = CreateWidget<UUserWidget>(PlayerOwner, _AmmoStatusWidget_Class, TEXT("Ammo status widget"));
+			_AmmoStatusWidget->AddToViewport();
+		}
+
+		if (_WaveMessage)
+		{
+			_WaveMessage = CreateWidget<UUserWidget>(PlayerOwner, _WaveMessage_Class, TEXT("Wave message widget"));
+			_WaveMessage->AddToViewport();
+		}
+
+		RefreshHud();
+		PrimaryActorTick.SetTickFunctionEnable(false);
+	}
+}
+
+/////////////////////////////////////////////////////
 void ADefaultHUD::RefreshHud()
 {
-	AHumanoid* owner = Cast<AHumanoid>(GetOwningPawn());
-	HandleOnReloadingFinished(owner, owner->GetEquippedGun());
-	DisplayHUD();
+	AGun* equippedGun = _Character->GetEquippedGun();
+	HandleOnReloadingFinished(_Character, equippedGun);
+	HandleOnFireModeChanged(_Character, equippedGun->GetCurrentFireMode());
 }
 
 /////////////////////////////////////////////////////

@@ -24,7 +24,9 @@ USimpleInventory::USimpleInventory()
 	_bDropInventoryOnDeath = true;
 
 	_DefaultMaxNumberOfMagazines = 5;
-	_SecondAttachPointIndex = -1;
+	_WeaponChangeTime = 1.0f;
+	_SocketRifle = FName(TEXT("WeaponHolster_Rifle"));
+	_SocketPistol = FName(TEXT("WeaponHolster_Pistol"));
 }
 
 /////////////////////////////////////////////////////
@@ -32,15 +34,13 @@ void USimpleInventory::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	_Owner = Cast<AHumanoid>(GetOwner());
-	check(_Owner);
-	_Owner->HolsterWeapon_Event.AddDynamic(this, &USimpleInventory::HandleOwnerHolsterWeapon);
-	_Owner->EquipWeaponFromInventory_Event.AddDynamic(this, &USimpleInventory::HandleOwnerEquipWeaponFromInventory);
-
 	if (Cast<APlayerCharacter>(GetOwner()))
 	{
 		_bDropInventoryOnDeath = false;
 	}
+
+	_Owner = Cast<AHumanoid>(GetOwner());
+	check(_Owner);
 
 	if (GetOwner()->HasAuthority())
 	{
@@ -60,7 +60,6 @@ void USimpleInventory::BeginPlay()
 			GetOwner()->OnDestroyed.AddDynamic(this, &USimpleInventory::OnOwnerDestroyed);
 		}
 	}
-
 }
 
 /////////////////////////////////////////////////////
@@ -213,193 +212,97 @@ void USimpleInventory::RefreshHud_Implementation()
 void USimpleInventory::OnWeaponHolstering()
 {
 	AGun* equippedGun = _Owner->GetEquippedGun();
-	int32 attachPoint = _SecondAttachPointIndex > -1 ? _SecondAttachPointIndex : _AttachPointIndex;
-	const bool bAttachToHolster = equippedGun ? true : false;
-	if (bAttachToHolster)
-	{
-		_Owner->UnequipWeapon(false, false);
-
-		AGun* holsteredGun = _WeaponAttachPoints[attachPoint].GetAttachedWeapon();
-		if (holsteredGun)
-		{
-			_WeaponAttachPoints[attachPoint].DetachWeapon();
-			_Owner->EquipWeapon(holsteredGun, false);
-		}
-
-		_WeaponAttachPoints[_AttachPointIndex].AttachWeapon(equippedGun, _Owner->GetMesh());
-	}
-	else
-	{
-		AGun* gun = _WeaponAttachPoints[attachPoint].DetachWeapon();
-		_Owner->EquipWeapon(gun, false);
-	}
-
-	_SecondAttachPointIndex = -1;
+	check(equippedGun);
+	_Owner->UnequipWeapon(false, false);
+	_Owner->EquipWeapon(_HolsteredWeapon, false);
+	AttachGun(equippedGun);
 }
 
 /////////////////////////////////////////////////////
-AGun* USimpleInventory::GetGunAtAttachPoint(int32 AttachPointIndex)
+AGun* USimpleInventory::GetGunAtAttachPoint()
 {
-	const bool bValidIndex = _WeaponAttachPoints.IsValidIndex(AttachPointIndex);
-	return bValidIndex ? _WeaponAttachPoints[AttachPointIndex].GetAttachedWeapon() : nullptr;
+	return _HolsteredWeapon;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::SetAttachPointIndex(int32 Index)
+void USimpleInventory::ChangeWeapon()
 {
-	_AttachPointIndex = Index;
-}
-
-/////////////////////////////////////////////////////
-void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
-{
-	_AttachPointIndex = FindValidSlotForGun(GunToHolster);
-	if (_AttachPointIndex == -1)
+	UAnimMontage* holsterAnim = GetHolsterAnimation();
+	if (holsterAnim)
 	{
-		return;
-	}
-
-	UAnimMontage* holsterAnimation = _WeaponAttachPoints[_AttachPointIndex].holsterAnimation;
-	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
-
-	if (GunToHolster)
-	{
-		if (animInstance && holsterAnimation)
-		{
-			if (GetOwner()->HasAuthority())
-			{
-				PlayHolsteringAnimation_Multicast(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
-			}
-			else
-			{
-				PlayHolsteringAnimation_Server(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
-			}
-		}
-		else
-		{
-			UnequipAndAttachWeapon_Multicast(_AttachPointIndex, GunToHolster);
-		}
-	}
-	else
-	{
-		if (animInstance && holsterAnimation)
-		{
-			if (GetOwner()->HasAuthority())
-			{
-				PlayHolsteringAnimation_Multicast(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
-			}
-			else
-			{
-				PlayHolsteringAnimation_Server(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
-			}
-		}
-		else
-		{
-			DetachAndEquipWeapon_Multicast(_AttachPointIndex);
-		}
-	}
-}
-
-/////////////////////////////////////////////////////
-int32 USimpleInventory::FindValidSlotForGun(AGun* GunToHolster)
-{
-	int32 index = -1;
-	for (int32 i = 0; i < _WeaponAttachPoints.Num(); ++i)
-	{
-		const bool bCanAttach = _WeaponAttachPoints[i].CanAttachWeapon(GunToHolster);
-		if (bCanAttach)
-		{
-			index = i;
-			break;
-		}
-	}
-
-	return index;
-}
-
-/////////////////////////////////////////////////////
-void USimpleInventory::HandleOwnerEquipWeaponFromInventory(AHumanoid* Humanoid, AGun* GunToEquip, int32 AttachPointIndex)
-{
-	AGun* equippedGun = Humanoid->GetEquippedGun();
-	if (equippedGun)
-	{
-		_SecondAttachPointIndex = AttachPointIndex;
-		HandleOwnerHolsterWeapon(equippedGun, -1);
-	}
-	else
-	{
-		_AttachPointIndex = AttachPointIndex;
-		_SecondAttachPointIndex = -1;
-
-		UAnimMontage* holsterAnimation = _WeaponAttachPoints[_AttachPointIndex].holsterAnimation;
 		if (GetOwner()->HasAuthority())
 		{
-			PlayHolsteringAnimation_Multicast(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
+			PlayHolsteringAnimation_Multicast();
 		}
 		else
 		{
-			PlayHolsteringAnimation_Server(holsterAnimation, _AttachPointIndex, _SecondAttachPointIndex);
+			PlayHolsteringAnimation_Server();
 		}
-	}	
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(_ChangeWeaponTH, [&]() { OnWeaponHolstering(); }, _WeaponChangeTime, false);
+	}
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::PlayHolsteringAnimation_Server_Implementation(UAnimMontage* HolsterAnimationToPlay, int32 AttachPointIndex, int32 SecondAttachPointIndex)
+UAnimMontage* USimpleInventory::GetHolsterAnimation()
 {
-	PlayHolsteringAnimation_Multicast(HolsterAnimationToPlay, AttachPointIndex, SecondAttachPointIndex);
+	if (_Owner->GetEquippedGun())
+	{
+		return _Owner->GetEquippedGun()->GetWeaponType() == EWEaponType::Pistol ? _HolsterAnimation_Pistol : _HolsterAnimation_Rifle;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
-bool USimpleInventory::PlayHolsteringAnimation_Server_Validate(UAnimMontage* HolsterAnimationToPlay, int32 AttachPointIndex, int32 SecondAttachPointIndex)
+/////////////////////////////////////////////////////
+void USimpleInventory::AttachGun(AGun* GunToAttach)
+{
+	check(GunToAttach);
+	FName socket = GunToAttach->GetWeaponType() == EWEaponType::Pistol ? _SocketPistol : _SocketRifle;
+	GunToAttach->AttachToComponent(_Owner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);
+	_HolsteredWeapon = GunToAttach;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::SetHolsterWeapon_Multicast_Implementation(AGun* Gun)
+{
+	_HolsteredWeapon = Gun;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::PlayHolsteringAnimation_Server_Implementation()
+{
+	PlayHolsteringAnimation_Multicast();
+}
+
+bool USimpleInventory::PlayHolsteringAnimation_Server_Validate()
 {
 	return true;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::HandleOwnerEquipWeaponFromInventory_Server_Implementation(AHumanoid* Humanoid, AGun* GunToEquip, int32 AttachPointIndex)
+void USimpleInventory::DetachAndEquipWeapon_Multicast_Implementation()
 {
-	HandleOwnerEquipWeaponFromInventory(Humanoid, GunToEquip, AttachPointIndex);
-}
-
-bool USimpleInventory::HandleOwnerEquipWeaponFromInventory_Server_Validate(AHumanoid* Humanoid, AGun* GunToEquip, int32 AttachPointIndex)
-{
-	return true;
+	_Owner->EquipWeapon(_HolsteredWeapon, false);
+	_HolsteredWeapon = nullptr;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::DetachAndEquipWeapon_Multicast_Implementation(int32 AttachPointIndex)
+void USimpleInventory::UnequipAndAttachWeapon_Multicast_Implementation(AGun* Gun)
 {
-	FWeaponAttachPoint& attachPoint = _WeaponAttachPoints[AttachPointIndex];
-	AGun* gun = attachPoint.DetachWeapon();
-	_Owner->EquipWeapon(gun, false);
-}
-
-/////////////////////////////////////////////////////
-void USimpleInventory::UnequipAndAttachWeapon_Multicast_Implementation(int32 AttachPointIndex, AGun* Gun)
-{
-	FWeaponAttachPoint& attachPoint = _WeaponAttachPoints[AttachPointIndex];
 	_Owner->UnequipWeapon(false, false); // We un-equip the gun in case we are currently holding it.	
-	attachPoint.AttachWeapon(Gun, _Owner->GetMesh());
+	AttachGun(Gun);
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::PlayHolsteringAnimation_Multicast_Implementation(UAnimMontage* HolsterAnimationToPlay, int32 AttachPointIndex, int32 SecondAttachPointIndex)
+void USimpleInventory::PlayHolsteringAnimation_Multicast_Implementation()
 {
-	_AttachPointIndex = AttachPointIndex;
-	_SecondAttachPointIndex = SecondAttachPointIndex;
-
 	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
-	animInstance->Montage_Play(HolsterAnimationToPlay, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-}
-
-/////////////////////////////////////////////////////
-void USimpleInventory::OnOwnerHolsterWeapon_Server_Implementation(AGun* GunToHolster, int32 AttachPointIndex)
-{
-	HandleOwnerHolsterWeapon(GunToHolster, AttachPointIndex);
-}
-
-bool USimpleInventory::OnOwnerHolsterWeapon_Server_Validate(AGun* GunToHolster, int32 AttachPointIndex)
-{
-	return true;
+	animInstance->Montage_Play(GetHolsterAnimation(), 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 }
 
 /////////////////////////////////////////////////////
@@ -414,6 +317,12 @@ int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine> Magaz
 {
 	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
 	return magStack ? magStack->stackSize : 0;
+}
+
+/////////////////////////////////////////////////////
+FName USimpleInventory::GetSocket(EWEaponType WeaponType) const
+{
+	return WeaponType == EWEaponType::Pistol ? _SocketPistol : _SocketRifle;
 }
 
 /////////////////////////////////////////////////////
@@ -532,6 +441,4 @@ void USimpleInventory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(USimpleInventory, _StoredMagazines, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(USimpleInventory, _AttachPointIndex, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(USimpleInventory, _SecondAttachPointIndex, COND_OwnerOnly);
 }
