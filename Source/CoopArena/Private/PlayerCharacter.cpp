@@ -21,6 +21,8 @@
 #include "SoundNodeLocalPlayer.h"
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyPlayerController.h"
+#include "DefaultHUD.h"
 
 
 /////////////////////////////////////////////////////
@@ -348,6 +350,20 @@ void APlayerCharacter::OnAimingReleased()
 }
 
 /////////////////////////////////////////////////////
+void APlayerCharacter::OnOpenMenuPressed()
+{
+	AMyPlayerController* pc = Cast<AMyPlayerController>(GetController());
+	if (pc)
+	{
+		ADefaultHUD* hud = pc->GetDefaultHUD();
+		if (hud)
+		{
+			hud->ToggleInGameMenu();
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
 	if (_ActorInFocus)
@@ -404,9 +420,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
 
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnWeaponChange);	
+	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &APlayerCharacter::OnWeaponChange);	
 
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
+
+	PlayerInputComponent->BindAction("OpenMenu", IE_Pressed, this, &APlayerCharacter::OnOpenMenuPressed);
 }
 
 /////////////////////////////////////////////////////
