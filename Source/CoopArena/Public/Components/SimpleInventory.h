@@ -3,18 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Magazine.h"
-#include "Gun.h"
-#include "Components/ActorComponent.h"
-#include "Structs/WeaponAttachPoint.h"
+#include "Weapons/Magazine.h"
+#include "Weapons/Gun.h"
 #include "Structs/ItemStructs.h"
+#include "Enums/WeaponEnums.h"
 #include "SimpleInventory.generated.h"
 
 
 class AHumanoid;
-
-/* This event will be fired when the holstering animation is finished playing. */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteringWeaponFinished_Signature, AHumanoid*, Owner);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -54,9 +50,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Inventory", meta = (DisplayName = "Stored magazines"))
 	TArray<FMagazineStack> _StoredMagazines;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Weapon attach points"))
-	TArray<FWeaponAttachPoint> _WeaponAttachPoints;
-
 	/* Should we drop all stored magazines when our owner dies? Requires that it has a UHealthComponent! */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Drop inventory on death"))
 	bool _bDropInventoryOnDeath;
@@ -68,9 +61,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (DisplayName = "Drop inventory on destroy"))
 	bool _bDropInventoryOnDestroy;
 
+	/* When there is no weapon holstering animation, then it will take this long, in seconds, to change the weapon. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory|Holster", meta = (DisplayName = "Weapon change time"))
+	float _WeaponChangeTime;
+
+	/* The socket to attach the holstered rifle to. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory|Holster")
+	FName _SocketRifle;
+
+	/* The socket to attach the holstered pistol to. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory|Holster")
+	FName _SocketPistol;
+
+	/* The animation to play when holstering a rifle. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory|Holster")
+	UAnimMontage* _HolsterAnimation_Rifle;
+
+	/* The animation to play when holstering a pistol. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory|Holster")
+	UAnimMontage* _HolsterAnimation_Pistol;
+
 private:
 	AHumanoid* _Owner;
-	int32 _AttachPointIndex;
 
 
 	/////////////////////////////////////////////////////
@@ -84,6 +96,8 @@ public:
 	/* Returns the number of magazines, from the given type, that are currently in this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Invetory")
 	int32 GetNumberOfMagazinesForType(TSubclassOf<AMagazine> MagazineType) const;
+
+	FName GetSocket(EWEaponType WeaponType) const;
 
 
 	/////////////////////////////////////////////////////
@@ -190,6 +204,10 @@ private:
 	UFUNCTION()
 	void TransfereInventoryContent(APawn* InteractingPawn);
 
+	/* Refreshes the player hud after magazines where added or removed from his inventory. */
+	UFUNCTION(Client, Reliable, Category = "Inventory")
+	void RefreshHud();
+
 
 	/////////////////////////////////////////////////////
 					/* Weapon holstering */
@@ -199,35 +217,39 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void OnWeaponHolstering();
 
-	/* Returns the weapon at the given attach point index or nullptr if the index is not valid or there is no gun at that index.*/
+	/* Returns the weapon at the attach point or nullptr if there isn't one attached at the moment. */
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	AGun* GetGunAtAttachPoint(int32 AttachPointIndex);
+	AGun* GetGunAtAttachPoint();
 
-	FOnHolsteringWeaponFinished_Signature OnHolsteringWeaponFinished;
-
-	void SetAttachPointIndex(int32 Index);
-
-private:
 	/**
-	* Function that handles weapon holstering (= moving a weapon from the hands or ground to a weapon holster) and equipping (= moving a gun from a holster to the hands).
-	* @param Gun The gun we want to holster. If nullptr we want to equip the gun that is in the AttachPointIndex slot.
-	* @param AttachPointIndex The index for @see m_weaponAttachPoints where we want to attach the given weapon to or equip from.
-	* If the value is < 0 we will search all attach points for a free, valid slot for the given gun.
+	* Holsters the given weapon and then equips the weapon that is currently at this inventories attach point.
+	* @param Gun The gun we want to holster.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex);
+	void ChangeWeapon();
+
+	UAnimMontage* GetHolsterAnimation();
+
+	/* Attaches the given gun to this inventory. */
+	void AttachGun(AGun* GunToAttach);
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
+	void SetHolsterWeapon_Multicast(AGun* Gun);
+
+private:
+	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
+	void PlayHolsteringAnimation_Multicast();
 
 	UFUNCTION(Server, Reliable, WithValidation, Category = "Inventory")
-	void OnOwnerHolsterWeapon_Server(AGun* GunToHolster, int32 AttachPointIndex);
+	void PlayHolsteringAnimation_Server();
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
-	void PlayHolsteringAnimation_Multicast(UAnimMontage* HolsterAnimationToPlay);
+	void UnequipAndAttachWeapon_Multicast(AGun* Gun);
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
-	void UnequipAndAttachWeapon_Multicast(int32 AttachPointIndex, AGun* Gun);
+	void DetachAndEquipWeapon_Multicast();
 
-	UFUNCTION(NetMulticast, Reliable, Category = "Inventory")
-	void DetachAndEquipWeapon_Multicast(int32 AttachPointIndex);
+	FTimerHandle _ChangeWeaponTH;
 
-	FTimerHandle _MontageFinishedTH;
+	AGun* _HolsteredWeapon;
 };

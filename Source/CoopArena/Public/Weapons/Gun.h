@@ -172,6 +172,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AttachMeshToPawn();
 
+
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void DetachMeshFromPawn();
 
@@ -183,6 +184,8 @@ protected:
 	void SetUpMesh();
 
 public:
+	void SetEquipOffset(FName Socket);
+
 	AGun();
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -197,7 +200,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Unequip(bool bDropGun = false, bool bRequestMulticast = true);
-	
+
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
@@ -215,9 +218,8 @@ public:
 private:
 	FTimerHandle _DespawnTH;
 
-	/* Equips us to the target. Is only used as a event function when a player tries to equip us while holding a gun. */
-	UFUNCTION()
-	void EquipSelf(AHumanoid* Target);
+	void AddToAudioActorCache();
+	void RemoveFromAudioActorCache();
 
 
 	/////////////////////////////////////////////////////
@@ -307,7 +309,7 @@ public:
 
 	/** Returns the muzzle sockets location in world space. */
 	UFUNCTION(BlueprintPure, Category = "Weapon")
-	FVector GetMuzzleLocation() const;
+	FTransform GetMuzzleTransform() const;
 
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanShoot() const;
@@ -444,5 +446,4 @@ private:
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void Unequip_Server(bool bDropGun);
-
 };

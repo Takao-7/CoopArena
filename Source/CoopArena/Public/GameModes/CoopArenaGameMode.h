@@ -67,7 +67,6 @@ public:
 	FString CheckForTeamTag(const AController& Controller) const;
 
 	void RegisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
-
 	void UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter);
 
 	/**
@@ -84,6 +83,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
 	FName GetBotTeamName() const { return _defaultBotTeam; };
+
+	UFUNCTION(Exec)
+	void DestroyAllBots();
 
 
 	/////////////////////////////////////////////////////

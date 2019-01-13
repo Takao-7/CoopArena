@@ -21,6 +21,8 @@
 #include "SoundNodeLocalPlayer.h"
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyPlayerController.h"
+#include "DefaultHUD.h"
 
 
 /////////////////////////////////////////////////////
@@ -140,12 +142,6 @@ void APlayerCharacter::CheckForInteractables()
 		SetActorInFocus(nullptr);
 		SetComponentInFocus(nullptr);
 	}
-}
-
-/////////////////////////////////////////////////////
-void APlayerCharacter::OnHolsterWeapon()
-{
-	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -354,30 +350,6 @@ void APlayerCharacter::OnAimingReleased()
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::OnSelectPrimaryWeapon()
-{
-	AGun* primaryGun = Inventory->GetGunAtAttachPoint(0);
-	if (primaryGun)
-	{
-		HolsterWeapon_Event.Broadcast(primaryGun, -1);
-	}
-}
-
-void APlayerCharacter::OnSelectSecondaryWeapon()
-{
-	AGun* secondaryWeapon = Inventory->GetGunAtAttachPoint(1);
-
-	if (_EquippedWeapon == nullptr && secondaryWeapon)
-	{
-		HolsterWeapon_Event.Broadcast(secondaryWeapon, 1);
-	}
-	else if (_EquippedWeapon && secondaryWeapon)
-	{
-		HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
-	}
-}
-
-/////////////////////////////////////////////////////
 void APlayerCharacter::OnBeginInteracting()
 {
 	if (_ActorInFocus)
@@ -434,12 +406,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("ChangeFireMode", IE_Pressed, this, &APlayerCharacter::ChangeWeaponFireMode);
 
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APlayerCharacter::OnHolsterWeapon);	
+	PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &APlayerCharacter::OnWeaponChange);	
 
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &APlayerCharacter::OnChangeCameraPressed);
-
-	PlayerInputComponent->BindAction("SelectPrimaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectPrimaryWeapon);
-	PlayerInputComponent->BindAction("SelectSecondaryWeapon", IE_Pressed, this, &APlayerCharacter::OnSelectSecondaryWeapon);
 }
 
 /////////////////////////////////////////////////////

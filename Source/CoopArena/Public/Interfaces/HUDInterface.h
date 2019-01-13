@@ -6,16 +6,13 @@
 #include "UObject/Interface.h"
 #include "HUDInterface.generated.h"
 
-// This class does not need to be modified.
+
 UINTERFACE(MinimalAPI)
 class UHUDInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class COOPARENA_API IHUDInterface
 {
 	GENERATED_BODY()
@@ -35,6 +32,5 @@ public:
 
 	/* Sets the number of rounds left in the magazines. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
-	void SetNumberOfRounds(int32 NumRounds);
-	
+	void SetNumberOfRounds(int32 NumRounds);	
 };
