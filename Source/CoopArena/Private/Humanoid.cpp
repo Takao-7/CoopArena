@@ -19,6 +19,7 @@
 #include "GameModes/CoopArenaGameMode.h"
 #include "AudioThread.h"
 #include "Sound/SoundNodeLocalPlayer.h"
+#include "Animation/AnimInstance.h"
 
 
 AHumanoid::AHumanoid()
@@ -410,10 +411,13 @@ void AHumanoid::ToggleJump()
 /////////////////////////////////////////////////////
 void AHumanoid::ReloadWeapon()
 {
-	if (_EquippedWeapon)
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	const bool bIsReloading = animInstance ? animInstance->GetCurveValue("IsReloading") : false;
+	
+	if (_EquippedWeapon && !bIsReloading)
 	{
 		_EquippedWeapon->Reload();
-	}
+	}		
 }
 
 /////////////////////////////////////////////////////

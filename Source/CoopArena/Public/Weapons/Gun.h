@@ -200,7 +200,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Unequip(bool bDropGun = false, bool bRequestMulticast = true);
-	
+
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
@@ -218,9 +218,8 @@ public:
 private:
 	FTimerHandle _DespawnTH;
 
-	/* Equips us to the target. Is only used as a event function when a player tries to equip us while holding a gun. */
-	//UFUNCTION()
-	//void EquipSelf(AHumanoid* Target);
+	void AddToAudioActorCache();
+	void RemoveFromAudioActorCache();
 
 
 	/////////////////////////////////////////////////////

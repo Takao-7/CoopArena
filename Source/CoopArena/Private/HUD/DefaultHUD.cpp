@@ -100,29 +100,35 @@ void ADefaultHUD::SetState_Implementation(EHUDState State)
 /////////////////////////////////////////////////////
 void ADefaultHUD::ToggleInGameMenu()
 {
-	ToggleMenu(_InGameMenu_Class, _InGameMenu, TEXT("Ingame menu"));
+	if (_InGameMenu_Class)
+	{
+		if (_InGameMenu_Class)
+		{
+			_InGameMenu->RemoveFromViewport();
+			_InGameMenu = nullptr;
+		}
+		else
+		{
+			_InGameMenu = CreateWidget<UUserWidget>(PlayerOwner, _InGameMenu_Class, TEXT("Ingame menu"));
+			_InGameMenu->AddToViewport(9);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////
 void ADefaultHUD::ToggleScoreBoard()
 {
-	ToggleMenu(_ScoreBoard_Class, _ScoreBoard, TEXT("Score board"));
-}
-
-/////////////////////////////////////////////////////
-void ADefaultHUD::ToggleMenu(TSubclassOf<UUserWidget> WidgetClass, UUserWidget* Widget, FName Name)
-{
-	if (WidgetClass)
+	if (_ScoreBoard_Class)
 	{
-		if (Widget)
+		if (_ScoreBoard)
 		{
-			Widget->RemoveFromViewport();
-			Widget = nullptr;
+			_ScoreBoard->RemoveFromViewport();
+			_ScoreBoard = nullptr;
 		}
 		else
 		{
-			Widget = CreateWidget<UUserWidget>(PlayerOwner, WidgetClass, Name);
-			Widget->AddToViewport(1);
+			_ScoreBoard = CreateWidget<UUserWidget>(PlayerOwner, _ScoreBoard_Class, TEXT("Score board"));
+			_ScoreBoard->AddToViewport(1);
 		}
 	}
 }

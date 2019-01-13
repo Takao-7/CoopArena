@@ -16,6 +16,32 @@ class UCoopArenaGameInstance;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart_Event, int32, WaveNumber);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveEnd_Event, int32, WaveNumber);
 
+USTRUCT(BlueprintType)
+struct FBotSpawn
+{
+	GENERATED_BODY()
+
+public:
+	FBotSpawn() {};
+	FBotSpawn(TSubclassOf<ABot> Botclass, float SpawnChance, float SpawnChanceIncreasePerWave)
+	{
+		this->Botclass = Botclass;
+		this->SpawnChance = FMath::Clamp(SpawnChance, 0.0f, 1.0f);
+		this->SpawnChanceIncreasePerWave = FMath::Clamp(SpawnChanceIncreasePerWave, 0.0f, 1.0f);
+	};
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABot> Botclass;
+
+	/* The chance that this bot will be spawned. 0 = 0%. 1 = 100%. */
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	float SpawnChance;
+
+	/* After each the SpawnChance will be increased by this value, up to a maximum of 1 */
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	float SpawnChanceIncreasePerWave;
+};
+
 
 UCLASS()
 class COOPARENA_API ARoundSurvivalGameMode : public ACoopArenaGameMode
@@ -28,7 +54,7 @@ protected:
 	int32 _BotsToSpawnPerPlayer;
 
 	/**
-	 * After each round, the number of bots that are spawned (@see m_BotsToSpawnPerPlayer)
+	 * After each round, the number of bots that are spawned (@see _BotsToSpawnPerPlayer)
 	 * are multiplied by this value.
 	 */ 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave strength increase", ClampMin = 1.0f))
