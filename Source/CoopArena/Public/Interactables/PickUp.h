@@ -26,7 +26,7 @@ private:
 	FRotator _RotationDelta;
 
 	/* The magazine stack that this pickup represents */
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	FMagazineStack _MagazineStack;
 
 protected:
@@ -60,7 +60,6 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	void SetMagazineStack(const FMagazineStack& Stack);
 	void SetMagazineStack(TSubclassOf<AMagazine> MagClass, int32 NumMags);
 
 

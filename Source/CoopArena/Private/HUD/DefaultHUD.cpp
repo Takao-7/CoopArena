@@ -72,7 +72,7 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 			_AmmoStatusWidget->AddToViewport();
 		}
 
-		if (_WaveMessage)
+		if (_WaveMessage_Class)
 		{
 			_WaveMessage = CreateWidget<UUserWidget>(PlayerOwner, _WaveMessage_Class, TEXT("Wave message widget"));
 			_WaveMessage->AddToViewport();
