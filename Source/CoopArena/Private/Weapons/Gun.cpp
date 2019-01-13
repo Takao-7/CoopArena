@@ -21,6 +21,8 @@
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "UnrealNetwork.h"
+#include "SoundNodeLocalPlayer.h"
+#include "AudioThread.h"
 
 
 AGun::AGun()
@@ -135,6 +137,29 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
+
+	AddToAudioActorCache();
+}
+
+/////////////////////////////////////////////////////
+void AGun::AddToAudioActorCache()
+{
+	const APlayerController* PC = _MyOwner ? Cast<APlayerController>(_MyOwner->GetController()) : nullptr;
+	const bool bLocallyControlled = (PC ? PC->IsLocalController() : false);
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID, bLocallyControlled]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
+	});
+}
+
+void AGun::RemoveFromAudioActorCache()
+{
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Remove(UniqueID);
+	});
 }
 
 /////////////////////////////////////////////////////
@@ -155,7 +180,7 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 	{
 		if (bDropGun)
 		{
-			if (Instigator && !Instigator->IsPlayerControlled() || Instigator == nullptr)
+			if ((Instigator && !Instigator->IsPlayerControlled()) || Instigator == nullptr)
 			{
 				StartRespawnTimer();
 			}
@@ -170,6 +195,8 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 			_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 			SetReplicateMovement(false);
 		}
+
+		RemoveFromAudioActorCache();
 	}
 }
 
