@@ -230,10 +230,10 @@ void ARoundSurvivalGameMode::SpawnBots()
 	for (int32 i = 0; i < _NumBotsToSpawn; ++i)
 	{
 		AActor* spawnPoint = _BotSpawnPoints[i % _BotSpawnPoints.Num()];
-		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		TSubclassOf<ABot> botClass = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
+		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClass.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
 		if(newBot)
 		{
 			_BotsAlive.Add(newBot);
@@ -332,7 +332,9 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	_numPlayersAlive--;
 	if (_numPlayersAlive == 0)
 	{
-		// #todo Game over
+		AMyGameState* gamestate = GetGameState<AMyGameState>();
+		ensure(gamestate);
+		gamestate->OnGameOver();
 		EndMatch();
 	}
 }

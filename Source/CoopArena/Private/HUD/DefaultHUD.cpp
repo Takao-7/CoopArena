@@ -72,7 +72,7 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 			_AmmoStatusWidget->AddToViewport();
 		}
 
-		if (_WaveMessage)
+		if (_WaveMessage_Class)
 		{
 			_WaveMessage = CreateWidget<UUserWidget>(PlayerOwner, _WaveMessage_Class, TEXT("Wave message widget"));
 			_WaveMessage->AddToViewport();
@@ -100,17 +100,29 @@ void ADefaultHUD::SetState_Implementation(EHUDState State)
 /////////////////////////////////////////////////////
 void ADefaultHUD::ToggleInGameMenu()
 {
-	if (_InGameMenu_Class)
+	ToggleMenu(_InGameMenu_Class, _InGameMenu, TEXT("Ingame menu"));
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::ToggleScoreBoard()
+{
+	ToggleMenu(_ScoreBoard_Class, _ScoreBoard, TEXT("Score board"));
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::ToggleMenu(TSubclassOf<UUserWidget> WidgetClass, UUserWidget* Widget, FName Name)
+{
+	if (WidgetClass)
 	{
-		if (_InGameMenu)
+		if (Widget)
 		{
-			_InGameMenu->RemoveFromViewport();
-			_InGameMenu = nullptr;
+			Widget->RemoveFromViewport();
+			Widget = nullptr;
 		}
 		else
 		{
-			_InGameMenu = CreateWidget<UUserWidget>(PlayerOwner, _InGameMenu_Class, TEXT("Ingame menu"));
-			_InGameMenu->AddToViewport(1);
+			Widget = CreateWidget<UUserWidget>(PlayerOwner, WidgetClass, Name);
+			Widget->AddToViewport(1);
 		}
 	}
 }

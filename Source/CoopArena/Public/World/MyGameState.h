@@ -63,4 +63,8 @@ public:
 
 	/* [Server] Add score to the team score. */
 	void AddScore(int32 Score);
+
+	/* This function will be called by the game mode, when all players are dead. */
+	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	void OnGameOver();
 };
