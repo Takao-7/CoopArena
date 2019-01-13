@@ -32,17 +32,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "HUD")
 	APlayerCharacter* _Character;
 
-	UPROPERTY(BlueprintReadWrite, Category = "HUD", meta = (DisplayName = "Ammo status widget"))
+	UPROPERTY(BlueprintReadOnly, Category = "HUD", meta = (DisplayName = "Ammo status widget"))
 	UUserWidget* _AmmoStatusWidget;
 
-	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	UPROPERTY(EditDefaultsOnly, Category = "HUD", meta = (DisplayName = "Ammo status widget class"))
 	TSubclassOf<UUserWidget> _AmmoStatusWidget_Class;
 
-	UPROPERTY(BlueprintReadWrite, Category = "HUD", meta = (DisplayName = "Wave message"))
+	UPROPERTY(BlueprintReadOnly, Category = "HUD", meta = (DisplayName = "Wave message"))
 	UUserWidget* _WaveMessage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	UPROPERTY(EditDefaultsOnly, Category = "HUD", meta = (DisplayName = "Wave message class"))
 	TSubclassOf<UUserWidget> _WaveMessage_Class;
+
+	UPROPERTY(BlueprintReadOnly, Category = "HUD", meta = (DisplayName = "InGame menu"))
+	UUserWidget* _InGameMenu;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD", meta = (DisplayName = "InGame menu class"))
+	TSubclassOf<UUserWidget> _InGameMenu_Class;
 
 	/* The time, in seconds, after reloading, shooting or switching the weapon mode, the HUD will be hidden. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")
@@ -81,6 +87,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "HUD")
 	EHUDState GetCurrentState() const { return _HUDState; };
+
+	void ToggleInGameMenu();
 
 private:
 	FTimerHandle _Timer;

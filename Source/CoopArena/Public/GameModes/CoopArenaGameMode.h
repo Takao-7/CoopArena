@@ -43,6 +43,9 @@ protected:
 	TArray<APlayerController*> _playerControllers;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
+	TSubclassOf<UUserWidget> _LoadingScreen_Class;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
 	FName _defaultPlayerTeam;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
@@ -83,6 +86,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "CoopArena game mode")
 	FName GetBotTeamName() const { return _defaultBotTeam; };
+
+	TSubclassOf<UUserWidget> GetLoadingScreenClass() const { return _LoadingScreen_Class;	};
 
 
 	/////////////////////////////////////////////////////

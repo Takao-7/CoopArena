@@ -138,6 +138,7 @@ private:
 	bool _bWantsToCreateNewSession;
 	FString _PlayerName;
 	EOnlineMode _OnlineMode;
+	int32 _NumPlayersInLoadingScreen;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
@@ -145,4 +146,7 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	void SetPlayerName(FString PlayerName);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ShowLoadingScreen_Multicast(TSubclassOf<UUserWidget> LoadingScreenClass);
 };

@@ -12,6 +12,8 @@
 #include "MyPlayerState.h"
 #include "MoviePlayer.h"
 #include "WidgetLayoutLibrary.h"
+#include "UserWidget.h"
+#include "TimerManager.h"
 
 
 #define SETTING_PlayerName FName("PlayerName")
@@ -137,6 +139,16 @@ void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 }
 
 /////////////////////////////////////////////////////
+void UCoopArenaGameInstance::ShowLoadingScreen_Multicast_Implementation(TSubclassOf<UUserWidget> LoadingScreenClass)
+{
+	if(LoadingScreenClass)
+	{
+		UUserWidget* loadingScreen = CreateWidget<UUserWidget>(GetPrimaryPlayerController(), LoadingScreenClass, TEXT("Loading screen"));
+		loadingScreen->AddToViewport(10);
+	}
+}
+
+/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SearchForGames()
 {
 	_bWantsToSearchForGames = true;
@@ -165,7 +177,19 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 			searchResult.Add(FSessionData(playerName, Ping, MaxPlayers, ConnectedPlayer));
 		}
 		OnSessionFound.Broadcast(searchResult);
-		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Found games!"));	
+		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Found games!"));
+	}
+	else
+	{
+		if (_SessionSearch->SearchResults.Num() == 0)
+		{
+			GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("No games found!"));
+		}
+
+		if (!bSuccess)
+		{
+			GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("Searching not successfull!"));
+		}
 	}
 
 	if (_bWantsToSearchForGames)
@@ -184,7 +208,7 @@ void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
-	
+
 	const FString url = TEXT("/Game/Maps/") + MapName;
 	GetWorld()->ServerTravel(url);
 }

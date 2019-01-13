@@ -98,6 +98,24 @@ void ADefaultHUD::SetState_Implementation(EHUDState State)
 }
 
 /////////////////////////////////////////////////////
+void ADefaultHUD::ToggleInGameMenu()
+{
+	if (_InGameMenu_Class)
+	{
+		if (_InGameMenu)
+		{
+			_InGameMenu->RemoveFromViewport();
+			_InGameMenu = nullptr;
+		}
+		else
+		{
+			_InGameMenu = CreateWidget<UUserWidget>(PlayerOwner, _InGameMenu_Class, TEXT("Ingame menu"));
+			_InGameMenu->AddToViewport(1);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
 void ADefaultHUD::HandleOnReloadingFinished(AHumanoid* Character, AGun* Gun)
 {
 	verify(Character);
