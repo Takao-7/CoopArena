@@ -332,7 +332,9 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	_numPlayersAlive--;
 	if (_numPlayersAlive == 0)
 	{
-		// #todo Game over
+		AMyGameState* gamestate = GetGameState<AMyGameState>();
+		ensure(gamestate);
+		gamestate->OnGameOver();
 		EndMatch();
 	}
 }

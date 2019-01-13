@@ -106,6 +106,11 @@ void USimpleInventory::DropInventoryContent()
 {
 	for (FMagazineStack& magStack : _StoredMagazines)
 	{
+		if (magStack.stackSize == 0)
+		{
+			continue;
+		}
+
 		FTransform spawnTransform = GetOwner()->GetActorTransform();
 		spawnTransform.SetRotation(FQuat());
 
@@ -118,7 +123,7 @@ void USimpleInventory::DropInventoryContent()
 		APickUp* pickUp = GetWorld()->SpawnActorDeferred<APickUp>(APickUp::StaticClass(), spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (pickUp)
 		{
-			const int32 stackSize = magStack.stackSize < 1 ? FMath::RandRange(1, 3) : magStack.stackSize;
+			const int32 stackSize = magStack.stackSize == -1 ? FMath::RandRange(1, 3) : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
 			UGameplayStatics::FinishSpawningActor(pickUp, spawnTransform);
 		}
@@ -159,10 +164,14 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 		for(FMagazineStack& magStack : _StoredMagazines)
 		{
 			int32 stackSize = magStack.stackSize;
-			if (magStack.stackSize == -1)
+			if (stackSize == 0)
 			{
-				stackSize = FMath::RandRange(1, 5);
-				magStack.stackSize = 0;
+				continue;
+			}
+			else if (stackSize == -1)
+			{
+				stackSize = FMath::RandRange(1, 3);
+				magStack.stackSize = stackSize;
 			}
 			
 			int32 freeSpace;
@@ -188,7 +197,7 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 			}
 		}
 
-		_StoredMagazines.RemoveAllSwap([](FMagazineStack& magStack) { return magStack.stackSize == 0; });
+		_StoredMagazines.RemoveAllSwap([](FMagazineStack& stack) { return stack.stackSize == 0; });
 
 		if (bIsEmpty)
 		{
@@ -341,7 +350,7 @@ bool USimpleInventory::HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, 
 	const int32 numberOfMagsInInventory = magStack ? magStack->stackSize : 0;
 
 	Out_FreeSpace = maxMagCount - numberOfMagsInInventory;
-	return numberOfMagsInInventory + NumMagazinesToStore <= Out_FreeSpace;
+	return Out_FreeSpace - NumMagazinesToStore >= 0;
 }
 
 bool USimpleInventory::HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const

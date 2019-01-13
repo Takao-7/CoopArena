@@ -89,6 +89,9 @@ public:
 
 	TSubclassOf<UUserWidget> GetLoadingScreenClass() const { return _LoadingScreen_Class;	};
 
+	UFUNCTION(Exec)
+	void DestroyAllBots();
+
 
 	/////////////////////////////////////////////////////
 				/* Overridden functions */

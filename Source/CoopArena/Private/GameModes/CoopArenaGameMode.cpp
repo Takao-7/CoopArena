@@ -12,6 +12,7 @@
 #include "DefaultHUD.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
+#include "Bot.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
@@ -42,6 +43,18 @@ void ACoopArenaGameMode::FindSpawnPoints()
 	for (AActor* spawnPoint : spawnPoint_actors)
 	{
 		_spawnPoints.AddUnique(Cast<ASpawnPoint>(spawnPoint));
+	}
+}
+
+/////////////////////////////////////////////////////
+void ACoopArenaGameMode::DestroyAllBots()
+{
+	TArray<AActor*> bots;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABot::StaticClass(), bots);
+
+	for (AActor* bot : bots)
+	{
+		bot->Destroy();
 	}
 }
 
