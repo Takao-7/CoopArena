@@ -123,11 +123,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Reload animation"))
 	UAnimMontage* _ReloadAnimation;
-
-	///* This gun's forward direction. Will be used for projectile spawning. */
-	//UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (DisplayName = "Forward direction"))
-	//UArrowComponent* _ForwardDirection;
-
+	
 	/**
 	 * The offset to properly equip this weapon, after attaching this weapon to the carrier,
 	 * we will be moved and rotated by this.
@@ -298,7 +294,7 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void OnFire();
+	void FireGun();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnStopFire();
@@ -421,7 +417,7 @@ private:
 	void OnMagAttached();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void PlayEffects_Multicast();
+	void HandleOnFire_Multicast();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RepMyOwner(AHumanoid* NewOwner);
@@ -433,7 +429,7 @@ private:
 	void Server_OnStopFire();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_OnFire(EFireMode FireMode, FTransform SpawnTransform);
+	void OnFire_Server(EFireMode FireMode, FTransform SpawnTransform);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayReloadAnimation();

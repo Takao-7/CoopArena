@@ -240,7 +240,7 @@ void AHumanoid::FireEquippedWeapon()
 {
 	if (CanFire() && _EquippedWeapon)
 	{
-		_EquippedWeapon->OnFire();
+		_EquippedWeapon->FireGun();
 	}
 }
 
