@@ -230,8 +230,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnAimingReleased();
 
-	void OnOpenMenuPressed();
-
 
 	/////////////////////////////////////////////////////
 					/* Networking */

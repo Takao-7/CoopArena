@@ -50,6 +50,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "HUD", meta = (DisplayName = "InGame menu class"))
 	TSubclassOf<UUserWidget> _InGameMenu_Class;
 
+	UPROPERTY(BlueprintReadOnly, Category = "HUD", meta = (DisplayName = "Score board"))
+	UUserWidget* _ScoreBoard;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD", meta = (DisplayName = "Score board class"))
+	TSubclassOf<UUserWidget> _ScoreBoard_Class;
+
 	/* The time, in seconds, after reloading, shooting or switching the weapon mode, the HUD will be hidden. */
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")
 	float _TimeToHideHUD;
@@ -89,6 +95,7 @@ public:
 	EHUDState GetCurrentState() const { return _HUDState; };
 
 	void ToggleInGameMenu();
+	void ToggleScoreBoard();
 
 private:
 	FTimerHandle _Timer;
@@ -108,4 +115,6 @@ private:
 	void HandleOnWeaponEquipped(AHumanoid* Player, AGun* Gun);
 
 	void DisplayHUD();
+
+	void ToggleMenu(TSubclassOf<UUserWidget> WidgetClass, UUserWidget* Widget, FName Name);
 };

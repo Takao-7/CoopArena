@@ -72,6 +72,10 @@ void AMyPlayerController::SetupInputComponent()
 
 	FInputActionBinding& bindungPreviusPlayer = InputComponent->BindAction("SpectatePreviousPlayer", IE_Pressed, this, &AMyPlayerController::SpectatePreviousPlayer_Server);
 	bindungPreviusPlayer.bConsumeInput = false;
+
+	InputComponent->BindAction("OpenMenu", IE_Pressed, this, &AMyPlayerController::OnOpenMenuPressed);
+	
+	InputComponent->BindAction("OpenScoreBoard", IE_Pressed, this, &AMyPlayerController::OnOpenScoreBoard);
 }
 
 /////////////////////////////////////////////////////
@@ -115,6 +119,17 @@ void AMyPlayerController::Possess(APawn* aPawn)
 ADefaultHUD* AMyPlayerController::GetDefaultHUD() const
 {
 	return Cast<ADefaultHUD>(GetHUD());
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerController::OnOpenMenuPressed()
+{
+	GetDefaultHUD()->ToggleInGameMenu();
+}
+
+void AMyPlayerController::OnOpenScoreBoard()
+{
+	GetDefaultHUD()->ToggleScoreBoard();
 }
 
 /////////////////////////////////////////////////////
