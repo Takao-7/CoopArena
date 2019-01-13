@@ -115,6 +115,4 @@ private:
 	void HandleOnWeaponEquipped(AHumanoid* Player, AGun* Gun);
 
 	void DisplayHUD();
-
-	void ToggleMenu(TSubclassOf<UUserWidget> WidgetClass, UUserWidget* Widget, FName Name);
 };
