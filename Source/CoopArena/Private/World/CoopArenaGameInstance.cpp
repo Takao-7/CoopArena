@@ -139,16 +139,6 @@ void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::ShowLoadingScreen_Multicast_Implementation(TSubclassOf<UUserWidget> LoadingScreenClass)
-{
-	if(LoadingScreenClass)
-	{
-		UUserWidget* loadingScreen = CreateWidget<UUserWidget>(GetPrimaryPlayerController(), LoadingScreenClass, TEXT("Loading screen"));
-		loadingScreen->AddToViewport(10);
-	}
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SearchForGames()
 {
 	_bWantsToSearchForGames = true;
