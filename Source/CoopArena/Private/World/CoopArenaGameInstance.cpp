@@ -14,6 +14,7 @@
 #include "WidgetLayoutLibrary.h"
 #include "UserWidget.h"
 #include "TimerManager.h"
+#include "MyGameState.h"
 
 
 #define SETTING_PlayerName FName("PlayerName")
@@ -196,6 +197,10 @@ void UCoopArenaGameInstance::StopSearchForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
+	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
+	ensure(gameState);
+	gameState->ShowLoadingScreen_Multicast();
+
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
 

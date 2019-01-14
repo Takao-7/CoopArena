@@ -334,7 +334,12 @@ void APlayerCharacter::OnAimingPressed()
 	{
 		_bIsAiming = true;
 		BASComponent->GetActorVariables().bIsAiming = true;
-		Cast<APlayerController>(GetController())->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+
+		APlayerController* pc = Cast<APlayerController>(GetController());
+		if (pc)
+		{
+			pc->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
+		}
 	}
 }
 
@@ -344,8 +349,12 @@ void APlayerCharacter::OnAimingReleased()
 	{
 		_bIsAiming = false;
 		BASComponent->GetActorVariables().bIsAiming = false;
+
 		APlayerController* pc = Cast<APlayerController>(GetController());
-		pc->SetViewTargetWithBlend(pc->GetPawn(), 0.2f);
+		if (pc)
+		{
+			pc->SetViewTargetWithBlend(pc->GetPawn(), 0.2f);
+		}
 	}
 }
 
