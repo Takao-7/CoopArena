@@ -8,6 +8,8 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "DefaultHUD.h"
+#include "UserWidget.h"
+#include "WidgetLayoutLibrary.h"
 
 
 AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -79,6 +81,18 @@ void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
 	_TeamScore += Score;
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::ShowLoadingScreen_Multicast_Implementation()
+{
+	if (_LoadingScreenClass)
+	{
+		UWorld* world = GetWorld();
+		UWidgetLayoutLibrary::RemoveAllWidgets(world->GetFirstPlayerController());
+		UUserWidget* loadingScreen = CreateWidget(world->GetFirstPlayerController(), _LoadingScreenClass, TEXT("Loading screen"));
+		loadingScreen->AddToViewport(10);
+	}
 }
 
 /////////////////////////////////////////////////////

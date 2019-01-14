@@ -20,6 +20,10 @@ UCLASS()
 class COOPARENA_API AMyGameState : public AGameState
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Game state", meta = (DisplayName = "Loading screen class"))
+	TSubclassOf<UUserWidget> _LoadingScreenClass;
 	
 private:
 	/* Total accumulated score from all players  */
@@ -67,4 +71,7 @@ public:
 	/* This function will be called by the game mode, when all players are dead. */
 	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
 	void OnGameOver();
+
+	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
+	void ShowLoadingScreen_Multicast();
 };

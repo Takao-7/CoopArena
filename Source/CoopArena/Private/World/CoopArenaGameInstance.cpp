@@ -14,6 +14,7 @@
 #include "WidgetLayoutLibrary.h"
 #include "UserWidget.h"
 #include "TimerManager.h"
+#include "MyGameState.h"
 
 
 #define SETTING_PlayerName FName("PlayerName")
@@ -139,16 +140,6 @@ void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::ShowLoadingScreen_Multicast_Implementation(TSubclassOf<UUserWidget> LoadingScreenClass)
-{
-	if(LoadingScreenClass)
-	{
-		UUserWidget* loadingScreen = CreateWidget<UUserWidget>(GetPrimaryPlayerController(), LoadingScreenClass, TEXT("Loading screen"));
-		loadingScreen->AddToViewport(10);
-	}
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SearchForGames()
 {
 	_bWantsToSearchForGames = true;
@@ -206,6 +197,10 @@ void UCoopArenaGameInstance::StopSearchForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
+	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
+	ensure(gameState);
+	gameState->ShowLoadingScreen_Multicast();
+
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
 

@@ -146,7 +146,4 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 	void SetPlayerName(FString PlayerName);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ShowLoadingScreen_Multicast(TSubclassOf<UUserWidget> LoadingScreenClass);
 };
