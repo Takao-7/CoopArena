@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
-#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSessionInterface.h"
 #include "CoopArenaGameInstance.generated.h"
 
 
@@ -16,13 +17,18 @@ struct FSessionData
 
 public:
 	FSessionData() {};
-	FSessionData(FString PlayerName, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
+	FSessionData(FString MatchName, FString PlayerName, int32 Ping, int32 MaxPlayers, int32 ConnectedPlayer)
 	{
+		this->MatchName = MatchName;
 		this->PlayerName = PlayerName;
 		this->Ping = Ping;
 		this->MaxPlayers = MaxPlayers;
 		this->ConnectedPlayers = ConnectedPlayer;
 	};
+
+	/* The match name that this session's creator has chosen. This is NOT the session name. */
+	UPROPERTY(BlueprintReadWrite)
+	FString MatchName;
 
 	/* The in game name of this session's creator. */
 	UPROPERTY(BlueprintReadWrite)
@@ -41,15 +47,6 @@ public:
 };
 
 
-UENUM()
-enum class EOnlineMode : uint8
-{
-	Offline,
-	LAN,
-	Online
-};
-
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSessionFound_Event, const TArray<FSessionData>&, FoundSessions);
 
 
@@ -63,14 +60,14 @@ public:
 
 	/* Create a new session. Will destroy the current session and create a new one if it exists. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
-	void CreateSession(FString PlayerName = "");
+	void CreateSession();
 
 	/* Destroy the current session. */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
 	void DestroySession();
 
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
-	void Host(FString MapName = "", FString PlayerName = TEXT("No Name"));
+	void Host(FString ServerName = TEXT("No-Name Server"), FString PlayerName = TEXT("Nobody"));
 
 	/**
 	 * Joins the game on a IP-Address or travel to a map.
@@ -79,7 +76,7 @@ public:
 	 * If it's a map name, then we will (client) travel to that map.
 	 */
 	UFUNCTION(Exec, BlueprintCallable, Category = "Game instance")
-	void Join(const FString& Address, FString PlayerName = "");
+	void Join(const FString& Address);
 
 	/** virtual function to allow custom GameInstances an opportunity to set up what it needs */
 	virtual void Init() override;
@@ -116,34 +113,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void EndMatch();
 
-	UFUNCTION(BlueprintPure, Category = "Game instance")
-	EOnlineMode GetOnlineMode() const { return _OnlineMode; };
-
-	UFUNCTION()
-	virtual void BeginLoadingScreen(const FString& MapName);
-
-	UFUNCTION()
-	virtual void EndLoadingScreen(UWorld* InLoadedWorld);
-
-protected:
-	void SetOnlineMode(EOnlineMode OnlineMode);
-
-	UFUNCTION(BlueprintCallable, Category = "Game instance")
-	void JoinServer(int32 SearchResultIndex, FString PlayerName = TEXT("Nobody"));
-
 private:
 	IOnlineSessionPtr _SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 	bool _bWantsToSearchForGames;
 	bool _bWantsToCreateNewSession;
 	FString _PlayerName;
-	EOnlineMode _OnlineMode;
-	int32 _NumPlayersInLoadingScreen;
+	FString _ServerName;
 
 	void OnCreateSessionComplete(FName SessionName, bool bSuccess);
 	void OnDestroySessionComplete(FName SessionName, bool bSuccess);
 	void OnFindSessionComplete(bool bSuccess);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
+	void JoinServer(int32 SearchResultIndex, FString PlayerName = TEXT("Nobody"));
 
 	void SetPlayerName(FString PlayerName);
 };

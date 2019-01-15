@@ -123,7 +123,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon", meta = (DisplayName = "Reload animation"))
 	UAnimMontage* _ReloadAnimation;
-	
+
+	///* This gun's forward direction. Will be used for projectile spawning. */
+	//UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (DisplayName = "Forward direction"))
+	//UArrowComponent* _ForwardDirection;
+
 	/**
 	 * The offset to properly equip this weapon, after attaching this weapon to the carrier,
 	 * we will be moved and rotated by this.
@@ -168,7 +172,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AttachMeshToPawn();
 
-
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void DetachMeshFromPawn();
 
@@ -180,8 +183,6 @@ protected:
 	void SetUpMesh();
 
 public:
-	void SetEquipOffset(FName Socket);
-
 	AGun();
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -196,7 +197,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Unequip(bool bDropGun = false, bool bRequestMulticast = true);
-
+	
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	EWEaponType GetWeaponType() { return _GunStats.WeaponType; }
 
@@ -214,8 +215,9 @@ public:
 private:
 	FTimerHandle _DespawnTH;
 
-	void AddToAudioActorCache();
-	void RemoveFromAudioActorCache();
+	/* Equips us to the target. Is only used as a event function when a player tries to equip us while holding a gun. */
+	UFUNCTION()
+	void EquipSelf(AHumanoid* Target);
 
 
 	/////////////////////////////////////////////////////
@@ -294,7 +296,7 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void FireGun();
+	void OnFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void OnStopFire();
@@ -305,7 +307,7 @@ public:
 
 	/** Returns the muzzle sockets location in world space. */
 	UFUNCTION(BlueprintPure, Category = "Weapon")
-	FTransform GetMuzzleTransform() const;
+	FVector GetMuzzleLocation() const;
 
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanShoot() const;
@@ -417,7 +419,7 @@ private:
 	void OnMagAttached();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void HandleOnFire_Multicast();
+	void PlayEffects_Multicast();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RepMyOwner(AHumanoid* NewOwner);
@@ -429,7 +431,7 @@ private:
 	void Server_OnStopFire();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void OnFire_Server(EFireMode FireMode, FTransform SpawnTransform);
+	void Server_OnFire(EFireMode FireMode, FTransform SpawnTransform);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayReloadAnimation();
@@ -442,4 +444,5 @@ private:
 
 	UFUNCTION(Server, WithValidation, Reliable)
 	void Unequip_Server(bool bDropGun);
+
 };

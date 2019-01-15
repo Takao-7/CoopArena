@@ -12,14 +12,12 @@
 #include "DefaultHUD.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
-#include "Bot.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
 {
 	_defaultPlayerTeam = "Player Team";
 	_defaultBotTeam = "Bot Team";
-	bUseSeamlessTravel = true;
 
 	DefaultPawnClass = APlayerCharacter::StaticClass();
 	GameStateClass = AMyGameState::StaticClass();
@@ -47,18 +45,6 @@ void ACoopArenaGameMode::FindSpawnPoints()
 }
 
 /////////////////////////////////////////////////////
-void ACoopArenaGameMode::DestroyAllBots()
-{
-	TArray<AActor*> bots;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABot::StaticClass(), bots);
-
-	for (AActor* bot : bots)
-	{
-		bot->Destroy();
-	}
-}
-
-/////////////////////////////////////////////////////
 void ACoopArenaGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
@@ -76,13 +62,10 @@ void ACoopArenaGameMode::RegisterPlayerCharacter(APlayerCharacter* PlayerCharact
 
 void ACoopArenaGameMode::UnregisterPlayerCharacter(APlayerCharacter* PlayerCharacter)
 {
-	if(_playerCharactersAlive.Find(PlayerCharacter) && _playerCharacters.Find(PlayerCharacter))
-	{
-		ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
-		_playerCharacters.RemoveSwap(PlayerCharacter);
-		_playerCharactersAlive.RemoveSwap(PlayerCharacter);
-		_numPlayersAlive--;
-	}
+	ensureMsgf(PlayerCharacter, TEXT("PlayerCharacter is null. Do call this function if the parameter is null."));
+	_playerCharacters.RemoveSwap(PlayerCharacter);
+	_playerCharactersAlive.RemoveSwap(PlayerCharacter);
+	_numPlayersAlive--;
 }
 
 /////////////////////////////////////////////////////
@@ -119,6 +102,7 @@ void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	_playerControllers.AddUnique(NewPlayer);
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Player logged in"));
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)

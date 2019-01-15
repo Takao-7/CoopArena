@@ -3,6 +3,7 @@
 #include "ItemBase.h"
 #include "GameFramework/Pawn.h"
 #include "PlayerCharacter.h"
+#include "Components/InventoryComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Components/SimpleInventory.h"
@@ -17,8 +18,8 @@ AItemBase::AItemBase()
 
 	_collisionChannels.Visibility =			ECR_Block;
 	_collisionChannels.Camera =				ECR_Block;
-	_collisionChannels.GameTraceChannel1 =	ECR_Ignore;	// Projectile
 	_collisionChannels.GameTraceChannel2 =	ECR_Block;	// Interactable
+	_collisionChannels.GameTraceChannel1 =	ECR_Ignore;	// Projectile
 	_collisionChannels.GameTraceChannel3 =	ECR_Ignore;	// Projectile penetration
 	_collisionChannels.Pawn =				ECR_Ignore;
 }
@@ -75,6 +76,20 @@ void AItemBase::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiv
 
 		TSubclassOf<AMagazine> magClass = _itemStats.itemClass;
 		const bool bItemSuccessfullyAdded = inventory->AddMagazineToInventory(magClass);
+		if (bItemSuccessfullyAdded)
+		{
+			Destroy();
+		}
+	}
+	else
+	{
+		UInventoryComponent* inventory = Cast<UInventoryComponent>(InteractingPawn->GetComponentByClass(UInventoryComponent::StaticClass()));
+		if (inventory == nullptr)
+		{
+			return;
+		}
+
+		const bool bItemSuccessfullyAdded = inventory->AddItem(_itemStats, 1.0f);
 		if (bItemSuccessfullyAdded)
 		{
 			Destroy();

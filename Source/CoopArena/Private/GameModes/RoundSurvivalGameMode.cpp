@@ -12,11 +12,10 @@
 #include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
 #include "MyPlayerController.h"
-#include "World/CoopArenaGameInstance.h"
+#include "CoopArenaGameInstance.h"
 #include "Bot.h"
 #include "BotController.h"
 #include "MyGameState.h"
-#include "Engine/Engine.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -58,13 +57,12 @@ void ARoundSurvivalGameMode::OnSpawnLocationLoaded()
 /////////////////////////////////////////////////////
 bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
-	const int32 nunConnectedPlayers = GetNumberOfConnectedPlayers();
-	const bool bIsSinglePlayer = GetCoopArenaGameInstance()->GetOnlineMode() == EOnlineMode::Offline;
-	const bool bAllPlayersAreOnMap = NumTravellingPlayers == 0;
+	const int32 numPlayersOnMap = _playerControllers.Num();
+	const int32 numConnectedPlayers = GetNumberOfConnectedPlayers();
 
-	FString message = TEXT("Connected players: " + FString::FromInt(nunConnectedPlayers) + ". ");
-	message.Append(TEXT("Travelling players: ") + FString::FromInt(NumTravellingPlayers));
-	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, message);
+	ENetMode netMode = GetNetMode();
+	const bool bIsSinglePlayer = (netMode == ENetMode::NM_Standalone) || numConnectedPlayers == 0;
+	const bool bAllPlayersAreOnMap = numPlayersOnMap == numConnectedPlayers;
 
 	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
 }
@@ -75,17 +73,11 @@ bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
 }
 
 /////////////////////////////////////////////////////
-UCoopArenaGameInstance* ARoundSurvivalGameMode::GetCoopArenaGameInstance()
-{
-	UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-	ensure(gameInstance);
-	return gameInstance;
-}
-
-/////////////////////////////////////////////////////
 int32 ARoundSurvivalGameMode::GetNumberOfConnectedPlayers()
 {
-	return GetCoopArenaGameInstance()->GetNumberOfConnectedPlayers();
+	const UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	ensure(gameInstance);
+	return gameInstance->GetNumberOfConnectedPlayers();
 }
 
 /////////////////////////////////////////////////////
@@ -102,17 +94,6 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 	latentActionInfo.Linkage = 0;
 	latentActionInfo.UUID = 0;
 	UGameplayStatics::LoadStreamLevel(GetWorld(), _ChoosenSpawnLocation, true, true, latentActionInfo);
-}
-
-/////////////////////////////////////////////////////
-void ARoundSurvivalGameMode::Logout(AController* Exiting)
-{
-	APlayerCharacter* character = Cast<APlayerCharacter>(Exiting->GetPawn());
-	if (character)
-	{
-		character->UnequipWeapon(true, true);
-		UnregisterPlayerCharacter(character);
-	}
 }
 
 /////////////////////////////////////////////////////
@@ -230,10 +211,10 @@ void ARoundSurvivalGameMode::SpawnBots()
 	for (int32 i = 0; i < _NumBotsToSpawn; ++i)
 	{
 		AActor* spawnPoint = _BotSpawnPoints[i % _BotSpawnPoints.Num()];
-		TSubclassOf<ABot> botClass = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		TSubclassOf<ABot> botClassToSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClass.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
+		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClassToSpawn.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
 		if(newBot)
 		{
 			_BotsAlive.Add(newBot);
@@ -332,9 +313,7 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 	_numPlayersAlive--;
 	if (_numPlayersAlive == 0)
 	{
-		AMyGameState* gamestate = GetGameState<AMyGameState>();
-		ensure(gamestate);
-		gamestate->OnGameOver();
+		// #todo Game over
 		EndMatch();
 	}
 }

@@ -15,7 +15,6 @@ class ACharacter;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJump_Signature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTurning_Signature, bool, bTurnRight, bool, bTurn90, float, PlayRate);
 
 
 USTRUCT(BlueprintType)
@@ -80,7 +79,7 @@ class COOPARENA_API UBasicAnimationSystemComponent : public UActorComponent
 protected:
 	/* If the yaw value is at least this value, we will make a 180 degree and not a 90 degree turn. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "180 degree turn threshold", ClampMin = 100.0f, ClampMax = 180.0f))
-	float _180TurnThreshold;
+	float m_180TurnThreshold;
 
 	/**
 	 * When the yaw angle (m_variables.AimYaw) is greater than 90 degree, we calculate the yaw angle this many seconds into the future. If that angle is greater than the '180 degree turn threshold'
@@ -96,6 +95,24 @@ protected:
 	/* How fast the actor rotates towards his moving direction. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Basic Animation System", meta = (DisplayName = "Turn speed"))
 	float m_TurnSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 90 degree animation"))
+	UAnimMontage* m_TurnLeft90Animation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 90 degree animation"))
+	UAnimMontage* m_TurnRight90Animation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn left 180 degree animation"))
+	UAnimMontage* m_TurnLeft180Animation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Turn right 180 degree animation"))
+	UAnimMontage* m_TurnRight180Animation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Idle jump animation"))
+	UAnimMontage* m_IdleJumpAnimation;
+
+	UPROPERTY(EditAnywhere, Category = "Basic Animation System", meta = (DisplayName = "Moving jump animation"))
+	UAnimMontage* m_MovingJumpAnimation;
 
 private:
 	/* This components owner casted to ACharacter */
@@ -126,17 +143,17 @@ private:
 	float _Direction;
 
 	/* True if the turn animation montage is playing and the curve 'DistanceCurve' had at least one value. */
-	bool _bTurnCurveIsPlaying;
+	bool m_bTurnCurveIsPlaying;
 
 	bool m_bIsTurningRight;
 
 	bool _bIsLocallyControlled;
 
 	/* The turn animation that is currently playing or nullptr if there is no turn animation playing. */
-	UAnimMontage* _TurnAnimationPlaying;
+	UAnimMontage* m_TurnAnimationPlaying;
 
 	/* Owner's animation instance. */
-	UAnimInstance* _AnimInstance;
+	UAnimInstance* m_AnimInstance;
 
 protected:
 	virtual void BeginPlay() override;
@@ -147,18 +164,11 @@ public:
 	UBasicAnimationSystemComponent();
 
 	/**
-	 * When this components owner is pressing the jump button, this event will be broadcasted.
+	 * When this components owner is pressing the jump button, this event should be broadcasted.
 	 * This event will get replicated.
 	 */ 
 	UPROPERTY(BlueprintAssignable, Category = "Basic Animation System")
 	FOnJump_Signature OnJumpEvent;
-
-	/**
-	 * This event is fired when the character should play a turn animation
-	 * The animation blueprint must call SetPlayingTurnAnimation after start playing a turn animation!
-	 */
-	UPROPERTY(BlueprintAssignable, Category = "Basic Animation System")
-	FOnTurning_Signature _PlayTurnAnimation;
 
 	/**
 	* @param SprintingSpeedThreshold When the actor is moving faster than this value, then he is sprinting.
@@ -170,14 +180,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Basic Animation System")
 	FBASVariables& GetActorVariables();
 
-	UFUNCTION(BlueprintCallable, Category = "Basic Animation System")
-	void SetPlayingTurnAnimation(UAnimMontage* TurnAnimation);
-
 private:
 	void FindAnimInstance();
 	void FindCharacterMovementComponent();
 	void CheckIfTurnAnimFinished();
+
 	bool TurnAnimationIsActive();
+
+	UFUNCTION()
+	void PlayJumpAnimation();
 
 	/**
 	 * Maps the given angle to a range of +/- 180°, even if we are turning at the moment.

@@ -19,14 +19,13 @@
 #include "GameModes/CoopArenaGameMode.h"
 #include "AudioThread.h"
 #include "Sound/SoundNodeLocalPlayer.h"
-#include "Animation/AnimInstance.h"
 
 
 AHumanoid::AHumanoid()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	_EquippedWeaponAttachPoint = "GripPoint";
+	m_EquippedWeaponAttachPoint = "GripPoint";
 
 	m_DroppedItemSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Dropped item spawn point"));
 	m_DroppedItemSpawnPoint->SetupAttachment(RootComponent);
@@ -73,7 +72,7 @@ AHumanoid::AHumanoid()
 	moveComp->MaxWalkSpeedCrouched = _MaxCrouchingSpeed;
 	moveComp->bCanWalkOffLedgesWhenCrouching = true;
 	moveComp->MaxCustomMovementSpeed = _SprintingSpeed;
-	moveComp->MovementState.bCanCrouch = true;
+	moveComp->MovementState.bCanCrouch = true;	
 
 	_bCanBeInteractedWith = false;
 }
@@ -131,12 +130,9 @@ bool AHumanoid::SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* 
 }
 
 /////////////////////////////////////////////////////
-void AHumanoid::OnWeaponChange()
+void AHumanoid::OnHolsterWeapon()
 {
-	if (Inventory->GetGunAtAttachPoint())
-	{
-		Inventory->ChangeWeapon();
-	}
+	HolsterWeapon_Event.Broadcast(_EquippedWeapon, -1);
 }
 
 /////////////////////////////////////////////////////
@@ -240,7 +236,7 @@ void AHumanoid::FireEquippedWeapon()
 {
 	if (CanFire() && _EquippedWeapon)
 	{
-		_EquippedWeapon->FireGun();
+		_EquippedWeapon->OnFire();
 	}
 }
 
@@ -296,7 +292,8 @@ void AHumanoid::EquipWeapon(AGun* WeaponToEquip, bool bRequestNetMulticast /*= t
 		_EquippedWeapon->OnEquip(this);
 		BASComponent->GetActorVariables().EquippedWeaponType = _EquippedWeapon->GetWeaponType();
 		OnWeaponEquipped.Broadcast(this, WeaponToEquip);
-	}
+	}	
+
 }
 
 void AHumanoid::UnequipWeapon(bool bDropGun, bool bRequestNetMulticast /*= true*/)
@@ -411,13 +408,10 @@ void AHumanoid::ToggleJump()
 /////////////////////////////////////////////////////
 void AHumanoid::ReloadWeapon()
 {
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	const bool bIsReloading = animInstance ? animInstance->GetCurveValue("IsReloading") : false;
-	
-	if (_EquippedWeapon && !bIsReloading)
+	if (_EquippedWeapon)
 	{
 		_EquippedWeapon->Reload();
-	}		
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -482,7 +476,7 @@ bool AHumanoid::CanFire() const
 /////////////////////////////////////////////////////
 FName AHumanoid::GetEquippedWeaponAttachPoint() const
 {
-	return _EquippedWeaponAttachPoint;
+	return m_EquippedWeaponAttachPoint;
 }
 
 /////////////////////////////////////////////////////
@@ -535,21 +529,6 @@ int32 AHumanoid::GetNumRoundsLeft()
 
 	AMagazine* magazine = _EquippedWeapon->GetMagazine();
 	return magazine ? magazine->RoundsLeft() : 0;	
-}
-
-/////////////////////////////////////////////////////
-void AHumanoid::AttachWeaponToHolster(AGun* GunToAttach)
-{
-	if (GunToAttach)
-	{
-		Inventory->AttachGun(GunToAttach);
-	}
-}
-
-/////////////////////////////////////////////////////
-void AHumanoid::SetHolsterWeapon(AGun* Weapon)
-{
-	Inventory->SetHolsterWeapon_Multicast(Weapon);
 }
 
 /////////////////////////////////////////////////////

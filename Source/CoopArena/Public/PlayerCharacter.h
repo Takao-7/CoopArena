@@ -69,6 +69,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	virtual void OnHolsterWeapon() override;
 	virtual void BeginPlay() override;
 
 private:
@@ -229,6 +230,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	void OnAimingReleased();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnSelectPrimaryWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = Humanoid)
+	void OnSelectSecondaryWeapon();
 
 
 	/////////////////////////////////////////////////////

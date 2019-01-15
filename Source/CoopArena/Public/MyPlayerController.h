@@ -52,9 +52,6 @@ private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectatePreviousPlayer_Server();
 
-	void OnOpenMenuPressed();
-	void OnOpenScoreBoard();
-
 	FVector _DeathLocation;	
 	APlayerCharacter* _MyCharacter;
 };

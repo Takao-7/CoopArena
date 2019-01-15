@@ -10,22 +10,12 @@
 #include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
 #include "MyPlayerState.h"
-#include "MoviePlayer.h"
-#include "WidgetLayoutLibrary.h"
-#include "UserWidget.h"
-#include "TimerManager.h"
-#include "MyGameState.h"
 
 
+#define SETTING_ServerName FName("MatchName")
 #define SETTING_PlayerName FName("PlayerName")
 
-const FString ARENA_MAP = TEXT("Level6");
-const FString MAP_FOLDER = TEXT("/Game/Maps/Menu/");
-const FString LOBBY_MAP = TEXT("LobbyMenu");
-const FString TRANSITION_MAP = TEXT("Transition");
 
-
-/////////////////////////////////////////////////////
 UCoopArenaGameInstance::UCoopArenaGameInstance()
 {
 	_bWantsToSearchForGames = false;
@@ -35,8 +25,6 @@ UCoopArenaGameInstance::UCoopArenaGameInstance()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::Init()
 {
-	SetOnlineMode(EOnlineMode::Offline);
-
 	auto onlineSubsystem = IOnlineSubsystem::Get();
 	ensureMsgf(onlineSubsystem, TEXT("No subsystem found!"));
 
@@ -47,40 +35,34 @@ void UCoopArenaGameInstance::Init()
 	_SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnDestroySessionComplete);
 	_SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnFindSessionComplete);
 	_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
-
-	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UCoopArenaGameInstance::BeginLoadingScreen);
-	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UCoopArenaGameInstance::EndLoadingScreen);
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::Host(FString MapName /*= ""*/, FString PlayerName /*= TEXT("No Name")*/)
+void UCoopArenaGameInstance::Host(FString ServerName /*= TEXT("No-Name Server")*/, FString PlayerName /*= TEXT("Nobody")*/)
 {
+	_ServerName = ServerName;
 	SetPlayerName(PlayerName);
-	SetOnlineMode(EOnlineMode::LAN);
-
-	const FString map = MapName.IsEmpty() ? GetWorld()->GetMapName() : MapName;
-	const FString options = FString(TEXT("?listen"));
-	const FString url = MAP_FOLDER + map + options;
-	GetWorld()->ServerTravel(url);
-}
-
-/////////////////////////////////////////////////////
-void UCoopArenaGameInstance::CreateSession(FString PlayerName /*= ""*/)
-{
-	SetPlayerName(PlayerName);
-	SetOnlineMode(EOnlineMode::LAN);
 
 	if (_SessionInterface->GetNamedSession(NAME_GameSession))
 	{
 		_bWantsToCreateNewSession = true;
 		_SessionInterface->DestroySession(NAME_GameSession);
 	}
+	else
+	{
+		CreateSession();
+	}
+}
 
+/////////////////////////////////////////////////////
+void UCoopArenaGameInstance::CreateSession()
+{
 	FOnlineSessionSettings sessionSettings;
 	sessionSettings.bIsLANMatch = true;
 	sessionSettings.NumPublicConnections = 6;
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bUsesPresence = true;
+	sessionSettings.Set(SETTING_ServerName, _ServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	sessionSettings.Set(SETTING_PlayerName, _PlayerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
@@ -94,9 +76,11 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 		return;
 	}
 
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
+	const FString mapFolder = FString(TEXT("/Game/Maps/Menu/"));
+	const FString lobbyMap = FString(TEXT("LobbyMenu"));
 	const FString options = FString(TEXT("?listen"));
-	const FString url = MAP_FOLDER + LOBBY_MAP + options;
+	const FString url = mapFolder + lobbyMap + options;
+	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
 	GetWorld()->ServerTravel(url);
 }
 
@@ -122,11 +106,6 @@ void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bS
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 {
-	if (PlayerName.IsEmpty())
-	{
-		return;
-	}
-
 	_PlayerName = PlayerName;
 	APlayerState* playerState = GetPrimaryPlayerController()->PlayerState;
 	if(playerState)
@@ -160,31 +139,18 @@ void UCoopArenaGameInstance::OnFindSessionComplete(bool bSuccess)
 		TArray<FSessionData> searchResult;
 		for (const FOnlineSessionSearchResult& result : _SessionSearch->SearchResults)
 		{
+			FString matchName = "No name";
+			result.Session.SessionSettings.Get(SETTING_ServerName, matchName);
 			FString playerName = "No player name";
 			result.Session.SessionSettings.Get(SETTING_PlayerName, playerName);
 			const int32 Ping = result.PingInMs;
 			const int32 MaxPlayers = result.Session.SessionSettings.NumPublicConnections;
 			const int32 ConnectedPlayer = MaxPlayers - result.Session.NumOpenPublicConnections;
-			searchResult.Add(FSessionData(playerName, Ping, MaxPlayers, ConnectedPlayer));
+			searchResult.Add(FSessionData(matchName, playerName, Ping, MaxPlayers, ConnectedPlayer));
 		}
 		OnSessionFound.Broadcast(searchResult);
 		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Found games!"));
-	}
-	else
-	{
-		if (_SessionSearch->SearchResults.Num() == 0)
-		{
-			GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("No games found!"));
-		}
-
-		if (!bSuccess)
-		{
-			GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("Searching not successfull!"));
-		}
-	}
-
-	if (_bWantsToSearchForGames)
-	{
+		
 		SearchForGames();
 	}
 }
@@ -195,16 +161,12 @@ void UCoopArenaGameInstance::StopSearchForGames()
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
+void UCoopArenaGameInstance::StartMatch(FString MapName /*= "Level4"*/)
 {
-	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
-	ensure(gameState);
-	gameState->ShowLoadingScreen_Multicast();
-
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
-
-	const FString url = TEXT("/Game/Maps/") + MapName;
+	
+	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = !GetEngine()->IsEditor();
+	const FString url = TEXT("/Game/Maps/") + MapName + TEXT("?listen");
 	GetWorld()->ServerTravel(url);
 }
 
@@ -233,32 +195,6 @@ void UCoopArenaGameInstance::EndMatch()
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
-{
-	if (!IsRunningDedicatedServer())
-	{
-		UWidgetLayoutLibrary::RemoveAllWidgets(GetPrimaryPlayerController());
-
-		FLoadingScreenAttributes LoadingScreen;
-		LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;
-		LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
-
-		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);		
-	}
-}
-
-void UCoopArenaGameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
-{
-
-}
-
-/////////////////////////////////////////////////////
-void UCoopArenaGameInstance::SetOnlineMode(EOnlineMode OnlineMode)
-{
-	_OnlineMode = OnlineMode;
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::JoinServer(int32 SearchResultIndex, FString PlayerName /*= TEXT("Nobody")*/)
 {
 	ensureMsgf(_SessionSearch->SearchResults.IsValidIndex(SearchResultIndex), TEXT("The given index is not valid."));
@@ -279,15 +215,9 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 	Join(address);
 }
 
-void UCoopArenaGameInstance::Join(const FString& Address, FString PlayerName /*= ""*/)
+void UCoopArenaGameInstance::Join(const FString& Address)
 {
-	const bool bValidAdress = !Address.IsEmpty();
-	StopSearchForGames();
-
-	SetOnlineMode(bValidAdress ? EOnlineMode::LAN : EOnlineMode::Offline);
-	SetPlayerName(PlayerName);
-
-	const FString addressToTravel = bValidAdress ? Address : "127.0.0.1";
+	const FString addressToTravel = Address.IsEmpty() ? "127.0.0.1" : Address;
 	FString text = "Joining: " + addressToTravel;
 	GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, text);
 	GetFirstLocalPlayerController()->ClientTravel(addressToTravel, ETravelType::TRAVEL_Absolute);

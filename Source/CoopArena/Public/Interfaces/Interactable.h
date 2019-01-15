@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "UObject/Interface.h"
-//#include "Interface.h"
+#include "Interface.h"
 #include "Interactable.generated.h"
 
 
@@ -70,11 +69,8 @@ public:
 };
 
 
-/*
- * Copy everything below to every header file that implements this event and uncomment the functions.
- */
 /////////////////////////////////////////////////////
-			/* Interactable interface */
+				/* Interactable interface */
 /////////////////////////////////////////////////////
 //public:
 //	virtual void OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent) override;

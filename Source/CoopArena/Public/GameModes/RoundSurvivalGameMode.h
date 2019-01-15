@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+
 #include "CoreMinimal.h"
 #include "GameModes/CoopArenaGameMode.h"
 #include "RoundSurvivalGameMode.generated.h"
@@ -10,37 +11,10 @@ class AHumanoid;
 class APlayerCharacter;
 class AMyPlayerController;
 class ABot;
-class UCoopArenaGameInstance;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart_Event, int32, WaveNumber);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveEnd_Event, int32, WaveNumber);
-
-USTRUCT(BlueprintType)
-struct FBotSpawn
-{
-	GENERATED_BODY()
-
-public:
-	FBotSpawn() {};
-	FBotSpawn(TSubclassOf<ABot> Botclass, float SpawnChance, float SpawnChanceIncreasePerWave)
-	{
-		this->Botclass = Botclass;
-		this->SpawnChance = FMath::Clamp(SpawnChance, 0.0f, 1.0f);
-		this->SpawnChanceIncreasePerWave = FMath::Clamp(SpawnChanceIncreasePerWave, 0.0f, 1.0f);
-	};
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ABot> Botclass;
-
-	/* The chance that this bot will be spawned. 0 = 0%. 1 = 100%. */
-	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
-	float SpawnChance;
-
-	/* After each the SpawnChance will be increased by this value, up to a maximum of 1 */
-	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
-	float SpawnChanceIncreasePerWave;
-};
 
 
 UCLASS()
@@ -54,7 +28,7 @@ protected:
 	int32 _BotsToSpawnPerPlayer;
 
 	/**
-	 * After each round, the number of bots that are spawned (@see _BotsToSpawnPerPlayer)
+	 * After each round, the number of bots that are spawned (@see m_BotsToSpawnPerPlayer)
 	 * are multiplied by this value.
 	 */ 
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Wave strength increase", ClampMin = 1.0f))
@@ -102,11 +76,17 @@ protected:
 private:
 	bool _bSpawnLocationLoaded;
 	int32 _NumBotsToSpawn;
-	
 
 	/////////////////////////////////////////////////////
 					/* Match flow */
 	/////////////////////////////////////////////////////
+protected:
+	/** @return True if ready to Start Match. Games should override this */
+	bool ReadyToStartMatch_Implementation() override;
+
+	/** @return true if ready to End Match. Games should override this */
+	bool ReadyToEndMatch_Implementation() override;
+
 public:
 	virtual void StartMatch() override;
 
@@ -129,12 +109,10 @@ public:
 
 
 	/////////////////////////////////////////////////////
-protected:
-	/** @return The CoopArena game instance. Will crash if none exists. */
-	UCoopArenaGameInstance* GetCoopArenaGameInstance();
-
 public:
 	ARoundSurvivalGameMode();
+
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Round survival game mode", Exec)
 	void SpawnBots();
@@ -175,20 +153,4 @@ private:
 	TArray<ABot*> _BotsDead;
 
 	FTimerHandle _RoundTimerHandle;
-
-
-	/////////////////////////////////////////////////////
-				/* Overridden functions */
-	/////////////////////////////////////////////////////
-protected:
-	/** @return True if ready to Start Match. Games should override this */
-	bool ReadyToStartMatch_Implementation() override;
-
-	/** @return true if ready to End Match. Games should override this */
-	bool ReadyToEndMatch_Implementation() override;
-
-public:
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
-
-	virtual void Logout(AController* Exiting) override;
 };
