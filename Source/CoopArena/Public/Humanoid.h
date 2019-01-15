@@ -33,12 +33,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireWeapon_Signature, AHumanoid*
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEquipped_Signature, AHumanoid*, Character, AGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireModeChange_Signature, AHumanoid*, Character, EFireMode, NewFireMode);
 
-/**
- * This event will be called when we want to holster the given weapon at the attach point.
- * The inventory should pick this up and handle the actual holstering.
- */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHolsterWeapon_Signature, AGun*, Gun, int32, AttachPointIndex);
-
 
 UCLASS(abstract)
 class COOPARENA_API AHumanoid : public ACharacter, public IInteractable
@@ -261,10 +255,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	bool SetComponentIsBlockingFiring(bool bIsBlocking, UActorComponent* Component);
 
-	/* Called when the character wants to holster a weapon. */
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Humanoid)
-	FOnHolsterWeapon_Signature HolsterWeapon_Event;
-
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
 	AGun* SpawnWeapon(TSubclassOf<AGun> Class);
 
@@ -279,6 +269,10 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category = Humanoid)
 	int32 GetNumRoundsLeft();
+
+	void AttachWeaponToHolster(AGun* GunToAttach);
+
+	void SetHolsterWeapon(AGun* Weapon);
 
 	/* This event is called, when we have finished reloading our weapon. */
 	UPROPERTY(BlueprintAssignable, Category = "Humanoid")
@@ -296,7 +290,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
-	virtual void OnHolsterWeapon();
+	virtual void OnWeaponChange();
 
 	/* Fire the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = Humanoid)
@@ -324,7 +318,7 @@ protected:
 
 	/** Socket or bone name for attaching weapons when equipped */
 	UPROPERTY(EditDefaultsOnly, Category = Humanoid, meta = (DisplayName = "Equipped weapon attach point"))
-	FName m_EquippedWeaponAttachPoint;
+	FName _EquippedWeaponAttachPoint;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Humanoid)
 	UArrowComponent* m_DroppedItemSpawnPoint;

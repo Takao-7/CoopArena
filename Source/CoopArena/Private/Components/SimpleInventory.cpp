@@ -12,6 +12,7 @@
 #include "CoopArena.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "DefaultHUD.h"
 
 
 USimpleInventory::USimpleInventory()
@@ -23,6 +24,9 @@ USimpleInventory::USimpleInventory()
 	_bDropInventoryOnDeath = true;
 
 	_DefaultMaxNumberOfMagazines = 5;
+	_WeaponChangeTime = 1.0f;
+	_SocketRifle = FName(TEXT("WeaponHolster_Rifle"));
+	_SocketPistol = FName(TEXT("WeaponHolster_Pistol"));
 }
 
 /////////////////////////////////////////////////////
@@ -30,14 +34,13 @@ void USimpleInventory::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	_Owner = Cast<AHumanoid>(GetOwner());
-	check(_Owner);
-	_Owner->HolsterWeapon_Event.AddDynamic(this, &USimpleInventory::HandleOwnerHolsterWeapon);
-
 	if (Cast<APlayerCharacter>(GetOwner()))
 	{
 		_bDropInventoryOnDeath = false;
 	}
+
+	_Owner = Cast<AHumanoid>(GetOwner());
+	check(_Owner);
 
 	if (GetOwner()->HasAuthority())
 	{
@@ -57,7 +60,6 @@ void USimpleInventory::BeginPlay()
 			GetOwner()->OnDestroyed.AddDynamic(this, &USimpleInventory::OnOwnerDestroyed);
 		}
 	}
-
 }
 
 /////////////////////////////////////////////////////
@@ -104,6 +106,11 @@ void USimpleInventory::DropInventoryContent()
 {
 	for (FMagazineStack& magStack : _StoredMagazines)
 	{
+		if (magStack.stackSize == 0)
+		{
+			continue;
+		}
+
 		FTransform spawnTransform = GetOwner()->GetActorTransform();
 		spawnTransform.SetRotation(FQuat());
 
@@ -116,7 +123,7 @@ void USimpleInventory::DropInventoryContent()
 		APickUp* pickUp = GetWorld()->SpawnActorDeferred<APickUp>(APickUp::StaticClass(), spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (pickUp)
 		{
-			const int32 stackSize = magStack.stackSize == -1 ? 5 : magStack.stackSize;
+			const int32 stackSize = magStack.stackSize == -1 ? FMath::RandRange(1, 3) : magStack.stackSize;
 			pickUp->SetMagazineStack(magStack.magClass, stackSize);
 			UGameplayStatics::FinishSpawningActor(pickUp, spawnTransform);
 		}
@@ -157,10 +164,14 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 		for(FMagazineStack& magStack : _StoredMagazines)
 		{
 			int32 stackSize = magStack.stackSize;
-			if (magStack.stackSize == -1)
+			if (stackSize == 0)
 			{
-				stackSize = FMath::RandRange(1, 5);
-				magStack.stackSize = 0;
+				continue;
+			}
+			else if (stackSize == -1)
+			{
+				stackSize = FMath::RandRange(1, 3);
+				magStack.stackSize = stackSize;
 			}
 			
 			int32 freeSpace;
@@ -186,7 +197,7 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 			}
 		}
 
-		_StoredMagazines.RemoveAllSwap([](FMagazineStack& magStack) { return magStack.stackSize == 0; });
+		_StoredMagazines.RemoveAllSwap([](FMagazineStack& stack) { return stack.stackSize == 0; });
 
 		if (bIsEmpty)
 		{
@@ -196,132 +207,111 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 }
 
 /////////////////////////////////////////////////////
+void USimpleInventory::RefreshHud_Implementation()
+{
+	APlayerController* pc = Cast<APlayerController>(_Owner->GetInstigatorController());
+	if (pc)
+	{
+		ADefaultHUD* hud = Cast<ADefaultHUD>(pc->GetHUD());
+		hud->RefreshHud();
+	}
+}
+
+/////////////////////////////////////////////////////
 void USimpleInventory::OnWeaponHolstering()
 {
-	const bool bAttachToHolster = _Owner->GetEquippedGun() ? true : false;
-	if (bAttachToHolster)
-	{
-		AGun* gun = _Owner->GetEquippedGun();
-		_Owner->UnequipWeapon(false, false);
-
-		AGun* holsteredGun = _WeaponAttachPoints[_AttachPointIndex].GetAttachedWeapon();
-		if (holsteredGun)
-		{
-			_WeaponAttachPoints[_AttachPointIndex].DetachWeapon();
-			_Owner->EquipWeapon(holsteredGun, false);
-		}
-
-		_WeaponAttachPoints[_AttachPointIndex].AttachWeapon(gun, _Owner->GetMesh());
-	}
-	else
-	{
-		AGun* gun = _WeaponAttachPoints[_AttachPointIndex].DetachWeapon();
-		_Owner->EquipWeapon(gun, false);
-	}
+	AGun* equippedGun = _Owner->GetEquippedGun();
+	check(equippedGun);
+	_Owner->UnequipWeapon(false, false);
+	_Owner->EquipWeapon(_HolsteredWeapon, false);
+	AttachGun(equippedGun);
 }
 
 /////////////////////////////////////////////////////
-AGun* USimpleInventory::GetGunAtAttachPoint(int32 AttachPointIndex)
+AGun* USimpleInventory::GetGunAtAttachPoint()
 {
-	const bool bValidIndex = _WeaponAttachPoints.IsValidIndex(AttachPointIndex);
-	return bValidIndex ? _WeaponAttachPoints[AttachPointIndex].GetAttachedWeapon() : nullptr;
+	return _HolsteredWeapon;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::SetAttachPointIndex(int32 Index)
+void USimpleInventory::ChangeWeapon()
 {
-	_AttachPointIndex = Index;
-}
-
-/////////////////////////////////////////////////////
-void USimpleInventory::HandleOwnerHolsterWeapon(AGun* GunToHolster, int32 AttachPointIndex)
-{
-	if (GetOwner()->HasAuthority() == false)
+	UAnimMontage* holsterAnim = GetHolsterAnimation();
+	if (holsterAnim)
 	{
-		OnOwnerHolsterWeapon_Server(GunToHolster, AttachPointIndex);
-		return;
-	}
-
-	bool bCanAttach = AttachPointIndex > -1 ? _WeaponAttachPoints[AttachPointIndex].CanAttachWeapon(GunToHolster) : false;
-	if (AttachPointIndex < 0 && !bCanAttach && GunToHolster)
-	{
-		for (int32 i = 0; i < _WeaponAttachPoints.Num(); ++i)
+		if (GetOwner()->HasAuthority())
 		{
-			bCanAttach = _WeaponAttachPoints[i].CanAttachWeapon(GunToHolster);
-			if (bCanAttach)
-			{
-				AttachPointIndex = i;
-				break;
-			}
-		}
-	}
-	const int32 index = _WeaponAttachPoints.Num() == 1 ? 0 : AttachPointIndex;
-
-	if (!bCanAttach || _WeaponAttachPoints.IsValidIndex(index) == false)
-	{
-		return;
-	}
-
-	UAnimMontage* holsterAnimation = _WeaponAttachPoints[index].holsterAnimation;
-	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
-
-	if (GunToHolster)
-	{
-		if (animInstance && holsterAnimation)
-		{
-			PlayHolsteringAnimation_Multicast(holsterAnimation);
+			PlayHolsteringAnimation_Multicast();
 		}
 		else
 		{
-			UnequipAndAttachWeapon_Multicast(index, GunToHolster);
+			PlayHolsteringAnimation_Server();
 		}
 	}
 	else
 	{
-		if (animInstance && holsterAnimation)
-		{
-			PlayHolsteringAnimation_Multicast(holsterAnimation);
-		}
-		else
-		{
-			DetachAndEquipWeapon_Multicast(index);
-		}
+		GetWorld()->GetTimerManager().SetTimer(_ChangeWeaponTH, [&]() { OnWeaponHolstering(); }, _WeaponChangeTime, false);
 	}
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::DetachAndEquipWeapon_Multicast_Implementation(int32 AttachPointIndex)
+UAnimMontage* USimpleInventory::GetHolsterAnimation()
 {
-	FWeaponAttachPoint& attachPoint = _WeaponAttachPoints[AttachPointIndex];
-	AGun* gun = attachPoint.DetachWeapon();
-	_Owner->EquipWeapon(gun, false);
+	if (_Owner->GetEquippedGun())
+	{
+		return _Owner->GetEquippedGun()->GetWeaponType() == EWEaponType::Pistol ? _HolsterAnimation_Pistol : _HolsterAnimation_Rifle;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::UnequipAndAttachWeapon_Multicast_Implementation(int32 AttachPointIndex, AGun* Gun)
+void USimpleInventory::AttachGun(AGun* GunToAttach)
 {
-	FWeaponAttachPoint& attachPoint = _WeaponAttachPoints[AttachPointIndex];
-	_Owner->UnequipWeapon(false, false); // We un-equip the gun in case we are currently holding it.	
-	attachPoint.AttachWeapon(Gun, _Owner->GetMesh());
+	check(GunToAttach);
+	FName socket = GunToAttach->GetWeaponType() == EWEaponType::Pistol ? _SocketPistol : _SocketRifle;
+	GunToAttach->AttachToComponent(_Owner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);
+	_HolsteredWeapon = GunToAttach;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::PlayHolsteringAnimation_Multicast_Implementation(UAnimMontage* HolsterAnimationToPlay)
+void USimpleInventory::SetHolsterWeapon_Multicast_Implementation(AGun* Gun)
 {
-	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
-	float montageLength = animInstance->Montage_Play(HolsterAnimationToPlay, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-	GetWorld()->GetTimerManager().SetTimer(_MontageFinishedTH, [&]() {OnHolsteringWeaponFinished.Broadcast(_Owner); }, montageLength, false);
+	_HolsteredWeapon = Gun;
 }
 
 /////////////////////////////////////////////////////
-void USimpleInventory::OnOwnerHolsterWeapon_Server_Implementation(AGun* GunToHolster, int32 AttachPointIndex)
+void USimpleInventory::PlayHolsteringAnimation_Server_Implementation()
 {
-	HandleOwnerHolsterWeapon(GunToHolster, AttachPointIndex);
+	PlayHolsteringAnimation_Multicast();
 }
 
-bool USimpleInventory::OnOwnerHolsterWeapon_Server_Validate(AGun* GunToHolster, int32 AttachPointIndex)
+bool USimpleInventory::PlayHolsteringAnimation_Server_Validate()
 {
 	return true;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::DetachAndEquipWeapon_Multicast_Implementation()
+{
+	_Owner->EquipWeapon(_HolsteredWeapon, false);
+	_HolsteredWeapon = nullptr;
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::UnequipAndAttachWeapon_Multicast_Implementation(AGun* Gun)
+{
+	_Owner->UnequipWeapon(false, false); // We un-equip the gun in case we are currently holding it.	
+	AttachGun(Gun);
+}
+
+/////////////////////////////////////////////////////
+void USimpleInventory::PlayHolsteringAnimation_Multicast_Implementation()
+{
+	UAnimInstance* animInstance = _Owner->GetMesh()->GetAnimInstance();
+	animInstance->Montage_Play(GetHolsterAnimation(), 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 }
 
 /////////////////////////////////////////////////////
@@ -336,6 +326,12 @@ int32 USimpleInventory::GetNumberOfMagazinesForType(TSubclassOf<AMagazine> Magaz
 {
 	const FMagazineStack* magStack = FindMagazineStack(MagazineType);
 	return magStack ? magStack->stackSize : 0;
+}
+
+/////////////////////////////////////////////////////
+FName USimpleInventory::GetSocket(EWEaponType WeaponType) const
+{
+	return WeaponType == EWEaponType::Pistol ? _SocketPistol : _SocketRifle;
 }
 
 /////////////////////////////////////////////////////
@@ -354,7 +350,7 @@ bool USimpleInventory::HasSpaceForMagazine(TSubclassOf<AMagazine> MagazineType, 
 	const int32 numberOfMagsInInventory = magStack ? magStack->stackSize : 0;
 
 	Out_FreeSpace = maxMagCount - numberOfMagsInInventory;
-	return numberOfMagsInInventory + NumMagazinesToStore <= Out_FreeSpace;
+	return Out_FreeSpace - NumMagazinesToStore >= 0;
 }
 
 bool USimpleInventory::HasSpaceForMagazine(int32 NumMagazinesToStore, TSubclassOf<AMagazine> MagazineType) const
@@ -392,6 +388,7 @@ bool USimpleInventory::AddMagazineToInventory(TSubclassOf<AMagazine> MagazineTyp
 		{
 			_StoredMagazines.Add(FMagazineStack(MagazineType, NumMagazinesToStore));
 		}
+		RefreshHud();
 	}
 	else
 	{
@@ -426,6 +423,7 @@ bool USimpleInventory::GetMagazineFromInventory(TSubclassOf<AMagazine> MagazineT
 		{
 			FMagazineStack* stack = FindMagazineStack(MagazineType);
 			stack->stackSize -= NumMagazinesToRemove;
+			RefreshHud();
 		}
 	}
 	else
