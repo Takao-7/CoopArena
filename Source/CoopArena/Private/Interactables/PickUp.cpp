@@ -76,23 +76,12 @@ void APickUp::Tick(float DeltaSeconds)
 }
 
 /////////////////////////////////////////////////////
-void APickUp::SetMagazineStack(const FMagazineStack& Stack)
-{
-	_MagazineStack = FMagazineStack(Stack);
-}
-
 void APickUp::SetMagazineStack(TSubclassOf<AMagazine> MagClass, int32 NumMags)
 {
+	ensureMsgf(NumMags > 0, TEXT("The number of magazines must be greater than zero!"));
 	_MagazineStack = FMagazineStack(MagClass, NumMags);
 }
 
-/////////////////////////////////////////////////////
-void APickUp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(APickUp, _MagazineStack);
-}
 
 /////////////////////////////////////////////////////
 			/* Interactable interface */
@@ -110,10 +99,11 @@ void APickUp::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveC
 			inventory->AddMagazineToInventory(_MagazineStack.magClass, _MagazineStack.stackSize);
 			Destroy();
 		}
-		else if (freeSpace != 0)
+		else if (freeSpace > 0)
 		{
 			inventory->AddMagazineToInventory(_MagazineStack.magClass, freeSpace);
 			_MagazineStack.stackSize -= freeSpace;
+			ensure(_MagazineStack.stackSize > 0);
 		}
 	}
 }

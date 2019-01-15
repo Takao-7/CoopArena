@@ -53,8 +53,7 @@ SourceArt/**/*.tga
 Binaries/*
 
 # Builds
-Build/*
-Builds/*
+Builds/
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
@@ -79,6 +78,6 @@ DerivedDataCache/*
 # Temp  folder
 enc_temp_folder/*
 
+# Sciebo synchronisation
 ._*
-
 Content/LargeFileSystem/

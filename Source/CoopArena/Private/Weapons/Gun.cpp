@@ -21,6 +21,8 @@
 #include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "UnrealNetwork.h"
+#include "SoundNodeLocalPlayer.h"
+#include "AudioThread.h"
 
 
 AGun::AGun()
@@ -87,14 +89,6 @@ void AGun::SetUpMesh()
 }
 
 /////////////////////////////////////////////////////
-void AGun::EquipSelf(AHumanoid* Target)
-{
-	USimpleInventory* inventory = Cast<USimpleInventory>(Target->GetComponentByClass(USimpleInventory::StaticClass()));
-	inventory->OnHolsteringWeaponFinished.RemoveDynamic(this, &AGun::EquipSelf);
-	Target->EquipWeapon(this);
-}
-
-/////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	AHumanoid* humanoid = Cast<AHumanoid>(InteractingPawn);
@@ -103,15 +97,11 @@ void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComp
 		AGun* equippedGun = humanoid->GetEquippedGun();
 		if (equippedGun)
 		{
-			humanoid->HolsterWeapon_Event.Broadcast(equippedGun, -1);
-
-			USimpleInventory* inventory = Cast<USimpleInventory>(humanoid->GetComponentByClass(USimpleInventory::StaticClass()));
-			inventory->OnHolsteringWeaponFinished.AddDynamic(this, &AGun::EquipSelf);
+			humanoid->UnequipWeapon(false, true);
+			humanoid->AttachWeaponToHolster(equippedGun);
+			humanoid->SetHolsterWeapon(equippedGun);
 		}
-		else
-		{
-			humanoid->EquipWeapon(this);
-		}
+		humanoid->EquipWeapon(this);
 	}
 }
 
@@ -131,7 +121,7 @@ FVector AGun::AdjustAimRotation(FVector traceStart, FVector direction)
 		return direction;
 	}
 
-	FVector adjustetDirection = Hit.Location - GetMuzzleLocation();
+	FVector adjustetDirection = Hit.Location - GetMuzzleTransform().GetLocation();
 	adjustetDirection.Normalize();
 
 	return adjustetDirection;
@@ -147,6 +137,29 @@ void AGun::OnEquip(AHumanoid* NewOwner)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s was equipped but doesn't have an owner!"), *GetName());
 	}
+
+	AddToAudioActorCache();
+}
+
+/////////////////////////////////////////////////////
+void AGun::AddToAudioActorCache()
+{
+	const APlayerController* PC = _MyOwner ? Cast<APlayerController>(_MyOwner->GetController()) : nullptr;
+	const bool bLocallyControlled = (PC ? PC->IsLocalController() : false);
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID, bLocallyControlled]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
+	});
+}
+
+void AGun::RemoveFromAudioActorCache()
+{
+	const uint32 UniqueID = GetUniqueID();
+	FAudioThread::RunCommandOnAudioThread([UniqueID]()
+	{
+		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Remove(UniqueID);
+	});
 }
 
 /////////////////////////////////////////////////////
@@ -167,7 +180,7 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 	{
 		if (bDropGun)
 		{
-			if (Instigator && !Instigator->IsPlayerControlled() || Instigator == nullptr)
+			if ((Instigator && !Instigator->IsPlayerControlled()) || Instigator == nullptr)
 			{
 				StartRespawnTimer();
 			}
@@ -182,6 +195,8 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 			_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 			SetReplicateMovement(false);
 		}
+
+		RemoveFromAudioActorCache();
 	}
 }
 
@@ -201,28 +216,28 @@ void AGun::Unequip_Multicast_Implementation(bool bDropGun)
 }
 
 /////////////////////////////////////////////////////
-void AGun::OnFire()
+void AGun::FireGun()
 {
 	if (CanShoot())
 	{
 		_CurrentGunState = EWeaponState::Firing;
+		FTransform muzzleTransform = GetMuzzleTransform();
 		
-		FVector spawnDirection = FVector::ForwardVector;
+		FRotator spawnDirection = FRotator::ZeroRotator;
 		if (_MyOwner->IsAiming() || _MyOwner->IsPlayerControlled() == false)
 		{
-			FTransform transform = _Mesh->GetSocketTransform(_MuzzleAttachPoint);
-			spawnDirection = transform.GetRotation().RotateVector(spawnDirection);
+			spawnDirection = muzzleTransform.GetRotation().Rotator();
 		}
 		else
 		{
 			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
-			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection);
+			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection).ToOrientationRotator();
 		}
 
-		const FVector spawnLocation = GetMuzzleLocation();
-		const FTransform spawnTransform = FTransform(spawnDirection.ToOrientationRotator(), spawnLocation);
-		Server_OnFire(_CurrentFireMode, spawnTransform);
+		const FVector spawnLocation = muzzleTransform.GetLocation();
+		const FTransform spawnTransform = FTransform(spawnDirection, spawnLocation);
+		OnFire_Server(_CurrentFireMode, spawnTransform);
 
 		AddWeaponSpread();
 
@@ -230,8 +245,6 @@ void AGun::OnFire()
 		{
 			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
 		}
-
-		_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
 	}
 	else
 	{
@@ -245,7 +258,7 @@ void AGun::ContinousOnFire()
 	if (_CurrentFireMode == EFireMode::Auto && _CurrentGunState == EWeaponState::Firing)
 	{
 		_SalvoCount++;
-		OnFire();
+		FireGun();
 	}
 	else if (_CurrentFireMode == EFireMode::Burst)
 	{
@@ -253,7 +266,7 @@ void AGun::ContinousOnFire()
 		_SalvoCount++;
 		if (_BurstCount < _GunStats.ShotsPerBurst)
 		{
-			OnFire();
+			FireGun();
 		}
 		else
 		{
@@ -359,26 +372,42 @@ void AGun::AttachMeshToPawn()
 {
 	if (_MyOwner && _Mesh)
 	{
-		FName AttachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
+		FName attachPoint = _MyOwner->GetEquippedWeaponAttachPoint();
 		USkeletalMeshComponent* PawnMesh = _MyOwner->GetMesh();
 
 		_Mesh->SetSimulatePhysics(false);
 		_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		_Mesh->SetCollisionObjectType(ECC_WorldDynamic);
 		_Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
+		_Mesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, attachPoint);
 
-		if(HasAuthority())
-		{
-			const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(AttachPoint);
+		/*FString role = HasAuthority() ? "Server" : "Client";
+		UE_LOG(LogTemp, Warning, TEXT("[%s] Before offset: %s"), *role, *_Mesh->GetRelativeTransform().ToString());*/
 
-			const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
-			_Mesh->SetRelativeRotation(offsetRot);
-
-			const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
-			_Mesh->SetRelativeLocation(offsetLoc);
-		}
+		SetEquipOffset(attachPoint);
 	}
+}
+
+/////////////////////////////////////////////////////
+void AGun::SetEquipOffset(FName Socket)
+{
+	const FTransform gripPointTransform = _MyOwner->GetMesh()->GetSocketTransform(Socket);
+	const FTransform meshTransform = _Mesh->GetRelativeTransform();
+
+	if(meshTransform.GetRotation().Rotator() == FRotator::ZeroRotator)
+	{
+		const FQuat offsetRot = gripPointTransform.InverseTransformRotation(_EquipOffset->GetComponentRotation().Quaternion()).Inverse();
+		_Mesh->SetRelativeRotation(offsetRot);
+	}
+
+	if(meshTransform.GetLocation() == FVector::ZeroVector)
+	{
+		const FVector offsetLoc = -gripPointTransform.InverseTransformPosition(_EquipOffset->GetComponentLocation());
+		_Mesh->SetRelativeLocation(offsetLoc);
+	}
+
+	/*FString role = HasAuthority() ? "Server" : "Client";
+	UE_LOG(LogTemp, Warning, TEXT("[%s] After offset: %s"), *role, *_Mesh->GetRelativeTransform().ToString());*/
 }
 
 /////////////////////////////////////////////////////
@@ -736,16 +765,10 @@ float AGun::GetRoundsPerMinute() const
 }
 
 /////////////////////////////////////////////////////
-FVector AGun::GetMuzzleLocation() const
+FTransform AGun::GetMuzzleTransform() const
 {
-	FVector VecMuzzleLocation;
-	FRotator MuzzleRotation;
-
-	if (_Mesh)
-	{
-		_Mesh->GetSocketWorldLocationAndRotation(_MuzzleAttachPoint, VecMuzzleLocation, MuzzleRotation);
-	}
-	return VecMuzzleLocation;
+	ensure(_Mesh);
+	return _Mesh->GetSocketTransform(_MuzzleAttachPoint, RTS_World);
 }
 
 /////////////////////////////////////////////////////
@@ -789,12 +812,7 @@ void AGun::PlayFireAnimation()
 {
 	if (_FireAnimation)
 	{
-		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			AnimInstance->Montage_Play(_FireAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-		}
+		_Mesh->PlayAnimation(_FireAnimation, false);
 	}
 }
 
@@ -833,9 +851,12 @@ void AGun::SpawnEjectedShell()
 		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
 		if (caseMesh)
 		{
-			const FTransform caseTransform = cartridgeCase->GetActorTransform();
-			const FVector impulse = caseTransform.TransformVector(FVector(0.0f, 2.5f, 0.0f));
-			caseMesh->AddImpulse(impulse);
+			FTransform transform = cartridgeCase->GetActorTransform();			
+			FVector rightVector = transform.TransformVector(FVector(0.0f, 1.0f, 0.0f));
+			FVector velocity = GetOwner()->GetVelocity();
+
+			FVector impulse = (rightVector * 500.0f) + velocity;
+			caseMesh->AddImpulse(impulse, NAME_None, true);
 		}
 	}
 }
@@ -853,8 +874,10 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 }
 
 /////////////////////////////////////////////////////
-void AGun::PlayEffects_Multicast_Implementation()
+void AGun::HandleOnFire_Multicast_Implementation()
 {
+	_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
+
 	SpawnEjectedShell();
 	PlayFireSound();
 	PlayFireAnimation();
@@ -882,7 +905,7 @@ void AGun::Multicast_RepMyOwner_Implementation(AHumanoid* NewOwner)
 }
 
 /////////////////////////////////////////////////////
-void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTransform)
+void AGun::OnFire_Server_Implementation(EFireMode FireMode, FTransform SpawnTransform)
 {
 	if (CanShoot())
 	{
@@ -904,7 +927,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());
-		PlayEffects_Multicast();
+		HandleOnFire_Multicast();
 	}
 	else
 	{
@@ -912,7 +935,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 	}	
 }
 
-bool AGun::Server_OnFire_Validate(EFireMode FireMode, FTransform SpawnTransform)
+bool AGun::OnFire_Server_Validate(EFireMode FireMode, FTransform SpawnTransform)
 {
 	return true;
 }
