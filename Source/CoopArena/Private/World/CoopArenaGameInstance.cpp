@@ -49,7 +49,6 @@ void UCoopArenaGameInstance::Init()
 	_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
 
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UCoopArenaGameInstance::BeginLoadingScreen);
-	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UCoopArenaGameInstance::EndLoadingScreen);
 }
 
 /////////////////////////////////////////////////////
@@ -247,9 +246,12 @@ void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 	}
 }
 
-void UCoopArenaGameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
+/////////////////////////////////////////////////////
+void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
-
+	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
+	const FString url = TEXT("/Game/Maps/") + MapName;
+	GetWorld()->ServerTravel(url, true);
 }
 
 /////////////////////////////////////////////////////

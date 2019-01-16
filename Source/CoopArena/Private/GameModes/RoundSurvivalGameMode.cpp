@@ -31,12 +31,6 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	bDelayedStart = true;
 	_BotDespawnTime = 30.0f;
 	_bSpawnLocationLoaded = false;
-
-	if (_SpawnLocations.Num() == 0)
-	{
-		_SpawnLocations.Add(TEXT("SpawnPoints_North"));
-	}
-	_ChoosenSpawnLocation = _SpawnLocations[0];
 }
 
 /////////////////////////////////////////////////////
@@ -101,7 +95,7 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 	latentActionInfo.ExecutionFunction = TEXT("OnSpawnLocationLoaded");
 	latentActionInfo.Linkage = 0;
 	latentActionInfo.UUID = 0;
-	UGameplayStatics::LoadStreamLevel(GetWorld(), _ChoosenSpawnLocation, true, true, latentActionInfo);
+	UGameplayStatics::LoadStreamLevel(GetWorld(), _SpawnLocations[0], true, true, latentActionInfo);
 }
 
 /////////////////////////////////////////////////////
