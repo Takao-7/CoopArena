@@ -122,8 +122,8 @@ public:
 	UFUNCTION()
 	virtual void BeginLoadingScreen(const FString& MapName);
 
-	UFUNCTION()
-	virtual void EndLoadingScreen(UWorld* InLoadedWorld);
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
+	void RestartLevel(const FString& MapName);
 
 protected:
 	void SetOnlineMode(EOnlineMode OnlineMode);
