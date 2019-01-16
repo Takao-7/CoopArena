@@ -427,11 +427,8 @@ void AGun::DetachMeshFromPawn()
 bool AGun::GetAmmoFromInventory()
 {
 	USimpleInventory* inventory = Cast<USimpleInventory>(_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));
-	if (inventory == nullptr || !HasAuthority())
-	{
-		return false;
-	}
-	
+	ensure(inventory && HasAuthority());
+
 	const bool bHasMag = inventory->GetMagazineFromInventory(_LoadedMagazine ? _LoadedMagazine->GetClass() : _GunStats.UsableMagazineClass);
 	return bHasMag;
 }
@@ -440,10 +437,7 @@ bool AGun::GetAmmoFromInventory()
 bool AGun::CheckIfOwnerHasMagazine() const
 {
 	USimpleInventory* inventory = Cast<USimpleInventory>(_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));	
-	if (inventory == nullptr)
-	{
-		return false;
-	}
+	ensure(inventory);
 
 	const TSubclassOf<AMagazine> magClass = _LoadedMagazine ? _LoadedMagazine->GetClass() : _GunStats.UsableMagazineClass;
 	return inventory->HasMagazines(magClass);
@@ -452,8 +446,11 @@ bool AGun::CheckIfOwnerHasMagazine() const
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
 {
-	_MyOwner->GrabItem(_LoadedMagazine, true);
-	_LoadedMagazine = nullptr;
+	if(_MyOwner && _LoadedMagazine)
+	{
+		_MyOwner->GrabItem(_LoadedMagazine, true);
+		_LoadedMagazine = nullptr;
+	}
 }
 
 void AGun::OnAnimNotify_DropMagazine()
