@@ -14,11 +14,12 @@
 #include "WidgetLayoutLibrary.h"
 #include "UserWidget.h"
 #include "TimerManager.h"
+#include "MyGameState.h"
 
 
 #define SETTING_PlayerName FName("PlayerName")
 
-const FString ARENA_MAP = TEXT("Level6");
+const FString ARENA_MAP = TEXT("Arena");
 const FString MAP_FOLDER = TEXT("/Game/Maps/Menu/");
 const FString LOBBY_MAP = TEXT("LobbyMenu");
 const FString TRANSITION_MAP = TEXT("Transition");
@@ -48,7 +49,6 @@ void UCoopArenaGameInstance::Init()
 	_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
 
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UCoopArenaGameInstance::BeginLoadingScreen);
-	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UCoopArenaGameInstance::EndLoadingScreen);
 }
 
 /////////////////////////////////////////////////////
@@ -77,9 +77,14 @@ void UCoopArenaGameInstance::CreateSession(FString PlayerName /*= ""*/)
 
 	FOnlineSessionSettings sessionSettings;
 	sessionSettings.bIsLANMatch = true;
-	sessionSettings.NumPublicConnections = 6;
-	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bUsesPresence = true;
+	sessionSettings.NumPublicConnections = 6;
+	sessionSettings.NumPrivateConnections = 0;
+	sessionSettings.bAllowInvites = true;
+	sessionSettings.bAllowJoinInProgress = true;
+	sessionSettings.bShouldAdvertise = true;
+	sessionSettings.bAllowJoinViaPresence = true;
+	sessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
 	sessionSettings.Set(SETTING_PlayerName, _PlayerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
@@ -96,7 +101,8 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
 	const FString options = FString(TEXT("?listen"));
 	const FString url = MAP_FOLDER + LOBBY_MAP + options;
-	GetWorld()->ServerTravel(url);
+	UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/LobbyMenu", true, "listen");
+	//GetWorld()->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////
@@ -139,16 +145,6 @@ void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::ShowLoadingScreen_Multicast_Implementation(TSubclassOf<UUserWidget> LoadingScreenClass)
-{
-	if(LoadingScreenClass)
-	{
-		UUserWidget* loadingScreen = CreateWidget<UUserWidget>(GetPrimaryPlayerController(), LoadingScreenClass, TEXT("Loading screen"));
-		loadingScreen->AddToViewport(10);
-	}
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SearchForGames()
 {
 	_bWantsToSearchForGames = true;
@@ -157,6 +153,7 @@ void UCoopArenaGameInstance::SearchForGames()
 		_SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		_SessionSearch->MaxSearchResults = 100;
 		_SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		_SessionSearch->bIsLanQuery = true;
 	}
 	_SessionInterface->FindSessions(0, _SessionSearch.ToSharedRef());
 	GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Start searching for games"));
@@ -206,6 +203,10 @@ void UCoopArenaGameInstance::StopSearchForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
+	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
+	ensure(gameState);
+	gameState->ShowLoadingScreen_Multicast();
+
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
 
@@ -252,9 +253,12 @@ void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 	}
 }
 
-void UCoopArenaGameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
+/////////////////////////////////////////////////////
+void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
-
+	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
+	const FString url = TEXT("/Game/Maps/") + MapName;
+	GetWorld()->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////

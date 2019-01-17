@@ -240,7 +240,7 @@ void AHumanoid::FireEquippedWeapon()
 {
 	if (CanFire() && _EquippedWeapon)
 	{
-		_EquippedWeapon->OnFire();
+		_EquippedWeapon->FireGun();
 	}
 }
 
@@ -433,6 +433,11 @@ void AHumanoid::ChangeWeaponFireMode()
 /////////////////////////////////////////////////////
 void AHumanoid::GrabItem(AItemBase* ItemToGrab, bool bKeepRelativeOffset)
 {
+	if (ItemToGrab == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Called ItemToGrab but the item was nullptr."), *GetName());
+		return;
+	}
 	m_ItemInHand = ItemToGrab;
 	CalcAndSafeActorOffset(ItemToGrab);
 	FName handSocket = "HandLeft";

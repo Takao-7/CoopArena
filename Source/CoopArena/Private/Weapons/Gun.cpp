@@ -216,7 +216,7 @@ void AGun::Unequip_Multicast_Implementation(bool bDropGun)
 }
 
 /////////////////////////////////////////////////////
-void AGun::OnFire()
+void AGun::FireGun()
 {
 	if (CanShoot())
 	{
@@ -237,7 +237,7 @@ void AGun::OnFire()
 
 		const FVector spawnLocation = muzzleTransform.GetLocation();
 		const FTransform spawnTransform = FTransform(spawnDirection, spawnLocation);
-		Server_OnFire(_CurrentFireMode, spawnTransform);
+		OnFire_Server(_CurrentFireMode, spawnTransform);
 
 		AddWeaponSpread();
 
@@ -245,8 +245,6 @@ void AGun::OnFire()
 		{
 			GetWorld()->GetTimerManager().SetTimer(_WeaponCooldownTH, this, &AGun::ContinousOnFire, GetCooldownTime());
 		}
-
-		_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
 	}
 	else
 	{
@@ -260,7 +258,7 @@ void AGun::ContinousOnFire()
 	if (_CurrentFireMode == EFireMode::Auto && _CurrentGunState == EWeaponState::Firing)
 	{
 		_SalvoCount++;
-		OnFire();
+		FireGun();
 	}
 	else if (_CurrentFireMode == EFireMode::Burst)
 	{
@@ -268,7 +266,7 @@ void AGun::ContinousOnFire()
 		_SalvoCount++;
 		if (_BurstCount < _GunStats.ShotsPerBurst)
 		{
-			OnFire();
+			FireGun();
 		}
 		else
 		{
@@ -429,11 +427,8 @@ void AGun::DetachMeshFromPawn()
 bool AGun::GetAmmoFromInventory()
 {
 	USimpleInventory* inventory = Cast<USimpleInventory>(_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));
-	if (inventory == nullptr || !HasAuthority())
-	{
-		return false;
-	}
-	
+	ensure(inventory && HasAuthority());
+
 	const bool bHasMag = inventory->GetMagazineFromInventory(_LoadedMagazine ? _LoadedMagazine->GetClass() : _GunStats.UsableMagazineClass);
 	return bHasMag;
 }
@@ -442,10 +437,7 @@ bool AGun::GetAmmoFromInventory()
 bool AGun::CheckIfOwnerHasMagazine() const
 {
 	USimpleInventory* inventory = Cast<USimpleInventory>(_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));	
-	if (inventory == nullptr)
-	{
-		return false;
-	}
+	ensure(inventory);
 
 	const TSubclassOf<AMagazine> magClass = _LoadedMagazine ? _LoadedMagazine->GetClass() : _GunStats.UsableMagazineClass;
 	return inventory->HasMagazines(magClass);
@@ -454,8 +446,11 @@ bool AGun::CheckIfOwnerHasMagazine() const
 /////////////////////////////////////////////////////
 void AGun::OnAnimNotify_AttachMagToHand()
 {
-	_MyOwner->GrabItem(_LoadedMagazine, true);
-	_LoadedMagazine = nullptr;
+	if(_MyOwner && _LoadedMagazine)
+	{
+		_MyOwner->GrabItem(_LoadedMagazine, true);
+		_LoadedMagazine = nullptr;
+	}
 }
 
 void AGun::OnAnimNotify_DropMagazine()
@@ -814,12 +809,7 @@ void AGun::PlayFireAnimation()
 {
 	if (_FireAnimation)
 	{
-		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			AnimInstance->Montage_Play(_FireAnimation, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
-		}
+		_Mesh->PlayAnimation(_FireAnimation, false);
 	}
 }
 
@@ -881,8 +871,10 @@ void AGun::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProp
 }
 
 /////////////////////////////////////////////////////
-void AGun::PlayEffects_Multicast_Implementation()
+void AGun::HandleOnFire_Multicast_Implementation()
 {
+	_MyOwner->OnWeaponFire.Broadcast(_MyOwner, this);
+
 	SpawnEjectedShell();
 	PlayFireSound();
 	PlayFireAnimation();
@@ -910,7 +902,7 @@ void AGun::Multicast_RepMyOwner_Implementation(AHumanoid* NewOwner)
 }
 
 /////////////////////////////////////////////////////
-void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTransform)
+void AGun::OnFire_Server_Implementation(EFireMode FireMode, FTransform SpawnTransform)
 {
 	if (CanShoot())
 	{
@@ -932,7 +924,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 		_LoadedMagazine->RemoveRound();
 
 		MakeNoise(1.0f, GetInstigator(), SpawnTransform.GetLocation());
-		PlayEffects_Multicast();
+		HandleOnFire_Multicast();
 	}
 	else
 	{
@@ -940,7 +932,7 @@ void AGun::Server_OnFire_Implementation(EFireMode FireMode, FTransform SpawnTran
 	}	
 }
 
-bool AGun::Server_OnFire_Validate(EFireMode FireMode, FTransform SpawnTransform)
+bool AGun::OnFire_Server_Validate(EFireMode FireMode, FTransform SpawnTransform)
 {
 	return true;
 }
