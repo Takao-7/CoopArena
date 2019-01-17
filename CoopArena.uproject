@@ -33,6 +33,38 @@
 		{
 			"Name": "OnlineSubsystemNULL",
 			"Enabled": true
+		},
+		{
+			"Name": "BlueprintMaterialTextureNodes",
+			"Enabled": true
+		},
+		{
+			"Name": "BlueprintStats",
+			"Enabled": true
+		},
+		{
+			"Name": "NiagaraExtras",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "HoudiniNiagara",
+			"Enabled": true
+		},
+		{
+			"Name": "LocationServicesAndroidImpl",
+			"Enabled": true
+		},
+		{
+			"Name": "StructBox",
+			"Enabled": true
+		},
+		{
+			"Name": "USDImporter",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

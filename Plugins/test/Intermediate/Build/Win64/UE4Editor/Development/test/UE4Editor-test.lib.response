@@ -1,0 +1,13 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-test.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\Testi\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h.obj"
+"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.cpp.obj"
+"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.gen.cpp.obj"
+"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\PCLaunch.rc.res"
+/OUT:"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\UE4Editor-test.lib"
