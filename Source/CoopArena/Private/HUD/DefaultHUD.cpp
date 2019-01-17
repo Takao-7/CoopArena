@@ -102,7 +102,7 @@ void ADefaultHUD::ToggleInGameMenu()
 {
 	if (_InGameMenu_Class)
 	{
-		if (_InGameMenu_Class)
+		if (_InGameMenu)
 		{
 			_InGameMenu->RemoveFromViewport();
 			_InGameMenu = nullptr;

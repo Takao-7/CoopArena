@@ -77,13 +77,14 @@ void UCoopArenaGameInstance::CreateSession(FString PlayerName /*= ""*/)
 
 	FOnlineSessionSettings sessionSettings;
 	sessionSettings.bIsLANMatch = true;
-	sessionSettings.NumPublicConnections = 6;
-	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bUsesPresence = true;
-	sessionSettings.NumPrivateConnections = 6;
-	sessionSettings.bAllowJoinViaPresence = true;
+	sessionSettings.NumPublicConnections = 6;
+	sessionSettings.NumPrivateConnections = 0;
 	sessionSettings.bAllowInvites = true;
-	sessionSettings.bIsDedicated = false;
+	sessionSettings.bAllowJoinInProgress = true;
+	sessionSettings.bShouldAdvertise = true;
+	sessionSettings.bAllowJoinViaPresence = true;
+	sessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
 	sessionSettings.Set(SETTING_PlayerName, _PlayerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
@@ -100,7 +101,8 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
 	const FString options = FString(TEXT("?listen"));
 	const FString url = MAP_FOLDER + LOBBY_MAP + options;
-	GetWorld()->ServerTravel(url);
+	UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/LobbyMenu", true, "listen");
+	//GetWorld()->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////
