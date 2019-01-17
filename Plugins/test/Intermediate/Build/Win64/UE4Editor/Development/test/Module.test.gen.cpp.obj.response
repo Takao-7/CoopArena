@@ -23,7 +23,7 @@
 /wd4838
 /we4668
 /I .
-/I C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Source\test\Private
+/I C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Source\test\Private
 /I ..\Intermediate\Build\Win64\UE4Editor\Inc\CoreUObject
 /I Runtime
 /I Runtime\CoreUObject\Public
@@ -401,22 +401,22 @@
 /I ThirdParty
 /I ThirdParty\libSampleRate\Public
 /I ThirdParty\libSampleRate
-/I C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Inc\test
-/I C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Source
-/I C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Source\test\Public
-/I C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Source\test
-/I "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\INCLUDE"
+/I C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Inc\test
+/I C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Source
+/I C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Source\test\Public
+/I C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Source\test
+/I "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE"
 /I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\winrt"
-/FI"C:\Users\juba\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h"
-/Yu"C:\Users\juba\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h"
-/Fp"C:\Users\juba\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h.pch"
-"C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.gen.cpp"
-/FI"C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Definitions.test.h"
-/Fo"C:\Users\juba\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.gen.cpp.obj"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"
+/FI"C:\Users\Testi\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h"
+/Yu"C:\Users\Testi\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h"
+/Fp"C:\Users\Testi\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\Development\Engine\SharedPCH.Engine.h.pch"
+"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.gen.cpp"
+/FI"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Definitions.test.h"
+/Fo"C:\Users\Testi\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\Development\test\Module.test.gen.cpp.obj"
 /TP
 /GR-
 /W4
