@@ -19,7 +19,7 @@
 
 #define SETTING_PlayerName FName("PlayerName")
 
-const FString ARENA_MAP = TEXT("Level6");
+const FString ARENA_MAP = TEXT("Arena");
 const FString MAP_FOLDER = TEXT("/Game/Maps/Menu/");
 const FString LOBBY_MAP = TEXT("LobbyMenu");
 const FString TRANSITION_MAP = TEXT("Transition");
@@ -80,6 +80,10 @@ void UCoopArenaGameInstance::CreateSession(FString PlayerName /*= ""*/)
 	sessionSettings.NumPublicConnections = 6;
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bUsesPresence = true;
+	sessionSettings.NumPrivateConnections = 6;
+	sessionSettings.bAllowJoinViaPresence = true;
+	sessionSettings.bAllowInvites = true;
+	sessionSettings.bIsDedicated = false;
 	sessionSettings.Set(SETTING_PlayerName, _PlayerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	_SessionInterface->CreateSession(0, NAME_GameSession, sessionSettings);
@@ -147,6 +151,7 @@ void UCoopArenaGameInstance::SearchForGames()
 		_SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		_SessionSearch->MaxSearchResults = 100;
 		_SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		_SessionSearch->bIsLanQuery = true;
 	}
 	_SessionInterface->FindSessions(0, _SessionSearch.ToSharedRef());
 	GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Green, TEXT("Start searching for games"));
@@ -251,7 +256,7 @@ void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	const FString url = TEXT("/Game/Maps/") + MapName;
-	GetWorld()->ServerTravel(url, true);
+	GetWorld()->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////
