@@ -1,0 +1,13 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-test-Win64-DebugGame.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\Softwarepraktikum\Documents\GitHub\CoopArena\Intermediate\Build\Win64\CoopArenaEditor\DebugGame\Engine\SharedPCH.Engine.NonOptimized.h.obj"
+"C:\Users\Softwarepraktikum\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\DebugGame\test\Module.test.cpp.obj"
+"C:\Users\Softwarepraktikum\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\DebugGame\test\Module.test.gen.cpp.obj"
+"C:\Users\Softwarepraktikum\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\DebugGame\test\PCLaunch.rc.res"
+/OUT:"C:\Users\Softwarepraktikum\Documents\GitHub\CoopArena\Plugins\test\Intermediate\Build\Win64\UE4Editor\DebugGame\test\UE4Editor-test-Win64-DebugGame.lib"
