@@ -311,8 +311,6 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 		ensureMsgf(myPlayerState, TEXT("Player state does not derive from AMyPlayerState"));
 		myPlayerState->AddDeath();		
 	}
-
-	UnregisterPlayerCharacter(DeadPlayer);
 	
 	if (Killer && Killer->IsPlayerController())
 	{
@@ -323,7 +321,9 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 		}
 	}
 	
+	_playerCharactersAlive.RemoveSwap(DeadPlayer);
 	_numPlayersAlive--;
+
 	if (_numPlayersAlive == 0)
 	{
 		AMyGameState* gamestate = GetGameState<AMyGameState>();

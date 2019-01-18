@@ -233,12 +233,6 @@ FString UCoopArenaGameInstance::GetSavedPlayerName() const
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::EndMatch()
-{
-	DestroySession();
-}
-
-/////////////////////////////////////////////////////
 void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 {
 	if (!IsRunningDedicatedServer())
@@ -256,6 +250,7 @@ void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
+
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	const FString url = TEXT("/Game/Maps/") + MapName;
 	GetWorld()->ServerTravel(url);

@@ -113,9 +113,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game instance")
 	FString GetSavedPlayerName() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Game instance")
-	void EndMatch();
-
 	UFUNCTION(BlueprintPure, Category = "Game instance")
 	EOnlineMode GetOnlineMode() const { return _OnlineMode; };
 
