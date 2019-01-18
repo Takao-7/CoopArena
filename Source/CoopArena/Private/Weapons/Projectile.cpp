@@ -33,6 +33,7 @@ AProjectile::AProjectile()
 	Collision->SetUseCCD(true);
 	Collision->bReturnMaterialOnMove = true;
 	Collision->OnComponentHit.AddDynamic(this, &AProjectile::HandleHit);
+	Collision->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleBeginOverlap);
 	Collision->SetCapsuleSize(0.3f, 1.0f);
 	RootComponent = Collision;
 	Collision->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
@@ -115,6 +116,36 @@ void AProjectile::HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	}
 
 	Destroy();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::HandleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UMyPhysicalMaterial* material = Cast<UMyPhysicalMaterial>(SweepResult.PhysMaterial.Get());
+	const bool bIsGlass = material && material->IsDestructableGlass();
+
+	if (!HasAuthority() || !bIsGlass)
+	{
+		return;
+	}
+
+	UParticleSystem* hitEffect = material->GetImpactEffect();
+	if (hitEffect == nullptr)
+	{
+		hitEffect = _DefaultHitEffect;
+	}
+	USoundBase* impactSound = material->GetImpactSound();
+	if (impactSound == nullptr)
+	{
+		impactSound = _DefaultHitSound;
+	}
+
+	if (hitEffect || impactSound)
+	{
+		HandleHitEffects(hitEffect, SweepResult.ImpactPoint, SweepResult.ImpactNormal.Rotation(), impactSound, OtherComp);
+	}
+	
+	ApplyDamage_Multicast(OtherActor, GetDamageWithFallOff(), SweepResult);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

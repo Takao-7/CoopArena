@@ -157,13 +157,13 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 {
 	ensureMsgf(GetOwner()->HasAuthority(), TEXT("Only call this function as the server!"));
 
-	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
-	if (inventory)
+	USimpleInventory* otherInventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
+	if (otherInventory && _StoredMagazines.Num() > 0)
 	{
 		bool bIsEmpty = true;
 		for(FMagazineStack& magStack : _StoredMagazines)
 		{
-			int32 stackSize = magStack.stackSize;
+			int32& stackSize = magStack.stackSize;
 			if (stackSize == 0)
 			{
 				continue;
@@ -171,33 +171,31 @@ void USimpleInventory::TransfereInventoryContent(APawn* InteractingPawn)
 			else if (stackSize == -1)
 			{
 				stackSize = FMath::RandRange(1, 3);
-				magStack.stackSize = stackSize;
 			}
 			
 			int32 freeSpace;
-			const bool bHasRoom = inventory->HasSpaceForMagazine(magStack.magClass, freeSpace, stackSize);
+			const bool bHasRoom = otherInventory->HasSpaceForMagazine(magStack.magClass, freeSpace, stackSize);
 			if (freeSpace == -1)
 			{
 				continue;	// If the interacting character has an infinite amount of magazines for a type, then we don't add any more to the inventory.
 			}
 
-			if (bHasRoom)
+			if (bHasRoom) // Add the entire stack to the inventory
 			{
-				inventory->AddMagazineToInventory(magStack.magClass, stackSize);
+				otherInventory->AddMagazineToInventory(magStack.magClass, stackSize);
+				_StoredMagazines.RemoveAllSwap([magStack](FMagazineStack& stack) { return magStack == stack; });
 			}
 			else if (freeSpace != 0)
 			{
-				inventory->AddMagazineToInventory(magStack.magClass, freeSpace);
-				magStack.stackSize -= freeSpace;
+				otherInventory->AddMagazineToInventory(magStack.magClass, freeSpace);
+				stackSize -= freeSpace;
+				bIsEmpty = false;
 			}
-
-			if (magStack.stackSize != 0)
+			else
 			{
 				bIsEmpty = false;
 			}
-		}
-
-		_StoredMagazines.RemoveAllSwap([](FMagazineStack& stack) { return stack.stackSize == 0; });
+		}		
 
 		if (bIsEmpty)
 		{

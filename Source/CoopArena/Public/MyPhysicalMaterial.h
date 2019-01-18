@@ -27,6 +27,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects", meta = (DisplayName = "Footstep sound"))
 	USoundBase* _FootstepSound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Material", meta = (DisplayName = "Is destructable glass"))
+	bool _bIsDestructableGlass;
+
 public:
 	UMyPhysicalMaterial();
 
@@ -41,4 +44,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Effects")
 	FORCEINLINE USoundBase* GetFootStepSound() { return _FootstepSound; };
+
+	UFUNCTION(BlueprintPure, Category = "Material")
+	FORCEINLINE bool IsDestructableGlass() const { return _bIsDestructableGlass; };
 };
