@@ -23,10 +23,9 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
-	/**
-	 * [Server]
-	 */
 	void StartSpectating(AActor* ActorToSpectate = nullptr);
+
+	void StopSpectating();
 
 	UFUNCTION(Client, Reliable)
 	void StartSpectating_Client(APlayerCharacter* PlayerToSpectate = nullptr);

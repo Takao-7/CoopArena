@@ -118,14 +118,17 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 /////////////////////////////////////////////////////
 void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
-	_playerControllers.AddUnique(NewPlayer);
+	AMyPlayerController* myPC = Cast<AMyPlayerController>(NewPlayer);
+	ensure(myPC);
+
+	Super::PostLogin(myPC);
+	_playerControllers.AddUnique(myPC);
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	_playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
+	_playerControllers.RemoveSwap(Cast<AMyPlayerController>(Exiting));
 }
 
 /////////////////////////////////////////////////////

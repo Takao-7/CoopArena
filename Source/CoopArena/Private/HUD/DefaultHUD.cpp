@@ -192,7 +192,10 @@ void ADefaultHUD::DisplayHUD()
 
 		GetWorld()->GetTimerManager().SetTimer(_Timer, [&]()
 		{
-			_AmmoStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+			if (_AmmoStatusWidget)
+			{
+				_AmmoStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
 		}, _TimeToHideHUD, false);
 	}
 }

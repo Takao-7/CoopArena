@@ -12,6 +12,7 @@
 #include "UnrealNetwork.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
+#include "TimerManager.h"
 
 
 AProjectile::AProjectile()
@@ -149,6 +150,12 @@ void AProjectile::HandleBeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+void AProjectile::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 void AProjectile::HandleHitEffects_Implementation(UParticleSystem* ImpactEffect, FVector Location, FRotator Rotation, USoundBase* ImpactSound, UPrimitiveComponent* OtherComp)
 {
 	if (ImpactSound)
@@ -172,8 +179,12 @@ void AProjectile::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("No trail effect spawned."));
 	}
 
-	_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
-	SetLifeSpan(_ProjectileValues.lifeTime);
+	if(HasAuthority())
+	{
+		OnDestroyed.AddDynamic(this, &AProjectile::HandleOnDestroyed);
+		_TimeSecondsWhenSpawned = GetWorld()->GetTimeSeconds();
+		SetLifeSpan(_ProjectileValues.lifeTime);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

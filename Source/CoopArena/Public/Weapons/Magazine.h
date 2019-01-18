@@ -51,6 +51,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	virtual void HandleOnDestroyed(AActor* DestroyedActor);
+
 protected:
 	/* The maximum amount of bullets the magazine contains. Set to -1 for infinite rounds. */
 	UPROPERTY(EditDefaultsOnly, Category = Magazine)

@@ -207,15 +207,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	UCameraComponent* GetZoomCamera() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void StartRespawnTimer();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void StopRespawnTimer();
-
 private:
-	FTimerHandle _DespawnTH;
-
 	void AddToAudioActorCache();
 	void RemoveFromAudioActorCache();
 

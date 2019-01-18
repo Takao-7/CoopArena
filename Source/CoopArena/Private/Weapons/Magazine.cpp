@@ -6,6 +6,8 @@
 #include "Components/BoxComponent.h"
 #include "CoopArena.h"
 #include "UnrealNetwork.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 
 AMagazine::AMagazine()
@@ -22,6 +24,17 @@ void AMagazine::BeginPlay()
 {
 	Super::BeginPlay();	
 	_RoundsLeft = _Capacity;
+
+	if (HasAuthority())
+	{
+		OnDestroyed.AddDynamic(this, &AMagazine::HandleOnDestroyed);
+	}
+}
+
+/////////////////////////////////////////////////////
+void AMagazine::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
 }
 
 /////////////////////////////////////////////////////

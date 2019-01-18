@@ -92,6 +92,10 @@ void AGun::SetUpMesh()
 void AGun::HandleOnDestroyed(AActor* DestroyedActor)
 {
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
+	if (_LoadedMagazine)
+	{
+		GetWorld()->GetTimerManager().ClearAllTimersForObject(_LoadedMagazine);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -186,9 +190,14 @@ void AGun::Unequip(bool bDropGun /*= false*/, bool bRequestMulticast /*= true*/)
 	{
 		if (bDropGun)
 		{
-			if ((Instigator && !Instigator->IsPlayerControlled()) || Instigator == nullptr)
+			const bool bIsPlayerControlled = Instigator && Instigator->IsPlayerControlled();
+			if (HasAuthority() && (!bIsPlayerControlled || Instigator == nullptr))
 			{
-				StartRespawnTimer();
+				SetLifeSpan(_DespawnTime);
+				if (_LoadedMagazine)
+				{
+					_LoadedMagazine->SetLifeSpan(_DespawnTime);
+				}
 			}
 			DetachMeshFromPawn();
 			SetOwningPawn(nullptr);
@@ -351,9 +360,9 @@ void AGun::SetOwningPawn(AHumanoid* NewOwner)
 		_MyOwner = NewOwner;
 	}
 
-	if (NewOwner)
+	if (HasAuthority() && NewOwner)
 	{
-		StopRespawnTimer();
+		SetLifeSpan(0);
 	}
 }
 
@@ -617,7 +626,10 @@ void AGun::DropMagazine()
 
 	magazineInHand->OnDrop();
 	IInteractable::Execute_SetCanBeInteractedWith(magazineInHand, false);
-	magazineInHand->SetLifeSpan(30.0f);
+	if (HasAuthority())
+	{
+		magazineInHand->SetLifeSpan(30.0f);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -646,42 +658,23 @@ EFireMode AGun::ToggleFireMode()
 	return _CurrentFireMode;
 }
 
-
+/////////////////////////////////////////////////////
 UMeshComponent* AGun::GetMesh() const
 {
 	return _Mesh;
 }
 
-
+/////////////////////////////////////////////////////
 UCameraComponent* AGun::GetZoomCamera() const
 {
 	return _ZoomCamera;
 }
 
 /////////////////////////////////////////////////////
-void AGun::StartRespawnTimer()
-{
-	GetWorld()->GetTimerManager().SetTimer(_DespawnTH, [&]()
-	{
-		if (_LoadedMagazine)
-		{
-			_LoadedMagazine->Destroy();
-		}
-		Destroy();
-	}, 
-	_DespawnTime, false);
-}
-
-void AGun::StopRespawnTimer()
-{
-	GetWorld()->GetTimerManager().ClearTimer(_DespawnTH);
-}
-
-/////////////////////////////////////////////////////
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	_CurrentFireMode = _GunStats.FireModes[0];
 	_CurrentFireModePointer = 0;
 
@@ -696,9 +689,9 @@ void AGun::BeginPlay()
 		FTransform spawnTransform = GetMesh()->GetSocketTransform("Magazine", RTS_World);
 		_MagToAttach = SpawnNewMagazine(spawnTransform);
 		AttachMagazine(_MagToAttach);
+		
+		OnDestroyed.AddDynamic(this, &AGun::HandleOnDestroyed);
 	}
-
-	OnDestroyed.AddDynamic(this, &AGun::HandleOnDestroyed);
 }
 
 /////////////////////////////////////////////////////

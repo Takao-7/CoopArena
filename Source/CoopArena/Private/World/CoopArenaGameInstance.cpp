@@ -253,11 +253,16 @@ void UCoopArenaGameInstance::HandleOnPreLoadMap(const FString& MapName)
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
+	UWorld* world = GetWorld();
+	AGameModeBase* gameMode = world->GetAuthGameMode();
+
 	ShowLoadingScreen();
 
-	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
+	world->GetTimerManager().ClearAllTimersForObject(gameMode);
+
+	gameMode->bUseSeamlessTravel = true;
 	const FString url = TEXT("/Game/Maps/") + MapName;
-	GetWorld()->ServerTravel(url);
+	world->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////

@@ -173,6 +173,12 @@ void ARoundSurvivalGameMode::SetPlayersHealthToMax()
 void ARoundSurvivalGameMode::HandleOnDestroyed(AActor* DestroyedActor)
 {
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
+
+	for (AMyPlayerController* pc : _playerControllers)
+	{
+		pc->SetPawn(nullptr);
+		pc->StopSpectating();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -203,13 +209,11 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	for (APlayerController* pc : _playerControllers)
+	for (AMyPlayerController* pc : _playerControllers)
 	{
 		if (pc->PlayerState->bIsSpectator)
 		{
-			pc->PlayerState->bIsSpectator = false;
-			pc->PlayerState->bOnlySpectator = false;
-			pc->bPlayerIsWaiting = false;
+			pc->StopSpectating();
 
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
