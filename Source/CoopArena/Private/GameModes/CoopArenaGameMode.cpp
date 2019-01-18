@@ -8,11 +8,11 @@
 #include "PlayerCharacter.h"
 #include "MyGameState.h"
 #include "MyPlayerState.h"
-#include "MyPlayerController.h"
 #include "DefaultHUD.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Bot.h"
+#include "MyPlayerController.h"
 
 
 ACoopArenaGameMode::ACoopArenaGameMode()
@@ -118,17 +118,14 @@ AActor* ACoopArenaGameMode::FindPlayerStart_Implementation(AController* Player, 
 /////////////////////////////////////////////////////
 void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	AMyPlayerController* myPC = Cast<AMyPlayerController>(NewPlayer);
-	ensure(myPC);
-
-	Super::PostLogin(myPC);
-	_playerControllers.AddUnique(myPC);
+	Super::PostLogin(NewPlayer);
+	_playerControllers.AddUnique(NewPlayer);
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	_playerControllers.RemoveSwap(Cast<AMyPlayerController>(Exiting));
+	_playerControllers.RemoveSwap(Cast<APlayerController>(Exiting));
 }
 
 /////////////////////////////////////////////////////

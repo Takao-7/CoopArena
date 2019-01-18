@@ -8,7 +8,7 @@
 
 
 class ASpawnPoint;
-class AMyPlayerController;
+class APlayerController;
 class AController;
 
 
@@ -40,7 +40,7 @@ protected:
 
 	/* A list of all player controllers on the map */
 	UPROPERTY(BlueprintReadOnly, Category = "CoopArena game mode")
-	TArray<AMyPlayerController*> _playerControllers;
+	TArray<APlayerController*> _playerControllers;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CoopArena game mode")
 	FName _defaultPlayerTeam;

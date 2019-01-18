@@ -11,12 +11,12 @@
 #include "World/MyPlayerState.h"
 #include "GameFramework/Controller.h"
 #include "PlayerCharacter.h"
-#include "MyPlayerController.h"
 #include "World/CoopArenaGameInstance.h"
 #include "Bot.h"
 #include "BotController.h"
 #include "MyGameState.h"
 #include "Engine/Engine.h"
+#include "MyPlayerController.h"
 
 
 ARoundSurvivalGameMode::ARoundSurvivalGameMode()
@@ -174,10 +174,10 @@ void ARoundSurvivalGameMode::HandleOnDestroyed(AActor* DestroyedActor)
 {
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
 
-	for (AMyPlayerController* pc : _playerControllers)
+	for (APlayerController* pc : _playerControllers)
 	{
 		pc->SetPawn(nullptr);
-		pc->StopSpectating();
+		pc->PlayerState->bIsSpectator = false;
 	}
 }
 
@@ -209,13 +209,15 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	for (AMyPlayerController* pc : _playerControllers)
+	for (APlayerController* pc : _playerControllers)
 	{
 		if (pc->PlayerState->bIsSpectator)
 		{
-			pc->StopSpectating();
-
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
+			ensure(myPC);
+
+			myPC->StopSpectating();
+
 			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
 			playerCharacter->Revive();
 			_numPlayersAlive++;

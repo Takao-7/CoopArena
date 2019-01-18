@@ -45,7 +45,6 @@ void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
 	}
 
 	PlayerState->bIsSpectator = true;
-	//PlayerState->bOnlySpectator = true;
 
 	UnPossess();
 	APlayerCharacter* playerToSpectate = Cast<APlayerCharacter>(ActorToSpectate);
@@ -64,7 +63,6 @@ void AMyPlayerController::StartSpectating_Client_Implementation(APlayerCharacter
 void AMyPlayerController::StopSpectating()
 {
 	PlayerState->bIsSpectator = false;
-	PlayerState->bOnlySpectator = false;
 }
 
 /////////////////////////////////////////////////////
