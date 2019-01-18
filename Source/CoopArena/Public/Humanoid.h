@@ -67,6 +67,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Humanoid", meta = (DisplayName = "Team name"))
 	FString _TeamName;
 
+	UFUNCTION()
+	virtual void HandleOnDestroyed(AActor* DestroyedActor);
+
 
 	/////////////////////////////////////////////////////
 				/* Interactable interface */

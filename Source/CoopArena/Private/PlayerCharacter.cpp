@@ -153,14 +153,16 @@ void APlayerCharacter::BeginPlay()
 		ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
 		gameMode->RegisterPlayerCharacter(this);
 
-		OnDestroyed.AddDynamic(this, &APlayerCharacter::HandleOnDestroy);
+		OnDestroyed.AddDynamic(this, &APlayerCharacter::HandleOnDestroyed);
 	}
 	HealthComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleOnDeath);
 }
 
 /////////////////////////////////////////////////////
-void APlayerCharacter::HandleOnDestroy(AActor* DestroyedActor)
+void APlayerCharacter::HandleOnDestroyed(AActor* DestroyedActor)
 {
+	Super::HandleOnDestroyed(DestroyedActor);
+
 	AGun* equippedGun = GetEquippedGun();
 	if(equippedGun)
 	{
@@ -168,7 +170,10 @@ void APlayerCharacter::HandleOnDestroy(AActor* DestroyedActor)
 	}
 
 	ACoopArenaGameMode* gameMode = GetWorld()->GetAuthGameMode<ACoopArenaGameMode>();
-	gameMode->UnregisterPlayerCharacter(this);
+	if (gameMode)
+	{
+		gameMode->UnregisterPlayerCharacter(this);
+	}
 }
 
 void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorController, AController* Killer)

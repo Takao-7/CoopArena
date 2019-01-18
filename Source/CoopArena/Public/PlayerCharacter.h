@@ -71,10 +71,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UFUNCTION()
-	void HandleOnDestroy(AActor* DestroyedActor);
+	virtual void HandleOnDestroyed(AActor* DestroyedActor) override;
 
+private:
 	UFUNCTION()
 	void HandleOnDeath(AActor* DeadActor, AController* ActorController, AController* Killer);
 

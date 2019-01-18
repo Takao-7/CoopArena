@@ -95,6 +95,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void StartMatch(FString MapName = "Level4");
 
+	void ShowLoadingScreen();
+
 	/* This event will be called each time OnFindSessionComplete delegate is fired AND we actually found sessions. */
 	UPROPERTY(BlueprintAssignable, Category = "Game instance")
 	FOnSessionFound_Event OnSessionFound;
@@ -117,7 +119,7 @@ public:
 	EOnlineMode GetOnlineMode() const { return _OnlineMode; };
 
 	UFUNCTION()
-	virtual void BeginLoadingScreen(const FString& MapName);
+	virtual void HandleOnPreLoadMap(const FString& MapName);
 
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void RestartLevel(const FString& MapName);

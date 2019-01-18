@@ -100,7 +100,7 @@ void UHealthComponent::HandleDeath_Multicast_Implementation()
 		}
 	});
 	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.5f, false);
+	GetWorld()->GetTimerManager().SetTimer(handle, delegate, 0.2f, false);
 }
 
 /////////////////////////////////////////////////////

@@ -159,6 +159,28 @@ void AHumanoid::BeginPlay()
 	{
 		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
 	});
+
+	OnDestroyed.AddDynamic(this, &AHumanoid::HandleOnDestroyed);
+}
+
+/////////////////////////////////////////////////////
+void AHumanoid::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	TInlineComponentArray<UPrimitiveComponent*> Components(DestroyedActor);
+	GetComponents(Components);
+
+	FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	for (UPrimitiveComponent* component : Components)
+	{
+		timerManager.ClearAllTimersForObject(component);
+	}
+
+	timerManager.ClearAllTimersForObject(this);
+
+	if (_EquippedWeapon)
+	{
+		timerManager.ClearAllTimersForObject(_EquippedWeapon);
+	}
 }
 
 /////////////////////////////////////////////////////

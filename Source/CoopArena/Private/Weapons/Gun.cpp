@@ -89,6 +89,12 @@ void AGun::SetUpMesh()
 }
 
 /////////////////////////////////////////////////////
+void AGun::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
+}
+
+/////////////////////////////////////////////////////
 void AGun::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	AHumanoid* humanoid = Cast<AHumanoid>(InteractingPawn);
@@ -691,6 +697,8 @@ void AGun::BeginPlay()
 		_MagToAttach = SpawnNewMagazine(spawnTransform);
 		AttachMagazine(_MagToAttach);
 	}
+
+	OnDestroyed.AddDynamic(this, &AGun::HandleOnDestroyed);
 }
 
 /////////////////////////////////////////////////////

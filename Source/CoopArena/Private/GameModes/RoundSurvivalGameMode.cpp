@@ -87,6 +87,8 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
+	OnDestroyed.AddDynamic(this, &ARoundSurvivalGameMode::HandleOnDestroyed);
+
 	BotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
 	PlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
 
@@ -165,6 +167,12 @@ void ARoundSurvivalGameMode::SetPlayersHealthToMax()
 		UHealthComponent* healthComp = Cast<UHealthComponent>(player->GetComponentByClass(UHealthComponent::StaticClass()));
 		healthComp->SetHealth(healthComp->GetMaxHealth());
 	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
 }
 
 /////////////////////////////////////////////////////

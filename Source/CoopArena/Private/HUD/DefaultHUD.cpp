@@ -54,6 +54,8 @@ void ADefaultHUD::BeginPlay()
 	UWidgetLayoutLibrary::RemoveAllWidgets(PlayerOwner);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerOwner);
 	PlayerOwner->bShowMouseCursor = false;
+
+	OnDestroyed.AddDynamic(this, &ADefaultHUD::HandleOnDestroyed);
 }
 
 /////////////////////////////////////////////////////
@@ -81,6 +83,12 @@ void ADefaultHUD::Tick(float DeltaSeconds)
 		RefreshHud();
 		PrimaryActorTick.SetTickFunctionEnable(false);
 	}
+}
+
+/////////////////////////////////////////////////////
+void ADefaultHUD::HandleOnDestroyed(AActor* DestroyedActor)
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(DestroyedActor);
 }
 
 /////////////////////////////////////////////////////

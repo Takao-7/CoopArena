@@ -76,6 +76,9 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION()
+	virtual void HandleOnDestroyed(AActor* DestroyedActor);
+
 public:
 	ADefaultHUD();
 

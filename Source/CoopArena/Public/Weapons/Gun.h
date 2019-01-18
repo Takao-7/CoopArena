@@ -178,6 +178,9 @@ protected:
 
 	void SetUpMesh();
 
+	UFUNCTION()
+	virtual void HandleOnDestroyed(AActor* DestroyedActor);
+
 public:
 	void SetEquipOffset(FName Socket);
 

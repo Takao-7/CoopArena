@@ -48,7 +48,7 @@ void UCoopArenaGameInstance::Init()
 	_SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnFindSessionComplete);
 	_SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UCoopArenaGameInstance::OnJoinSessionComplete);
 
-	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UCoopArenaGameInstance::BeginLoadingScreen);
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UCoopArenaGameInstance::HandleOnPreLoadMap);
 }
 
 /////////////////////////////////////////////////////
@@ -99,10 +99,7 @@ void UCoopArenaGameInstance::OnCreateSessionComplete(FName SessionName, bool bSu
 	}
 
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = false;
-	const FString options = FString(TEXT("?listen"));
-	const FString url = MAP_FOLDER + LOBBY_MAP + options;
 	UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/LobbyMenu", true, "listen");
-	//GetWorld()->ServerTravel(url);
 }
 
 /////////////////////////////////////////////////////
@@ -203,15 +200,21 @@ void UCoopArenaGameInstance::StopSearchForGames()
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::StartMatch(FString MapName /*= ARENA_MAP*/)
 {
-	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
-	ensure(gameState);
-	gameState->ShowLoadingScreen_Multicast();
+	ShowLoadingScreen();
 
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	_SessionInterface->StartSession(NAME_GameSession);
 
 	const FString url = TEXT("/Game/Maps/") + MapName;
 	GetWorld()->ServerTravel(url);
+}
+
+/////////////////////////////////////////////////////
+void UCoopArenaGameInstance::ShowLoadingScreen()
+{
+	AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
+	ensure(gameState);
+	gameState->ShowLoadingScreen_Multicast();
 }
 
 /////////////////////////////////////////////////////
@@ -233,7 +236,7 @@ FString UCoopArenaGameInstance::GetSavedPlayerName() const
 }
 
 /////////////////////////////////////////////////////
-void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
+void UCoopArenaGameInstance::HandleOnPreLoadMap(const FString& MapName)
 {
 	if (!IsRunningDedicatedServer())
 	{
@@ -250,6 +253,7 @@ void UCoopArenaGameInstance::BeginLoadingScreen(const FString& MapName)
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 {
+	ShowLoadingScreen();
 
 	GetWorld()->GetAuthGameMode()->bUseSeamlessTravel = true;
 	const FString url = TEXT("/Game/Maps/") + MapName;

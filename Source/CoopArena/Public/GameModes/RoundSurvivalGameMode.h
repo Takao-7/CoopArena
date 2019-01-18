@@ -146,6 +146,9 @@ public:
 	FORCEINLINE int32 GetNumberOfAliveBots() const { return _BotsAlive.Num(); }
 
 private:
+	UFUNCTION()
+	void HandleOnDestroyed(AActor* DestroyedActor);
+
 	/* Set the target for all spawned bots. */
 	UFUNCTION()
 	void SetAttackTarget();
