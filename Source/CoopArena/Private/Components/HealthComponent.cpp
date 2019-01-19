@@ -42,6 +42,7 @@ void UHealthComponent::Kill(AController* Killer)
 /////////////////////////////////////////////////////
 void UHealthComponent::OnDeathEvent_Multicast_Implementation(AActor* DeadActor, AController* Controller, AController* Killer)
 {
+	HandleDeath(DeadActor, Controller, Killer);
 	OnDeath.Broadcast(GetOwner(), Controller, Killer);
 }
 
@@ -54,7 +55,6 @@ void UHealthComponent::BeginPlay()
 	ensureMsgf(owner, TEXT("The owner is not a humanoid."));
 
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UHealthComponent::HandlePointDamage);
-	OnDeath.AddDynamic(this, &UHealthComponent::HandleDeath);
 
 	_CurrentHealth = _MaxHealth;
 }
