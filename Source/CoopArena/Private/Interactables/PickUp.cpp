@@ -18,6 +18,7 @@ APickUp::APickUp()
 	_bCanBeInteractedWith = true;
 	_RotationSpeed = 20.0f;
 	_LiveSpan = 60.0f;
+	_StackSize = 1.0f;
 	const float edgeLength = 60.0f;
 
 	_Collision = CreateDefaultSubobject<UBoxComponent>("Collision");
@@ -49,15 +50,30 @@ void APickUp::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TSubclassOf<AMagazine> magClass;
 	if (_MagazineStack.magClass)
 	{
-		const AMagazine* defaultMagazine = Cast<AMagazine>(_MagazineStack.magClass->GetDefaultObject(true));
+		magClass = _MagazineStack.magClass;
+	}
+	else if (_MagazineType)
+	{
+		_MagazineStack = FMagazineStack(_MagazineType, _StackSize);
+		magClass = _MagazineStack.magClass;
+	}
+
+	if (magClass)
+	{
+		const AMagazine* defaultMagazine = Cast<AMagazine>(magClass->GetDefaultObject(true));
 		const UStaticMeshComponent* meshComp = Cast<UStaticMeshComponent>(defaultMagazine->GetMesh());
 		if (meshComp)
 		{
 			_Mesh->SetStaticMesh(meshComp->GetStaticMesh());
 			_Mesh->SetCustomDepthStencilValue(253);
 		}
+	}
+	else
+	{
+		Destroy();
 	}
 
 	_Pitch = _RotationSpeed * (FMath::RandBool() ? 1.0f : -1.0f);
@@ -89,19 +105,19 @@ void APickUp::SetMagazineStack(TSubclassOf<AMagazine> MagClass, int32 NumMags)
 void APickUp::OnBeginInteract_Implementation(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
 {
 	ensureMsgf(HasAuthority(), TEXT("Don't call this function as a client!"));
-	USimpleInventory* inventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
-	if (inventory)
+	USimpleInventory* otherInventory = Cast<USimpleInventory>(InteractingPawn->GetComponentByClass(USimpleInventory::StaticClass()));
+	if (otherInventory)
 	{
 		int32 freeSpace = 0;
-		const bool bHasRoom = inventory->HasSpaceForMagazine(_MagazineStack.magClass, freeSpace, _MagazineStack.stackSize);
+		const bool bHasRoom = otherInventory->HasSpaceForMagazine(_MagazineStack.magClass, freeSpace, _MagazineStack.stackSize);
 		if (bHasRoom)
 		{
-			inventory->AddMagazineToInventory(_MagazineStack.magClass, _MagazineStack.stackSize);
+			otherInventory->AddMagazineToInventory(_MagazineStack.magClass, _MagazineStack.stackSize);
 			Destroy();
 		}
 		else if (freeSpace > 0)
 		{
-			inventory->AddMagazineToInventory(_MagazineStack.magClass, freeSpace);
+			otherInventory->AddMagazineToInventory(_MagazineStack.magClass, freeSpace);
 			_MagazineStack.stackSize -= freeSpace;
 			ensure(_MagazineStack.stackSize > 0);
 		}

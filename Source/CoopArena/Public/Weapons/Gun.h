@@ -362,7 +362,7 @@ protected:
 
 	/* Checks if this gun's owner has a suitable magazine in his inventory. */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	bool CheckIfOwnerHasMagazine() const;
+	bool OwnerHasMagazine() const;
 
 public:
 	/* Will attach the loaded magazine to the character's hand. */

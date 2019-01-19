@@ -44,6 +44,7 @@ ADoor::ADoor()
 	_DoorMesh->CustomDepthStencilValue = 253;
 
 	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 /////////////////////////////////////////////////////
@@ -133,7 +134,7 @@ void ADoor::HandleInteract_Server_Implementation(APawn* InteractingPawn, UPrimit
 			_TargetAngle = _OpeningAngle;
 		}
 	}
-	EnableTickFunction_Multicast(_TargetAngle, _bIsOpen);
+	EnableTickFunction_Multicast(_bIsOpen);
 }
 
 bool ADoor::HandleInteract_Server_Validate(APawn* InteractingPawn, UPrimitiveComponent* HitComponent)
@@ -142,10 +143,17 @@ bool ADoor::HandleInteract_Server_Validate(APawn* InteractingPawn, UPrimitiveCom
 }
 
 /////////////////////////////////////////////////////
-void ADoor::EnableTickFunction_Multicast_Implementation(float TargetAngle, bool bIsOpen)
+void ADoor::EnableTickFunction_Multicast_Implementation(bool bIsOpen)
 {
-	_TargetAngle = TargetAngle;
 	_bIsOpen = bIsOpen;
 	PrimaryActorTick.SetTickFunctionEnable(true);
 	_DoorMesh->SetCanEverAffectNavigation(bIsOpen);
+}
+
+/////////////////////////////////////////////////////
+void ADoor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADoor, _TargetAngle);
 }

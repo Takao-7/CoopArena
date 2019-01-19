@@ -8,7 +8,7 @@
 class AMagazine;
 
 
-USTRUCT(BlueprintType)
+USTRUCT(Blueprintable, BlueprintType)
 struct FMagazineStack
 {
 	GENERATED_BODY()

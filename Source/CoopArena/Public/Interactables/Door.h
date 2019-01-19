@@ -48,6 +48,7 @@ protected:
 	bool _bIsOpen;
 
 	/* The angle to which the door will move, when being interacted with. Can be 0 or the opening angle. */
+	UPROPERTY(Replicated)
 	float _TargetAngle;
 
 	UFUNCTION()
@@ -80,5 +81,5 @@ private:
 
 	/* Function to enable the tick function, in order to open or close the door. The opening angle is being replicated and set in 'HandleInteract_Server'. */
 	UFUNCTION(NetMulticast, Reliable)
-	void EnableTickFunction_Multicast(float TargetAngle, bool bIsOpen);
+	void EnableTickFunction_Multicast(bool bIsOpen);
 };

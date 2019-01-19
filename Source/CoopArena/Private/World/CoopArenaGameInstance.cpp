@@ -114,10 +114,14 @@ void UCoopArenaGameInstance::DestroySession()
 
 void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bSuccess)
 {
-	if (bSuccess && _bWantsToCreateNewSession)
+	if (_bWantsToCreateNewSession)
 	{
 		_bWantsToCreateNewSession = false;
 		CreateSession();
+	}
+	else
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/MainMenu", true);
 	}
 }
 
@@ -263,6 +267,22 @@ void UCoopArenaGameInstance::RestartLevel(const FString& MapName)
 	gameMode->bUseSeamlessTravel = true;
 	const FString url = TEXT("/Game/Maps/") + MapName;
 	world->ServerTravel(url);
+}
+
+/////////////////////////////////////////////////////
+void UCoopArenaGameInstance::LeaveMatch()
+{
+	AGameModeBase* gameMode = GetWorld()->GetAuthGameMode();
+	if (gameMode)	// We are the server. Destroy the session so that every client can travel to the main menu.
+	{		
+		gameMode->EndPlay(EEndPlayReason::Quit);
+		DestroySession();		
+	}
+	else
+	{
+		DestroySession();
+		//UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/MainMenu", true);
+	}
 }
 
 /////////////////////////////////////////////////////

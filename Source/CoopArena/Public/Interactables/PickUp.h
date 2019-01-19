@@ -25,11 +25,19 @@ private:
 	float _Pitch;
 	FRotator _RotationDelta;
 
+	UStaticMeshComponent* _Mesh;
+
 	/* The magazine stack that this pickup represents */
-	UPROPERTY()
 	FMagazineStack _MagazineStack;
 
 protected:
+	/* The magazine type that this pick up represents. */
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	TSubclassOf<AMagazine> _MagazineType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup", meta = (ClampMin = 0))
+	int32 _StackSize;
+
 	/* How long, in seconds, this pick up exists. Set to 0 for infinite. */
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup", meta = (ClampMin = 0.0f))
 	float _LiveSpan;
@@ -41,9 +49,6 @@ protected:
 	/* The widget that will be displayed if a player looks at us */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
 	UUserWidget* _Widget;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")
-	UStaticMeshComponent* _Mesh;
 
 	/* This pickup's volume where players can interact with it */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Pickup")

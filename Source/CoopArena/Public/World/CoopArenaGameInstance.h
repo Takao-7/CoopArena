@@ -124,6 +124,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game instance")
 	void RestartLevel(const FString& MapName);
 
+	UFUNCTION(BlueprintCallable, Category = "Game instance")
+	void LeaveMatch();
+
 protected:
 	void SetOnlineMode(EOnlineMode OnlineMode);
 

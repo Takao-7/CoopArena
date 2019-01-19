@@ -449,7 +449,7 @@ bool AGun::GetAmmoFromInventory()
 }
 
 /////////////////////////////////////////////////////
-bool AGun::CheckIfOwnerHasMagazine() const
+bool AGun::OwnerHasMagazine() const
 {
 	USimpleInventory* inventory = Cast<USimpleInventory>(_MyOwner->GetComponentByClass(USimpleInventory::StaticClass()));	
 	ensure(inventory);
@@ -477,7 +477,7 @@ void AGun::OnAnimNotify_CheckForAmmo()
 {
 	if (HasAuthority())
 	{
-		bool bHasMagazine = CheckIfOwnerHasMagazine();
+		bool bHasMagazine = OwnerHasMagazine();
 		if (!bHasMagazine)
 		{
 			Multicast_StopReloading();
@@ -521,7 +521,7 @@ void AGun::OnAnimNotify_FinishReloading()
 /////////////////////////////////////////////////////
 void AGun::Reload()
 {
-	if (_CurrentGunState == EWeaponState::Reloading || CheckIfOwnerHasMagazine() == false || (_LoadedMagazine && _LoadedMagazine->IsFull()))
+	if (_CurrentGunState == EWeaponState::Reloading || OwnerHasMagazine() == false || (_LoadedMagazine && _LoadedMagazine->IsFull()))
 	{
 		return;
 	}
@@ -551,21 +551,17 @@ void AGun::OnMagAttached()
 /////////////////////////////////////////////////////
 void AGun::Server_Reload_Implementation()
 {
-	if (_CurrentGunState == EWeaponState::Reloading || !CheckIfOwnerHasMagazine())
+	if (_CurrentGunState == EWeaponState::Reloading || !OwnerHasMagazine())
 	{
 		return;
 	}
+
 	_CurrentGunState = EWeaponState::Reloading;
-	float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
-	if (_ReloadAnimation)
+	
+	UAnimInstance* animInstance = _MyOwner->GetMesh()->GetAnimInstance();
+	if (_ReloadAnimation && animInstance)
 	{
-		UAnimInstance* AnimInstance;
-		AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			reloadTime = _ReloadAnimation->GetSectionLength(0);
-			Multicast_PlayReloadAnimation();
-		}
+		Multicast_PlayReloadAnimation();		
 	}
 	else
 	{
@@ -584,6 +580,7 @@ void AGun::Server_Reload_Implementation()
 			FinishReloadWeapon();
 		});
 
+		float reloadTime = 3.0f; // Default reloading time, if there is no reload animation for some reason.
 		GetWorld()->GetTimerManager().SetTimer(reloadTH, lambda, reloadTime, false);
 	}
 }
@@ -596,11 +593,10 @@ bool AGun::Server_Reload_Validate()
 /////////////////////////////////////////////////////
 void AGun::Multicast_PlayReloadAnimation_Implementation()
 {
-	UAnimInstance* AnimInstance;	
-	AnimInstance = _MyOwner->GetMesh()->GetAnimInstance();
-	if (AnimInstance)
+	UAnimInstance* animInstance = _MyOwner->GetMesh()->GetAnimInstance();
+	if (animInstance)
 	{
-		AnimInstance->Montage_Play(_ReloadAnimation, 1.f, EMontagePlayReturnType::MontageLength, 0.0f, false);
+		animInstance->Montage_Play(_ReloadAnimation, 1.f, EMontagePlayReturnType::MontageLength, 0.0f, false);
 	}
 }
 
@@ -826,7 +822,7 @@ void AGun::PlayFireSound()
 /////////////////////////////////////////////////////
 void AGun::SpawnEjectedShell()
 {
-	if (_ShellEjectionPoint.IsValid() == false)
+	if (_ShellEjectionPoint.IsValid() == false || _LoadedMagazine == nullptr)
 	{
 		return;
 	}
@@ -845,7 +841,13 @@ void AGun::SpawnEjectedShell()
 		FActorSpawnParameters spawnParams = FActorSpawnParameters();
 		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		const AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);
+		AActor* cartridgeCase = GetWorld()->SpawnActor<AActor>(caseClass, spawnTransform, spawnParams);
+		if (cartridgeCase == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("No cartridge case spawned on %s!"), *GetName());
+			return;
+		}
+
 		UMeshComponent* caseMesh = Cast<UMeshComponent>(cartridgeCase->GetComponentByClass(UMeshComponent::StaticClass()));
 		if (caseMesh)
 		{
