@@ -59,11 +59,6 @@ public:
 	UFUNCTION(Client, Reliable)
 	void RequestPlayerName_Client();
 
-	UFUNCTION(BlueprintPure, Category = "Game state")
-	FString GetCustomPlayerName() const { return _PlayerName; };
-
-	virtual FString GetPlayerNameCustom() const override;
-
 private:
 	UFUNCTION()
 	void OnReadyStatusReplicated();
@@ -87,7 +82,4 @@ private:
 	/* Is the player ready to start the match? */
 	UPROPERTY(Transient, ReplicatedUsing=OnReadyStatusReplicated)
 	bool _bIsReady;
-
-	UPROPERTY(Replicated)
-	FString _PlayerName;
 };

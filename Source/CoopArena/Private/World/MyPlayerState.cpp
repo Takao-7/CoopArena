@@ -17,7 +17,7 @@ AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Su
 	Score = 0;
 	_bIsAlive = false;
 	_bIsReady = false;
-	bUseCustomPlayerNames = true;
+	//bUseCustomPlayerNames = true;
 }
 
 /////////////////////////////////////////////////////
@@ -99,17 +99,10 @@ bool AMyPlayerState::IsReady() const
 }
 
 /////////////////////////////////////////////////////
-FString AMyPlayerState::GetPlayerNameCustom() const
-{
-	return _PlayerName;
-}
-
-/////////////////////////////////////////////////////
 void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
 {
 	SetPlayerName(NewPlayerName);
-	_PlayerName = NewPlayerName;
-	GetWorld()->GetGameState<AMyGameState>()->OnPostLogin_Multicast(this, NewPlayerName);
+	//GetWorld()->GetGameState<AMyGameState>()->OnPostLogin_Multicast(this, NewPlayerName);
 }
 
 bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
@@ -164,5 +157,4 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
 	DOREPLIFETIME(AMyPlayerState, _bIsReady);
-	DOREPLIFETIME(AMyPlayerState, _PlayerName);
 }
