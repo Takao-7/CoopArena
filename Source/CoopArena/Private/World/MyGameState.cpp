@@ -26,7 +26,7 @@ AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : 
 void AMyGameState::HandleOnPostLogin(AGameModeBase* GameMode, APlayerController* NewPlayer)
 {
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(NewPlayer->PlayerState);
-	if (playerState)
+	if (playerState && HasAuthority())
 	{
 		playerState->RequestPlayerName_Client();
 	}

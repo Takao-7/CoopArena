@@ -30,6 +30,7 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	bDelayedStart = true;
 	_BotDespawnTime = 30.0f;
 	_bSpawnLocationLoaded = false;
+	_NumBotsToSpawn = 0;
 }
 
 /////////////////////////////////////////////////////
@@ -226,6 +227,9 @@ void ARoundSurvivalGameMode::SetAttackTarget()
 			aiController->SetAttackTarget(_playerCharactersAlive[index]->GetActorLocation());
 		}
 	}
+
+	FString text = TEXT("Set attack target for ") + FString::FromInt(_BotsAlive.Num()) + TEXT(" bots");
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(0, 5.0f, FColor::Blue, text);
 }
 
 /////////////////////////////////////////////////////
@@ -295,6 +299,9 @@ void ARoundSurvivalGameMode::SpawnBots()
 			UE_LOG(LogTemp, Error, TEXT("Bot couldn't be spawned."));
 		}
 	}
+
+	FString text = TEXT("Spawned ") + FString::FromInt(_NumBotsToSpawn) + TEXT(" bots");
+	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(0, 5.0f, FColor::Blue, text);
 }
 
 /////////////////////////////////////////////////////
