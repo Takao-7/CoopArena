@@ -81,7 +81,7 @@ void UCoopArenaGameInstance::CreateSession(FString PlayerName /*= ""*/)
 	sessionSettings.NumPublicConnections = 6;
 	sessionSettings.NumPrivateConnections = 0;
 	sessionSettings.bAllowInvites = true;
-	sessionSettings.bAllowJoinInProgress = false;
+	sessionSettings.bAllowJoinInProgress = true;
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bAllowJoinViaPresence = true;
 	sessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
@@ -137,17 +137,17 @@ void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bS
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 {
-	if (PlayerName.IsEmpty())
-	{
-		return;
-	}
+	//if (PlayerName.IsEmpty())
+	//{
+	//	return;
+	//}
 
 	_PlayerName = PlayerName;
-	APlayerState* playerState = GetPrimaryPlayerController()->PlayerState;
-	if (playerState && playerState->HasAuthority())
-	{
-		playerState->SetPlayerName(PlayerName);
-	}
+	//APlayerState* playerState = GetPrimaryPlayerController()->PlayerState;
+	//if (playerState && playerState->HasAuthority())
+	//{
+	//	playerState->SetPlayerName(PlayerName);
+	//}
 }
 
 /////////////////////////////////////////////////////

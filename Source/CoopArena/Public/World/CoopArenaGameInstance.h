@@ -138,6 +138,8 @@ private:
 	TSharedPtr<class FOnlineSessionSearch> _SessionSearch;
 	bool _bWantsToSearchForGames;
 	bool _bWantsToCreateNewSession;
+
+	UPROPERTY()
 	FString _PlayerName;
 	EOnlineMode _OnlineMode;
 	int32 _NumPlayersInLoadingScreen;
