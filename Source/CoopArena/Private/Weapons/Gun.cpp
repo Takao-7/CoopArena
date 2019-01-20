@@ -23,6 +23,7 @@
 #include "UnrealNetwork.h"
 #include "SoundNodeLocalPlayer.h"
 #include "AudioThread.h"
+#include "Bot.h"
 
 
 AGun::AGun()
@@ -235,7 +236,8 @@ void AGun::FireGun()
 {
 	if (CanShoot())
 	{
-		_CurrentGunState = EWeaponState::Firing;
+		_CurrentGunState = EWeaponState::Firing;		
+
 		FTransform muzzleTransform = GetMuzzleTransform();
 		
 		FRotator spawnDirection = FRotator::ZeroRotator;
@@ -248,6 +250,14 @@ void AGun::FireGun()
 			const FVector lineTraceStartLocation = Cast<APlayerCharacter>(_MyOwner)->GetMesh()->GetSocketLocation("head");
 			const FVector lineTraceDirection = GetForwardCameraVector();
 			spawnDirection = AdjustAimRotation(lineTraceStartLocation, lineTraceDirection).ToOrientationRotator();
+		}
+
+		ABot* owner = GetOwnerAsBot();
+		if (owner)
+		{
+			FVector2D additionalSpread = owner->GetAdditionalSpread();
+			spawnDirection.Yaw += FMath::FRandRange(0.0f, additionalSpread.X);
+			spawnDirection.Pitch += FMath::FRandRange(0.0f, additionalSpread.Y);		
 		}
 
 		const FVector spawnLocation = muzzleTransform.GetLocation();
@@ -265,6 +275,12 @@ void AGun::FireGun()
 	{
 		OnStopFire();
 	}
+}
+
+/////////////////////////////////////////////////////
+FORCEINLINE ABot* AGun::GetOwnerAsBot() const
+{
+	return Cast<ABot>(_MyOwner);
 }
 
 /////////////////////////////////////////////////////
@@ -524,6 +540,11 @@ void AGun::Reload()
 	if (_CurrentGunState == EWeaponState::Reloading || OwnerHasMagazine() == false || (_LoadedMagazine && _LoadedMagazine->IsFull()))
 	{
 		return;
+	}
+
+	if (!HasAuthority())
+	{
+		_CurrentGunState = EWeaponState::Reloading;
 	}
 
 	Server_Reload();

@@ -24,7 +24,6 @@ ARoundSurvivalGameMode::ARoundSurvivalGameMode()
 	_CurrentWaveNumber = 0;
 	_WaveStrengthIncreaseFactor = 1.0f;
 	_BotsToSpawnPerPlayer = 2;
-	_PointsPerBotKill = 10;
 	_WaveLength = 60.0f;
 	_PointPenaltyForTeamKill = 50;
 	_DelayBetweenWaves = 5.0f;
@@ -88,10 +87,42 @@ void ARoundSurvivalGameMode::InitGame(const FString& MapName, const FString& Opt
 	Super::InitGame(MapName, Options, ErrorMessage);
 
 	OnDestroyed.AddDynamic(this, &ARoundSurvivalGameMode::HandleOnDestroyed);
-
 	BotDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandleBotDeath);
 	PlayerDeath_Event.AddDynamic(this, &ARoundSurvivalGameMode::HandlePlayerDeath);
 
+	SetBotSpawnChances();
+	LoadBotSpawnPoints();
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::SetBotSpawnChances()
+{
+	TArray<FBotSpawn> uniqueSpawns;
+	for (FBotSpawn& spawn : _BotsToSpawn)
+	{
+		uniqueSpawns.AddUnique(spawn);
+	}
+	_BotsToSpawn.Empty();
+
+	float totalChange = 0.0f;
+	for (FBotSpawn& spawn : uniqueSpawns)
+	{
+		totalChange += spawn.SpawnChance;
+	}
+
+	for (FBotSpawn& spawn : uniqueSpawns)
+	{
+		spawn.SpawnChance = FMath::GetMappedRangeValueUnclamped(FVector2D(0.0f, totalChange), FVector2D(0.0f, 1.0f), spawn.SpawnChance);
+		for (int32 i = 0; i < (int32)(spawn.SpawnChance * 10); ++i)
+		{
+			_BotsToSpawn.Add(spawn);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////
+void ARoundSurvivalGameMode::LoadBotSpawnPoints()
+{
 	FLatentActionInfo latentActionInfo;
 	latentActionInfo.CallbackTarget = this;
 	latentActionInfo.ExecutionFunction = TEXT("OnSpawnLocationLoaded");
@@ -133,6 +164,7 @@ void ARoundSurvivalGameMode::StartWave()
 	_CurrentWaveNumber++;
 	GetGameState<AMyGameState>()->SetWaveNumber(_CurrentWaveNumber);
 	DestroyDeadBotBodies();
+	SetBotSpawnChances();
 	SpawnBots();
 	SetAttackTarget();
 	GetWorld()->GetTimerManager().SetTimer(_RoundTimerHandle, this, &ARoundSurvivalGameMode::EndWave, _WaveLength);
@@ -238,7 +270,8 @@ void ARoundSurvivalGameMode::SpawnBots()
 	for (int32 i = 0; i < _NumBotsToSpawn; ++i)
 	{
 		AActor* spawnPoint = _BotSpawnPoints[i % _BotSpawnPoints.Num()];
-		TSubclassOf<ABot> botClass = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		FBotSpawn& botSpawn = _BotsToSpawn[FMath::RandRange(0, _BotsToSpawn.Num() - 1)];
+		TSubclassOf<ABot> botClass = botSpawn.Botclass;
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		ABot* newBot = GetWorld()->SpawnActor<ABot>(botClass.Get(), spawnPoint->GetActorLocation(), spawnPoint->GetActorRotation(), params);
@@ -248,6 +281,8 @@ void ARoundSurvivalGameMode::SpawnBots()
 
 			URespawnComponent* respawnComp = Cast<URespawnComponent>(newBot->GetComponentByClass(URespawnComponent::StaticClass()));
 			respawnComp->SetEnableRespawn(false);
+
+			botSpawn.SpawnChance = FMath::Clamp(botSpawn.SpawnChance + botSpawn.SpawnChanceIncreasePerWave, 0.0f, 1.0f);
 		}
 		else
 		{
@@ -261,9 +296,9 @@ bool ARoundSurvivalGameMode::CanSpawnBots()
 {
 	const int32 numSpawnPoints = _BotSpawnPoints.Num();
 	bool bAllBotClassesAreValid = true;
-	for (TSubclassOf<ABot>& botClass : _BotsToSpawn)
+	for (FBotSpawn& botSpawn : _BotsToSpawn)
 	{
-		if (botClass == nullptr)
+		if (botSpawn.Botclass == nullptr)
 		{
 			bAllBotClassesAreValid = false;
 			break;
@@ -298,7 +333,7 @@ void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer
 	AMyPlayerState* playerState = Cast<AMyPlayerState>(Killer->PlayerState);
 	if (playerState)
 	{
-		playerState->ScorePoints(_PointsPerBotKill);
+		playerState->ScorePoints(bot->GetPointsPerKill());
 	}
 
 	if (GetNumberOfAliveBots() == 0)

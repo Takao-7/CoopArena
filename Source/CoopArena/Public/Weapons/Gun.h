@@ -19,6 +19,7 @@ class UCameraComponent;
 class UAnimMontage;
 class UParticleSystem;
 class UAnimInstance;
+class ABot;
 
 
 USTRUCT(BlueprintType)
@@ -273,7 +274,7 @@ private:
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	bool CanRapidFire() const;
 	
-	/* Adds horizontal and vertical weapon spread to the variables 'm_HorizontalSpreadToApply' and 'm_VerticalSpreadToApply'. */
+	/* Adds horizontal and vertical weapon spread to the variables '_HorizontalSpreadToApply' and '_VerticalSpreadToApply'. */
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void AddWeaponSpread();
 
@@ -285,6 +286,9 @@ private:
 	void PlayFireAnimation();
 	void PlayFireSound();
 	void SpawnEjectedShell();
+
+	/* Casts _MyOwner to ABot. */
+	FORCEINLINE ABot* GetOwnerAsBot() const;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -319,6 +323,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Weapon")
 	AMagazine* GetMagazine() const;
+
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	EWeaponState GetWeaponState() const { return _CurrentGunState; };
 
 
 	/////////////////////////////////////////////////////

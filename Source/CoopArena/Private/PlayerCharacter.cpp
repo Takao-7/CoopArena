@@ -327,16 +327,24 @@ void APlayerCharacter::OnChangeCameraPressed()
 /////////////////////////////////////////////////////
 void APlayerCharacter::OnAimingPressed()
 {
-	if (_EquippedWeapon && _Gait != EGait::Sprinting)
+	if (_EquippedWeapon == nullptr || _Gait == EGait::Sprinting)
 	{
-		_bIsAiming = true;
-		BASComponent->GetActorVariables().bIsAiming = true;
+		return;
+	}
 
-		APlayerController* pc = Cast<APlayerController>(GetController());
-		if (pc)
-		{
-			pc->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
-		}
+	EWeaponState weaponState = _EquippedWeapon->GetWeaponState();
+	if (weaponState == EWeaponState::Equipping || weaponState == EWeaponState::Reloading)
+	{
+		return;
+	}
+
+	_bIsAiming = true;
+	BASComponent->GetActorVariables().bIsAiming = true;
+
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc)
+	{
+		pc->SetViewTargetWithBlend(_EquippedWeapon, 0.2f);
 	}
 }
 

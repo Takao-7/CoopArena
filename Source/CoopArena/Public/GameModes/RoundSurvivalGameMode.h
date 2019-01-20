@@ -3,18 +3,19 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameModes/CoopArenaGameMode.h"
+#include "Bot.h"
 #include "RoundSurvivalGameMode.generated.h"
 
 
 class AHumanoid;
 class APlayerCharacter;
 class AMyPlayerController;
-class ABot;
 class UCoopArenaGameInstance;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart_Event, int32, WaveNumber);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveEnd_Event, int32, WaveNumber);
+
 
 USTRUCT(BlueprintType)
 struct FBotSpawn
@@ -37,9 +38,22 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 	float SpawnChance;
 
-	/* After each the SpawnChance will be increased by this value, up to a maximum of 1 */
-	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+	/* After each round this value will be added to SpawnChance up to a maximum of 1 and minimum of 0 */
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = -1.0f, ClampMax = 1.0f))
 	float SpawnChanceIncreasePerWave;
+
+	FORCEINLINE bool operator== (const FBotSpawn& otherSpawn) const
+	{
+		const bool bSameClass = otherSpawn.Botclass == Botclass;
+		const bool bSameChance = otherSpawn.SpawnChance == SpawnChance;
+		const bool bSameSpawnChanceIncreease = otherSpawn.SpawnChanceIncreasePerWave == SpawnChanceIncreasePerWave;
+		return bSameChance && bSameChance && bSameSpawnChanceIncreease;
+	};
+
+	FORCEINLINE bool operator== (const TSubclassOf<ABot> otherClass) const
+	{
+		return otherClass == Botclass;
+	};
 };
 
 
@@ -62,10 +76,7 @@ protected:
 	
 	/* Bot classes to spawn. Will pick a random class each time a bot is spawned */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Bots to spawn"))
-	TArray<TSubclassOf<ABot>> _BotsToSpawn;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Points per bot kill", ClampMin = 0))
-	int32 _PointsPerBotKill;
+	TArray<FBotSpawn> _BotsToSpawn;
 
 	/* How many points will be subtracted from the player score for each team kill */
 	UPROPERTY(EditDefaultsOnly, Category = "Round survival game mode", meta = (DisplayName = "Point penalty for team kill", ClampMin = 0))
@@ -192,6 +203,10 @@ protected:
 
 public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	void SetBotSpawnChances();
+
+	void LoadBotSpawnPoints();
 
 	virtual void Logout(AController* Exiting) override;
 };
