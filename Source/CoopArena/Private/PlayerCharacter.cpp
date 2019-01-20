@@ -95,10 +95,14 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::SetSprinting(bool bWantsToSprint)
 {
 	Super::SetSprinting(bWantsToSprint);
+	UWorld* world = GetWorld();
 	if (bWantsToSprint)
 	{
-		_TimeOfSprintStart = GetWorld()->GetTimeSeconds();
-		_PlayingSprintingSound = UGameplayStatics::SpawnSoundAttached(_SprintingSound, GetRootComponent());
+		if(world)
+		{
+			_TimeOfSprintStart = world->GetTimeSeconds();
+			_PlayingSprintingSound = UGameplayStatics::SpawnSoundAttached(_SprintingSound, GetRootComponent());
+		}
 	}
 	else
 	{
@@ -107,10 +111,13 @@ void APlayerCharacter::SetSprinting(bool bWantsToSprint)
 			_PlayingSprintingSound->Stop();
 		}
 
-		float currentTime = GetWorld()->GetTimeSeconds();
-		if ((currentTime - _TimeOfSprintStart) >= _StopSoundDelay)
+		if(world)
 		{
-			UGameplayStatics::SpawnSoundAttached(_StopSprintingSound, GetRootComponent());
+			float currentTime = world->GetTimeSeconds();
+			if ((currentTime - _TimeOfSprintStart) >= _StopSoundDelay)
+			{
+				UGameplayStatics::SpawnSoundAttached(_StopSprintingSound, GetRootComponent());
+			}
 		}
 	}	
 }

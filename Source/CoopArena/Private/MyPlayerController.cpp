@@ -13,6 +13,7 @@
 #include "BasicAnimationSystemComponent.h"
 #include "AudioThread.h"
 #include "SoundNodeLocalPlayer.h"
+#include "CoopArenaGameInstance.h"
 
 
 /////////////////////////////////////////////////////
@@ -26,6 +27,14 @@ void AMyPlayerController::BeginPlay()
 	{
 		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
 	});
+
+	if (bLocallyControlled)
+	{
+		UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+		FString customPlayerName = gameInstance->GetSavedPlayerName();
+		FString playerName = PlayerState->GetPlayerName();
+		gameInstance->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 10.0f, FColor::Blue, (customPlayerName + TEXT(" | ") + playerName));
+	}
 }
 
 /////////////////////////////////////////////////////

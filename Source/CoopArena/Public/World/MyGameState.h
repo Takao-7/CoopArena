@@ -47,7 +47,7 @@ public:
 	 * This function will be called after a player has logged in and has send his username to the server.
 	 */
 	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
-	void OnPostLogin_Multicast(AMyPlayerState* NewPlayerState, const FString& NewPlayerName);
+	void OnPostLogin_Multicast(AMyPlayerState* NewPlayerState);
 
 	UPROPERTY(BlueprintAssignable, Category = "Game state")
 	FOnPlayerLogIn_Signature OnPlayerLogin;

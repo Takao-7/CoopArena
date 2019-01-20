@@ -137,17 +137,7 @@ void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bS
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 {
-	//if (PlayerName.IsEmpty())
-	//{
-	//	return;
-	//}
-
 	_PlayerName = PlayerName;
-	//APlayerState* playerState = GetPrimaryPlayerController()->PlayerState;
-	//if (playerState && playerState->HasAuthority())
-	//{
-	//	playerState->SetPlayerName(PlayerName);
-	//}
 }
 
 /////////////////////////////////////////////////////

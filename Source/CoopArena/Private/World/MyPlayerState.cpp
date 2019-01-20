@@ -17,7 +17,6 @@ AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Su
 	Score = 0;
 	_bIsAlive = false;
 	_bIsReady = false;
-	//bUseCustomPlayerNames = true;
 }
 
 /////////////////////////////////////////////////////
@@ -96,25 +95,6 @@ bool AMyPlayerState::IsAlive() const
 bool AMyPlayerState::IsReady() const
 {
 	return _bIsReady;
-}
-
-/////////////////////////////////////////////////////
-void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
-{
-	SetPlayerName(NewPlayerName);
-	//GetWorld()->GetGameState<AMyGameState>()->OnPostLogin_Multicast(this, NewPlayerName);
-}
-
-bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
-{
-	return true;
-}
-
-/////////////////////////////////////////////////////
-void AMyPlayerState::RequestPlayerName_Client_Implementation()
-{
-	FString name = Cast<UCoopArenaGameInstance>(GetGameInstance())->GetSavedPlayerName();
-	SetPlayerName_Server(name);
 }
 
 /////////////////////////////////////////////////////
