@@ -276,7 +276,6 @@ void UCoopArenaGameInstance::LeaveMatch()
 	else
 	{
 		DestroySession();
-		//UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/Menu/MainMenu", true);
 	}
 }
 

@@ -28,13 +28,18 @@ void AMyPlayerController::BeginPlay()
 		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
 	});
 
-	/*if (bLocallyControlled)
+	if (bLocallyControlled)
 	{
 		UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
 		FString customPlayerName = gameInstance->GetSavedPlayerName();
-		FString playerName = PlayerState->GetPlayerName();
-		gameInstance->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 10.0f, FColor::Blue, (customPlayerName + TEXT(" | ") + playerName));
-	}*/
+
+		APawn* pawn = GetPawn();
+		if (pawn)
+		{
+			AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(pawn->PlayerState);
+			myPlayerState->SetPlayerName_Server(customPlayerName);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////

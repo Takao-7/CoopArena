@@ -60,12 +60,8 @@ public:
 	void SetPlayerName_Server(const FString& NewPlayerName);
 	void SetPlayerName_Server_Implementation(const FString& NewPlayerName);
 
-	UFUNCTION(Client, Reliable)
-	void RequestPlayerNameUpdate_Client();
-	void RequestPlayerNameUpdate_Client_Implementation();
-
-	UFUNCTION(BlueprintPure, Category = "Player state")
-	FString GetOwnPlayerName() const { return _PlayerName; };
+	/** called by seamless travel when initializing a player on the other side - copy properties to the new PlayerState that should persist */
+	virtual void SeamlessTravelTo(class APlayerState* NewPlayerState) override;
 
 private:
 	UFUNCTION()

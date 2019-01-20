@@ -17,6 +17,7 @@ AMyPlayerState::AMyPlayerState(const FObjectInitializer& ObjectInitializer) : Su
 	Score = 0;
 	_bIsAlive = false;
 	_bIsReady = false;
+	bUseCustomPlayerNames = true;
 }
 
 /////////////////////////////////////////////////////
@@ -101,7 +102,6 @@ bool AMyPlayerState::IsReady() const
 void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
 {
 	SetPlayerName(NewPlayerName);
-	_PlayerName = NewPlayerName;
 }
 
 bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
@@ -110,10 +110,14 @@ bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
 }
 
 /////////////////////////////////////////////////////
-void AMyPlayerState::RequestPlayerNameUpdate_Client_Implementation()
+void AMyPlayerState::SeamlessTravelTo(class APlayerState* NewPlayerState)
 {
-	UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-	SetPlayerName_Server(gameInstance->GetSavedPlayerName());
+	Super::SeamlessTravelTo(NewPlayerState);
+
+	if (HasAuthority())
+	{
+		NewPlayerState->SetPlayerName(PlayerName);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -156,5 +160,4 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
 	DOREPLIFETIME(AMyPlayerState, _bIsReady);
-	DOREPLIFETIME(AMyPlayerState, _PlayerName);
 }
