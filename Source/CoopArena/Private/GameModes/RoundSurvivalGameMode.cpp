@@ -245,15 +245,12 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	for (APlayerController* pc : _playerControllers)
+	TArray<AActor*> playerController;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController::StaticClass(), playerController);
+	for (AActor* pc : playerController)
 	{
-		AHumanoid* pawn = Cast<AHumanoid>(pc->GetPawn());
-		UHealthComponent* healthComp = nullptr;
-		if (pawn)
-		{
-			healthComp = Cast<UHealthComponent>(pawn->GetComponentByClass(UHealthComponent::StaticClass()));
-		}
-		if (pawn == nullptr || healthComp && !healthComp->IsAlive())
+		AMyPlayerController* playerController = Cast<AMyPlayerController>(pc);
+		if (playerController->IsSpectating())
 		{
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			ensure(myPC);
