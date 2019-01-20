@@ -101,6 +101,7 @@ bool AMyPlayerState::IsReady() const
 void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
 {
 	SetPlayerName(NewPlayerName);
+	_PlayerName = NewPlayerName;
 	GetWorld()->GetGameState<AMyGameState>()->OnPostLogin_Multicast(this, NewPlayerName);
 }
 

@@ -107,6 +107,15 @@ void UCoopArenaGameInstance::DestroySession()
 {
 	if (_SessionInterface->GetNamedSession(NAME_GameSession))
 	{
+		if (_SessionInterface->GetNamedSession(NAME_GameSession)->bHosting)
+		{
+			AMyGameState* gameState = GetWorld()->GetGameState<AMyGameState>();
+			if (gameState)
+			{
+				gameState->EndMatch();
+			}
+		}
+
 		_bWantsToCreateNewSession = false;
 		_SessionInterface->DestroySession(NAME_GameSession);
 	}

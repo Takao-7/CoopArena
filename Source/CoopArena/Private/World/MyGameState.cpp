@@ -10,6 +10,7 @@
 #include "DefaultHUD.h"
 #include "UserWidget.h"
 #include "WidgetLayoutLibrary.h"
+#include "CoopArenaGameInstance.h"
 
 
 AMyGameState::AMyGameState(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -81,6 +82,21 @@ void AMyGameState::AddScore(int32 Score)
 {
 	ensureMsgf(HasAuthority(), TEXT("Only the server is allowed to add score."));
 	_TeamScore += Score;
+}
+
+/////////////////////////////////////////////////////
+void AMyGameState::EndMatch_Implementation()
+{
+	if (HasAuthority())
+	{
+		return;
+	}
+
+	UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	if (gameInstance)
+	{
+		gameInstance->DestroySession();
+	}
 }
 
 /////////////////////////////////////////////////////

@@ -74,4 +74,8 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable, Category = "Game state")
 	void ShowLoadingScreen_Multicast();
+
+	/* This function is called when the host leaves the match. */
+	UFUNCTION(NetMulticast, Reliable)
+	void EndMatch();
 };
