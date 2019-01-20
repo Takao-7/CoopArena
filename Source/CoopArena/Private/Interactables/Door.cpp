@@ -63,7 +63,7 @@ void ADoor::HandleOnPawnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-	PrimaryActorTick.SetTickFunctionEnable(false);
+	//PrimaryActorTick.SetTickFunctionEnable(false);
 	_BotInteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &ADoor::HandleOnPawnOverlap);
 }
 
@@ -79,7 +79,7 @@ void ADoor::Tick(float DeltaSeconds)
 		{
 			_bIsOpen = false;
 		}
-		PrimaryActorTick.SetTickFunctionEnable(false);
+		//PrimaryActorTick.SetTickFunctionEnable(false);
 	}
 	else
 	{
@@ -146,8 +146,8 @@ bool ADoor::HandleInteract_Server_Validate(APawn* InteractingPawn, UPrimitiveCom
 void ADoor::EnableTickFunction_Multicast_Implementation(bool bIsOpen)
 {
 	_bIsOpen = bIsOpen;
-	PrimaryActorTick.SetTickFunctionEnable(true);
-	_DoorMesh->SetCanEverAffectNavigation(bIsOpen);
+	//PrimaryActorTick.SetTickFunctionEnable(true);
+	//_DoorMesh->SetCanEverAffectNavigation(bIsOpen);
 }
 
 /////////////////////////////////////////////////////
