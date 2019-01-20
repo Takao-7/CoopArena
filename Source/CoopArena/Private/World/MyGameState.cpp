@@ -42,15 +42,15 @@ void AMyGameState::HandleOnLogout(AGameModeBase* GameMode, AController* Exiting)
 }
 
 /////////////////////////////////////////////////////
-void AMyGameState::OnPostLogin_Multicast_Implementation(AMyPlayerState* NewPlayerState, const FString& PlayerName)
+void AMyGameState::OnPostLogin_Multicast_Implementation(AMyPlayerState* NewPlayerState, const FString& NewPlayerName)
 {
 	/*
 	 * Set the player name only on clients. At this point the player name should be already set on the server, but
 	 * may not be replicated to this client, so we just set it here.
 	 */
-	if (HasAuthority() == false && NewPlayerState->GetPlayerName() != PlayerName)
+	if (HasAuthority() == false && NewPlayerState->GetPlayerName() != NewPlayerName)
 	{
-		NewPlayerState->SetPlayerName(PlayerName);
+		NewPlayerState->SetPlayerName(NewPlayerName);
 	}
 	OnPlayerLogin.Broadcast(NewPlayerState);
 }
