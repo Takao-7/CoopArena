@@ -52,7 +52,7 @@ void AMyGameState::OnPostLogin_Multicast_Implementation(AMyPlayerState* NewPlaye
 	{
 		NewPlayerState->SetPlayerName(PlayerName);
 	}
-	OnPlayerLogout.Broadcast(Cast<AMyPlayerState>(NewPlayerState));
+	OnPlayerLogin.Broadcast(NewPlayerState);
 }
 
 void AMyGameState::HandleOnLogout_Multicast_Implementation(AMyPlayerState* PlayerState)
