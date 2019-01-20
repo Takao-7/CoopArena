@@ -326,7 +326,7 @@ bool ARoundSurvivalGameMode::CanSpawnBots()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::HandleBotDeath(AActor* DeadBot, AController* Killer)
 {
-	if (HasMatchStarted() == false || _CurrentWaveNumber == 0)
+	if (HasMatchStarted() == false || _CurrentWaveNumber == 0 || DeadBot == nullptr)
 	{
 		return;
 	}
