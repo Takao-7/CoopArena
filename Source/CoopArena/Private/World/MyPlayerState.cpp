@@ -98,6 +98,25 @@ bool AMyPlayerState::IsReady() const
 }
 
 /////////////////////////////////////////////////////
+void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
+{
+	SetPlayerName(NewPlayerName);
+	_PlayerName = NewPlayerName;
+}
+
+bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
+{
+	return true;
+}
+
+/////////////////////////////////////////////////////
+void AMyPlayerState::RequestPlayerNameUpdate_Client_Implementation()
+{
+	UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+	SetPlayerName_Server(gameInstance->GetSavedPlayerName());
+}
+
+/////////////////////////////////////////////////////
 void AMyPlayerState::OnReadyStatusReplicated()
 {
 	OnPlayerChangedReadyStatus.Broadcast(this, _bIsReady);
@@ -137,4 +156,5 @@ void AMyPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 	DOREPLIFETIME(AMyPlayerState, _TeamNumber);
 	DOREPLIFETIME(AMyPlayerState, _bIsAlive);
 	DOREPLIFETIME(AMyPlayerState, _bIsReady);
+	DOREPLIFETIME(AMyPlayerState, _PlayerName);
 }

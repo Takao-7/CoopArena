@@ -55,6 +55,18 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Player state")
 	FOnPlayerChangedReadyStatus_Signature OnPlayerChangedReadyStatus;
 
+	/* Called as a client to set his player name. */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void SetPlayerName_Server(const FString& NewPlayerName);
+	void SetPlayerName_Server_Implementation(const FString& NewPlayerName);
+
+	UFUNCTION(Client, Reliable)
+	void RequestPlayerNameUpdate_Client();
+	void RequestPlayerNameUpdate_Client_Implementation();
+
+	UFUNCTION(BlueprintPure, Category = "Player state")
+	FString GetOwnPlayerName() const { return _PlayerName; };
+
 private:
 	UFUNCTION()
 	void OnReadyStatusReplicated();
@@ -75,4 +87,7 @@ private:
 	/* Is the player ready to start the match? */
 	UPROPERTY(Transient, ReplicatedUsing=OnReadyStatusReplicated)
 	bool _bIsReady;
+
+	UPROPERTY(Replicated)
+	FString _PlayerName;
 };

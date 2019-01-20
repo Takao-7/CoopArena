@@ -120,6 +120,12 @@ void ACoopArenaGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	_playerControllers.AddUnique(NewPlayer);
+
+	AMyPlayerState* state = Cast<AMyPlayerState>(NewPlayer->PlayerState);
+	if (state)
+	{
+		state->RequestPlayerNameUpdate_Client();
+	}
 }
 
 void ACoopArenaGameMode::Logout(AController* Exiting)
