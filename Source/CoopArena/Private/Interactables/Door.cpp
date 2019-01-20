@@ -50,8 +50,8 @@ ADoor::ADoor()
 /////////////////////////////////////////////////////
 void ADoor::HandleOnPawnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	const bool bIsBot = Cast<ABot>(OtherActor);
-	if (_bIsOpen || !bIsBot)
+	ABot* bot = Cast<ABot>(OtherActor);
+	if (_bIsOpen || bot == nullptr || (bot && !bot->IsAlive()))
 	{
 		return;
 	}

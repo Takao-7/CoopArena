@@ -252,12 +252,9 @@ void ARoundSurvivalGameMode::ReviveDeadPlayers()
 		AMyPlayerController* playerController = Cast<AMyPlayerController>(pc);
 		if (playerController->IsSpectating())
 		{
-			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
-			ensure(myPC);
+			playerController->StopSpectating();
 
-			myPC->StopSpectating();
-
-			APlayerCharacter* playerCharacter = myPC->GetLastPossessedCharacter();
+			APlayerCharacter* playerCharacter = playerController->GetLastPossessedCharacter();
 			playerCharacter->Revive();
 			_numPlayersAlive++;
 		}
