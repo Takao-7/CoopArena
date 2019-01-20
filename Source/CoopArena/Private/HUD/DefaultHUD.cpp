@@ -144,8 +144,10 @@ void ADefaultHUD::ToggleScoreBoard()
 /////////////////////////////////////////////////////
 void ADefaultHUD::HandleOnReloadingFinished(AHumanoid* Character, AGun* Gun)
 {
-	verify(Character);
-	verify(Gun);
+	if (Character == nullptr || Gun == nullptr)
+	{
+		return;
+	}
 
 	AMagazine* magazine = Gun->GetMagazine();
 	if (magazine == nullptr)
