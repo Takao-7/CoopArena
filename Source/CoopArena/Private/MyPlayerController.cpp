@@ -31,9 +31,9 @@ void AMyPlayerController::BeginPlay()
 	if (bLocallyControlled)
 	{
 		UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-		FString customPlayerName = gameInstance->GetSavedPlayerName();
-		FString playerName = PlayerState->GetPlayerName();
-		gameInstance->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 10.0f, FColor::Blue, (customPlayerName + TEXT(" | ") + playerName));
+		FString customPlayerName = gameInstance->GetSavedPlayerName();	
+		// FString playerName = PlayerState->GetPlayerName();
+		// gameInstance->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 10.0f, FColor::Blue, (customPlayerName + TEXT(" | ") + playerName));
 	}
 }
 
@@ -54,7 +54,7 @@ void AMyPlayerController::StartSpectating(AActor* ActorToSpectate /*= nullptr*/)
 	}
 
 	PlayerState->bIsSpectator = true;
-	PlayerState->bOnlySpectator = true;
+	//PlayerState->bOnlySpectator = true;
 
 	UnPossess();
 	APlayerCharacter* playerToSpectate = Cast<APlayerCharacter>(ActorToSpectate);
@@ -73,7 +73,7 @@ void AMyPlayerController::StartSpectating_Client_Implementation(APlayerCharacter
 void AMyPlayerController::StopSpectating()
 {
 	PlayerState->bIsSpectator = false;
-	PlayerState->bOnlySpectator = true;
+	//PlayerState->bOnlySpectator = true;
 }
 
 /////////////////////////////////////////////////////
