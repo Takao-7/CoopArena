@@ -60,6 +60,7 @@ protected:
 	float _TimeOfSprintStart;
 
 public:
+	UFUNCTION()
 	void StopRunningSound();
 
 

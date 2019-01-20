@@ -190,7 +190,7 @@ void APlayerCharacter::HandleOnDeath(AActor* DeadActor, AController* ActorContro
 	{
 		OnAimingReleased();
 	}
-	StopRunningSound();
+	//StopRunningSound();
 }
 
 /////////////////////////////////////////////////////
