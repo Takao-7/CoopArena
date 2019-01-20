@@ -353,13 +353,14 @@ private:
 	/////////////////////////////////////////////////////
 						/* Networking */
 	/////////////////////////////////////////////////////
+public:
+	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
+	void SetSprinting_Server(bool bWantsToSprint);
+
 protected:
 	/* Sets m_WeaponToEquip and will trigger the replication function OnWeaponEquip. */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable, Category = Humanoid)
 	void SetWeaponToEquip_Server(AGun* Weapon);
-
-	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = Humanoid)
-	void SetSprinting_Server(bool bWantsToSprint);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = Humanoid)
 	void RepMaxWalkSpeed(float NewMaxWalkSpeed);

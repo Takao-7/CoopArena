@@ -89,6 +89,7 @@ void UHealthComponent::HandleDeath_Multicast_Implementation()
 	if (owner->IsLocallyControlled())
 	{
 		owner->DisableInput(nullptr);
+		owner->SetSprinting_Server(false);
 	}
 
 	FTimerDelegate delegate;

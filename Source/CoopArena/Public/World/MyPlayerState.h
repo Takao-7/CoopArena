@@ -62,6 +62,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game state")
 	FString GetCustomPlayerName() const { return _PlayerName; };
 
+	virtual FString GetPlayerNameCustom() const override;
+
 private:
 	UFUNCTION()
 	void OnReadyStatusReplicated();

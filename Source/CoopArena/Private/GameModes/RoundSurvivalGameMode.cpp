@@ -53,13 +53,13 @@ bool ARoundSurvivalGameMode::ReadyToStartMatch_Implementation()
 {
 	const int32 nunConnectedPlayers = GetNumberOfConnectedPlayers();
 	const bool bIsSinglePlayer = GetCoopArenaGameInstance()->GetOnlineMode() == EOnlineMode::Offline;
-	const bool bAllPlayersAreOnMap = NumTravellingPlayers == 0;
+	const bool bMostPlayersAreOnMap = NumTravellingPlayers < (nunConnectedPlayers / 2.0f);
 
 	FString message = TEXT("Connected players: " + FString::FromInt(nunConnectedPlayers) + ". ");
 	message.Append(TEXT("Travelling players: ") + FString::FromInt(NumTravellingPlayers));
 	GetGameInstance()->GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, message);
 
-	return _bSpawnLocationLoaded && (bIsSinglePlayer || bAllPlayersAreOnMap);
+	return _bSpawnLocationLoaded && (bIsSinglePlayer || bMostPlayersAreOnMap);
 }
 
 bool ARoundSurvivalGameMode::ReadyToEndMatch_Implementation()
