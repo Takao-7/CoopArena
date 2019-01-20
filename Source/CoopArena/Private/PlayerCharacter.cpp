@@ -123,6 +123,15 @@ void APlayerCharacter::SetSprinting(bool bWantsToSprint)
 }
 
 /////////////////////////////////////////////////////
+void APlayerCharacter::StopRunningSound()
+{
+	if (_PlayingSprintingSound)
+	{
+		_PlayingSprintingSound->Stop();
+	}
+}
+
+/////////////////////////////////////////////////////
 void APlayerCharacter::CheckForInteractables()
 {
 	if (IsPlayerControlled() && InteractionLineTrace(_InteractionHitResult))

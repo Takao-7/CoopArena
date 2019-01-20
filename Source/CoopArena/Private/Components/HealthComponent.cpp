@@ -44,6 +44,12 @@ void UHealthComponent::OnDeathEvent_Multicast_Implementation(AActor* DeadActor, 
 {
 	HandleDeath(DeadActor, Controller, Killer);
 	OnDeath.Broadcast(GetOwner(), Controller, Killer);
+
+	APlayerCharacter* player = Cast<APlayerCharacter>(DeadActor);
+	if (player)
+	{
+		player->StopRunningSound();
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -89,7 +95,6 @@ void UHealthComponent::HandleDeath_Multicast_Implementation()
 	if (owner->IsLocallyControlled())
 	{
 		owner->DisableInput(nullptr);
-		owner->SetSprinting_Server(false);
 	}
 
 	FTimerDelegate delegate;

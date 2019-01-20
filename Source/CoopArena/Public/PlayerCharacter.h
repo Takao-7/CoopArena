@@ -59,6 +59,9 @@ protected:
 	/* The time when the player started sprinting. Used for determining if we play the stop sprinting sound. */
 	float _TimeOfSprintStart;
 
+public:
+	void StopRunningSound();
+
 
 	/////////////////////////////////////////////////////
 					/* Misc functions */
