@@ -243,7 +243,13 @@ void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
 	for (APlayerController* pc : _playerControllers)
 	{
-		if (pc->PlayerState->bIsSpectator)
+		AHumanoid* pawn = Cast<AHumanoid>(pc->GetPawn());
+		UHealthComponent* healthComp = nullptr;
+		if (pawn)
+		{
+			healthComp = Cast<UHealthComponent>(pawn->GetComponentByClass(UHealthComponent::StaticClass()));
+		}
+		if (pawn == nullptr || healthComp && !healthComp->IsAlive())
 		{
 			AMyPlayerController* myPC = Cast<AMyPlayerController>(pc);
 			ensure(myPC);

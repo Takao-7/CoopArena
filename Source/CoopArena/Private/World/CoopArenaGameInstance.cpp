@@ -144,13 +144,9 @@ void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 
 	_PlayerName = PlayerName;
 	APlayerState* playerState = GetPrimaryPlayerController()->PlayerState;
-	if(playerState)
+	if (playerState && playerState->HasAuthority())
 	{
 		playerState->SetPlayerName(PlayerName);
-	}
-	else
-	{
-		GetEngine()->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, TEXT("No player state, when trying to set MyName!"));
 	}
 }
 
