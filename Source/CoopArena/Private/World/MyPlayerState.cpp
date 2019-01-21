@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "UnrealNames.h"
 #include "CoopArenaGameInstance.h"
+#include "MyPlayerController.h"
 
 
 /////////////////////////////////////////////////////
@@ -101,7 +102,10 @@ bool AMyPlayerState::IsReady() const
 /////////////////////////////////////////////////////
 void AMyPlayerState::SetPlayerName_Server_Implementation(const FString& NewPlayerName)
 {
-	SetPlayerName(NewPlayerName);
+	if (!NewPlayerName.IsEmpty())
+	{
+		SetPlayerName(NewPlayerName);
+	}
 }
 
 bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
@@ -112,11 +116,25 @@ bool AMyPlayerState::SetPlayerName_Server_Validate(const FString& NewPlayerName)
 /////////////////////////////////////////////////////
 void AMyPlayerState::SeamlessTravelTo(class APlayerState* NewPlayerState)
 {
+	FString playerNameTemp = GetPlayerName();
 	Super::SeamlessTravelTo(NewPlayerState);
+	NewPlayerState->SetPlayerName(playerNameTemp);
+}
 
-	if (HasAuthority())
+/////////////////////////////////////////////////////
+void AMyPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	APlayerController* pc = GetGameInstance()->GetPrimaryPlayerController();
+	if (pc && pc->IsLocalController() && pc->PlayerState == this)
 	{
-		NewPlayerState->SetPlayerName(PlayerName);
+		UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
+		FString customPlayerName = gameInstance->GetSavedPlayerName();
+		if (!customPlayerName.IsEmpty())
+		{
+			SetPlayerName_Server(customPlayerName);
+		}
 	}
 }
 

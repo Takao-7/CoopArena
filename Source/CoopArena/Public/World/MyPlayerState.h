@@ -63,6 +63,9 @@ public:
 	/** called by seamless travel when initializing a player on the other side - copy properties to the new PlayerState that should persist */
 	virtual void SeamlessTravelTo(class APlayerState* NewPlayerState) override;
 
+protected:
+	virtual void BeginPlay() override;
+
 private:
 	UFUNCTION()
 	void OnReadyStatusReplicated();
@@ -83,7 +86,4 @@ private:
 	/* Is the player ready to start the match? */
 	UPROPERTY(Transient, ReplicatedUsing=OnReadyStatusReplicated)
 	bool _bIsReady;
-
-	UPROPERTY(Replicated)
-	FString _PlayerName;
 };

@@ -44,6 +44,8 @@ public:
 
 	ADefaultHUD* GetDefaultHUD() const;
 
+	FString PlayerNameTemp;
+
 private:
 	UFUNCTION(Server, WithValidation, Reliable)
 	void SpectateNextPlayer_Server();
@@ -56,4 +58,5 @@ private:
 
 	FVector _DeathLocation;	
 	APlayerCharacter* _MyCharacter;
+
 };

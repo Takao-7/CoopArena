@@ -48,6 +48,20 @@ void ACoopArenaGameMode::FindSpawnPoints()
 }
 
 /////////////////////////////////////////////////////
+FString ACoopArenaGameMode::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal /*= TEXT("")*/)
+{
+	FString string = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
+
+	FString playerName = UGameplayStatics::ParseOption(Options, TEXT("PlayerName"));
+	if (!playerName.IsEmpty())
+	{
+		NewPlayerController->PlayerState->SetPlayerName(playerName);
+	}
+
+	return string;
+}
+
+/////////////////////////////////////////////////////
 void ACoopArenaGameMode::DestroyAllBots()
 {
 	TArray<AActor*> bots;

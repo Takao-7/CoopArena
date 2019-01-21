@@ -398,7 +398,7 @@ void ARoundSurvivalGameMode::StartSpectating(AMyPlayerController* PlayerControll
 	/* Find alive player to watch. */
 	for (APlayerCharacter* pc : _playerCharacters)
 	{
-		if (pc->IsAlive())
+		if (pc && pc->IsAlive())
 		{
 			PlayerController->StartSpectating(pc);
 		}

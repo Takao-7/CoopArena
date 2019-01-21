@@ -51,6 +51,16 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "CoopArena game mode")
 	void FindSpawnPoints();
 
+	/**
+	 * Customize incoming player based on URL options
+	 *
+	 * @param NewPlayerController player logging in
+	 * @param UniqueId unique id for this player
+	 * @param Options URL options that came at login
+	 *
+	 */
+	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = TEXT("")) override;
+
 public:
 	ACoopArenaGameMode();
 

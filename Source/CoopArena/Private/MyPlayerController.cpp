@@ -27,19 +27,6 @@ void AMyPlayerController::BeginPlay()
 	{
 		USoundNodeLocalPlayer::GetLocallyControlledActorCache().Add(UniqueID, bLocallyControlled);
 	});
-
-	if (bLocallyControlled)
-	{
-		UCoopArenaGameInstance* gameInstance = Cast<UCoopArenaGameInstance>(GetGameInstance());
-		FString customPlayerName = gameInstance->GetSavedPlayerName();
-
-		APawn* pawn = GetPawn();
-		if (pawn)
-		{
-			AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(pawn->PlayerState);
-			myPlayerState->SetPlayerName_Server(customPlayerName);
-		}
-	}
 }
 
 /////////////////////////////////////////////////////

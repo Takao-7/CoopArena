@@ -137,7 +137,11 @@ void UCoopArenaGameInstance::OnDestroySessionComplete(FName SessionName, bool bS
 /////////////////////////////////////////////////////
 void UCoopArenaGameInstance::SetPlayerName(FString PlayerName)
 {
-	_PlayerName = PlayerName;
+	if (!PlayerName.IsEmpty())
+	{
+		_PlayerName = PlayerName;
+		GetPrimaryPlayerController()->PlayerState->SetPlayerName(PlayerName);
+	}
 }
 
 /////////////////////////////////////////////////////
@@ -303,6 +307,8 @@ void UCoopArenaGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 		UE_LOG(LogTemp, Error, TEXT("No resolved connect string found."));
 		return;
 	}
+
+	address += TEXT("?PlayerName=") + GetSavedPlayerName();
 	Join(address);
 }
 
