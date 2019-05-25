@@ -21,8 +21,10 @@ protected:
 	TSubclassOf<APlayerCharacter> _ClassToRespawnAs;
 
 	virtual void BeginPlay() override;
-	
+
 public:
+	virtual void OnPossess(APawn* aPawn) override;
+
 	void StartSpectating(AActor* ActorToSpectate = nullptr);
 
 	void StopSpectating();
@@ -38,9 +40,7 @@ public:
 	const FVector& GetDeathLocation() const;
 	APlayerCharacter* GetLastPossessedCharacter();
 
-	virtual void ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime = 0) override;
-
-	virtual void Possess(APawn* aPawn) override;
+	virtual void ClientTeamMessage_Implementation(class APlayerState* SenderPlayerState, const FString& S, FName Type, float MsgLifeTime = 0) override;	
 
 	ADefaultHUD* GetDefaultHUD() const;
 

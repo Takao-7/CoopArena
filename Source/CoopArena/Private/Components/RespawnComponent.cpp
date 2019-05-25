@@ -7,6 +7,7 @@
 #include "GameModes/CoopArenaGameMode.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "MyPlayerController.h"
 
 
 URespawnComponent::URespawnComponent()
@@ -48,15 +49,15 @@ void URespawnComponent::HandleRespawn()
 	{
 		if (_MyPlayerController)
 		{
-			_MyPlayerController->Possess(newPawn);
+			_MyPlayerController->OnPossess(newPawn);
 			_MyPlayerController->SetViewTarget(newPawn);
 		}
 		else
 		{
-			AController* controller = GetOwner()->GetInstigatorController();
+			AMyPlayerController* controller = Cast<AMyPlayerController>(GetOwner()->GetInstigatorController());
 			if (controller)
 			{
-				controller->Possess(newPawn);
+				controller->OnPossess(newPawn);
 			}
 		}
 	}
@@ -113,7 +114,7 @@ AActor* URespawnComponent::FindRespawnPoint()
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 {
-	_MyPlayerController = GetOwner()->GetInstigator<APlayerController>();
+	_MyPlayerController = Cast<AMyPlayerController>(GetOwner()->GetInstigatorController());
 	if(CanRespawn())
 	{
 		if (_HealthComp && _HealthComp->IsAlive() || _HealthComp == nullptr)
@@ -126,7 +127,7 @@ void URespawnComponent::HandleOnDestroy(AActor* DestroyedActor)
 /////////////////////////////////////////////////////
 void URespawnComponent::HandleOnDeath(AActor* Actor, AController* Controller, AController* Killer)
 {
-	_MyPlayerController = Cast<APlayerController>(Controller);
+	_MyPlayerController = Cast<AMyPlayerController>(Controller);
 	if (CanRespawn())
 	{
 		Respawn();

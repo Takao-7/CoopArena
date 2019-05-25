@@ -110,9 +110,9 @@ void AMyPlayerController::ClientTeamMessage_Implementation(class APlayerState* S
 }
 
 /////////////////////////////////////////////////////
-void AMyPlayerController::Possess(APawn* aPawn)
+void AMyPlayerController::OnPossess(APawn* aPawn)
 {
-	Super::Possess(aPawn);
+	Super::OnPossess(aPawn);
 
 	UBasicAnimationSystemComponent* basComp = Cast<UBasicAnimationSystemComponent>(aPawn->GetComponentByClass(UBasicAnimationSystemComponent::StaticClass()));
 	if (basComp)

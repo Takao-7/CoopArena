@@ -245,9 +245,9 @@ void ARoundSurvivalGameMode::DestroyDeadBotBodies()
 /////////////////////////////////////////////////////
 void ARoundSurvivalGameMode::ReviveDeadPlayers()
 {
-	TArray<AActor*> playerController;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController::StaticClass(), playerController);
-	for (AActor* pc : playerController)
+	TArray<AActor*> playerControllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerController::StaticClass(), playerControllers);
+	for (AActor* pc : playerControllers)
 	{
 		AMyPlayerController* playerController = Cast<AMyPlayerController>(pc);
 		if (playerController->IsSpectating())
@@ -360,7 +360,7 @@ void ARoundSurvivalGameMode::HandlePlayerDeath(APlayerCharacter* DeadPlayer, ACo
 		return;
 	}
 
-	APlayerState* playerState = DeadPlayer->PlayerState;
+	APlayerState* playerState = DeadPlayer->GetPlayerState();
 	if(playerState)
 	{
 		AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(playerState);

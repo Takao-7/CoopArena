@@ -8,6 +8,7 @@
 
 
 class UHealthComponent;
+class AMyPlayerController;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRespawn_Signature, AActor*, NewSpawnedActor, AController*, Controller);
@@ -75,7 +76,7 @@ private:
 	/* Are we already re-spawning? */
 	bool m_IsAlreadyRespawning;
 
-	APlayerController* _MyPlayerController;
+	AMyPlayerController* _MyPlayerController;
 
 	AActor* FindRespawnPoint();
 
